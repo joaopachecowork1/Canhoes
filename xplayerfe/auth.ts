@@ -1,6 +1,7 @@
 // src/auth.ts
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import "@/lib/next-auth.d";
 
 /**
  * Estratégia: confiar no campo `isAdmin` do utilizador vindo do Adapter/DB.
@@ -22,20 +23,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       // Guarda id_token se precisares de o reenviar ao backend
       if (account && account.id_token) {
-        (token as any).idToken = account.id_token;
+        token.idToken = account.id_token;
       }
       // Quando `user` vem do Adapter/DB, deve conter `isAdmin`
       if (user) {
-        (token as any).isAdmin = Boolean((user as any).isAdmin);
+        token.isAdmin = Boolean((user as { isAdmin?: boolean }).isAdmin);
       }
       // Garante persistência
-      (token as any).isAdmin = Boolean((token as any).isAdmin);
+      token.isAdmin = Boolean(token.isAdmin);
       return token;
     },
     async session({ session, token }) {
-      (session.user as any).isAdmin = Boolean((token as any).isAdmin);
+      session.user.isAdmin = Boolean(token.isAdmin);
       // Opcional: expor idToken se precisares no cliente
-      (session as any).idToken = (token as any).idToken;
+      session.idToken = token.idToken;
       return session;
     },
   },

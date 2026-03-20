@@ -6,5 +6,5 @@ import { authOptions } from "@/auth";
 // - Exposes it on the session as `session.idToken`
 // - Backend expects `Authorization: Bearer <id_token>`
 
-const handler = NextAuth(authOptions as any);
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

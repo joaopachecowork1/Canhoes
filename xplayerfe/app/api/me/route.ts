@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
+import "@/lib/next-auth.d";
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   const backend = process.env.XPLAYER_API_URL || process.env.NEXT_PUBLIC_XPLAYER_API_URL;
   if (!backend) return new NextResponse("XPLAYER_API_URL not set", { status: 500 });
-  const session = await getServerSession(authOptions as any);
-  const idToken = (session as any)?.idToken as string | undefined;
+  const session = await getServerSession(authOptions);
+  const idToken = session?.idToken;
   if (!idToken) return new NextResponse("no id_token in session", { status: 401 });
   const res = await fetch(new URL("/api/me", backend).toString(), {
     headers: { Authorization: `Bearer ${idToken}` },

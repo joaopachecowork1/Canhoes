@@ -14,7 +14,7 @@ export const hubRepo = {
     return xplayerFetch<string[]>("/hub/uploads", {
       method: "POST",
       // IMPORTANT: do not set Content-Type; browser will set boundary
-      body: fd as any,
+      body: fd,
     });
   },
 

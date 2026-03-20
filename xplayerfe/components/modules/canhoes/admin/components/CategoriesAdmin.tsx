@@ -83,7 +83,7 @@ export function CategoriesAdmin({ categories, categoryProposals, measureProposal
       });
       toast.success("Categoria atualizada");
       setDrafts((p) => {
-        const { [id]: _, ...rest } = p;
+        const { [id]: _removed, ...rest } = p;
         return rest;
       });
       onUpdate();
@@ -132,7 +132,7 @@ export function CategoriesAdmin({ categories, categoryProposals, measureProposal
         <CardContent className="space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Nome" />
-            <Select value={newKind} onValueChange={(v) => setNewKind(v as any)}>
+            <Select value={newKind} onValueChange={(v) => setNewKind(v as "Sticker" | "UserVote")}>
               <SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="Sticker">Sticker</SelectItem>

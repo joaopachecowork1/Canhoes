@@ -39,6 +39,8 @@ export type StartSessionRequest = {
 
 export type StopSessionRequest = {
   endedAt?: string | null; // ISO
+  /** Total seconds the session was paused. Sent to the server for accurate active play time. */
+  pausedSeconds?: number | null;
 };
 
 export type CanhoesPhase = "nominations" | "voting" | "locked" | "gala";

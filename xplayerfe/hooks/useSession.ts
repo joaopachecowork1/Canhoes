@@ -353,7 +353,11 @@ function useSessionStore(userId: string | undefined): Store {
 
     // Persist stop to backend (best-effort). Backend is the source of truth when available.
     try {
-      await sessionRepo.stop(completed.id, { endedAt: new Date(endedAt).toISOString() });
+      const pausedSeconds = Math.round((activeSession.totalPausedMs ?? 0) / 1000);
+      await sessionRepo.stop(completed.id, {
+        endedAt: new Date(endedAt).toISOString(),
+        pausedSeconds: pausedSeconds > 0 ? pausedSeconds : null,
+      });
       // Optional: refresh lists from backend to keep totals perfectly aligned.
       const [b, s] = await Promise.all([backlogRepo.list(), sessionRepo.list()]);
       setBacklog(b.map(toBacklog));

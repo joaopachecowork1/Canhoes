@@ -25,8 +25,7 @@ http.interceptors.request.use(async (config) => {
   if (typeof window !== "undefined") {
     const id = await getIdToken();
     if (id) {
-      config.headers = config.headers || {};
-      (config.headers as any).Authorization = `Bearer ${id}`;
+      config.headers.set("Authorization", `Bearer ${id}`);
     }
   }
   return config;

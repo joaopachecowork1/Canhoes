@@ -18,6 +18,7 @@ import { CommentsSection } from "./components/CommentsSection";
 import { MediaCarousel } from "./components/MediaCarousel";
 import { PollBox } from "./components/PollBox";
 import { HUB_EMOJIS, ReactionRail } from "./components/ReactionRail";
+import "@/lib/next-auth.d";
 
 const EMOJIS = HUB_EMOJIS;
 
@@ -34,13 +35,13 @@ export function HubFeedModule({
   const { data: session, status } = useSession();
 
   // NOTE: isAdmin is also enforced server-side; this only toggles UI affordances.
-  const isAdmin = useMemo(() => Boolean((session as any)?.user?.isAdmin), [session]);
+  const isAdmin = useMemo(() => Boolean(session?.user?.isAdmin), [session]);
 
   const [posts, setPosts] = useState<HubPostDto[]>([]);
   const safePosts = useMemo(() => {
     const arr = Array.isArray(posts) ? posts : [];
     // Defensive: backend/dev bugs can briefly produce null entries (e.g. optimistic insert).
-    return arr.filter((p): p is HubPostDto => Boolean(p && (p as any).id));
+    return arr.filter((p): p is HubPostDto => Boolean(p?.id));
   }, [posts]);
 
   const [loading, setLoading] = useState(true);
@@ -61,7 +62,7 @@ export function HubFeedModule({
   useEffect(() => {
     const run = async () => {
       if (status === "loading") return;
-      if (status === "authenticated" && !(session as any)?.idToken) {
+      if (status === "authenticated" && !session?.idToken) {
         await signOut({ redirect: false });
         await signIn("google");
       }
@@ -91,7 +92,7 @@ export function HubFeedModule({
   useEffect(() => {
     const handler = (evt: Event) => {
       const created = (evt as CustomEvent).detail as HubPostDto | undefined;
-      if (!created || !(created as any).id) return;
+      if (!created?.id) return;
       setPosts((prev) => {
         const arr = Array.isArray(prev) ? prev : [];
         // De-dupe by id (in case the feed reloaded).
@@ -101,8 +102,8 @@ export function HubFeedModule({
     };
 
     if (typeof window !== "undefined") {
-      window.addEventListener("hub:postCreated", handler as any);
-      return () => window.removeEventListener("hub:postCreated", handler as any);
+      window.addEventListener("hub:postCreated", handler);
+      return () => window.removeEventListener("hub:postCreated", handler);
     }
   }, []);
 
@@ -142,7 +143,7 @@ export function HubFeedModule({
       setPollOptions(["", ""]);
 
       // Be defensive: if the backend returns null/invalid, don't poison the list
-      if (created && (created as any).id) {
+      if (created?.id) {
         setPosts((p) => [created, ...(p ?? [])]);
       } else {
         await load();

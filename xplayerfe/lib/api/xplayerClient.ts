@@ -99,8 +99,8 @@ export async function xplayerFetch<T>(path: string, init?: XplayerRequestInit): 
 
   const details = await readBody(res);
   const msg =
-    typeof details === "object" && details && "message" in (details as any)
-      ? String((details as any).message)
+    typeof details === "object" && details !== null && "message" in details
+      ? String((details as { message: unknown }).message)
       : res.statusText || "Request failed";
 
   // ✅ default: DON'T crash on 401/403 (bootstrap loads)
