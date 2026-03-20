@@ -2,13 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Loader2 } from "lucide-react";
 import { Input } from "./input";
 import { GameObj, searchGames } from "@/services/GameService";
 import Game from "../game/game";

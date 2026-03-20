@@ -22,12 +22,14 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 
+import type { LucideIcon } from "lucide-react";
+
 type NavItem = {
   id: string;
   label: string;
   href: string;
-  icon: any;
-  children?: Array<{ id: string; label: string; href: string; icon: any; adminOnly?: boolean }>;
+  icon: LucideIcon;
+  children?: Array<{ id: string; label: string; href: string; icon: LucideIcon; adminOnly?: boolean }>;
 };
 
 const NAVIGATION_ITEMS: NavItem[] = [

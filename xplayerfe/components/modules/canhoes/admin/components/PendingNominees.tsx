@@ -21,7 +21,7 @@ export function PendingNominees({ nominees, categories, loading, onUpdate }: Pro
 
   const isProcessing = (id: string) => processingIds.has(id);
 
-  const withProcessing = async (id: string, action: () => Promise<any>) => {
+  const withProcessing = async (id: string, action: () => Promise<unknown>) => {
     setProcessingIds((prev) => new Set(prev).add(id));
     try {
       await action();

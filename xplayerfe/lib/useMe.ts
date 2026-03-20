@@ -5,7 +5,22 @@ import { http } from "./http";
 
 export type Me = { id: string; email: string; displayName?: string; isAdmin: boolean };
 
-function normalizeMe(data: any): Me {
+type MeApiResponse = {
+  user?: {
+    id?: unknown;
+    email?: unknown;
+    displayName?: unknown;
+    name?: unknown;
+    isAdmin?: unknown;
+  };
+  id?: unknown;
+  email?: unknown;
+  displayName?: unknown;
+  name?: unknown;
+  isAdmin?: unknown;
+};
+
+function normalizeMe(data: MeApiResponse): Me {
   const u = data?.user ?? data ?? {};
   return {
     id: String(u.id ?? ""),
@@ -31,14 +46,14 @@ export function useMe() {
           if (mounted) setMe(parsed);
         }
         // always prefer backend /api/me over NextAuth session for isAdmin
-        const res = await http.get("/me", { headers: { "cache-control": "no-cache" } });
+        const res = await http.get<MeApiResponse>("/me", { headers: { "cache-control": "no-cache" } });
         const normalized = normalizeMe(res.data);
         if (mounted) {
           setMe(normalized);
           if (typeof window !== "undefined") sessionStorage.setItem("me", JSON.stringify(normalized));
         }
-      } catch (e: any) {
-        setError(e);
+      } catch (e) {
+        setError(e instanceof Error ? e : new Error(String(e)));
       } finally {
         if (mounted) setLoading(false);
       }

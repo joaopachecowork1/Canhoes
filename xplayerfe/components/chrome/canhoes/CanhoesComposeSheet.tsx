@@ -68,7 +68,7 @@ export function CanhoesComposeSheet({
         pollOptions: pollOn ? normalizedPollOptions : null,
       });
 
-      if (created && (created as any).id) {
+      if (created?.id) {
         // Notify any feed instance.
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent("hub:postCreated", { detail: created as HubPostDto }));

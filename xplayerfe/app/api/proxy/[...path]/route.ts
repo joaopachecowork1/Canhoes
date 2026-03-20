@@ -3,6 +3,8 @@ import { getToken } from "next-auth/jwt";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 
+import "@/lib/next-auth.d";
+
 /**
  * Proxy to the backend (avoids CORS) + injects Google id_token.
  *
@@ -42,10 +44,10 @@ async function handleProxyRequest(request: NextRequest, params: { path: string[]
     // - getToken() reads the JWT directly from cookies and is the most reliable way to access custom fields.
     // Prefer JWT read (fast + reliable), fallback to server session.
     const token = await getToken({ req: request });
-    let idToken = (token as any)?.idToken as string | undefined;
+    let idToken = token?.idToken;
     if (!idToken) {
-      const session = await getServerSession(authOptions as any);
-      idToken = (session as any)?.idToken as string | undefined;
+      const session = await getServerSession(authOptions);
+      idToken = session?.idToken;
     }
 
     if (!idToken) {

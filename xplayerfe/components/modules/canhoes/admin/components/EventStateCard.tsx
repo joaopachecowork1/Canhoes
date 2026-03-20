@@ -120,7 +120,7 @@ export function EventStateCard({ state, categories, onUpdate }: Props) {
             <div className="text-sm font-medium">Fase</div>
             <Select
               value={state?.phase ?? "nominations"}
-              onValueChange={(v) => updateState({ phase: v as any })}
+              onValueChange={(v) => updateState({ phase: v as import("@/lib/api/types").CanhoesPhase })}
               disabled={busy}
             >
               <SelectTrigger>
