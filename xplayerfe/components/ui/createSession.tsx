@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "./input";
 import { GameObj, searchGames } from "@/services/GameService";
-import Game from "../game/game";
 
 export default function CreateSessionPage() {
   const [query, setQuery] = useState("");
@@ -43,7 +42,7 @@ export default function CreateSessionPage() {
     setLoading(false);
   };
 
-  const handleGameSelect = (game: Game) => {
+  const handleGameSelect = (game: GameObj) => {
     setSelectedGame(game);
   };
 

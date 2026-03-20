@@ -19,8 +19,8 @@ export function SessionsModule() {
   const searchParams = useSearchParams();
   const { history, totals, backlog, activeSession, elapsedSeconds, stopSession } = useSession();
 
-  const filterGameId = searchParams.get("gameId") ?? undefined;
-  const filterGameName = searchParams.get("gameName") ?? undefined;
+  const filterGameId = searchParams?.get("gameId") ?? undefined;
+  const filterGameName = searchParams?.get("gameName") ?? undefined;
 
   const presetGame = useMemo(() => {
     if (!filterGameId) return null;

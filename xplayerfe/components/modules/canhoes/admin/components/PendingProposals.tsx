@@ -64,7 +64,9 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
                       size="sm"
                       disabled={busy}
                       onClick={() =>
-                        withProcessing(p.id, () => canhoesRepo.adminApproveCategoryProposal(p.id))
+                        withProcessing(p.id, async () => {
+                          await canhoesRepo.adminApproveCategoryProposal(p.id);
+                        })
                       }
                     >
                       Aprovar
@@ -74,7 +76,9 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
                       variant="destructive"
                       disabled={busy}
                       onClick={() =>
-                        withProcessing(p.id, () => canhoesRepo.adminRejectCategoryProposal(p.id))
+                        withProcessing(p.id, async () => {
+                          await canhoesRepo.adminRejectCategoryProposal(p.id);
+                        })
                       }
                     >
                       Rejeitar
@@ -110,7 +114,9 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
                       size="sm"
                       disabled={busy}
                       onClick={() =>
-                        withProcessing(p.id, () => canhoesRepo.adminApproveMeasureProposal(p.id))
+                        withProcessing(p.id, async () => {
+                          await canhoesRepo.adminApproveMeasureProposal(p.id);
+                        })
                       }
                     >
                       Aprovar
@@ -120,7 +126,9 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
                       variant="destructive"
                       disabled={busy}
                       onClick={() =>
-                        withProcessing(p.id, () => canhoesRepo.adminRejectMeasureProposal(p.id))
+                        withProcessing(p.id, async () => {
+                          await canhoesRepo.adminRejectMeasureProposal(p.id);
+                        })
                       }
                     >
                       Rejeitar

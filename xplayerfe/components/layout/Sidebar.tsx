@@ -114,7 +114,8 @@ export default function Sidebar({ collapsed, onCollapsedChange, onNavigate, mode
         <nav className="flex-1 p-4 space-y-2">
           {items.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/"));
+            const currentPath = pathname ?? "";
+            const isActive = currentPath === item.href || (item.href !== "/" && currentPath.startsWith(item.href + "/"));
 
             const children = (item.children ?? []).filter((c) => !c.adminOnly || isAdmin);
 

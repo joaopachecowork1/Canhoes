@@ -58,6 +58,9 @@ export type AwardCategoryDto = {
   isActive: boolean;
   kind: "Sticker" | "UserVote";
   eligibleUsers?: PublicUserDto[];
+  description?: string | null;
+  voteQuestion?: string | null;
+  voteRules?: string | null;
 };
 
 export type CreateAwardCategoryRequest = {
@@ -278,4 +281,7 @@ export type UpdateAwardCategoryRequest = {
   sortOrder?: number | null;
   isActive?: boolean | null;
   kind?: string | null;
+  description?: string | null;
+  voteQuestion?: string | null;
+  voteRules?: string | null;
 };

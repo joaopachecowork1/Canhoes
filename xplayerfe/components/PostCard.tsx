@@ -6,7 +6,7 @@ import type { Post } from '../domain/types';
 import { useVote } from '../hooks/usePosts';
 
 export default function PostCard({ post }: { post: Post }) {
-  const vote = useVote(post.id);
+  const vote = useVote(String(post.id));
   const poll = post.poll ?? null;
 
   return (

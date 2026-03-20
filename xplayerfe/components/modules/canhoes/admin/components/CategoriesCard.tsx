@@ -24,7 +24,7 @@ const KIND_OPTIONS = [
 
 export function CategoriesCard({ categories, onRefresh }: Props) {
   const [name, setName] = useState("");
-  const [kind, setKind] = useState<string>("UserVote");
+  const [kind, setKind] = useState<"Sticker" | "UserVote">("UserVote");
   const [busy, setBusy] = useState(false);
 
   const sorted = useMemo(
@@ -40,9 +40,6 @@ export function CategoriesCard({ categories, onRefresh }: Props) {
         name: name.trim(),
         sortOrder: undefined,
         kind,
-        description: null,
-        voteQuestion: null,
-        voteRules: null,
       };
       await canhoesRepo.adminCreateCategory(payload);
       setName("");
@@ -82,7 +79,7 @@ export function CategoriesCard({ categories, onRefresh }: Props) {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <Select value={kind} onValueChange={setKind}>
+          <Select value={kind} onValueChange={(value) => setKind(value as "Sticker" | "UserVote")}>
             <SelectTrigger>
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>

@@ -22,15 +22,15 @@ export function CanhoesChrome({ children }: { children: React.ReactNode }) {
   const [composeOpen, setComposeOpen] = useState(false);
 
   const title = useMemo(() => {
-    if (pathname.startsWith("/canhoes/categorias")) return "Categorias";
-    if (pathname.startsWith("/canhoes/votacao")) return "Votação";
-    if (pathname.startsWith("/canhoes/stickers")) return "Stickers";
-    if (pathname.startsWith("/canhoes/admin")) return "Admin";
-    if (pathname.startsWith("/canhoes/wishlist")) return "Wishlist";
-    if (pathname.startsWith("/canhoes/amigo-secreto")) return "Amigo Secreto";
-    if (pathname.startsWith("/canhoes/gala")) return "Gala";
-    if (pathname.startsWith("/canhoes/medidas")) return "Medidas";
-    if (pathname.startsWith("/canhoes/nomeacoes")) return "Nomeações";
+    if (pathname?.startsWith("/canhoes/categorias")) return "Categorias";
+    if (pathname?.startsWith("/canhoes/votacao")) return "Votação";
+    if (pathname?.startsWith("/canhoes/stickers")) return "Stickers";
+    if (pathname?.startsWith("/canhoes/admin")) return "Admin";
+    if (pathname?.startsWith("/canhoes/wishlist")) return "Wishlist";
+    if (pathname?.startsWith("/canhoes/amigo-secreto")) return "Amigo Secreto";
+    if (pathname?.startsWith("/canhoes/gala")) return "Gala";
+    if (pathname?.startsWith("/canhoes/medidas")) return "Medidas";
+    if (pathname?.startsWith("/canhoes/nomeacoes")) return "Nomeações";
     return "Feed";
   }, [pathname]);
 
@@ -80,7 +80,7 @@ export function CanhoesChrome({ children }: { children: React.ReactNode }) {
 
       {/* Bottom tabs (mobile-first). On desktop it's still ok; we keep it for now. */}
       <CanhoesBottomTabs
-        pathname={pathname}
+        pathname={pathname ?? ""}
         onNavigate={(href) => router.push(href)}
         onCompose={() => setComposeOpen(true)}
         onMore={() => setMoreOpen(true)}
