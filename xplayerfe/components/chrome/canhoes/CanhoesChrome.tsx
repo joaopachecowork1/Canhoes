@@ -19,7 +19,7 @@ const BG_PRESETS = [
     id: "musgo",
     label: "Verde Musgo",
     className:
-      "bg-[linear-gradient(160deg,#1a3320_0%,#0d1f12_100%)]",
+      "bg-[radial-gradient(900px_380px_at_10%_-10%,rgba(109,191,135,0.25)_0%,transparent_55%),radial-gradient(640px_320px_at_90%_0%,rgba(64,121,79,0.22)_0%,transparent_60%),linear-gradient(160deg,#162d1d_0%,#0b160f_100%)]",
   },
   {
     id: "noite",
@@ -31,7 +31,13 @@ const BG_PRESETS = [
     id: "floresta",
     label: "Floresta",
     className:
-      "bg-[linear-gradient(180deg,#0d2818_0%,#061510_100%)]",
+      "bg-[radial-gradient(780px_380px_at_25%_-10%,rgba(61,128,86,0.30)_0%,transparent_60%),radial-gradient(900px_460px_at_110%_0%,rgba(143,73,36,0.22)_0%,transparent_62%),linear-gradient(180deg,#10261b_0%,#08110d_100%)]",
+  },
+  {
+    id: "queimada",
+    label: "Queimada",
+    className:
+      "bg-[radial-gradient(900px_460px_at_12%_-12%,rgba(250,117,56,0.30)_0%,transparent_58%),radial-gradient(700px_360px_at_88%_4%,rgba(209,72,38,0.24)_0%,transparent_62%),linear-gradient(180deg,#211810_0%,#090e0b_70%,#050807_100%)]",
   },
 ] as const;
 
@@ -39,7 +45,7 @@ type BgPresetId = (typeof BG_PRESETS)[number]["id"];
 
 const BG_LS_KEY = "canhoes-bg-preset";
 
-export function CanhoesChrome({ children }: { children: React.ReactNode }) {
+export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
   const router = useRouter();
   const { isLogged, logout, user } = useAuth();
@@ -51,7 +57,7 @@ export function CanhoesChrome({ children }: { children: React.ReactNode }) {
 
   // Restore saved background preference on mount.
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (globalThis.window === undefined) return;
     const saved = localStorage.getItem(BG_LS_KEY) as BgPresetId | null;
     if (saved && BG_PRESETS.some((p) => p.id === saved)) {
       setBgPreset(saved);
@@ -62,8 +68,8 @@ export function CanhoesChrome({ children }: { children: React.ReactNode }) {
     const currentIdx = BG_PRESETS.findIndex((p) => p.id === bgPreset);
     const next = BG_PRESETS[(currentIdx + 1) % BG_PRESETS.length];
     setBgPreset(next.id);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(BG_LS_KEY, next.id);
+    if (globalThis.window !== undefined) {
+      globalThis.localStorage.setItem(BG_LS_KEY, next.id);
     }
   };
 
@@ -82,14 +88,26 @@ export function CanhoesChrome({ children }: { children: React.ReactNode }) {
     return "Feed";
   }, [pathname]);
 
+  const isFeedPath = pathname === "/canhoes" || pathname === "/canhoes/";
+
   return (
     <div
       data-theme="canhoes"
-      className={cn("min-h-[100svh] flex flex-col", currentBg.className)}
+      className={cn("relative isolate min-h-[100svh] flex flex-col overflow-hidden", currentBg.className)}
     >
+      {/* Lightweight atmosphere layers: jungle mist + burn glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(120%_90%_at_50%_0%,rgba(255,255,255,0.06)_0%,transparent_55%),radial-gradient(80%_40%_at_20%_85%,rgba(255,132,78,0.14)_0%,transparent_70%),radial-gradient(90%_45%_at_85%_80%,rgba(42,136,77,0.18)_0%,transparent_74%)]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 opacity-[0.18] [background-image:linear-gradient(120deg,rgba(255,255,255,0.08)_0%,transparent_22%,rgba(255,255,255,0.03)_50%,transparent_74%)]"
+      />
+
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b bg-background/75 backdrop-blur">
-        <div className="h-12 px-3 flex items-center justify-between gap-2">
+      <header className="sticky top-0 z-30 border-b bg-background/70 backdrop-blur-md">
+        <div className="h-11 px-2.5 sm:h-12 sm:px-3 flex items-center justify-between gap-2">
           <div className="min-w-0">
             <div className="text-[11px] leading-none text-muted-foreground">Canhões</div>
             <div className="font-semibold leading-tight truncate">{title}</div>
@@ -127,9 +145,12 @@ export function CanhoesChrome({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Content – pb accounts for the fixed nav bar (h-16 = 4rem) + iOS home-indicator */}
-      <main className="flex-1 overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom,0px))]">
-        <div className="mx-auto w-full max-w-2xl px-3 py-3">
+      {/* Content – pb accounts for fixed tabs (h-14 = 3.5rem) + iOS home-indicator */}
+      <main className="relative z-10 flex-1 overflow-y-auto pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))]">
+        <div className={cn(
+          "mx-auto w-full max-w-2xl py-2.5 sm:py-3",
+          isFeedPath ? "px-0 sm:px-2" : "px-2.5 sm:px-3"
+        )}>
           {children}
         </div>
       </main>

@@ -404,11 +404,12 @@ public sealed class HubController : ControllerBase
             var fileName = $"{Guid.NewGuid():N}{ext}";
             var abs = Path.Combine(hubDir, fileName);
 
-            await using (var stream = new FileStream(abs, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 1024 * 64, useAsync: true))
-            {
-                await f.CopyToAsync(stream, ct);
-                await stream.FlushAsync(ct);
-            }
+            await using var input = f.OpenReadStream();
+            await using var ms = new MemoryStream();
+            await input.CopyToAsync(ms, ct);
+            var bytes = ms.ToArray();
+
+            await System.IO.File.WriteAllBytesAsync(abs, bytes, ct);
 
             var url = $"/uploads/hub/{fileName}";
             urls.Add(url);
@@ -419,6 +420,8 @@ public sealed class HubController : ControllerBase
                 OriginalFileName = f.FileName,
                 FileSizeBytes = f.Length,
                 UploadedByUserId = userId == Guid.Empty ? null : userId,
+                ContentType = string.IsNullOrWhiteSpace(f.ContentType) ? null : f.ContentType,
+                ContentBytes = bytes,
                 UploadedAtUtc = DateTime.UtcNow
             });
         }

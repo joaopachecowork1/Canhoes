@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles } from "lucide-react";
+import { Flame, Trophy } from "lucide-react";
 
 export function CanhoesCategoriesModule() {
   const [state, setState] = useState<CanhoesStateDto | null>(null);
@@ -33,7 +33,29 @@ export function CanhoesCategoriesModule() {
     void refresh();
   }, []);
 
-  const canPropose = Boolean(name.trim().length >= 3) && state?.phase === "nominations";
+  const isNominations = state?.phase === "nominations";
+  const canPropose = Boolean(name.trim().length >= 3) && isNominations;
+  let proposeLabel = "Propostas fechadas";
+  if (isNominations) {
+    proposeLabel = busy ? "A enviar..." : "Propor";
+  }
+
+  let categoriesBody: React.ReactNode;
+  if (loading) {
+    categoriesBody = <div className="text-sm text-muted-foreground">A carregar...</div>;
+  } else if (categories.length === 0) {
+    categoriesBody = <div className="text-sm text-muted-foreground">Ainda não há categorias.</div>;
+  } else {
+    categoriesBody = categories.map((c) => (
+      <div key={c.id} className="canhoes-chip flex items-center justify-between rounded-lg p-2">
+        <div className="min-w-0">
+          <div className="truncate font-medium">{c.name}</div>
+          <div className="text-xs text-muted-foreground">Ordem: {c.sortOrder}</div>
+        </div>
+        <Badge variant="secondary">Ativa</Badge>
+      </div>
+    ));
+  }
 
   const propose = async () => {
     if (!canPropose) return;
@@ -51,20 +73,20 @@ export function CanhoesCategoriesModule() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <div className="text-lg font-semibold flex items-center gap-2">
-          <Sparkles className="h-4 w-4" /> Categorias
+        <div className="text-base sm:text-lg font-semibold flex items-center gap-2 text-jungle-100">
+          <Flame className="h-4 w-4 text-orange-300" /> Categorias
         </div>
         {state ? <Badge variant="outline">Fase: {state.phase}</Badge> : null}
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base">Propor categoria</CardTitle>
+      <Card className="canhoes-glass rounded-2xl">
+        <CardHeader className="pb-1.5">
+          <CardTitle className="text-base flex items-center gap-2"><Trophy className="h-4 w-4 text-jungle-200" />Propor categoria</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground">Nome</div>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Melhor sticker de sempre" />
@@ -76,33 +98,19 @@ export function CanhoesCategoriesModule() {
           </div>
           <div className="flex items-center justify-between">
             <div className="text-xs text-muted-foreground">Fica pendente até um admin aprovar.</div>
-            <Button disabled={!canPropose || busy} onClick={() => void propose()}>
-              {state?.phase !== "nominations" ? "Propostas fechadas" : busy ? "A enviar..." : "Propor"}
+            <Button className="canhoes-tap h-9" disabled={!canPropose || busy} onClick={() => void propose()}>
+              {proposeLabel}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="canhoes-glass rounded-2xl">
+        <CardHeader className="pb-1.5">
           <CardTitle className="text-base">Categorias ativas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {loading ? (
-            <div className="text-sm text-muted-foreground">A carregar...</div>
-          ) : categories.length === 0 ? (
-            <div className="text-sm text-muted-foreground">Ainda não há categorias.</div>
-          ) : (
-            categories.map((c) => (
-              <div key={c.id} className="flex items-center justify-between rounded-lg border p-2">
-                <div className="min-w-0">
-                  <div className="truncate font-medium">{c.name}</div>
-                  <div className="text-xs text-muted-foreground">Ordem: {c.sortOrder}</div>
-                </div>
-                <Badge variant="secondary">Ativa</Badge>
-              </div>
-            ))
-          )}
+          {categoriesBody}
         </CardContent>
       </Card>
     </div>

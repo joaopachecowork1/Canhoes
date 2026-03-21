@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ImageOff, Upload } from "lucide-react";
+import { Cigarette, ImageOff, Upload } from "lucide-react";
 
 function statusVariant(status: NomineeDto["status"]) {
   if (status === "approved") return "secondary";
@@ -49,8 +49,20 @@ export function CanhoesNomineesModule() {
 
   useEffect(() => {
     void refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const isNominations = state?.phase === "nominations";
+  let phaseLabel = state?.phase;
+  if (state?.phase === "nominations") {
+    phaseLabel = "Nomeações";
+  } else if (state?.phase === "voting") {
+    phaseLabel = "Votação";
+  }
+
+  let submitLabel = "Nomeações fechadas";
+  if (isNominations) {
+    submitLabel = saving ? "A submeter..." : "Submeter";
+  }
 
   const onSubmit = async () => {
     if (!canSubmit || !state) return;
@@ -85,22 +97,22 @@ export function CanhoesNomineesModule() {
   }, [nominees]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Canhões do Ano</h1>
+        <h1 className="text-lg sm:text-xl font-semibold text-jungle-100 inline-flex items-center gap-2"><Cigarette className="h-5 w-5 text-orange-300" />Canhões do Ano</h1>
         {state && (
           <Badge variant="outline">
-            Fase: {state.phase === "nominations" ? "Nomeações" : state.phase === "voting" ? "Votação" : state.phase}
+            Fase: {phaseLabel}
           </Badge>
         )}
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="canhoes-glass rounded-2xl">
+        <CardHeader className="pb-1.5">
           <CardTitle className="text-base">Submeter nomeação</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground">Categoria</div>
               <Select value={categoryId} onValueChange={setCategoryId}>
@@ -133,8 +145,8 @@ export function CanhoesNomineesModule() {
               />
             </label>
 
-            <Button disabled={!state || state.phase !== "nominations" || !canSubmit || saving} onClick={onSubmit}>
-              {state?.phase !== "nominations" ? "Nomeações fechadas" : saving ? "A submeter..." : "Submeter"}
+            <Button className="canhoes-tap h-9" disabled={!isNominations || !canSubmit || saving} onClick={onSubmit}>
+              {submitLabel}
             </Button>
           </div>
 
@@ -147,13 +159,13 @@ export function CanhoesNomineesModule() {
       {loading ? (
         <div className="text-sm text-muted-foreground">A carregar...</div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {categories.map((cat) => {
             const list = (byCategory.get(cat.id) ?? []).slice();
             if (list.length === 0) return null;
             return (
-              <Card key={cat.id}>
-                <CardHeader className="pb-2">
+              <Card key={cat.id} className="canhoes-glass rounded-2xl">
+                <CardHeader className="pb-1.5">
                   <CardTitle className="text-base">{cat.name}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">

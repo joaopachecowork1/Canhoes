@@ -11,22 +11,22 @@ export function CommentsSection({
   draft,
   onDraftChange,
   onSubmit,
-}: {
+}: Readonly<{
   comments: HubCommentDto[];
   draft: string;
   onDraftChange: (v: string) => void;
   onSubmit: () => void;
-}) {
+}>) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5">
       <div className="space-y-2">
         {(comments ?? []).map((c) => (
-          <div key={c.id} className="rounded-xl border px-3 py-2">
+          <div key={c.id} className="rounded-lg border px-2.5 py-2">
             <div className="flex items-center justify-between gap-2">
-              <div className="text-sm font-medium truncate">{c.userName}</div>
+              <div className="text-[13px] sm:text-sm font-medium truncate">{c.userName}</div>
               <div className="text-xs text-muted-foreground">{formatDateTime(c.createdAtUtc)}</div>
             </div>
-            <div className="text-sm whitespace-pre-wrap break-words">{c.text}</div>
+            <div className="text-[13px] sm:text-sm whitespace-pre-wrap break-words">{c.text}</div>
           </div>
         ))}
       </div>
@@ -36,9 +36,9 @@ export function CommentsSection({
           value={draft}
           onChange={(e) => onDraftChange(e.target.value)}
           placeholder="Escreve um comentário..."
-          className="min-h-[56px]"
+          className="min-h-[52px] sm:min-h-[56px] text-[13px] sm:text-sm"
         />
-        <Button onClick={onSubmit} disabled={!draft.trim()}>
+        <Button className="canhoes-tap h-9" onClick={onSubmit} disabled={!draft.trim()}>
           Enviar
         </Button>
       </div>

@@ -139,3 +139,68 @@
   --muted: oklch(0.22 0.03 152);
   --muted-foreground: oklch(0.68 0.06 152);
 }
+
+.dark [data-theme="canhoes"] .canhoes-glass {
+  background:
+    radial-gradient(120% 90% at 10% 0%, rgba(255, 181, 111, 0.12) 0%, transparent 55%),
+    radial-gradient(100% 90% at 100% 100%, rgba(78, 201, 130, 0.11) 0%, transparent 62%),
+    rgba(7, 18, 12, 0.62);
+  border: 1px solid rgba(173, 255, 198, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.dark [data-theme="canhoes"] .canhoes-chip {
+  background:
+    radial-gradient(110% 150% at 0% 0%, rgba(255, 145, 66, 0.17) 0%, transparent 40%),
+    rgba(16, 33, 23, 0.74);
+  border: 1px solid rgba(151, 255, 191, 0.22);
+}
+
+@keyframes canhoesFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes canhoesPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.dark [data-theme="canhoes"] .canhoes-float {
+  animation: canhoesFloat 2.6s ease-in-out infinite;
+}
+
+.dark [data-theme="canhoes"] .canhoes-pulse {
+  animation: canhoesPulse 2.2s ease-in-out infinite;
+}
+
+.dark [data-theme="canhoes"] .canhoes-tap {
+  transition: transform 160ms ease, filter 180ms ease;
+  will-change: transform;
+}
+
+.dark [data-theme="canhoes"] .canhoes-tap:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dark [data-theme="canhoes"] .canhoes-float,
+  .dark [data-theme="canhoes"] .canhoes-pulse {
+    animation: none;
+  }
+
+  .dark [data-theme="canhoes"] .canhoes-tap {
+    transition: none;
+  }
+}

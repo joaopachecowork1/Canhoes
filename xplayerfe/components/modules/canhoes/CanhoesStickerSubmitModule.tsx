@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { canhoesRepo } from "@/lib/repositories/canhoesRepo";
 import type { AwardCategoryDto, CanhoesStateDto, NomineeDto } from "@/lib/api/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ImageOff, Upload } from "lucide-react";
+import { Cigarette, Upload } from "lucide-react";
 import { XPLAYER_API_URL } from "@/lib/api/xplayerClient";
 
 /**
@@ -27,7 +27,7 @@ export function CanhoesStickerSubmitModule() {
 
   const canSubmit = useMemo(() => title.trim().length >= 2, [title]);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     try {
       const [st, cats, noms] = await Promise.all([
@@ -53,15 +53,20 @@ export function CanhoesStickerSubmitModule() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryId]);
 
   useEffect(() => {
     void refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [refresh]);
+
+  const isNominations = state?.phase === "nominations";
+  let submitLabel = "Nomeações fechadas";
+  if (isNominations) {
+    submitLabel = saving ? "A submeter..." : "Submeter";
+  }
 
   const onSubmit = async () => {
-    if (!state || state.phase !== "nominations") return;
+    if (state?.phase !== "nominations") return;
     if (!canSubmit) return;
 
     setSaving(true);
@@ -88,9 +93,9 @@ export function CanhoesStickerSubmitModule() {
   const withImage = nominees.filter((n) => n.imageUrl);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Sticker do Ano</h1>
+        <h1 className="text-lg sm:text-xl font-semibold text-jungle-100 inline-flex items-center gap-2"><Cigarette className="h-5 w-5 text-orange-300" />Sticker do Ano</h1>
         {state && (
           <Badge variant="outline">
             Fase: {state.phase === "nominations" ? "Nomeações" : state.phase}
@@ -98,8 +103,8 @@ export function CanhoesStickerSubmitModule() {
         )}
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="canhoes-glass rounded-2xl">
+        <CardHeader className="pb-1.5">
           <CardTitle className="text-base">Submeter sticker</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -110,7 +115,7 @@ export function CanhoesStickerSubmitModule() {
             </div>
           ) : null}
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground">Categoria</div>
               <Select value={categoryId} onValueChange={setCategoryId}>
@@ -148,15 +153,11 @@ export function CanhoesStickerSubmitModule() {
             </label>
 
             <Button
-              disabled={!state || state.phase !== "nominations" || !canSubmit || saving}
+              disabled={!isNominations || !canSubmit || saving}
               onClick={onSubmit}
-              className="sm:w-auto w-full"
+              className="canhoes-tap h-9 sm:w-auto w-full"
             >
-              {state?.phase !== "nominations"
-                ? "Nomeações fechadas"
-                : saving
-                ? "A submeter..."
-                : "Submeter"}
+              {submitLabel}
             </Button>
           </div>
 

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { ImageOff, Link as LinkIcon, Trash2, Upload } from "lucide-react";
+import { Gift, ImageOff, Link as LinkIcon, Trash2, Upload } from "lucide-react";
 import { XPLAYER_API_URL } from "@/lib/api/xplayerClient";
 
 function byUser(items: WishlistItemDto[]) {
@@ -83,14 +83,13 @@ export function CanhoesWishlistModule() {
     }
   };
 
-  const usersById = useMemo(() => new Map(members.map(m => [m.id, m])), [members]);
   const grouped = useMemo(() => byUser(items), [items]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <div className="text-xl font-semibold">Wishlist 🎁</div>
+          <div className="text-lg sm:text-xl font-semibold text-jungle-100 inline-flex items-center gap-2"><Gift className="h-5 w-5 text-amber-300" />Wishlist</div>
           <div className="text-sm text-muted-foreground">
             Toda a gente vê a wishlist de toda a gente. Só tu vês o teu amigo secreto.
           </div>
@@ -98,12 +97,12 @@ export function CanhoesWishlistModule() {
         <Badge variant="secondary">{items.length} itens</Badge>
       </div>
 
-      <Card>
-        <CardHeader className="pb-2">
+      <Card className="canhoes-glass rounded-2xl">
+        <CardHeader className="pb-1.5">
           <CardTitle className="text-base">Adicionar item à tua wishlist</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-2.5 sm:grid-cols-2">
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex.: Mouse sem fios" />
             <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="URL (opcional)" />
           </div>
@@ -113,7 +112,7 @@ export function CanhoesWishlistModule() {
               <Upload className="h-4 w-4" />
               <input type="file" accept="image/png,image/jpeg" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
             </label>
-            <Button disabled={!canSubmit || saving} onClick={onCreate} className="sm:w-auto w-full">
+            <Button disabled={!canSubmit || saving} onClick={onCreate} className="canhoes-tap h-9 sm:w-auto w-full">
               {saving ? "A guardar..." : "Adicionar"}
             </Button>
           </div>
@@ -126,13 +125,13 @@ export function CanhoesWishlistModule() {
           A carregar...
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {members.map((m) => {
             const list = grouped.get(m.id) ?? [];
             const isMe = m.id === user?.id;
             return (
-              <Card key={m.id}>
-                <CardHeader className="pb-2">
+              <Card key={m.id} className="canhoes-glass rounded-2xl">
+                <CardHeader className="pb-1.5">
                   <CardTitle className="text-base flex items-center gap-2">
                     <span className="truncate">{m.displayName || m.email}</span>
                     {isMe && <Badge variant="outline" className="text-xs">tu</Badge>}
@@ -145,7 +144,7 @@ export function CanhoesWishlistModule() {
                     <div className="text-sm text-muted-foreground">Ainda sem itens.</div>
                   ) : (
                     list.map((it) => (
-                      <div key={it.id} className="flex gap-3 rounded-xl border p-2">
+                      <div key={it.id} className="canhoes-chip flex gap-3 rounded-xl p-2">
                         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted flex items-center justify-center">
                           {it.imageUrl ? (
                             <img
@@ -181,7 +180,7 @@ export function CanhoesWishlistModule() {
                             <button
                               onClick={() => void onDelete(it.id)}
                               disabled={deleting === it.id}
-                              className="text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+                              className="canhoes-tap text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
                               aria-label="Apagar item"
                             >
                               <Trash2 className="h-3.5 w-3.5" />

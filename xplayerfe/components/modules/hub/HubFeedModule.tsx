@@ -21,16 +21,53 @@ import { HUB_EMOJIS, ReactionRail } from "./components/ReactionRail";
 
 const EMOJIS = HUB_EMOJIS;
 
+function prependPostIfMissing(prev: HubPostDto[], created: HubPostDto) {
+  const arr = Array.isArray(prev) ? prev : [];
+  if (arr.some((p) => p?.id === created.id)) return arr;
+  return [created, ...arr];
+}
+
+function applyOptimisticPollVote(posts: HubPostDto[], postId: string, optionId: string) {
+  return posts.map((post) => {
+    if (post.id !== postId || !post.poll) return post;
+
+    const currentPoll = post.poll;
+    const previousOptionId = currentPoll.myOptionId ?? null;
+    if (previousOptionId === optionId) return post;
+
+    const nextOptions = currentPoll.options.map((option) => {
+      if (option.id === optionId) {
+        return { ...option, voteCount: option.voteCount + 1 };
+      }
+      if (previousOptionId && option.id === previousOptionId) {
+        return { ...option, voteCount: Math.max(0, option.voteCount - 1) };
+      }
+      return option;
+    });
+
+    const nextTotal = previousOptionId ? currentPoll.totalVotes : currentPoll.totalVotes + 1;
+    return {
+      ...post,
+      poll: {
+        ...currentPoll,
+        options: nextOptions,
+        myOptionId: optionId,
+        totalVotes: nextTotal,
+      },
+    };
+  });
+}
+
 export function HubFeedModule({
   variant = "instagram",
   showComposer = true,
-}: {
+}: Readonly<{
   variant?: "instagram" | "reddit" | "cards";
   /**
    * When false, hides the inline composer so outer chrome can open a bottom-sheet composer (mobile first).
    */
   showComposer?: boolean;
-}) {
+}>) {
   const { data: session, status } = useSession();
 
   // NOTE: isAdmin is also enforced server-side; this only toggles UI affordances.
@@ -84,17 +121,12 @@ export function HubFeedModule({
     const handler = (evt: Event) => {
       const created = (evt as CustomEvent).detail as HubPostDto | undefined;
       if (!created?.id) return;
-      setPosts((prev) => {
-        const arr = Array.isArray(prev) ? prev : [];
-        // De-dupe by id (in case the feed reloaded).
-        if (arr.some((p) => p?.id === created.id)) return arr;
-        return [created, ...arr];
-      });
+      setPosts((prev) => prependPostIfMissing(prev, created));
     };
 
-    if (typeof window !== "undefined") {
-      window.addEventListener("hub:postCreated", handler);
-      return () => window.removeEventListener("hub:postCreated", handler);
+    if (globalThis.window !== undefined) {
+      globalThis.window.addEventListener("hub:postCreated", handler);
+      return () => globalThis.window.removeEventListener("hub:postCreated", handler);
     }
   }, []);
 
@@ -137,19 +169,20 @@ export function HubFeedModule({
     // optimistic UI
     setPosts((prev) =>
       (prev ?? []).map((p) => {
-        if (!p || p.id !== postId) return p;
+        if (p?.id !== postId) return p;
         const mine = new Set(p.myReactions || []);
         const wasActive = mine.has(emoji);
         if (wasActive) mine.delete(emoji);
         else mine.add(emoji);
 
-        const nextCounts = { ...(p.reactionCounts || {}) };
+        const nextCounts = { ...p.reactionCounts };
         nextCounts[emoji] = Math.max(0, (nextCounts[emoji] ?? 0) + (wasActive ? -1 : 1));
 
-        const likeCount = Math.max(
-          0,
-          emoji === "❤️" ? (p.likeCount ?? 0) + (wasActive ? -1 : 1) : p.likeCount ?? 0
-        );
+        let nextLikeCount = p.likeCount ?? 0;
+        if (emoji === "❤️") {
+          nextLikeCount = nextLikeCount + (wasActive ? -1 : 1);
+        }
+        const likeCount = Math.max(0, nextLikeCount);
 
         return {
           ...p,
@@ -167,7 +200,7 @@ export function HubFeedModule({
         // reconcile likedByMe + likeCount (server truth)
         setPosts((prev) =>
           (prev ?? []).map((p) => {
-            if (!p || p.id !== postId) return p;
+            if (p?.id !== postId) return p;
             const mine = new Set(p.myReactions || []);
             if (r.liked) mine.add("❤️");
             else mine.delete("❤️");
@@ -186,23 +219,7 @@ export function HubFeedModule({
 
   const votePoll = async (postId: string, optionId: string) => {
     // optimistic update
-    setPosts((prev) =>
-      prev.map((p) => {
-        if (p.id !== postId || !p.poll) return p;
-        const cur = p.poll;
-        const prevOpt = cur.myOptionId ?? null;
-        if (prevOpt === optionId) return p;
-
-        const nextOptions = cur.options.map((o) => {
-          if (o.id === optionId) return { ...o, voteCount: o.voteCount + 1 };
-          if (prevOpt && o.id === prevOpt) return { ...o, voteCount: Math.max(0, o.voteCount - 1) };
-          return o;
-        });
-
-        const nextTotal = prevOpt ? cur.totalVotes : cur.totalVotes + 1;
-        return { ...p, poll: { ...cur, options: nextOptions, myOptionId: optionId, totalVotes: nextTotal } };
-      })
-    );
+    setPosts((prev) => applyOptimisticPollVote(prev, postId, optionId));
 
     try {
       await hubRepo.votePoll(postId, optionId);
@@ -235,7 +252,7 @@ export function HubFeedModule({
       setComments((prev) => ({ ...prev, [postId]: [...(prev[postId] ?? []), ...(c ? [c] : [])] }));
       setPosts((prev) =>
         (prev ?? []).map((p) =>
-          p && p.id === postId ? { ...p, commentCount: (p.commentCount ?? 0) + 1 } : p
+          p?.id === postId ? { ...p, commentCount: (p.commentCount ?? 0) + 1 } : p
         )
       );
     } catch (e) {
@@ -249,7 +266,7 @@ export function HubFeedModule({
       const r = await hubRepo.adminTogglePin(postId);
       setPosts((prev) =>
         [...(prev ?? [])]
-          .map((p) => (p && p.id === postId ? { ...p, isPinned: r.pinned } : p))
+          .map((p) => (p?.id === postId ? { ...p, isPinned: r.pinned } : p))
           .sort((a, b) => Number(Boolean(b?.isPinned)) - Number(Boolean(a?.isPinned)) || (String(b?.createdAtUtc) > String(a?.createdAtUtc) ? 1 : -1))
       );
     } catch (e) {
@@ -270,17 +287,17 @@ export function HubFeedModule({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="text-lg font-semibold">Feed</div>
-        <Button variant="ghost" size="sm" onClick={() => void load()} disabled={loading}>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-2 px-2 sm:px-0">
+        <div className="text-base sm:text-lg font-semibold">Feed</div>
+        <Button variant="ghost" size="sm" className="canhoes-tap h-8" onClick={() => void load()} disabled={loading}>
           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
         </Button>
       </div>
 
       {showComposer && <PostComposer onSubmit={onCreate} />}
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {safePosts.map((p) => {
           if (!p) return null;
           const media = (p.mediaUrls ?? []).filter(Boolean);
@@ -335,9 +352,9 @@ export function HubFeedModule({
           if (variant === "instagram") {
             const counts = p.reactionCounts || {};
             return (
-              <Card key={p.id} className="overflow-hidden">
+              <Card key={p.id} className="overflow-hidden rounded-none border-x-0 sm:rounded-2xl sm:border-x">
                 <CardContent className="p-0">
-                  <div className="p-4">
+                  <div className="px-3 pt-3 pb-2.5 sm:p-4">
                     <PostHeader
                       authorName={p.authorName}
                       createdAtUtc={p.createdAtUtc}
@@ -346,24 +363,24 @@ export function HubFeedModule({
                       onAdminPin={() => void adminPin(p.id)}
                       onAdminDelete={() => void adminDelete(p.id)}
                     />
-                    {!!p.text && <div className="mt-3 whitespace-pre-wrap break-words text-sm">{p.text}</div>}
+                    {!!p.text && <div className="mt-2.5 whitespace-pre-wrap break-words text-[13px] sm:text-sm">{p.text}</div>}
                   </div>
 
                   {media.length > 0 && (
-                    <div className="px-4 pb-3">
+                    <div className="px-0 sm:px-4 pb-2.5 sm:pb-3">
                       <MediaCarousel urls={media} />
 
                       {p.poll && (
-                        <div className="mt-3">
+                        <div className="mt-2.5 px-3 sm:px-0">
                           <PollBox poll={p.poll} onVote={(optionId) => votePoll(p.id, optionId)} />
                         </div>
                       )}
                     </div>
                   )}
 
-                  <div className="px-4 pb-4">
+                  <div className="px-3 pb-3 sm:px-4 sm:pb-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-1">
                         {EMOJIS.map((emoji) => {
                           const active = (p.myReactions ?? []).includes(emoji);
                           const count = counts[emoji] ?? (emoji === "❤️" ? p.likeCount ?? 0 : 0);
@@ -373,10 +390,10 @@ export function HubFeedModule({
                               variant={active ? "default" : "outline"}
                               size="sm"
                               onClick={() => void toggleReaction(p.id, emoji)}
-                              className="gap-2"
+                              className="canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0"
                             >
-                              <span className="text-base leading-none">{emoji}</span>
-                              <span className="tabular-nums">{count}</span>
+                              <span className="text-sm leading-none">{emoji}</span>
+                              <span className="tabular-nums text-xs">{count}</span>
                             </Button>
                           );
                         })}
@@ -385,9 +402,10 @@ export function HubFeedModule({
                           variant="outline"
                           size="sm"
                           onClick={() => void toggleComments(p.id)}
-                          className="gap-2"
+                          className="canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0"
                         >
-                          💬 <span className="tabular-nums">{p.commentCount ?? 0}</span>
+                          <span className="text-sm leading-none">💬</span>
+                          <span className="tabular-nums text-xs">{p.commentCount ?? 0}</span>
                         </Button>
                       </div>
 

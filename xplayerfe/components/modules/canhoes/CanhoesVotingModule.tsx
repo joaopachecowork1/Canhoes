@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { canhoesRepo } from "@/lib/repositories/canhoesRepo";
 import type { AwardCategoryDto, CanhoesStateDto, NomineeDto, VoteDto, PublicUserDto, UserVoteDto } from "@/lib/api/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { Cigarette, Flame, Trophy } from "lucide-react";
 
 export function CanhoesVotingModule() {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export function CanhoesVotingModule() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     try {
       const [st, cats, noms, votes, u, uv] = await Promise.all([
@@ -41,7 +42,6 @@ export function CanhoesVotingModule() {
       setMyUserVotes(uv);
     } catch (e) {
       // Never crash UI due to a failing fetch.
-      // eslint-disable-next-line no-console
       console.error(e);
       setState(null);
       setCategories([]);
@@ -52,11 +52,11 @@ export function CanhoesVotingModule() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   useEffect(() => {
     void refresh();
-  }, []);
+  }, [refresh]);
 
   const byCategory = useMemo(() => {
     const map = new Map<string, NomineeDto[]>();
@@ -81,8 +81,10 @@ export function CanhoesVotingModule() {
     return m;
   }, [myUserVotes]);
 
+  const isVoting = state?.phase === "voting";
+
   const castVote = async (categoryId: string, nomineeId: string) => {
-    if (!state || state.phase !== "voting") return;
+    if (state?.phase !== "voting") return;
     setSaving(`${categoryId}:${nomineeId}`);
     try {
       await canhoesRepo.castVote({ categoryId, nomineeId });
@@ -96,7 +98,7 @@ export function CanhoesVotingModule() {
   };
 
   const castUserVote = async (categoryId: string, targetUserId: string) => {
-    if (!state || state.phase !== "voting") return;
+    if (state?.phase !== "voting") return;
     if (targetUserId === user?.id) return;
     setSaving(`u:${categoryId}:${targetUserId}`);
     try {
@@ -108,9 +110,9 @@ export function CanhoesVotingModule() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Votação</h1>
+        <h1 className="text-lg sm:text-xl font-semibold text-jungle-100 inline-flex items-center gap-2"><Trophy className="h-5 w-5 text-amber-300" />Votação</h1>
         {state && (
           <Badge variant="outline">
             {state.phase === "voting" ? "Votações abertas" : "Votações fechadas"}
@@ -121,7 +123,7 @@ export function CanhoesVotingModule() {
       {loading ? (
         <div className="text-sm text-muted-foreground">A carregar...</div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {categories.map((cat) => {
             // 1) Sticker categories: vote in nominees (images)
             if (cat.kind === "Sticker") {
@@ -130,21 +132,27 @@ export function CanhoesVotingModule() {
               const selected = myVoteByCategory.get(cat.id);
 
               return (
-                <Card key={cat.id}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-base">{cat.name}</CardTitle>
+                <Card key={cat.id} className="canhoes-glass rounded-2xl">
+                  <CardHeader className="pb-1.5">
+                    <CardTitle className="text-base inline-flex items-center gap-2"><Cigarette className="h-4 w-4 text-orange-300" />{cat.name}</CardTitle>
                   </CardHeader>
                   <CardContent className="grid gap-2">
                     {list.map((n) => {
                       const isSelected = selected === n.id;
                       const busy = saving === `${cat.id}:${n.id}`;
+                      let voteCta = "Votar";
+                      if (busy) {
+                        voteCta = "A guardar...";
+                      } else if (isSelected) {
+                        voteCta = "Selecionado";
+                      }
                       return (
                         <button
                           key={n.id}
                           onClick={() => void castVote(cat.id, n.id)}
-                          disabled={!state || state.phase !== "voting" || Boolean(saving)}
+                          disabled={!isVoting || Boolean(saving)}
                           className={cn(
-                            "flex items-center gap-3 rounded-lg border p-2 text-left transition",
+                            "canhoes-tap flex items-center gap-2.5 rounded-lg border p-2 text-left transition",
                             isSelected && "border-primary bg-primary/5"
                           )}
                         >
@@ -166,9 +174,10 @@ export function CanhoesVotingModule() {
                             type="button"
                             variant={isSelected ? "secondary" : "outline"}
                             size="sm"
-                            disabled={!state || state.phase !== "voting" || Boolean(saving)}
+                            className="canhoes-tap h-8"
+                            disabled={!isVoting || Boolean(saving)}
                           >
-                            {busy ? "A guardar..." : isSelected ? "Selecionado" : "Votar"}
+                              {voteCta}
                           </Button>
                         </button>
                       );
@@ -182,21 +191,27 @@ export function CanhoesVotingModule() {
             // 2) UserVote categories: vote directly in a person
             const selectedUserId = myUserVoteByCategory.get(cat.id);
             return (
-              <Card key={cat.id}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base">{cat.name}</CardTitle>
+              <Card key={cat.id} className="canhoes-glass rounded-2xl">
+                <CardHeader className="pb-1.5">
+                  <CardTitle className="text-base inline-flex items-center gap-2"><Flame className="h-4 w-4 text-orange-300" />{cat.name}</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-2">
                   {users.map((u) => {
                     const isSelected = selectedUserId === u.id;
                     const busy = saving === `u:${cat.id}:${u.id}`;
+                    let voteCta = "Votar";
+                    if (busy) {
+                      voteCta = "A guardar...";
+                    } else if (isSelected) {
+                      voteCta = "Selecionado";
+                    }
                     return (
                       <button
                         key={u.id}
                         onClick={() => void castUserVote(cat.id, u.id)}
-                        disabled={!state || state.phase !== "voting" || Boolean(saving)}
+                        disabled={!isVoting || Boolean(saving)}
                         className={cn(
-                          "flex items-center justify-between gap-3 rounded-lg border p-2 text-left transition",
+                          "canhoes-tap flex items-center justify-between gap-2.5 rounded-lg border p-2 text-left transition",
                           isSelected && "border-primary bg-primary/5"
                         )}
                       >
@@ -208,9 +223,10 @@ export function CanhoesVotingModule() {
                           type="button"
                           variant={isSelected ? "secondary" : "outline"}
                           size="sm"
-                          disabled={!state || state.phase !== "voting" || Boolean(saving)}
+                          className="canhoes-tap h-8"
+                          disabled={!isVoting || Boolean(saving)}
                         >
-                          {busy ? "A guardar..." : isSelected ? "Selecionado" : "Votar"}
+                          {voteCta}
                         </Button>
                       </button>
                     );

@@ -148,6 +148,8 @@ public class XPlayerDbContext : DbContext
             e.Property(x => x.PostId).HasMaxLength(64);
             e.Property(x => x.Url).HasMaxLength(1024);
             e.Property(x => x.OriginalFileName).HasMaxLength(260);
+            e.Property(x => x.ContentType).HasMaxLength(128);
+            e.Property(x => x.ContentBytes).HasColumnType("varbinary(max)");
             e.HasIndex(x => x.PostId);
             e.HasIndex(x => x.Url).IsUnique();
         });
