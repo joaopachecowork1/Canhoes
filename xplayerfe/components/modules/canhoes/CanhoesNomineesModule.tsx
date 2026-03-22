@@ -10,6 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Cigarette, ImageOff, Upload } from "lucide-react";
+import { toast } from "sonner";
+
+const UNCATEGORIZED_VALUE = "__uncategorized__";
+
+const PHASE_LABELS: Record<string, string> = {
+  nominations: "nomeações",
+  voting: "votação",
+  gala: "gala",
+};
 
 function statusVariant(status: NomineeDto["status"]) {
   if (status === "approved") return "secondary";
@@ -52,12 +61,7 @@ export function CanhoesNomineesModule() {
   }, []);
 
   const isNominations = state?.phase === "nominations";
-  let phaseLabel = state?.phase;
-  if (state?.phase === "nominations") {
-    phaseLabel = "Nomeações";
-  } else if (state?.phase === "voting") {
-    phaseLabel = "Votação";
-  }
+  const phaseLabel = state?.phase ? (PHASE_LABELS[state.phase] ?? state.phase) : undefined;
 
   let submitLabel = "Nomeações fechadas";
   if (isNominations) {
@@ -68,6 +72,16 @@ export function CanhoesNomineesModule() {
     if (!canSubmit || !state) return;
     if (state.phase !== "nominations") return;
 
+    if (file && !file.type.startsWith("image/")) {
+      toast.error("Só é permitido upload de imagens.");
+      return;
+    }
+
+    if (file && file.size > 10 * 1024 * 1024) {
+      toast.error("A imagem excede 10MB.");
+      return;
+    }
+
     setSaving(true);
     try {
       const created = await canhoesRepo.createNominee({ categoryId: categoryId || null, title: title.trim() });
@@ -75,11 +89,13 @@ export function CanhoesNomineesModule() {
         await canhoesRepo.uploadNomineeImage(created.id, file);
       }
       setTitle("");
+      setCategoryId("");
       setFile(null);
       await refresh();
+      toast.success("Nomeação submetida com sucesso.");
     } catch (e) {
-      // Keep it simple: console only for now.
       console.error(e);
+      toast.error("Não foi possível submeter a nomeação.");
     } finally {
       setSaving(false);
     }
@@ -115,12 +131,15 @@ export function CanhoesNomineesModule() {
           <div className="grid gap-2.5 sm:grid-cols-2">
             <div className="space-y-1">
               <div className="text-sm text-muted-foreground">Categoria</div>
-              <Select value={categoryId} onValueChange={setCategoryId}>
+              <Select
+                value={categoryId || UNCATEGORIZED_VALUE}
+                onValueChange={(v) => setCategoryId(v === UNCATEGORIZED_VALUE ? "" : v)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Escolhe a categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">(Admin decide depois)</SelectItem>
+                  <SelectItem value={UNCATEGORIZED_VALUE}>(Admin decide depois)</SelectItem>
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.name}
@@ -141,6 +160,7 @@ export function CanhoesNomineesModule() {
               <input
                 type="file"
                 accept="image/*"
+                capture="environment"
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               />
             </label>

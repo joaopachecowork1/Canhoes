@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { toast } from "sonner";
 import { RefreshCw } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 import type { HubCommentDto, HubPostDto } from "@/lib/api/types";
 import { hubRepo } from "@/lib/repositories/hubRepo";
@@ -20,6 +21,29 @@ import { PollBox } from "./components/PollBox";
 import { HUB_EMOJIS, ReactionRail } from "./components/ReactionRail";
 
 const EMOJIS = HUB_EMOJIS;
+
+function withUpdatedPost(
+  posts: HubPostDto[],
+  postId: string,
+  updater: (post: HubPostDto) => HubPostDto
+) {
+  return (posts ?? []).map((post) => {
+    if (post?.id !== postId) return post;
+    return updater(post);
+  });
+}
+
+function sortPinnedThenRecent(posts: HubPostDto[]) {
+  return [...(posts ?? [])].sort(
+    (a, b) =>
+      Number(Boolean(b?.isPinned)) - Number(Boolean(a?.isPinned)) ||
+      (String(b?.createdAtUtc) > String(a?.createdAtUtc) ? 1 : -1)
+  );
+}
+
+function reactionCount(post: HubPostDto, emoji: string) {
+  return post.reactionCounts?.[emoji] ?? (emoji === "❤️" ? post.likeCount ?? 0 : 0);
+}
 
 function prependPostIfMissing(prev: HubPostDto[], created: HubPostDto) {
   const arr = Array.isArray(prev) ? prev : [];
@@ -69,9 +93,10 @@ export function HubFeedModule({
   showComposer?: boolean;
 }>) {
   const { data: session, status } = useSession();
+  const { user } = useAuth();
 
   // NOTE: isAdmin is also enforced server-side; this only toggles UI affordances.
-  const isAdmin = useMemo(() => Boolean(session?.user?.isAdmin), [session]);
+  const isAdmin = Boolean(user?.isAdmin ?? session?.user?.isAdmin);
 
   const [posts, setPosts] = useState<HubPostDto[]>([]);
   const safePosts = useMemo(() => {
@@ -168,8 +193,7 @@ export function HubFeedModule({
   const toggleReaction = async (postId: string, emoji: string) => {
     // optimistic UI
     setPosts((prev) =>
-      (prev ?? []).map((p) => {
-        if (p?.id !== postId) return p;
+      withUpdatedPost(prev ?? [], postId, (p) => {
         const mine = new Set(p.myReactions || []);
         const wasActive = mine.has(emoji);
         if (wasActive) mine.delete(emoji);
@@ -199,8 +223,7 @@ export function HubFeedModule({
         const r = await hubRepo.toggleLike(postId);
         // reconcile likedByMe + likeCount (server truth)
         setPosts((prev) =>
-          (prev ?? []).map((p) => {
-            if (p?.id !== postId) return p;
+          withUpdatedPost(prev ?? [], postId, (p) => {
             const mine = new Set(p.myReactions || []);
             if (r.liked) mine.add("❤️");
             else mine.delete("❤️");
@@ -251,9 +274,10 @@ export function HubFeedModule({
       setCommentDrafts((d) => ({ ...d, [postId]: "" }));
       setComments((prev) => ({ ...prev, [postId]: [...(prev[postId] ?? []), ...(c ? [c] : [])] }));
       setPosts((prev) =>
-        (prev ?? []).map((p) =>
-          p?.id === postId ? { ...p, commentCount: (p.commentCount ?? 0) + 1 } : p
-        )
+        withUpdatedPost(prev ?? [], postId, (p) => ({
+          ...p,
+          commentCount: (p.commentCount ?? 0) + 1,
+        }))
       );
     } catch (e) {
       console.error(e);
@@ -265,9 +289,9 @@ export function HubFeedModule({
     try {
       const r = await hubRepo.adminTogglePin(postId);
       setPosts((prev) =>
-        [...(prev ?? [])]
-          .map((p) => (p?.id === postId ? { ...p, isPinned: r.pinned } : p))
-          .sort((a, b) => Number(Boolean(b?.isPinned)) - Number(Boolean(a?.isPinned)) || (String(b?.createdAtUtc) > String(a?.createdAtUtc) ? 1 : -1))
+        sortPinnedThenRecent(
+          withUpdatedPost(prev ?? [], postId, (p) => ({ ...p, isPinned: r.pinned }))
+        )
       );
     } catch (e) {
       console.error(e);
@@ -298,7 +322,7 @@ export function HubFeedModule({
       {showComposer && <PostComposer onSubmit={onCreate} />}
 
       <div className="space-y-3">
-        {safePosts.map((p) => {
+        {safePosts.map((p, idx) => {
           if (!p) return null;
           const media = (p.mediaUrls ?? []).filter(Boolean);
 
@@ -352,9 +376,13 @@ export function HubFeedModule({
           if (variant === "instagram") {
             const counts = p.reactionCounts || {};
             return (
-              <Card key={p.id} className="overflow-hidden rounded-none border-x-0 sm:rounded-2xl sm:border-x">
+              <Card
+                key={p.id}
+                className="overflow-hidden rounded-none border-x-0 sm:rounded-2xl sm:border-x canhoes-glass canhoes-reveal canhoes-reveal-stagger"
+                style={{ ["--reveal-delay" as const]: `${Math.min(idx, 9) * 24}ms` }}
+              >
                 <CardContent className="p-0">
-                  <div className="px-3 pt-3 pb-2.5 sm:p-4">
+                  <div className="px-3 pt-3 pb-2.5 sm:p-4 bg-[radial-gradient(120%_120%_at_10%_0%,rgba(80,255,153,0.08)_0%,transparent_48%)]">
                     <PostHeader
                       authorName={p.authorName}
                       createdAtUtc={p.createdAtUtc}
@@ -363,7 +391,7 @@ export function HubFeedModule({
                       onAdminPin={() => void adminPin(p.id)}
                       onAdminDelete={() => void adminDelete(p.id)}
                     />
-                    {!!p.text && <div className="mt-2.5 whitespace-pre-wrap break-words text-[13px] sm:text-sm">{p.text}</div>}
+                    {!!p.text && <div className="mt-2.5 whitespace-pre-wrap break-words text-[13px] sm:text-sm text-jungle-50/95">{p.text}</div>}
                   </div>
 
                   {media.length > 0 && (
@@ -383,14 +411,17 @@ export function HubFeedModule({
                       <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-1">
                         {EMOJIS.map((emoji) => {
                           const active = (p.myReactions ?? []).includes(emoji);
-                          const count = counts[emoji] ?? (emoji === "❤️" ? p.likeCount ?? 0 : 0);
+                          const count = counts[emoji] ?? reactionCount(p, emoji);
                           return (
                             <Button
                               key={emoji}
                               variant={active ? "default" : "outline"}
                               size="sm"
                               onClick={() => void toggleReaction(p.id, emoji)}
-                              className="canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0"
+                              className={cn(
+                                "canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0",
+                                active ? "shadow-[0_0_16px_rgba(74,255,149,0.18)]" : "canhoes-chip border-jungle-300/40 text-jungle-100"
+                              )}
                             >
                               <span className="text-sm leading-none">{emoji}</span>
                               <span className="tabular-nums text-xs">{count}</span>
@@ -402,14 +433,14 @@ export function HubFeedModule({
                           variant="outline"
                           size="sm"
                           onClick={() => void toggleComments(p.id)}
-                          className="canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0"
+                          className="canhoes-chip canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0 border-jungle-300/40 text-jungle-100"
                         >
                           <span className="text-sm leading-none">💬</span>
                           <span className="tabular-nums text-xs">{p.commentCount ?? 0}</span>
                         </Button>
                       </div>
 
-                      {p.isPinned && <Badge variant="secondary">Fixado</Badge>}
+                      {p.isPinned && <Badge variant="secondary" className="canhoes-chip border-jungle-300/45 text-jungle-100">Fixado</Badge>}
                     </div>
 
                     {openComments[p.id] && (
@@ -459,7 +490,7 @@ export function HubFeedModule({
                 <div className="flex flex-wrap items-center gap-2">
                   {EMOJIS.map((emoji) => {
                     const active = (p.myReactions ?? []).includes(emoji);
-                    const count = p.reactionCounts?.[emoji] ?? (emoji === "❤️" ? p.likeCount ?? 0 : 0);
+                    const count = reactionCount(p, emoji);
                     return (
                       <Button
                         key={emoji}

@@ -14,7 +14,7 @@ import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function AdminPage() {
-  const { loading } = useAuth();
+  const { loading, isLogged, user, loginGoogle } = useAuth();
   const isAdmin = useIsAdmin();
   const router = useRouter();
 
@@ -24,6 +24,30 @@ export default function AdminPage() {
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         <p className="text-sm text-muted-foreground animate-pulse">A verificar permissões…</p>
+      </div>
+    );
+  }
+
+  // If session exists but user profile is still missing, avoid flashing a hard deny state.
+  if (isLogged && !user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4 text-center px-4">
+        <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">A sincronizar permissões de administrador...</p>
+      </div>
+    );
+  }
+
+  if (!isLogged) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 gap-6 px-4 text-center">
+        <div className="canhoes-title text-2xl">🔐 Sessão Necessária</div>
+        <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+          Inicia sessão para aceder ao painel de administração.
+        </p>
+        <Button className="canhoes-tap canhoes-neon-border" onClick={loginGoogle}>
+          Iniciar Sessão
+        </Button>
       </div>
     );
   }
