@@ -44,9 +44,9 @@ export function VotesAudit({ votes, categories, loading }: Props) {
   }, [votes, search, categoryMap]);
 
   return (
-    <Card>
+    <Card className="canhoes-glass border-primary/30">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Auditoria de Votos</CardTitle>
+        <CardTitle className="text-base text-primary/90">Auditoria de Votos</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {loading ? (
@@ -72,7 +72,7 @@ export function VotesAudit({ votes, categories, loading }: Props) {
               {filtered.map((v, idx) => (
                 <div
                   key={`${v.userId}:${v.categoryId}:${idx}`}
-                  className="rounded-lg border p-2 space-y-1"
+                  className="rounded-lg border border-primary/20 bg-black/20 p-2 space-y-1"
                 >
                   <div className="text-sm font-medium">
                     {categoryMap.get(v.categoryId) ?? v.categoryId}

@@ -80,9 +80,9 @@ export function EventStateCard({ state, categories, onUpdate }: Props) {
   return (
     <div className="space-y-3">
       {/* Create Category */}
-      <Card>
+      <Card className="canhoes-glass border-primary/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Criar Categoria</CardTitle>
+          <CardTitle className="text-base text-primary/90">Criar Categoria</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-[1fr,auto,auto]">
           <Input
@@ -110,9 +110,9 @@ export function EventStateCard({ state, categories, onUpdate }: Props) {
       </Card>
 
       {/* Event State Controls */}
-      <Card>
+      <Card className="canhoes-glass border-primary/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Estado do Evento</CardTitle>
+          <CardTitle className="text-base text-primary/90">Estado do Evento</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
           {/* Phase */}

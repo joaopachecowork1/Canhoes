@@ -39,9 +39,9 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       {/* Category Proposals */}
-      <Card>
+      <Card className="canhoes-glass border-primary/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">
+          <CardTitle className="text-base text-primary/90">
             Propostas de Categorias ({categoryProposals.length})
           </CardTitle>
         </CardHeader>
@@ -54,7 +54,7 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
             categoryProposals.map((p) => {
               const busy = processingIds.has(p.id);
               return (
-                <div key={p.id} className="rounded-lg border p-2 space-y-2">
+                <div key={p.id} className="rounded-lg border border-primary/20 bg-black/20 p-2 space-y-2">
                   <div className="font-medium">{p.name}</div>
                   {p.description && (
                     <div className="text-sm text-muted-foreground">{p.description}</div>
@@ -92,9 +92,9 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
       </Card>
 
       {/* Measure Proposals */}
-      <Card>
+      <Card className="canhoes-glass border-primary/30">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 text-primary/90">
             <Gavel className="h-4 w-4" /> Propostas de Medidas ({measureProposals.length})
           </CardTitle>
         </CardHeader>
@@ -107,7 +107,7 @@ export function PendingProposals({ categoryProposals, measureProposals, loading,
             measureProposals.map((p) => {
               const busy = processingIds.has(p.id);
               return (
-                <div key={p.id} className="rounded-lg border p-2 space-y-2">
+                <div key={p.id} className="rounded-lg border border-primary/20 bg-black/20 p-2 space-y-2">
                   <div className="font-medium">{p.text}</div>
                   <div className="flex gap-2">
                     <Button

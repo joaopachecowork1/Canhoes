@@ -53,9 +53,9 @@ export function PendingNominees({ nominees, categories, loading, onUpdate }: Pro
   const categoryMap = new Map(categories.map((c) => [c.id, c.name]));
 
   return (
-    <Card>
+    <Card className="canhoes-glass border-primary/30">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
+        <CardTitle className="text-base flex items-center gap-2 text-primary/90">
           <Clock className="h-4 w-4" /> Nomeações ({nominees.length})
         </CardTitle>
       </CardHeader>
@@ -68,7 +68,7 @@ export function PendingNominees({ nominees, categories, loading, onUpdate }: Pro
           nominees.map((n) => {
             const busy = isProcessing(n.id);
             return (
-              <div key={n.id} className="rounded-lg border p-3 space-y-2">
+              <div key={n.id} className="rounded-lg border border-primary/20 bg-black/20 p-3 space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="font-medium truncate">{n.title}</div>

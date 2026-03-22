@@ -139,12 +139,13 @@ export default function CanhoesAdminModule() {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="text-lg font-semibold flex items-center gap-2">
+        <div className="canhoes-title text-lg flex items-center gap-2">
           <Shield className="h-4 w-4" /> Admin — Canhões
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline">Admin</Badge>
-          <Button variant="ghost" size="sm" onClick={loadData} disabled={loading}>
+          <Badge variant="outline" className="border-primary/40 text-primary">Admin</Badge>
+          <Button variant="ghost" size="sm" onClick={loadData} disabled={loading}
+            className="text-primary/70 hover:text-primary hover:bg-primary/10">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -152,7 +153,7 @@ export default function CanhoesAdminModule() {
 
       {/* Tabs */}
       <Tabs defaultValue="pending">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 bg-black/30 border border-primary/20">
           <TabsTrigger value="pending">
             Pendentes
             {totalPending > 0 && (
