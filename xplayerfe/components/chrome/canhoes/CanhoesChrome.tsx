@@ -98,8 +98,7 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
   return (
     <div
       data-theme="canhoes"
-      className="relative isolate min-h-[100svh] flex flex-col overflow-hidden"
-      style={{ background: `${currentBg.overlay}, ${currentBg.gradient}` }}
+      className={cn("relative isolate min-h-[100svh] flex flex-col overflow-hidden", currentBg.className)}
     >
       {/* ── Layer 1: atmospheric neon mist overlay ── */}
       <div
