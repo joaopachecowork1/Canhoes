@@ -6,8 +6,6 @@ using XPlayer.Api.Auth;
 using XPlayer.Api.Data;
 using XPlayer.Api.Middleware;
 using XPlayer.Api.Startup;
-using XPlayer.BL.Interfaces;
-using XPlayer.BL.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +25,7 @@ builder.Services.AddDbContext<XPlayerDbContext>(opt =>
     opt.UseSqlServer(cs);
 });
 
-builder.Services.AddScoped<ITokenService, TokenService>();
+
 
 // --- AUTH (Google id_token) ---
 var clientId = builder.Configuration["Auth:Google:ClientId"];

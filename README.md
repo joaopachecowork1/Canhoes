@@ -1,298 +1,137 @@
-# 🎮 XPlayer — Task, Notes & Game Progress Engine
+# 🏆 Canhões do Ano — Standalone App
 
-> **Tagline:** _Trabalha como um dev. Progride como num jogo._
+> **Tagline:** _Votações, Nomeações e Medidas._
 
-XPlayer é uma **PWA pessoal** que combina **gestão de tarefas e notas** com um **sistema de gamificação e progressão**, transformando tempo gasto (em tarefas, estudo ou jogos) em **XP, níveis e métricas reais**.  
-O objetivo é simples: **organizar o teu dia e manter motivação**, usando regras automáticas em vez de input manual pesado.
+Canhões do Ano é uma aplicação standalone para gestão de votações de fim de ano, incluindo nomeações, categorias, medidas da gala e administração.
 
-Este projeto serve dois propósitos:
-
-1. Uma aplicação **realmente usável no dia a dia** (no iPhone ou desktop)
-    
-2. Um **projeto técnico sério** para portfólio (Kotlin + Web + regras de negócio)
-    
+Este projeto é uma versão simplificada e focada do XPlayer, contendo apenas as funcionalidades relacionadas com os "Canhões do Ano".
 
 ---
 
-## 🧠 O Problema
+## 🎯 Funcionalidades
 
-- Apps de tarefas são passivas (listas infinitas)
-    
-- Apps de gamificação são vazias (sem lógica real)
-    
-- Tracking manual é cansativo e acaba abandonado
-    
+### Autenticação
+- Login via Google OAuth
+- Sistema de utilizadores e administradores
 
-**FocusForge resolve isto ao:**
+### Votações
+- Sistema de votação por categorias
+- Diferentes tipos de categorias (Sticker, UserVote)
+- Resultados e ranking
 
-- reduzir input ao mínimo (1–2 cliques)
-    
-- transformar ações em eventos (sessions)
-    
-- aplicar regras automáticas de progressão
-    
+### Nomeações
+- Submissão de nomeações
+- Aprovação/rejeição de nomeações (admin)
+- Atribuição de nomeações a categorias
 
----
+### Categorias
+- Gestão de categorias de prémios
+- Propostas de novas categorias
+- Configuração de descrições e regras de voto
 
-## 🧩 Conceito da Aplicação
+### Medidas da Gala
+- Submissão de propostas de medidas
+- Aprovação de medidas para a gala
+- Sistema de administração
 
-Tudo gira à volta de **EVENTOS**, não estados manuais.
-
-- Criar uma task = intenção
-    
-- Iniciar uma sessão = compromisso
-    
-- Terminar uma sessão = dado real
-    
-
-A aplicação decide:
-
-- progresso
-    
-- estado
-    
-- XP
-    
-- nível
-    
-- recomendações
-    
-
-O utilizador apenas **age** — o sistema **pensa**.
-
----
-
-## 🎮 Gamificação (core do projeto)
-
-### Perfil do Jogador
-
-- Level
-    
-- XP total
-    
-- Streak de dias ativos
-    
-- Distribuição de tempo (focus, study, play)
-    
-
-### Ganho de XP
-
-- Start + Stop de sessão → XP automático
-    
-- XP proporcional ao tempo (com cap)
-    
-- Bónus por consistência (streak)
-    
-- Bónus por concluir tasks
-    
-
-### Penalizações suaves
-
-- Longos períodos sem sessões → quebra de streak
-    
-- Tasks abandonadas → redução de score futuro
-    
-
-> ⚠️ Importante: XP **nunca é manual** — é sempre derivado de sessões.
-
----
-
-## 🔄 Sistema de Progressão
-
-```text
-XP total → Level
-Sessões → XP
-XP + Streak → Recomendação
-```
-
-Exemplo:
-
-- Sessão de 45min → +30 XP
-    
-- 3 dias seguidos → +20 XP
-    
-- Concluir task → +15 XP
-    
-
----
-
-## 📋 Gestão de Tarefas (Task Engine)
-
-### Task mínima
-
-- Título (obrigatório)
-    
-- Tag (opcional)
-    
-- Prioridade (default automática)
-    
-
-### Estados (derivados)
-
-- ACTIVE
-    
-- COMPLETED
-    
-- STALE (sem sessões há X dias)
-    
-
-⚠️ O estado não é editável manualmente.
-
----
-
-## 📝 Notas
-
-- Notas rápidas (markdown leve)
-    
-- Associáveis a tasks ou soltas
-    
-- Criadas em 1 clique
-    
-
----
-
-## ⏱️ Sessões (Event Engine)
-
-- Start / Stop
-    
-- Timer automático
-    
-- Ligável a task ou livre
-    
-- Persistido localmente
-    
-
-Tudo o resto deriva daqui.
-
----
-
-## 📱 Experiência no iPhone (PWA)
-
-- Instalável via "Adicionar ao ecrã inicial"
-    
-- Funciona offline
-    
-- Ícone próprio
-    
-- UX tipo app nativa
-    
+### Amigo Secreto & Wishlist
+- Sistema de Amigo Secreto
+- Lista de desejos pessoal
+- Gestão de sorteios
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
-### Backend
+### Frontend
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- NextAuth.js (Google OAuth)
+- PWA ready
 
-- Kotlin
-    
-- Ktor
-    
-- SQLite
-    
+### Backend
+- .NET 10.0
+- Entity Framework Core
+- SQL Server / SQLite
+- ASP.NET Core Web API
+- Google OAuth integration
+
+---
+
+## 🚀 Como executar
 
 ### Frontend
+```bash
+cd xplayerfe
+npm install
+npm run dev
+```
 
-- React + Vite
-    
-- PWA (Service Worker + Manifest)
-    
-
-### Ferramentas de apoio
-
-- Git + GitHub
-    
-- Docker (opcional)
-    
-
----
-
-## 🧰 Ferramentas para organização do projeto
-
-### Gestão de tarefas do desenvolvimento
-
-**Não usar Jira** (overkill para projeto pessoal).
-
-Alternativas melhores:
-
-- GitHub Projects (Kanban simples)
-    
-- Linear (se quiseres algo mais clean)
-    
-- Notion (tasks + notas técnicas)
-    
-
-Sugestão:
-
-> **GitHub Projects** com colunas: Backlog → Doing → Done
+### Backend
+```bash
+cd XPlayerBE
+dotnet build XPlayer.API/XPlayer.API.csproj
+dotnet run --project XPlayer.API/XPlayer.API.csproj
+```
 
 ---
 
-## 💻 Aplicações que vais precisar instalar
+## 📱 Navegação
 
-### Obrigatórias
+A aplicação possui 4 secções principais:
 
-- Node.js (LTS)
-    
-- npm ou pnpm
-    
-- JDK 17+
-    
-- Git
-    
-- VS Code / IntelliJ
-    
+1. **Nomeações** - Visualizar e submeter nomeações
+2. **Categorias** - Explorar categorias de prémios
+3. **Votação** - Sistema de votação ativo
+4. **Admin** - Painel de administração (restrito)
 
-### Opcionais
-
-- Docker Desktop
-    
-- Postman / Insomnia
-    
+### Funcionalidades Adicionais (via menu "Mais")
+- Stickers
+- Wishlist
+- Amigo Secreto
+- Gala
+- Medidas
+- Nomeações (alternativo)
 
 ---
 
-## 🚀 Quickstart (visão)
+## 🔑 Configuração
 
-1. Backend Kotlin (Ktor) com SQLite
-    
-2. API simples de tasks, notes e sessions
-    
-3. Frontend React com QuickAdd + Timer
-    
-4. PWA install no iPhone
-    
+### Frontend
+Criar `.env.local`:
+```
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-secret-here
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
+
+### Backend
+Configurar Google OAuth no `appsettings.json`:
+```json
+{
+  "Auth": {
+    "Google": {
+      "ClientId": "your-google-client-id"
+    }
+  }
+}
+```
 
 ---
 
-## 🧪 Qualidade & Boas Práticas
+## 📦 Deployment
 
-- Regras no backend
-    
-- Estado sempre derivado
-    
-- 3–5 testes unitários chave
-    
-- README claro e honesto
-    
+A aplicação está preparada para deployment como:
+- Frontend: Vercel/Netlify
+- Backend: Azure App Service/Railway
+- Base de dados: SQL Server/PostgreSQL
 
 ---
 
-## 🧭 Roadmap
+## 🎨 Design
 
-### MVP
-
-- Tasks + Notes
-    
-- Sessões
-    
-- XP + Level
-    
-
-### V2
-
-- Recomendações
-    
-- Badges
-    
-- Integração Backlog Game Engine
+Interface dark com tema verde "Canhões", otimizada para mobile-first com suporte completo para desktop.
     

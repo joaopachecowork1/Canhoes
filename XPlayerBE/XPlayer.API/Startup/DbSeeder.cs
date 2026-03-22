@@ -47,6 +47,5 @@ internal static class DbSeeder
     {
         var webRoot = env.WebRootPath ?? "wwwroot";
         Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "canhoes"));
-        Directory.CreateDirectory(Path.Combine(webRoot, "uploads", "hub"));
     }
 }

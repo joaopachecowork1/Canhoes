@@ -9,7 +9,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { CanhoesBottomTabs } from "./CanhoesBottomTabs";
 import { CanhoesMoreSheet } from "./CanhoesMoreSheet";
-import { CanhoesComposeSheet } from "./CanhoesComposeSheet";
 
 // Available background presets – simpler, more visible design
 const BG_PRESETS = [
@@ -57,7 +56,6 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
   const { isLogged, logout, user } = useAuth();
 
   const [moreOpen, setMoreOpen] = useState(false);
-  const [composeOpen, setComposeOpen] = useState(false);
   const [bgPreset, setBgPreset] = useState<BgPresetId>("musgo");
 
   // Restore saved background preference on mount.
@@ -90,10 +88,10 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
     if (pathname?.startsWith("/canhoes/gala"))          return "Gala";
     if (pathname?.startsWith("/canhoes/medidas"))       return "Medidas";
     if (pathname?.startsWith("/canhoes/nomeacoes"))     return "Nomeações";
-    return "Feed";
+    return "Nomeações";
   }, [pathname]);
 
-  const isFeedPath = pathname === "/canhoes" || pathname === "/canhoes/";
+
 
   return (
     <div
@@ -135,7 +133,7 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
             >
               🌿 Canhões do Ano
             </span>
-            {title !== "Feed" && (
+            {title !== "Nomeações" && (
               <span
                 className="text-[10px] leading-none mt-0.5 truncate"
                 style={{ color: "rgba(0,255,68,0.55)", fontFamily: "'Nunito', sans-serif", fontWeight: 700 }}
@@ -191,12 +189,7 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
 
       {/* ── Content — pb accounts for fixed tabs (56px) + iOS home-indicator ── */}
       <main className="relative z-10 flex-1 overflow-y-auto pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))]">
-        <div
-          className={cn(
-            "mx-auto w-full max-w-2xl py-2.5 sm:py-3",
-            isFeedPath ? "px-0 sm:px-2" : "px-2.5 sm:px-3"
-          )}
-        >
+        <div className="mx-auto w-full max-w-2xl py-2.5 sm:py-3 px-2.5 sm:px-3">
           {children}
         </div>
       </main>
@@ -205,7 +198,6 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
       <CanhoesBottomTabs
         pathname={pathname ?? ""}
         onNavigate={(href) => router.push(href)}
-        onCompose={() => setComposeOpen(true)}
       />
 
       {/* ── More sheet (Stickers, Wishlist, Gala, …) ── */}
@@ -216,13 +208,6 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
           setMoreOpen(false);
           router.push(href);
         }}
-      />
-
-      {/* ── Compose sheet ── */}
-      <CanhoesComposeSheet
-        open={composeOpen}
-        onOpenChange={setComposeOpen}
-        onDone={() => setComposeOpen(false)}
       />
     </div>
   );

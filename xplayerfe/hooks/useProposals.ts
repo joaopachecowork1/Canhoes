@@ -2,17 +2,16 @@
 'use client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { canhoesRepo } from '@/lib/repositories/canhoesRepo';
-import type { CreateCategoryProposalRequest } from '@/lib/api/types';
-import type { Proposal } from '../domain/types';
+import type { CreateCategoryProposalRequest, CategoryProposalDto } from '@/lib/api/types';
 
 export function useCategoryProposals(categoryId: string | number) {
-  return useQuery<Proposal[]>({
+  return useQuery<CategoryProposalDto[]>({
     queryKey: ['category-proposals', categoryId],
     // Backend does not expose proposals by category; keep compatibility by using admin endpoints
     // when available. If you need per-category proposals, add a dedicated endpoint.
     queryFn: async () => {
       const resp = await canhoesRepo.adminProposalsHistory();
-      return (resp?.categoryProposals ?? []) as unknown as Proposal[];
+      return resp?.categoryProposals ?? [];
     },
     enabled: !!categoryId,
   });

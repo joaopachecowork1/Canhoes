@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLogged: status === "authenticated",
       loading,
       loginGoogle: () => signIn("google"),
-      logout: () => signOut({ callbackUrl: "/login" }),
+      logout: () => signOut({ callbackUrl: "/canhoes/login" }),
     }),
     [user, status, loading]
   );

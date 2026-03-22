@@ -3,8 +3,8 @@ import AppProviders from "@/components/providers/AppProviders";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "XPlayer",
-  description: "XPlayer Frontend",
+  title: "Canhões do Ano",
+  description: "Canhões do Ano — votações, nomeações e medidas",
 };
 
 export const viewport: Viewport = {
