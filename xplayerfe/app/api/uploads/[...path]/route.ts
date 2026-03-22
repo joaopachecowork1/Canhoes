@@ -7,10 +7,11 @@ const backend =
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  context: { params: Promise<{ path: string[] }> }
 ) {
-  const path = params.path.join("/");
-  const url = `${backend}/uploads/${path}`;
+  const { path } = await context.params;
+  const filePath = path.join("/");
+  const url = `${backend}/uploads/${filePath}`;
 
   const res = await fetch(url, {
     headers: {
