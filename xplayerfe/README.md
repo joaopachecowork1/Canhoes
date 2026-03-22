@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Google OAuth Notes (Local + Vercel)
+
+- Local dev runs on `http://localhost:3000`.
+- Keep `NEXTAUTH_URL=http://localhost:3000` in `.env.local`.
+- In Google Cloud OAuth client, include:
+	- `http://localhost:3000/api/auth/callback/google`
+	- `https://x-player-eight.vercel.app/api/auth/callback/google`
+- Avoid LAN callback URLs like `http://192.168.x.x/...` with Google OAuth web flow.
