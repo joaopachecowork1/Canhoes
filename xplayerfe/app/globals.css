@@ -189,89 +189,42 @@
     margin-bottom: max(0px, env(safe-area-inset-bottom));
   }
 
-  /* ─── Canhões design system utilities ─── */
-
-  /**
-   * canhoes-chip: game-UI panel / tag.
-   * Dark background with neon-green border + subtle inner glow.
-   */
-  .canhoes-chip {
-    background: linear-gradient(145deg, rgba(15, 32, 24, 0.9), rgba(10, 21, 16, 0.95));
-    border: 1.5px solid rgba(0, 255, 68, 0.22);
-    box-shadow:
-      0 0 0 1px rgba(0, 255, 68, 0.08),
-      0 0 14px rgba(0, 170, 51, 0.18),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
-    border-radius: 14px;
-  }
-
-  /**
-   * canhoes-glass: frosted-glass card surface.
-   * Slightly lighter than chip; used for larger panel areas.
-   */
+  /* ══════════════════════════════════════════
+     CANHOES CUSTOM UTILITIES
+     Mobile-first Instagram-like design system
+     IMPROVED VISIBILITY: Better contrast & readability
+  ══════════════════════════════════════════ */
+  
+  /* Glassmorphism effect for cards — lighter & more visible */
   .canhoes-glass {
-    background: linear-gradient(145deg, rgba(12, 26, 18, 0.88), rgba(8, 16, 12, 0.92));
-    border: 1.5px solid rgba(0, 255, 68, 0.16);
-    box-shadow:
-      0 0 0 1px rgba(0, 255, 68, 0.06),
-      0 4px 24px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background-color: rgba(15, 36, 21, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid oklch(0.72 0.19 152 / 0.35);
   }
-
-  /**
-   * canhoes-tap: press / active feedback (scale-down + brighten).
-   * Drop onto any <button> or <a> that should feel physical.
-   */
+  
+  /* Elevated pill/badge component with glow */
+  .canhoes-chip {
+    background-color: rgba(20, 45, 25, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid oklch(0.72 0.19 152 / 0.4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(126, 255, 183, 0.1);
+  }
+  
+  /* Mobile tap feedback with smooth scale transition */
   .canhoes-tap {
-    transition: transform 0.1s ease-out, filter 0.1s ease-out, box-shadow 0.1s ease-out;
+    @apply transition-transform duration-100 ease-out active:scale-95;
   }
-  .canhoes-tap:active {
-    transform: scale(0.96);
-    filter: brightness(1.1);
-  }
-
-  /**
-   * canhoes-float: gentle vertical float animation (idle loop).
-   * Use on badges, active-tab indicators, compose button.
-   */
+  
+  /* Floating animation for prominent CTAs */
   .canhoes-float {
-    animation: canhoes-ambient-float 3s ease-in-out infinite;
+    @apply animate-canhoes-float;
   }
-
-  /**
-   * canhoes-pulse: neon glow pulse (active/highlighted state).
-   * Use on compose button, active tab indicator.
-   */
+  
+  /* Pulsing glow effect for floating action button */
   .canhoes-pulse {
-    animation: canhoes-glow-pulse 2.5s ease-in-out infinite;
-  }
-
-  /**
-   * canhoes-neon-border: bright neon-green border with bloom glow.
-   */
-  .canhoes-neon-border {
-    border: 1.5px solid rgba(0, 255, 68, 0.55);
-    box-shadow: 0 0 12px rgba(0, 255, 68, 0.30), 0 0 28px rgba(0, 200, 50, 0.15);
-  }
-
-  /**
-   * canhoes-title: display font for section headers (Fredoka One + neon yellow).
-   */
-  .canhoes-title {
-    font-family: 'Fredoka One', 'Nunito', system-ui, sans-serif;
-    color: #ffe135;
-    text-shadow: 0 0 18px rgba(255, 225, 53, 0.45);
-    letter-spacing: 0.5px;
-  }
-
-  /**
-   * canhoes-label: body font (Nunito 700).
-   */
-  .canhoes-label {
-    font-family: 'Nunito', system-ui, sans-serif;
-    font-weight: 700;
+    @apply animate-canhoes-pulse;
   }
 }
 
@@ -306,45 +259,11 @@
   from { transform: scaleX(0); }
   to   { transform: scaleX(1); }
 }
-
-/* ─── Canhões-specific keyframes ────────────────────────────────────────── */
-
-/** Smoke orb: rises and fades out — used on smoke particle divs */
-@keyframes canhoes-smoke-rise {
-  0%   { transform: translateY(0) scale(0.8) rotate(0deg);    opacity: 0.5; }
-  60%  { transform: translateY(-50px) scale(1.8) rotate(20deg); opacity: 0.15; }
-  100% { transform: translateY(-90px) scale(2.5) rotate(-10deg); opacity: 0; }
-}
-
-/** Neon glow pulse for active elements */
-@keyframes canhoes-glow-pulse {
-  0%, 100% { box-shadow: 0 0 14px rgba(0, 255, 68, 0.28), 0 4px 20px rgba(0, 200, 60, 0.18); }
-  50%       { box-shadow: 0 0 32px rgba(0, 255, 68, 0.55), 0 4px 28px rgba(0, 200, 60, 0.32); }
-}
-
-/** Float / hover idle bob */
-@keyframes canhoes-ambient-float {
+@keyframes canhoes-float {
   0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-5px); }
+  50%       { transform: translateY(-6px); }
 }
-
-/** Spring bounce after vote/tap — voteSpring */
-@keyframes canhoes-vote-spring {
-  0%   { transform: scale(1) rotate(0deg); }
-  30%  { transform: scale(1.28) rotate(-8deg); }
-  60%  { transform: scale(0.93) rotate(4deg); }
-  80%  { transform: scale(1.07) rotate(-2deg); }
-  100% { transform: scale(1.05) rotate(0deg); }
-}
-
-/** Tab glow flash */
-@keyframes canhoes-tab-glow {
-  0%, 100% { filter: drop-shadow(0 0 4px rgba(0, 255, 68, 0.5)); }
-  50%       { filter: drop-shadow(0 0 12px rgba(0, 255, 68, 0.9)); }
-}
-
-/** Shimmer text */
-@keyframes canhoes-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
+@keyframes canhoes-pulse {
+  0%, 100% { box-shadow: 0 0 12px oklch(0.72 0.19 152 / 25%); }
+  50%       { box-shadow: 0 0 28px oklch(0.72 0.19 152 / 45%), 0 0 8px oklch(0.72 0.19 152 / 30%); }
 }

@@ -65,7 +65,12 @@ export function CanhoesNomineesModule() {
   }, []);
 
   const isNominations = state?.phase === "nominations";
-  const phaseLabel = state?.phase ? (PHASE_LABELS[state.phase] ?? state.phase) : undefined;
+  let phaseLabel: string | undefined = state?.phase;
+  if (state?.phase === "nominations") {
+    phaseLabel = "Nomeações";
+  } else if (state?.phase === "voting") {
+    phaseLabel = "Votação";
+  }
 
   let submitLabel = "Nomeações fechadas";
   if (isNominations) {
@@ -173,7 +178,7 @@ export function CanhoesNomineesModule() {
                   <SelectValue placeholder="Escolhe a categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NO_CATEGORY}>(Admin decide depois)</SelectItem>
+                  <SelectItem value="__none__">(Admin decide depois)</SelectItem>
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.name}

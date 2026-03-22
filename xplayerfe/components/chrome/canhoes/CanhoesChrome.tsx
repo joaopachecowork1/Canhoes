@@ -11,34 +11,19 @@ import { CanhoesBottomTabs } from "./CanhoesBottomTabs";
 import { CanhoesMoreSheet } from "./CanhoesMoreSheet";
 import { CanhoesComposeSheet } from "./CanhoesComposeSheet";
 
-// Available background presets — cycle through them with the palette button.
-// Each entry has both a CSS-variables-based `gradient` (always applied via inline
-// `style`) and an optional Tailwind `className` for extended radial layers.
-// The inline `style` approach is reliable regardless of Tailwind's class purging.
+// Available background presets – simpler, more visible design
 const BG_PRESETS = [
   {
     id: "musgo",
-    label: "Verde Musgo 🌿",
-    gradient: "linear-gradient(160deg, #0b1a12 0%, #060e09 100%)",
-    overlay: "radial-gradient(900px 380px at 10% -10%, rgba(0,255,68,0.10) 0%, transparent 55%), radial-gradient(640px 320px at 90% 0%, rgba(0,180,50,0.08) 0%, transparent 60%)",
+    label: "Verde Musgo",
+    className:
+      "bg-[linear-gradient(135deg,#0f2415_0%,#162d1c_50%,#0d1a11_100%)]",
   },
   {
-    id: "noite",
-    label: "Noite ✨",
-    gradient: "linear-gradient(180deg, rgba(2,6,23,0.95) 0%, rgba(4,10,6,0.98) 100%)",
-    overlay: "radial-gradient(1000px 500px at -10% -10%, rgba(0,200,80,0.12) 0%, transparent 60%), radial-gradient(800px 400px at 110% 10%, rgba(0,255,68,0.08) 0%, transparent 60%)",
-  },
-  {
-    id: "floresta",
-    label: "Floresta 🌲",
-    gradient: "linear-gradient(180deg, #0b1a0f 0%, #060c08 100%)",
-    overlay: "radial-gradient(780px 380px at 25% -10%, rgba(0,200,80,0.14) 0%, transparent 60%), radial-gradient(900px 460px at 110% 0%, rgba(139,0,255,0.10) 0%, transparent 62%)",
-  },
-  {
-    id: "queimada",
-    label: "Queimada 🔥",
-    gradient: "linear-gradient(180deg, #120e08 0%, #070c08 70%, #050807 100%)",
-    overlay: "radial-gradient(900px 460px at 12% -12%, rgba(255,140,0,0.14) 0%, transparent 58%), radial-gradient(700px 360px at 88% 4%, rgba(0,200,80,0.10) 0%, transparent 62%)",
+    id: "noite-clara",
+    label: "Noite Clara",
+    className:
+      "bg-[linear-gradient(180deg,#1a2620_0%,#0f1f16_100%)]",
   },
 ] as const;
 
