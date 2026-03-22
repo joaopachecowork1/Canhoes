@@ -389,12 +389,11 @@ export function HubFeedModule({
                     boxShadow: "0 0 0 1px rgba(0,255,68,0.10), 0 0 20px rgba(0,170,51,0.12), inset 0 1px 0 rgba(255,255,255,0.04)",
                   }}
                 >
-                  {/* Post header */}
+                  {/* Post header — isPinned not passed here; handled below in reaction bar */}
                   <div className="px-3 pt-3 pb-2.5 sm:p-4">
                     <PostHeader
                       authorName={p.authorName}
                       createdAtUtc={p.createdAtUtc}
-                      isPinned={p.isPinned}
                       isAdmin={isAdmin}
                       onAdminPin={() => void adminPin(p.id)}
                       onAdminDelete={() => void adminDelete(p.id)}
@@ -412,12 +411,12 @@ export function HubFeedModule({
                   {media.length > 0 && (
                     <div className="px-0 sm:px-4 pb-2.5 sm:pb-3">
                       <MediaCarousel urls={media} />
+                    </div>
+                  )}
 
-                      {p.poll && (
-                        <div className="mt-2.5 px-3 sm:px-0">
-                          <PollBox poll={p.poll} onVote={(optionId) => votePoll(p.id, optionId)} />
-                        </div>
-                      )}
+                  {p.poll && (
+                    <div className={`px-3 sm:px-4 pb-2.5 sm:pb-3 ${media.length > 0 ? "pt-0" : ""}`}>
+                      <PollBox poll={p.poll} onVote={(optionId) => votePoll(p.id, optionId)} />
                     </div>
                   )}
 
