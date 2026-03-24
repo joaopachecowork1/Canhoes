@@ -167,3 +167,22 @@ The following were **intentionally kept** because they serve the Canhões do Ano
 - **`components/animations/`** — New: SmokeOverlay + CannonBlast animations
 - **Backend: `CanhoesController.cs`**, **`HubController.cs`**, **`AuthController.cs`**, **`UsersController.cs`**, **`CategoryProposalsController.cs`**
 - **Backend: `CanhoesEntities.cs`**, **`HubFeedEntities.cs`**, **`UserEntity.cs`**
+
+---
+
+## Dead Code Cleanup (post-isolation pass)
+
+The following files were removed in a second pass because they were never imported
+by any remaining code after the isolation was complete:
+
+| File | Reason |
+|------|--------|
+| `components/ui/Carousel.tsx` | Old overflow-x scroll carousel — superseded by `MediaCarousel.tsx` (transform-based); no imports remaining |
+| `hooks/useCategories.ts` | Defined but never called anywhere in the active codebase |
+| `hooks/useProposals.ts` | Defined but never called anywhere in the active codebase |
+| `components/RequireAdmin.tsx` | Not imported by any page or component; admin access is handled inline in `/canhoes/(app)/admin/page.tsx` |
+| `lib/useMe.ts` | Only consumer was the now-deleted `RequireAdmin.tsx`; admin check uses `useIsAdmin` + `useAuth` instead |
+| `lib/http.ts` | Only consumer was the now-deleted `useMe.ts`; all API calls go through the proxy client in `lib/api/xplayerClient.ts` |
+| `domain/types.ts` | Only consumers were the deleted `Carousel.tsx`, `useCategories.ts`, and `useProposals.ts`; active code uses the typed DTOs in `lib/api/types.ts` |
+| `app/canhoes/demo/page.tsx` | Development prototype page with mock data — not a real production feature |
+| `components/modules/canhoes/CanhoesDaAno.jsx` | Mock prototype component with hardcoded users/posts/leaderboard — only used by the deleted demo page |
