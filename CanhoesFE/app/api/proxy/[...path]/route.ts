@@ -8,6 +8,8 @@ import { authOptions } from "@/auth";
  *
  * Frontend auth: NextAuth (Google).
  * Backend auth: expects Authorization: Bearer <Google id_token>.
+ *
+ * Note: This proxy allows unauthenticated GET requests to public endpoints.
  */
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
@@ -37,27 +39,27 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
 async function handleProxyRequest(request: NextRequest, params: { path: string[] }, method: string) {
   try {
-    // NOTE:
-    // - getServerSession() is sometimes flaky in App Route handlers depending on next-auth version.
-    // - getToken() reads the JWT directly from cookies and is the most reliable way to access custom fields.
-    // Prefer JWT read (fast + reliable), fallback to server session.
+    // Try to get idToken from JWT
     const token = await getToken({ req: request });
     let idToken = token?.idToken;
+    
+    // Fallback to server session
     if (!idToken) {
       const session = await getServerSession(authOptions);
       idToken = session?.idToken;
-    }
-
-    if (!idToken) {
-      return NextResponse.json({ message: "Unauthorized - Please sign in" }, { status: 401 });
     }
 
     const path = params.path.join("/");
     const backendBase = process.env.CANHOES_API_URL || "http://localhost:5000";
     const backendUrl = `${backendBase}/api/${path}${request.nextUrl.search}`;
 
+    // Build headers
     const headers = new Headers();
-    headers.set("Authorization", `Bearer ${idToken}`);
+    
+    // Add Authorization if we have idToken
+    if (idToken) {
+      headers.set("Authorization", `Bearer ${idToken}`);
+    }
 
     // Forward content-type so backend can parse JSON or multipart properly.
     const contentType = request.headers.get("content-type");
@@ -67,6 +69,11 @@ async function handleProxyRequest(request: NextRequest, params: { path: string[]
     if (method !== "GET" && method !== "DELETE") {
       body = await request.arrayBuffer();
     }
+
+    console.log(`[Proxy] ${method} ${backendUrl}`, {
+      hasToken: !!idToken,
+      path,
+    });
 
     const response = await fetch(backendUrl, {
       method,
