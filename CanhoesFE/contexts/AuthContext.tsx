@@ -113,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLogged: IS_MOCK_MODE ? true : status === "authenticated",
       loading: IS_MOCK_MODE ? false : loading,
       loginGoogle: () => { if (!IS_MOCK_MODE) signIn("google"); },
-      logout: () => { if (!IS_MOCK_MODE) signOut({ callbackUrl: "/login" }); },
+      logout: () => { if (!IS_MOCK_MODE) signOut({ callbackUrl: "/canhoes/login" }); },
     }),
     [user, status, loading]
   );
