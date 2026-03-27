@@ -2,20 +2,30 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Chrome } from "lucide-react";
+import { Leaf, Target } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { IS_MOCK_MODE } from "@/lib/mock";
-import { StarField } from "@/components/animations";
 
 export default function CanhoesLoginPage() {
   const router = useRouter();
   const { isLogged, loading, loginGoogle } = useAuth();
   const [pressed, setPressed] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([]);
+
+  // Gerar partículas de folhas
+  useEffect(() => {
+    const newParticles = Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 5,
+    }));
+    setParticles(newParticles);
+  }, []);
 
   useEffect(() => {
-    // small delay so the entrance animation fires
-    const t = setTimeout(() => setVisible(true), 80);
+    const t = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(t);
   }, []);
 
@@ -28,155 +38,180 @@ export default function CanhoesLoginPage() {
       className="relative isolate min-h-[100svh] flex flex-col items-center justify-center overflow-hidden"
       style={{
         background:
-          "radial-gradient(ellipse 120% 80% at 50% 110%, #1a3a1e 0%, #0d1f12 45%, #060d08 100%)",
+          "radial-gradient(ellipse 140% 90% at 50% 100%, #1a2f1e 0%, #0d1410 40%, #08100a 100%)",
       }}
     >
-      {/* ── Stars particle layer ── */}
-      <StarField count={150} />
+      {/* ── Partículas de folhas a cair ── */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="absolute text-[var(--color-moss)]/20"
+            style={{
+              left: `${p.x}%`,
+              top: `-20px`,
+              animation: `leaf-fall ${8 + Math.random() * 4}s linear ${p.delay}s infinite`,
+              transform: `rotate(${Math.random() * 360}deg)`,
+            }}
+          >
+            <Leaf className="h-4 w-4 sm:h-6 sm:w-6" />
+          </div>
+        ))}
+      </div>
 
-      {/* ── Neon mist overlay ── */}
+      {/* ── Glow de fundo ── */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0"
         style={{
           background: [
-            "radial-gradient(120% 50% at 50% 0%, rgba(0,255,68,0.07) 0%, transparent 60%)",
-            "radial-gradient(80% 40% at 20% 100%, rgba(82,183,136,0.10) 0%, transparent 70%)",
-            "radial-gradient(90% 40% at 80% 95%, rgba(0,200,60,0.08) 0%, transparent 70%)",
+            "radial-gradient(circle at 30% 40%, rgba(107, 124, 69, 0.12) 0%, transparent 50%)",
+            "radial-gradient(circle at 70% 60%, rgba(74, 92, 47, 0.1) 0%, transparent 45%)",
+            "radial-gradient(circle at 50% 80%, rgba(107, 203, 119, 0.08) 0%, transparent 50%)",
           ].join(","),
         }}
       />
 
       {/* ── Main card ── */}
       <div
-        className="relative z-10 flex flex-col items-center gap-7 px-6 py-10 w-full max-w-sm"
+        className="relative z-10 flex flex-col items-center gap-8 px-6 py-12 w-full max-w-sm"
         style={{
           opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(20px)",
-          transition: "opacity 0.55s ease, transform 0.55s ease",
+          transform: visible ? "translateY(0)" : "translateY(30px)",
+          transition: "opacity 0.8s ease, transform 0.8s ease",
         }}
       >
-        {/* Floating cannon emoji */}
+        {/* Logo/Emoji animado */}
         <div
-          className="text-6xl select-none"
+          className="relative"
           style={{
-            animation: "canhoes-bounce-rotate 3s ease-in-out infinite",
-            filter: "drop-shadow(0 0 18px rgba(0,255,68,0.45))",
+            animation: "canhoes-bounce-rotate 4s ease-in-out infinite",
           }}
         >
-          🎯
+          <Target
+            className="h-20 w-20 sm:h-24 sm:w-24"
+            style={{
+              color: "var(--color-psycho-1)",
+              filter: "drop-shadow(0 0 24px rgba(255, 107, 157, 0.5))",
+            }}
+          />
+          <Leaf
+            className="absolute -top-2 -right-2 h-8 w-8 sm:h-10 sm:w-10"
+            style={{
+              color: "var(--color-moss-light)",
+              filter: "drop-shadow(0 0 16px rgba(107, 124, 69, 0.6))",
+              animation: "leaf-spin 8s linear infinite",
+            }}
+          />
         </div>
 
-        {/* Title */}
-        <div className="text-center space-y-1.5">
+        {/* Título */}
+        <div className="text-center space-y-3">
           <h1
-            className="canhoes-title"
+            className="font-black tracking-tight"
             style={{
               fontFamily: "'Cinzel', 'Playfair Display', Georgia, serif",
-              fontSize: "clamp(1.6rem, 6vw, 2.2rem)",
-              fontWeight: 900,
-              letterSpacing: "0.06em",
-              color: "#e9d8a6",
-              textShadow:
-                "0 0 20px rgba(233,216,166,0.45), 0 0 50px rgba(0,255,68,0.20)",
+              fontSize: "clamp(1.8rem, 7vw, 2.5rem)",
+              color: "var(--color-cream)",
+              textShadow: "0 0 40px rgba(212, 184, 150, 0.4), 0 0 80px rgba(107, 124, 69, 0.3)",
               lineHeight: 1.1,
             }}
           >
             CANHÕES DO ANO
           </h1>
           <p
+            className="text-sm sm:text-base font-medium tracking-widest uppercase"
             style={{
-              fontFamily: "'Crimson Pro', Georgia, serif",
-              fontSize: "1rem",
-              color: "rgba(0,255,68,0.60)",
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
+              color: "var(--color-moss-light)",
+              textShadow: "0 0 20px rgba(107, 124, 69, 0.5)",
             }}
           >
-            O ritual anual dos Canhões
+            O Ritual Anual
           </p>
         </div>
 
-        {/* Divider */}
+        {/* Divisor decorativo */}
         <div
-          className="w-full h-px"
+          className="w-full h-px relative overflow-hidden"
           style={{
-            background:
-              "linear-gradient(90deg, transparent 0%, rgba(0,255,68,0.35) 50%, transparent 100%)",
+            background: "linear-gradient(90deg, transparent 0%, rgba(107, 124, 69, 0.5) 50%, transparent 100%)",
           }}
-        />
+        >
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(90deg, transparent, rgba(107, 203, 119, 0.4), transparent)",
+              animation: "shimmer 3s ease-in-out infinite",
+            }}
+          />
+        </div>
 
-        {/* Buttons */}
-        <div className="w-full space-y-3">
+        {/* Botões */}
+        <div className="w-full space-y-4">
           {IS_MOCK_MODE ? (
-            /* Demo mode — just enter directly */
             <button
               onClick={() => {
                 setPressed(true);
                 router.replace("/canhoes");
               }}
               disabled={pressed}
-              className="canhoes-tap w-full h-13 rounded-2xl flex items-center justify-center gap-3 font-bold text-base"
+              className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-bold text-base transition-all duration-300"
               style={{
-                background:
-                  "radial-gradient(circle at 30% 25%, #7effa8 0%, #00cc44 45%, #008c2e 100%)",
-                border: "1.5px solid rgba(0,255,68,0.50)",
-                boxShadow:
-                  "0 6px 24px rgba(0,204,68,0.45), 0 0 32px rgba(0,255,68,0.20)",
-                color: "#062010",
+                background: "linear-gradient(135deg, var(--color-moss) 0%, var(--color-moss-light) 100%)",
+                border: "2px solid rgba(107, 124, 69, 0.5)",
+                boxShadow: "0 8px 32px rgba(107, 124, 69, 0.4), 0 0 40px rgba(107, 203, 119, 0.2) inset",
+                color: "#ffffff",
                 opacity: pressed ? 0.7 : 1,
-                transition: "opacity 0.2s",
+                transform: pressed ? "scale(0.98)" : "scale(1)",
               }}
             >
+              <Leaf className="h-5 w-5" />
               🎮 Entrar no Jogo
             </button>
           ) : (
-            /* Real Google login */
             <button
               onClick={() => loginGoogle()}
               disabled={loading}
-              className="canhoes-tap w-full h-13 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm"
+              className="w-full h-14 rounded-2xl flex items-center justify-center gap-3 font-bold text-sm transition-all duration-300 backdrop-blur-sm"
               style={{
-                background: "rgba(15,36,21,0.7)",
-                border: "1.5px solid rgba(0,255,68,0.40)",
-                boxShadow: "0 4px 20px rgba(0,0,0,0.40), inset 0 1px 2px rgba(126,255,183,0.10)",
-                color: "#e9d8a6",
-                backdropFilter: "blur(10px)",
+                background: "rgba(26, 35, 24, 0.7)",
+                border: "2px solid rgba(107, 124, 69, 0.4)",
+                boxShadow: "0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(107, 124, 69, 0.1)",
+                color: "var(--color-text-primary)",
                 opacity: loading ? 0.6 : 1,
-                transition: "opacity 0.2s",
+                transform: loading ? "scale(0.99)" : "scale(1)",
               }}
             >
-              <Chrome className="h-5 w-5 flex-shrink-0" />
+              <Leaf className="h-5 w-5 flex-shrink-0" style={{ color: "var(--color-moss-light)" }} />
               {loading ? "A entrar…" : "Continuar com Google"}
             </button>
           )}
         </div>
 
-        {/* Footer note */}
+        {/* Nota de rodapé */}
         <p
-          className="text-center text-xs"
+          className="text-center text-xs max-w-[280px]"
           style={{
-            color: "rgba(201,185,154,0.45)",
+            color: "rgba(184, 155, 122, 0.5)",
             fontFamily: "'Crimson Pro', Georgia, serif",
-            lineHeight: 1.5,
+            lineHeight: 1.6,
           }}
         >
           {IS_MOCK_MODE
-            ? "Modo demonstração · sem backend"
-            : "Acesso exclusivo para membros dos Canhões"}
+            ? "🌿 Modo demonstração · sem backend"
+            : "🔒 Acesso exclusivo para membros dos Canhões"}
         </p>
       </div>
 
-      {/* ── Bottom neon line ── */}
+      {/* ── Linha decorativa inferior ── */}
       <div
         aria-hidden="true"
-        className="absolute bottom-0 left-0 right-0 h-0.5 pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-1 pointer-events-none"
         style={{
-          background:
-            "linear-gradient(90deg, transparent 0%, rgba(0,255,68,0.50) 50%, transparent 100%)",
+          background: "linear-gradient(90deg, transparent 0%, var(--color-moss) 50%, transparent 100%)",
+          opacity: 0.3,
         }}
       />
     </div>
   );
 }
-

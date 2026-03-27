@@ -45,39 +45,41 @@
 }
 
 :root {
-  /* ── NOVO TEMA LIGHT/CREAM (Mockup Reference) ── */
-  /* Identidade visual limpa, orgânica e premium */
+  /* ── TEMA DARK ORGÂNICO (Mockup + Natureza) ── */
+  /* Inspirado em floresta nocturna - premium e confortável */
 
-  /* Backgrounds principais */
-  --color-bg-primary: #f5f2ed;      /* Cream claro - fundo principal */
-  --color-bg-secondary: #e8e4dc;    /* Cream médio - superfícies */
-  --color-bg-card: #ffffff;         /* Branco - cards */
-  --color-bg-surface: #faf8f5;      /* Off-white - superfícies elevadas */
+  /* Backgrounds - Camadas de profundidade */
+  --color-bg-primary: #0a0f08;      /* Preto musgo - fundo principal */
+  --color-bg-secondary: #111810;    /* Musgo escuro - superfícies */
+  --color-bg-card: #1a2318;         /* Musgo médio - cards */
+  --color-bg-surface: #252f22;      /* Musgo claro - elementos elevados */
+  --color-bg-surface-alt: #2d3828;  /* Musgo mais claro - inputs */
 
-  /* Texto */
-  --color-text-primary: #1a1f14;    /* Musgo muito escuro - texto principal */
-  --color-text-secondary: #3d4236;  /* Musgo escuro - texto secundário */
-  --color-text-muted: #6b7064;      /* Musgo médio - texto secundário */
-  --color-text-light: #8a9070;      /* Musgo claro - placeholders */
+  /* Texto - Contraste confortável */
+  --color-text-primary: #e8ecd8;    /* Cream claro - texto principal */
+  --color-text-secondary: #c5d4b8;  /* Verde claro - texto secundário */
+  --color-text-muted: #6b7a5c;      /* Musgo médio - texto secundário */
+  --color-text-light: #4a5740;      /* Musgo escuro - placeholders */
 
   /* Musgo - Cor primária da marca */
   --color-moss: #4a5c2f;            /* Musgo principal */
   --color-moss-light: #6b7c45;      /* Musgo claro - hover */
   --color-moss-dark: #2d381f;       /* Musgo escuro - active */
-  --color-moss-subtle: rgba(74, 92, 47, 0.08);  /* Backgrounds sutis */
+  --color-moss-glow: rgba(107, 124, 69, 0.3);  /* Glow effects */
+  --color-moss-subtle: rgba(74, 92, 47, 0.08); /* Backgrounds sutis */
 
-  /* Castanho - Secundária */
+  /* Castanho - Secundária (terra) */
   --color-brown: #6b4c2a;           /* Castanho principal */
   --color-brown-dark: #3d2b18;      /* Castanho escuro */
   --color-brown-light: #8a6236;     /* Castanho claro */
 
-  /* Beige/Cream - Superfícies */
+  /* Beige/Cream - Acentos quentes */
   --color-beige: #d4b896;           /* Beige principal */
   --color-beige-dark: #b89b7a;      /* Beige escuro */
   --color-beige-light: #e8dcc8;     /* Beige claro */
-  --color-cream: #f5efe0;           /* Cream puro */
+  --color-cream: #f5efe0;           /* Cream puro - destaques */
 
-  /* Cores de destaque (Psycho) - Mais sutis no tema light */
+  /* Cores de destaque (Psycho) - Arco-íris subtil */
   --color-psycho-1: #ff6b9d;  /* Rosa - badges, flames */
   --color-psycho-2: #ffd93d;  /* Amarelo */
   --color-psycho-3: #6bcb77;  /* Verde */
@@ -110,14 +112,14 @@
   --text-primary: var(--color-text-primary);
   --text-secondary: var(--color-text-secondary);
   --text-muted: var(--color-text-muted);
-  --text-accent: var(--color-moss);
+  --text-accent: var(--color-beige);
 
-  /* Borders - mais sutis no tema light */
-  --border-subtle: rgba(74, 92, 47, 0.12);
-  --border-default: rgba(74, 92, 47, 0.18);
-  --border-accent: rgba(74, 92, 47, 0.32);
-  --border-moss: rgba(74, 92, 47, 0.20);
-  --border-beige: rgba(184, 155, 122, 0.28);
+  /* Borders - Subtis mas visíveis */
+  --border-subtle: rgba(107, 124, 69, 0.20);
+  --border-default: rgba(107, 124, 69, 0.28);
+  --border-accent: rgba(107, 124, 69, 0.40);
+  --border-moss: rgba(74, 92, 47, 0.32);
+  --border-beige: rgba(212, 184, 150, 0.28);
 
   /* Buttons */
   --btn-primary-bg: var(--color-moss);
@@ -133,11 +135,11 @@
   --radius-lg-token: 1.5rem;    /* 24px */
   --radius-xl-token: 1.75rem;   /* 28px */
 
-  /* Shadows - mais suaves no tema light */
-  --shadow-card: 0 4px 24px rgba(74, 92, 47, 0.08);
-  --shadow-modal: 0 8px 48px rgba(74, 92, 47, 0.12);
-  --shadow-glow-moss: 0 0 24px rgba(74, 124, 69, 0.15);
-  --shadow-glow-psycho: 0 0 20px rgba(77, 150, 255, 0.25);
+  /* Shadows - Glow orgânico */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 8px 48px rgba(0, 0, 0, 0.5);
+  --shadow-glow-moss: 0 0 24px rgba(107, 124, 69, 0.25);
+  --shadow-glow-psycho: 0 0 20px rgba(77, 150, 255, 0.20);
 
   /* Typography */
   --font-app: "Inter", "DM Sans", system-ui, sans-serif;
@@ -213,20 +215,39 @@
   }
 
   html {
-    color-scheme: light;
+    color-scheme: dark;
     scroll-behavior: smooth;
   }
 
   body {
     min-height: 100vh;
     background:
-      radial-gradient(circle at top, rgba(107, 124, 69, 0.08), transparent 40%),
-      linear-gradient(180deg, #faf8f5 0%, var(--color-bg-primary) 50%, #f0ece6 100%);
+      /* Camada de folhas/partículas */
+      radial-gradient(circle at 20% 30%, rgba(107, 124, 69, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(74, 92, 47, 0.1) 0%, transparent 45%),
+      radial-gradient(circle at 50% 50%, rgba(107, 203, 119, 0.05) 0%, transparent 50%),
+      /* Gradiente base */
+      linear-gradient(180deg, #0d1410 0%, var(--color-bg-primary) 35%, #08100a 100%);
     color: var(--color-text-primary);
     font-family: var(--font-app), system-ui, sans-serif;
     font-size: 1rem;
     line-height: 1.5;
     font-weight: 400;
+  }
+
+  /* Efeito de folhas a cair (parallax) */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5c-2 0-4 1-5 3-1 2-1 4 0 6 1 2 3 3 5 3s4-1 5-3c1-2 1-4 0-6-1-2-3-3-5-3zm0 15c-2 0-4 1-5 3-1 2-1 4 0 6 1 2 3 3 5 3s4-1 5-3c1-2 1-4 0-6-1-2-3-3-5-3zm-10 10c-2 0-4 1-5 3-1 2-1 4 0 6 1 2 3 3 5 3s4-1 5-3c1-2 1-4 0-6-1-2-3-3-5-3zm20 0c-2 0-4 1-5 3-1 2-1 4 0 6 1 2 3 3 5 3s4-1 5-3c1-2 1-4 0-6-1-2-3-3-5-3z' fill='%234a5c2f' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.4;
+    pointer-events: none;
+    animation: leaf-float 60s linear infinite;
   }
 
   h1,
@@ -318,7 +339,7 @@
 }
 
 @layer components {
-  /* Card Light Design - Mockup Reference */
+  /* Card Dark Orgânico - Mockup Reference */
   .card {
     background: var(--color-bg-card);
     border: 1px solid var(--border-subtle);
@@ -330,7 +351,7 @@
 
   .card:hover {
     border-color: var(--border-default);
-    box-shadow: 0 8px 32px rgba(74, 92, 47, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), var(--shadow-glow-moss);
   }
 
   /* Button Primary - Musgo */
@@ -350,7 +371,7 @@
     background: var(--color-moss-light);
   }
 
-  /* Canhao Panel - Light */
+  /* Canhao Panel - Dark */
   .canhoes-panel {
     background: var(--color-bg-card);
     border: 1px solid var(--border-subtle);
@@ -366,7 +387,7 @@
 
   .canhoes-panel-beige {
     background: var(--color-cream);
-    color: var(--color-text-primary);
+    color: var(--color-text-dark);
     border-radius: var(--radius-lg-token);
     border: 1px solid var(--border-beige);
     box-shadow: var(--shadow-card);
@@ -428,12 +449,12 @@
   }
 
   .canhoes-link {
-    color: var(--color-brown);
+    color: var(--color-beige);
     text-decoration: none;
   }
 
   .canhoes-link:hover {
-    color: var(--color-moss);
+    color: var(--color-text-primary);
     text-decoration: underline;
   }
 }
@@ -870,6 +891,54 @@
   100% {
     opacity: 0;
     transform: translateY(200px) rotate(720deg);
+  }
+}
+
+/* Folhas a cair (background) */
+@keyframes leaf-float {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-100px) rotate(360deg);
+  }
+}
+
+/* Folhas a cair (login page) */
+@keyframes leaf-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) rotate(0deg) translateX(0px);
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(110vh) rotate(720deg) translateX(100px);
+  }
+}
+
+/* Leaf spin (login page) */
+@keyframes leaf-spin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  to {
+    transform: rotate(360deg) scale(1.1);
+  }
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 

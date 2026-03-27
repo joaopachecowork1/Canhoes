@@ -31,21 +31,21 @@ const BACKGROUND_PRESETS = [
     label: "Musgo",
     emoji: "🌿",
     className:
-      "bg-[radial-gradient(circle_at_top,_rgba(107,124,69,0.08),_transparent_35%),linear-gradient(180deg,#faf8f5_0%,#f5f2ed_45%,#f0ece6_100%)]",
+      "bg-[radial-gradient(circle_at_top,_rgba(107,124,69,0.15),_transparent_40%),linear-gradient(180deg,#0d1410_0%,#0a0f08_40%,#08100a_100%)]",
   },
   {
-    id: "cream",
-    label: "Cream",
-    emoji: "🤍",
+    id: "forest",
+    label: "Floresta",
+    emoji: "🌲",
     className:
-      "bg-[radial-gradient(circle_at_top,_rgba(212,184,150,0.1),_transparent_35%),linear-gradient(180deg,#faf8f5_0%,#f5efe0_50%,#ede3cc_100%)]",
+      "bg-[radial-gradient(circle_at_top,_rgba(74,92,47,0.18),_transparent_35%),linear-gradient(180deg,#0a1410_0%,#051008_45%,#030805_100%)]",
   },
   {
-    id: "sage",
-    label: "Sage",
-    emoji: "🍃",
+    id: "psycho",
+    label: "Psycho",
+    emoji: "✨",
     className:
-      "bg-[radial-gradient(circle_at_top,_rgba(107,156,103,0.08),_transparent_35%),linear-gradient(180deg,#f5f7f3_0%,#e8ece4_50%,#dce0d8_100%)]",
+      "bg-[radial-gradient(circle_at_top,_rgba(107,203,119,0.12),_transparent_35%),linear-gradient(180deg,#0f1410_0%,#0a0f0c_45%,#050807_100%)]",
   },
 ] as const;
 
@@ -123,13 +123,13 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
         isTransitioning && "opacity-90"
       )}
     >
-      {/* Header Sticky com Backdrop Blur Dinâmico - Light Theme */}
+      {/* Header Sticky com Backdrop Blur Dinâmico - Dark Theme */}
       <header
         className={cn(
-          "sticky top-0 z-30 border-b border-[var(--color-moss)]/10 transition-all duration-300",
+          "sticky top-0 z-30 border-b border-[var(--color-moss)]/20 transition-all duration-300",
           "backdrop-blur-dynamic",
           isScrolled && "backdrop-blur-dynamic scrolled",
-          "bg-[rgba(255,255,255,0.85)]"
+          "bg-[rgba(10,15,8,0.85)]"
         )}
       >
         <div className="mx-auto flex min-h-16 max-w-2xl items-center justify-between gap-3 px-4 py-3">
