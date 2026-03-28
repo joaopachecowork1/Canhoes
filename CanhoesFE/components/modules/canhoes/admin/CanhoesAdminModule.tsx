@@ -166,12 +166,12 @@ export default function CanhoesAdminModule() {
     pendingMeasureProposals.length;
 
   const adminTabs = [
-    { value: "dashboard", label: "Painel" },
+    { value: "dashboard", label: "Painel", count: 0 },
     { value: "nominees", label: "Nomeacoes", count: pendingNominees.length },
     { value: "pending", label: "Propostas", count: pendingReviewCount },
-    { value: "state", label: "Estado" },
-    { value: "categories", label: "Categorias" },
-    { value: "users", label: "Membros" },
+    { value: "state", label: "Estado", count: 0 },
+    { value: "categories", label: "Categorias", count: 0 },
+    { value: "users", label: "Membros", count: 0 },
     { value: "audit", label: "Auditoria", count: votes.length },
   ] as const;
 
