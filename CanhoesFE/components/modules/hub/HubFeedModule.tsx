@@ -1,28 +1,50 @@
 "use client";
 
-import { useSession, signIn, signOut } from "next-auth/react";
-import { RefreshCw } from "lucide-react";
+import type { ReactNode } from "react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { Camera, Pin, RefreshCw, ScrollText, Vote } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useIsAdmin } from "@/lib/auth/useIsAdmin";
-import { useHubFeed } from "@/hooks/useHubFeed";
-
-import { PostComposer, type PostComposerSubmitData } from "./components/PostComposer";
-import { HubPostCard } from "./HubPostCard";
 import { Particles } from "@/components/animations/Particles";
 import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
+import { Button } from "@/components/ui/button";
+import { useHubFeed } from "@/hooks/useHubFeed";
+import { useIsAdmin } from "@/lib/auth/useIsAdmin";
+import { cn } from "@/lib/utils";
 
-/**
- * Hub Feed Module - Instagram Style
- * 
- * Componente principal do feed, agora simplificado com:
- * - useHubFeed hook para toda a lógica
- * - HubPostCard para renderização de cada post
- * - Particles effect ao votar
- * - FeedSkeleton para loading
- */
+import { HubPostCard } from "./HubPostCard";
+import { PostComposer, type PostComposerSubmitData } from "./components/PostComposer";
+
+function FeedInsightCard({
+  label,
+  value,
+  description,
+  icon,
+}: Readonly<{
+  label: string;
+  value: number;
+  description: string;
+  icon: ReactNode;
+}>) {
+  return (
+    <section className="editorial-shell rounded-[var(--radius-lg-token)] px-4 py-4 sm:px-5">
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="space-y-1">
+            <p className="editorial-kicker">{label}</p>
+            <p className="heading-2 text-[var(--color-text-primary)]">{value}</p>
+          </div>
+          <span className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--color-moss)]/20 bg-[var(--color-bg-surface)] text-[var(--color-title)]">
+            {icon}
+          </span>
+        </div>
+
+        <p className="body-small text-[var(--color-text-muted)]">{description}</p>
+      </div>
+    </section>
+  );
+}
+
 export function HubFeedModule({
   showComposer = true,
 }: Readonly<{
@@ -31,7 +53,6 @@ export function HubFeedModule({
   const { data: session, status } = useSession();
   const isAdmin = useIsAdmin();
 
-  // Hook com toda a lógica do feed
   const {
     posts,
     loading,
@@ -51,15 +72,13 @@ export function HubFeedModule({
     adminDelete,
   } = useHubFeed();
 
-  // Auto-heal sessions sem idToken
   if (status === "authenticated" && !session?.idToken) {
     signOut({ redirect: false }).then(() => signIn("google"));
   }
 
-  // Handler para criar post
   const handleCreatePost = async (data: PostComposerSubmitData) => {
-    const trimmed = data.text.trim();
-    if (!trimmed) return;
+    const trimmedText = data.text.trim();
+    if (!trimmedText) return;
 
     try {
       let mediaUrls: string[] = [];
@@ -70,91 +89,146 @@ export function HubFeedModule({
 
       const { hubRepo } = await import("@/lib/repositories/hubRepo");
       const pollQuestion = data.pollOn ? data.pollQuestion.trim() : "";
-      const pollOptions = data.pollOn ? data.pollOptions.map((o) => o.trim()).filter(Boolean) : [];
+      const pollOptions = data.pollOn
+        ? data.pollOptions.map((option) => option.trim()).filter(Boolean)
+        : [];
 
-      const created = await hubRepo.createPost({
-        text: trimmed,
+      const createdPost = await hubRepo.createPost({
+        text: trimmedText,
         mediaUrls,
         pollQuestion: data.pollOn && pollQuestion ? pollQuestion : null,
         pollOptions: data.pollOn ? pollOptions : null,
       });
 
-      if (created?.id) {
-        // Dispatch event para o feed atualizar
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("hub:postCreated", { detail: created }));
-        }
+      if (createdPost?.id && typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("hub:postCreated", { detail: createdPost })
+        );
       }
+
       toast.success("Post publicado");
-    } catch (e) {
-      console.error(e);
-      toast.error("Não foi possível publicar");
-      throw e;
+    } catch (error) {
+      console.error(error);
+      toast.error("Nao foi possivel publicar");
+      throw error;
     }
   };
 
+  const pinnedPostCount = posts.filter((post) => post.isPinned).length;
+  const postsWithMediaCount = posts.filter((post) => (post.mediaUrls ?? []).length > 0).length;
+  const postsWithPollCount = posts.filter((post) => Boolean(post.poll)).length;
+
   return (
-    <div className="space-y-0 sm:space-y-3">
-      {/* Header do Feed */}
-      <div className="flex items-center justify-between gap-2 px-3 py-2 sm:px-0 sm:py-0 sm:mb-2">
-        <div className="canhoes-title text-base" style={{ fontSize: "16px" }}>
-          🌿 Feed
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="canhoes-tap h-8 w-8 p-0 rounded-xl"
-          onClick={() => void refresh()}
-          disabled={loading}
-          style={{ color: "rgba(0,255,68,0.60)", background: "rgba(0,255,68,0.06)", border: "1px solid rgba(0,255,68,0.12)" }}
-        >
-          <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-        </Button>
+    <div className="space-y-4 xl:grid xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-5 xl:space-y-0">
+      <div className="space-y-4">
+        <section className="editorial-shell rounded-[var(--radius-lg-token)] px-4 py-4 sm:px-5 sm:py-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-[var(--color-title)]">
+                <ScrollText className="h-4 w-4" />
+                <span className="editorial-kicker">Feed</span>
+              </div>
+              <div className="space-y-1">
+                <h2 className="heading-2 text-[var(--color-text-primary)]">
+                  Cronica do evento
+                </h2>
+                <p className="body-small max-w-2xl text-[var(--color-text-muted)]">
+                  Um feed com linguagem editorial, melhor hierarquia para texto,
+                  imagem e interacoes, e respiro suficiente para funcionar bem
+                  em telemovel e desktop.
+                </p>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2 self-start"
+              onClick={() => void refresh()}
+              disabled={loading}
+            >
+              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              Atualizar
+            </Button>
+          </div>
+        </section>
+
+        {showComposer ? <PostComposer onSubmit={handleCreatePost} /> : null}
+
+        {loading ? <FeedSkeleton count={3} /> : null}
+
+        {!loading ? (
+          <div className="space-y-4">
+            {posts.map((post, index) => (
+              <HubPostCard
+                key={post.id}
+                post={post}
+                index={index}
+                isAdmin={isAdmin}
+                openComments={openComments[post.id] ?? false}
+                commentDraft={commentDrafts[post.id] ?? ""}
+                comments={comments[post.id] ?? []}
+                onToggleReaction={toggleReaction}
+                onToggleComments={toggleComments}
+                onVotePoll={votePoll}
+                onAddComment={addComment}
+                onCommentDraftChange={setCommentDraft}
+                onToggleCommentReaction={toggleCommentReaction}
+                onAdminPin={adminPin}
+                onAdminDelete={adminDelete}
+              />
+            ))}
+
+            {posts.length === 0 ? (
+              <section className="editorial-shell rounded-[var(--radius-lg-token)] px-4 py-10 text-center sm:px-5">
+                <p className="editorial-kicker">Ainda vazio</p>
+                <h3 className="heading-3 mt-2 text-[var(--color-text-primary)]">
+                  O arquivo deste ano ainda nao tem publicacoes
+                </h3>
+                <p className="body-small mt-2 text-[var(--color-text-muted)]">
+                  Publica o primeiro post para abrir o feed do grupo.
+                </p>
+              </section>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
-      {/* Composer (inline ou via bottom sheet) */}
-      {showComposer && <PostComposer onSubmit={handleCreatePost} />}
+      <aside className="space-y-4 xl:sticky xl:top-24 xl:self-start">
+        <FeedInsightCard
+          label="Arquivo"
+          value={posts.length}
+          description="Numero total de publicacoes disponiveis no feed deste evento."
+          icon={<ScrollText className="h-4 w-4" />}
+        />
+        <FeedInsightCard
+          label="Momentos visuais"
+          value={postsWithMediaCount}
+          description="Posts com fotografias ou imagens que ajudam a dar ritmo ao feed."
+          icon={<Camera className="h-4 w-4" />}
+        />
+        <FeedInsightCard
+          label="Votacoes"
+          value={postsWithPollCount}
+          description="Blocos com participacao direta. Ideal para dinamizar semanas mortas."
+          icon={<Vote className="h-4 w-4" />}
+        />
+        <FeedInsightCard
+          label="Destaques"
+          value={pinnedPostCount}
+          description="Posts fixados pelos admins para manter contexto editorial no topo."
+          icon={<Pin className="h-4 w-4" />}
+        />
+      </aside>
 
-      {/* Loading Skeletons */}
-      {loading && <FeedSkeleton count={3} />}
-
-      {/* Lista de Posts */}
-      {!loading && (
-        <div className="space-y-3">
-          {posts.map((post, index) => (
-            <HubPostCard
-              key={post.id}
-              post={post}
-              index={index}
-              isAdmin={isAdmin}
-              openComments={openComments[post.id] ?? false}
-              commentDraft={commentDrafts[post.id] ?? ""}
-              comments={comments[post.id] ?? []}
-              onToggleReaction={toggleReaction}
-              onToggleComments={toggleComments}
-              onVotePoll={votePoll}
-              onAddComment={addComment}
-              onCommentDraftChange={setCommentDraft}
-              onToggleCommentReaction={toggleCommentReaction}
-              onAdminPin={adminPin}
-              onAdminDelete={adminDelete}
-            />
-          ))}
-
-          {!loading && posts.length === 0 && (
-            <div className="text-sm text-muted-foreground text-center py-8">Sem posts ainda.</div>
-          )}
-        </div>
-      )}
-
-      {/* Particles effect ao votar */}
-      {showParticles && (
+      {showParticles ? (
         <Particles
           count={24}
           onComplete={() => setShowParticles(null)}
           className="pointer-events-none fixed inset-0 z-50"
         />
-      )}
+      ) : null}
     </div>
   );
 }

@@ -20,6 +20,13 @@ import {
   MOCK_PENDING,
   MOCK_VOTES,
   MOCK_PROPOSALS_HISTORY,
+  MOCK_EVENT_CATEGORIES,
+  MOCK_EVENT_CONTEXT,
+  MOCK_EVENT_POSTS,
+  MOCK_EVENT_PROPOSALS,
+  MOCK_EVENT_SUMMARY,
+  MOCK_EVENT_VOTING_BOARD,
+  MOCK_EVENT_WISHLIST,
 } from "./mockData";
 
 /** Simulate a small network delay so skeletons are visible in dev. */
@@ -140,6 +147,50 @@ function handleWrite<T>(path: string): T {
     } as unknown as T;
   }
 
+  if (/^v1\/events\/[^/]+\/feed\/posts$/.test(path)) {
+    return {
+      id: `event-post-${Date.now()}`,
+      eventId: MOCK_EVENT_SUMMARY.id,
+      userId: "mock-admin-001",
+      userName: "Dev Admin",
+      content: "Post de mock do evento",
+      imageUrl: null,
+      createdAt: new Date().toISOString(),
+    } as unknown as T;
+  }
+
+  if (/^v1\/events\/[^/]+\/votes$/.test(path)) {
+    return {
+      id: `event-vote-${Date.now()}`,
+      userId: "mock-admin-001",
+      categoryId: "cat-001",
+      optionId: "nom-001",
+      phaseId: "phase-voting",
+    } as unknown as T;
+  }
+
+  if (/^v1\/events\/[^/]+\/proposals$/.test(path)) {
+    return {
+      id: `event-proposal-${Date.now()}`,
+      eventId: MOCK_EVENT_SUMMARY.id,
+      userId: "mock-admin-001",
+      content: "Nova proposta",
+      status: "pending",
+      createdAt: new Date().toISOString(),
+    } as unknown as T;
+  }
+
+  if (/^v1\/events\/[^/]+\/wishlist$/.test(path)) {
+    return {
+      id: `event-wishlist-${Date.now()}`,
+      userId: "mock-admin-001",
+      eventId: MOCK_EVENT_SUMMARY.id,
+      title: "Novo item",
+      link: null,
+      updatedAt: new Date().toISOString(),
+    } as unknown as T;
+  }
+
   // default: empty success
   return undefined as unknown as T;
 }
@@ -212,6 +263,20 @@ function handleRead<T>(path: string): T {
 
   // hub posts
   if (path === "hub/posts") return MOCK_HUB_POSTS as unknown as T;
+
+  if (path === "v1/events") return [MOCK_EVENT_SUMMARY] as unknown as T;
+
+  if (/^v1\/events\/[^/]+$/.test(path)) return MOCK_EVENT_CONTEXT as unknown as T;
+
+  if (/^v1\/events\/[^/]+\/feed\/posts$/.test(path)) return MOCK_EVENT_POSTS as unknown as T;
+
+  if (/^v1\/events\/[^/]+\/categories$/.test(path)) return MOCK_EVENT_CATEGORIES as unknown as T;
+
+  if (/^v1\/events\/[^/]+\/voting$/.test(path)) return MOCK_EVENT_VOTING_BOARD as unknown as T;
+
+  if (/^v1\/events\/[^/]+\/proposals$/.test(path)) return MOCK_EVENT_PROPOSALS as unknown as T;
+
+  if (/^v1\/events\/[^/]+\/wishlist$/.test(path)) return MOCK_EVENT_WISHLIST as unknown as T;
 
   // hub comments
   if (/^hub\/posts\/.+\/comments$/.test(path)) return [] as unknown as T;

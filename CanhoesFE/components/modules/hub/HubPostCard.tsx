@@ -1,198 +1,167 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
-import type { HubCommentDto, HubPostDto } from "@/lib/api/types";
-
-// Componentes do Hub
-import { PostHeader } from "./components/PostHeader";
-import { MediaCarousel } from "./components/MediaCarousel";
-import { PollBox } from "./components/PollBox";
-import { CommentsSection } from "./components/CommentsSection";
-import { HUB_EMOJIS } from "./components/ReactionRail";
-
-// Animações
+import { Button } from "@/components/ui/button";
 import { BlurFade } from "@/components/animations/BlurFade";
 import { NumberTicker } from "@/components/animations/NumberTicker";
+import type { HubCommentDto, HubPostDto } from "@/lib/api/types";
+
+import { CommentsSection } from "./components/CommentsSection";
+import { HUB_EMOJIS } from "./components/ReactionRail";
+import { MediaCarousel } from "./components/MediaCarousel";
+import { PollBox } from "./components/PollBox";
+import { PostHeader } from "./components/PostHeader";
 
 interface HubPostCardProps {
-    post: HubPostDto;
-    index: number;
-    isAdmin: boolean;
-    openComments: boolean;
-    commentDraft: string;
-    comments?: HubCommentDto[];
-    onToggleReaction: (postId: string, emoji: string) => void;
-    onToggleComments: (postId: string) => void;
-    onVotePoll: (postId: string, optionId: string) => void;
-    onAddComment: (postId: string) => void;
-    onCommentDraftChange: (postId: string, text: string) => void;
-    onToggleCommentReaction: (postId: string, commentId: string, emoji: string) => void;
-    onAdminPin: (postId: string) => void;
-    onAdminDelete: (postId: string) => void;
+  post: HubPostDto;
+  index: number;
+  isAdmin: boolean;
+  openComments: boolean;
+  commentDraft: string;
+  comments?: HubCommentDto[];
+  onToggleReaction: (postId: string, emoji: string) => void;
+  onToggleComments: (postId: string) => void;
+  onVotePoll: (postId: string, optionId: string) => void;
+  onAddComment: (postId: string) => void;
+  onCommentDraftChange: (postId: string, text: string) => void;
+  onToggleCommentReaction: (
+    postId: string,
+    commentId: string,
+    emoji: string
+  ) => void;
+  onAdminPin: (postId: string) => void;
+  onAdminDelete: (postId: string) => void;
 }
 
-/**
- * Card de Post do Feed (Estilo Instagram)
- *
- * Visual "canhao-card" do mockup:
- * - Dark glass com neon border verde
- * - BlurFade ao entrar no viewport
- * - NumberTicker nos badges numéricos
- * - Botões de reação com gradiente psycho
- */
 export function HubPostCard({
-    post,
-    index,
-    isAdmin,
-    openComments,
-    commentDraft,
-    comments = [],
-    onToggleReaction,
-    onToggleComments,
-    onVotePoll,
-    onAddComment,
-    onCommentDraftChange,
-    onToggleCommentReaction,
-    onAdminPin,
-    onAdminDelete,
-}: HubPostCardProps) {
-    const media = (post.mediaUrls ?? []).filter(Boolean);
-    const counts = post.reactionCounts || {};
+  post,
+  index,
+  isAdmin,
+  openComments,
+  commentDraft,
+  comments = [],
+  onToggleReaction,
+  onToggleComments,
+  onVotePoll,
+  onAddComment,
+  onCommentDraftChange,
+  onToggleCommentReaction,
+  onAdminPin,
+  onAdminDelete,
+}: Readonly<HubPostCardProps>) {
+  const mediaUrls = (post.mediaUrls ?? []).filter(Boolean);
+  const reactionCounts = post.reactionCounts || {};
+  const reactionCountTotal =
+    Object.keys(reactionCounts).length > 0
+      ? Object.values(reactionCounts).reduce(
+          (total, currentValue) => total + currentValue,
+          0
+        )
+      : (post.likeCount ?? 0);
 
-    return (
-        <BlurFade delay={index * 50}>
-            {/* Canhao Card - Light Design (Mockup) */}
-            <div
-                className="overflow-hidden rounded-2xl"
-                style={{
-                    background: "var(--color-bg-card)",
-                    border: "1px solid var(--border-subtle)",
-                    boxShadow: "var(--shadow-card)",
-                    color: "var(--color-text-dark)",
-                }}
-            >
-                {/* Header + Texto */}
-                <div className="px-3 pt-3 pb-2.5 sm:p-4">
-                    <PostHeader
-                        authorName={post.authorName}
-                        createdAtUtc={post.createdAtUtc}
-                        isAdmin={isAdmin}
-                        onAdminPin={() => onAdminPin(post.id)}
-                        onAdminDelete={() => onAdminDelete(post.id)}
-                    />
-                    {!!post.text && (
-                        <div
-                            className="mt-2.5 whitespace-pre-wrap break-words text-[13px] sm:text-sm leading-relaxed"
-                            style={{ color: "var(--color-text-dark)", fontFamily: "'Nunito', sans-serif", fontWeight: 500 }}
-                        >
-                            {post.text}
-                        </div>
-                    )}
-                </div>
+  return (
+    <BlurFade delay={index * 50}>
+      <article className="editorial-shell rounded-[var(--radius-lg-token)]">
+        <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
+          <PostHeader
+            authorName={post.authorName}
+            createdAtUtc={post.createdAtUtc}
+            isPinned={post.isPinned}
+            isAdmin={isAdmin}
+            onAdminPin={() => onAdminPin(post.id)}
+            onAdminDelete={() => onAdminDelete(post.id)}
+          />
 
-                {/* Media Carousel */}
-                {media.length > 0 && (
-                    <div className="px-0 sm:px-4 pb-2.5 sm:pb-3">
-                        <MediaCarousel urls={media} />
-                    </div>
-                )}
+          {post.text ? (
+            <p className="body-base whitespace-pre-wrap break-words text-[var(--color-text-dark)]">
+              {post.text}
+            </p>
+          ) : null}
+        </div>
 
-                {/* Poll */}
-                {post.poll && (
-                    <div className={cn("px-3 sm:px-4 pb-2.5 sm:pb-3", media.length > 0 ? "pt-0" : "")}>
-                        <PollBox poll={post.poll} onVote={(optionId) => onVotePoll(post.id, optionId)} />
-                    </div>
-                )}
+        {mediaUrls.length > 0 ? (
+          <div className="px-4 pb-4 sm:px-5">
+            <MediaCarousel urls={mediaUrls} />
+          </div>
+        ) : null}
 
-                {/* Reações + Comentários */}
-                <div className="px-3 pb-3 sm:px-4 sm:pb-4">
-                    <div className="flex items-center justify-between">
-                        {/* Reações */}
-                        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-1">
-                            {HUB_EMOJIS.map((emoji) => {
-                                const active = (post.myReactions ?? []).includes(emoji);
-                                const count = counts[emoji] ?? (emoji === "❤️" ? post.likeCount ?? 0 : 0);
-                                return (
-                                    <Button
-                                        key={emoji}
-                                        variant={active ? "default" : "outline"}
-                                        size="sm"
-                                        onClick={() => onToggleReaction(post.id, emoji)}
-                                        className="canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0"
-                                        style={
-                                            active
-                                                ? {
-                                                    background: "var(--color-btn-primary)",
-                                                    border: "1.5px solid var(--color-btn-primary)",
-                                                    color: "#ffffff",
-                                                    boxShadow: "0 0 12px rgba(112, 122, 95, 0.4)",
-                                                }
-                                                : {
-                                                    background: "var(--color-bg-surface)",
-                                                    border: "1px solid var(--border-subtle)",
-                                                    color: "var(--color-text-primary)",
-                                                }
-                                        }
-                                    >
-                                        <span className="text-sm leading-none">{emoji}</span>
-                                        <NumberTicker value={count} className="tabular-nums text-xs" />
-                                    </Button>
-                                );
-                            })}
+        {post.poll ? (
+          <div className="px-4 pb-4 sm:px-5">
+            <PollBox
+              poll={post.poll}
+              onVote={(optionId) => onVotePoll(post.id, optionId)}
+            />
+          </div>
+        ) : null}
 
-                            {/* Botão Comentários */}
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => onToggleComments(post.id)}
-                                className="canhoes-tap h-8 gap-1.5 rounded-full px-2.5 shrink-0"
-                                style={{
-                                    background: "var(--color-bg-surface)",
-                                    border: "1px solid var(--border-subtle)",
-                                    color: "var(--color-text-secondary)",
-                                }}
-                            >
-                                <span className="text-sm leading-none">💬</span>
-                                <NumberTicker value={post.commentCount ?? 0} className="tabular-nums text-xs" />
-                            </Button>
-                        </div>
+        <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+          <div className="editorial-divider" />
 
-                        {/* Badge Fixado */}
-                        {post.isPinned && (
-                            <Badge
-                                variant="secondary"
-                                style={{
-                                    background: "rgba(255,225,53,0.10)",
-                                    border: "1px solid rgba(255,225,53,0.35)",
-                                    color: "#ffe135",
-                                    fontFamily: "'Nunito', sans-serif",
-                                    fontWeight: 700,
-                                    fontSize: "11px",
-                                }}
-                            >
-                                📌 Fixado
-                            </Badge>
-                        )}
-                    </div>
+          <div className="mt-4 space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {HUB_EMOJIS.map((emoji) => {
+                const isActive = (post.myReactions ?? []).includes(emoji);
+                const reactionCount =
+                  reactionCounts[emoji] ?? (emoji === "❤️" ? post.likeCount ?? 0 : 0);
 
-                    {/* Secção de Comentários */}
-                    {openComments && (
-                        <div className="mt-4">
-                            <CommentsSection
-                                comments={comments}
-                                draft={commentDraft}
-                                onDraftChange={(text) => onCommentDraftChange(post.id, text)}
-                                onSubmit={() => onAddComment(post.id)}
-                                onToggleReaction={(commentId, emoji) => onToggleCommentReaction(post.id, commentId, emoji)}
-                            />
-                        </div>
-                    )}
-                </div>
+                return (
+                  <Button
+                    key={emoji}
+                    type="button"
+                    variant={isActive ? "secondary" : "outline"}
+                    size="sm"
+                    onClick={() => onToggleReaction(post.id, emoji)}
+                    className="rounded-full px-3"
+                  >
+                    <span className="text-sm leading-none">{emoji}</span>
+                    <NumberTicker value={reactionCount} className="text-xs" />
+                  </Button>
+                );
+              })}
+
+              <Button
+                type="button"
+                variant={openComments ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => onToggleComments(post.id)}
+                className="rounded-full px-3"
+              >
+                <span className="text-sm leading-none">💬</span>
+                <NumberTicker value={post.commentCount ?? 0} className="text-xs" />
+                <span className="text-xs font-semibold">
+                  {openComments ? "Fechar" : "Comentarios"}
+                </span>
+              </Button>
             </div>
-        </BlurFade>
-    );
+
+            <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--color-text-muted)]">
+              <span className="rounded-full bg-[var(--color-bg-surface)] px-2.5 py-1">
+                {post.commentCount ?? 0} comentarios
+              </span>
+              <span className="rounded-full bg-[var(--color-bg-surface)] px-2.5 py-1">
+                {reactionCountTotal} reacoes
+              </span>
+              {post.isPinned ? <Badge variant="secondary">Arquivo em destaque</Badge> : null}
+            </div>
+          </div>
+
+          {openComments ? (
+            <div className="mt-4">
+              <CommentsSection
+                comments={comments}
+                draft={commentDraft}
+                onDraftChange={(text) => onCommentDraftChange(post.id, text)}
+                onSubmit={() => onAddComment(post.id)}
+                onToggleReaction={(commentId, emoji) =>
+                  onToggleCommentReaction(post.id, commentId, emoji)
+                }
+              />
+            </div>
+          ) : null}
+        </div>
+      </article>
+    </BlurFade>
+  );
 }

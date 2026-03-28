@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -21,70 +22,80 @@ type Props = {
 
 const MAX_DISPLAY = 200;
 
-export function VotesAudit({ votes, categories, loading }: Props) {
+export function VotesAudit({ votes, categories, loading }: Readonly<Props>) {
   const [search, setSearch] = useState("");
 
   const categoryMap = useMemo(
-    () => new Map(categories.map((c) => [c.id, c.name])),
+    () => new Map(categories.map((category) => [category.id, category.name])),
     [categories]
   );
 
-  const filtered = useMemo(() => {
+  const filteredVotes = useMemo(() => {
     if (!search.trim()) return votes.slice(0, MAX_DISPLAY);
 
-    const term = search.toLowerCase();
+    const normalizedTerm = search.toLowerCase();
     return votes
       .filter(
-        (v) =>
-          v.nomineeId.toLowerCase().includes(term) ||
-          v.userId.toLowerCase().includes(term) ||
-          categoryMap.get(v.categoryId)?.toLowerCase().includes(term)
+        (vote) =>
+          vote.nomineeId.toLowerCase().includes(normalizedTerm) ||
+          vote.userId.toLowerCase().includes(normalizedTerm) ||
+          categoryMap.get(vote.categoryId)?.toLowerCase().includes(normalizedTerm)
       )
       .slice(0, MAX_DISPLAY);
   }, [votes, search, categoryMap]);
 
   return (
-    <Card className="canhoes-glass border-primary/30">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base text-primary/90">Auditoria de Votos</CardTitle>
+    <Card className="border-[var(--color-moss)]/20">
+      <CardHeader className="space-y-1">
+        <p className="editorial-kicker">Auditoria</p>
+        <CardTitle>Historico de votos</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+
+      <CardContent className="space-y-4">
         {loading ? (
-          <div className="text-sm text-muted-foreground">A carregar...</div>
+          <div className="body-small text-[var(--color-text-muted)]">
+            A carregar auditoria...
+          </div>
         ) : votes.length === 0 ? (
-          <div className="text-sm text-muted-foreground">Ainda não há votos.</div>
+          <div className="body-small text-[var(--color-text-muted)]">
+            Ainda nao ha votos registados.
+          </div>
         ) : (
           <>
             <Input
-              placeholder="Pesquisar por categoria, nominee ou user..."
+              placeholder="Pesquisar por categoria, nominee ou utilizador..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
             />
 
-            <div className="text-xs text-muted-foreground">
-              {filtered.length} de {votes.length} votos
-              {filtered.length >= MAX_DISPLAY && ` (mostrando ${MAX_DISPLAY} max)`}
+            <div className="body-small text-[var(--color-text-muted)]">
+              {filteredVotes.length} de {votes.length} votos
+              {filteredVotes.length >= MAX_DISPLAY
+                ? ` (mostrando no maximo ${MAX_DISPLAY})`
+                : ""}
             </div>
 
             <Separator />
 
-            <div className="space-y-2 max-h-[600px] overflow-y-auto">
-              {filtered.map((v, idx) => (
-                <div
-                  key={`${v.userId}:${v.categoryId}:${idx}`}
-                  className="rounded-lg border border-primary/20 bg-black/20 p-2 space-y-1"
+            <div className="space-y-3">
+              {filteredVotes.map((vote, index) => (
+                <article
+                  key={`${vote.userId}:${vote.categoryId}:${index}`}
+                  className="editorial-shell rounded-[var(--radius-md-token)] px-4 py-4"
                 >
-                  <div className="text-sm font-medium">
-                    {categoryMap.get(v.categoryId) ?? v.categoryId}
+                  <div className="space-y-2">
+                    <p className="font-semibold text-[var(--color-text-primary)]">
+                      {categoryMap.get(vote.categoryId) ?? vote.categoryId}
+                    </p>
+                    <div className="space-y-1 text-sm text-[var(--color-text-secondary)]">
+                      <p>Nominee: {vote.nomineeId}</p>
+                      <p>Utilizador: {vote.userId}</p>
+                    </div>
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                      {new Date(vote.updatedAtUtc).toLocaleString("pt-PT")}
+                    </p>
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    Nominee: {v.nomineeId}
-                  </div>
-                  <div className="text-xs text-muted-foreground">User: {v.userId}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {new Date(v.updatedAtUtc).toLocaleString("pt-PT")}
-                  </div>
-                </div>
+                </article>
               ))}
             </div>
           </>

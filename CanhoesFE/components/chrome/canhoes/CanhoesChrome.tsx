@@ -25,34 +25,6 @@ const PAGE_TITLES = [
   { href: "/canhoes/wishlist", label: "Wishlist" },
 ] as const;
 
-const BACKGROUND_PRESETS = [
-  {
-    id: "moss",
-    label: "Musgo",
-    emoji: "🌿",
-    className:
-      "bg-[radial-gradient(circle_at_top,_rgba(112,122,95,0.12),_transparent_40%),linear-gradient(180deg,#353531_0%,#2F2F2B_40%,#282824_100%)]",
-  },
-  {
-    id: "forest",
-    label: "Floresta",
-    emoji: "🌲",
-    className:
-      "bg-[radial-gradient(circle_at_top,_rgba(112,122,95,0.15),_transparent_35%),linear-gradient(180deg,#32352e_0%,#2a2d28_45%,#232621_100%)]",
-  },
-  {
-    id: "psycho",
-    label: "Psycho",
-    emoji: "✨",
-    className:
-      "bg-[radial-gradient(circle_at_top,_rgba(107,203,119,0.1),_transparent_35%),linear-gradient(180deg,#2f3230_0%,#2a2d2b_45%,#252827_100%)]",
-  },
-] as const;
-
-type BackgroundPresetId = (typeof BACKGROUND_PRESETS)[number]["id"];
-
-const BACKGROUND_STORAGE_KEY = "canhoes-bg-preset";
-
 function getPageTitle(pathname: string | null) {
   if (!pathname) return "Feed";
 
@@ -67,100 +39,46 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
 
   const [isMoreSheetOpen, setIsMoreSheetOpen] = useState(false);
   const [isComposeSheetOpen, setIsComposeSheetOpen] = useState(false);
-  const [backgroundPresetId, setBackgroundPresetId] = useState<BackgroundPresetId>("moss");
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Scroll listener para backdrop blur dinâmico
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 8);
+      // Scroll handler se necessário
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Load saved preset
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const savedPresetId = localStorage.getItem(BACKGROUND_STORAGE_KEY) as BackgroundPresetId | null;
-    const hasValidPreset = BACKGROUND_PRESETS.some(({ id }) => id === savedPresetId);
-
-    if (savedPresetId && hasValidPreset) {
-      setBackgroundPresetId(savedPresetId);
-    }
-  }, []);
-
-  // Fade transition ao mudar background
-  useEffect(() => {
-    setIsTransitioning(true);
-    const t = setTimeout(() => setIsTransitioning(false), 300);
-    return () => clearTimeout(t);
-  }, [backgroundPresetId]);
-
-  const currentBackgroundPreset =
-    BACKGROUND_PRESETS.find(({ id }) => id === backgroundPresetId) ?? BACKGROUND_PRESETS[0];
   const pageTitle = getPageTitle(pathname);
   const isFeedPath = pathname === "/canhoes" || pathname === "/canhoes/" || pathname === "/canhoes/feed";
-
-  const handleBackgroundCycle = () => {
-    const currentPresetIndex = BACKGROUND_PRESETS.findIndex(({ id }) => id === backgroundPresetId);
-    const nextPreset = BACKGROUND_PRESETS[(currentPresetIndex + 1) % BACKGROUND_PRESETS.length];
-
-    setBackgroundPresetId(nextPreset.id);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(BACKGROUND_STORAGE_KEY, nextPreset.id);
-    }
-  };
 
   return (
     <div
       data-theme="canhoes"
-      className={cn(
-        "relative isolate flex min-h-[100svh] flex-col overflow-hidden transition-opacity duration-300",
-        currentBackgroundPreset.className,
-        isTransitioning && "opacity-90"
-      )}
+      className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-[var(--color-bg-primary)]"
     >
-      {/* Header Sticky com Backdrop Blur Dinâmico - Light/Dark Theme */}
+      {/* Header Sticky */}
       <header
         className={cn(
-          "sticky top-0 z-30 border-b border-[var(--color-title)]/20 transition-all duration-300",
-          "backdrop-blur-dynamic",
-          isScrolled && "backdrop-blur-dynamic scrolled",
-          "bg-[rgba(47,47,43,0.85)]"
+          "sticky top-0 z-30 border-b border-[var(--color-border-default)]",
+          "bg-[var(--color-bg-card)]/95 backdrop-blur"
         )}
       >
         <div className="mx-auto flex min-h-16 max-w-2xl items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <p className="label text-[var(--color-title)] font-bold">Canhões</p>
             <div className="flex items-center gap-2">
-              <span aria-hidden="true" className="text-base">
-                {currentBackgroundPreset.emoji}
-              </span>
               <div className="min-w-0">
-                <h1 className="heading-2 truncate text-[var(--color-title)] font-extrabold drop-shadow-md">Canhões do Ano</h1>
+                <h1 className="heading-2 truncate text-[var(--color-title)] font-extrabold">Canhões do Ano</h1>
                 <p className="body-small truncate text-[var(--color-text-secondary)] font-semibold">{pageTitle}</p>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleBackgroundCycle}
-              className="canhoes-tap flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-title)]/50 bg-white/15 text-lg text-[var(--color-text-primary)] shadow-md"
-              aria-label={`Mudar fundo. Actual: ${currentBackgroundPreset.label}`}
-              title={`Mudar fundo: ${currentBackgroundPreset.label}`}
-              type="button"
-            >
-              {currentBackgroundPreset.emoji}
-            </button>
-
             {isLogged ? (
-              <Button 
-                variant="ghost" 
-                className="hidden px-4 py-2 sm:inline-flex font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-danger)]/30 hover:text-[var(--color-danger)] transition-colors" 
+              <Button
+                variant="ghost"
+                className="inline-flex px-4 py-2 font-bold text-[var(--color-text-primary)] hover:bg-[var(--color-danger)]/30 hover:text-[var(--color-danger)] transition-colors"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -174,7 +92,7 @@ export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode
             <Button
               variant="secondary"
               size="icon"
-              className="shrink-0 border border-[var(--color-title)]/40 bg-white/15 text-[var(--color-text-primary)] hover:bg-[var(--color-title)]/25 transition-colors"
+              className="shrink-0 border border-[var(--color-title)]/40 bg-[var(--color-bg-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-title)]/25 transition-colors"
               onClick={() => setIsMoreSheetOpen(true)}
               aria-label="Abrir menu"
               title={user?.email ?? "Mais opções"}

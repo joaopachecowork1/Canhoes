@@ -1,34 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import { canhoesRepo } from "@/lib/repositories/canhoesRepo";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Eye, Lightbulb, PlusCircle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Eye } from "lucide-react";
-import type { AwardCategoryDto, CanhoesStateDto } from "@/lib/api/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { canhoesRepo } from "@/lib/repositories/canhoesRepo";
+import type { AwardCategoryDto, CanhoesPhase, CanhoesStateDto } from "@/lib/api/types";
 import { toast } from "sonner";
 
-type Props = {
+type EventStateCardProps = {
   state: CanhoesStateDto | null;
   categories: AwardCategoryDto[];
   onUpdate: () => Promise<void>;
 };
 
-export function EventStateCard({ state, categories, onUpdate }: Props) {
-  const [busy, setBusy] = useState(false);
-  const [newCatName, setNewCatName] = useState("");
-  const [newCatKind, setNewCatKind] = useState<"Sticker" | "UserVote">("UserVote");
+type CategoryKind = "Sticker" | "UserVote";
+
+const PHASE_OPTIONS: Array<{ value: CanhoesPhase; label: string }> = [
+  { value: "nominations", label: "Nomeacoes" },
+  { value: "voting", label: "Votacao" },
+  { value: "locked", label: "Fechado" },
+  { value: "gala", label: "Gala" },
+];
+
+export function EventStateCard({
+  state,
+  categories,
+  onUpdate,
+}: Readonly<EventStateCardProps>) {
+  const [isBusy, setIsBusy] = useState(false);
+  const [categoryName, setCategoryName] = useState("");
+  const [categoryKind, setCategoryKind] = useState<CategoryKind>("UserVote");
 
   const updateState = async (patch: Partial<CanhoesStateDto>) => {
     if (!state) return;
 
-    setBusy(true);
+    setIsBusy(true);
     try {
       await canhoesRepo.updateState({
-        phase: (patch.phase ?? state.phase) as "nominations" | "voting" | "locked" | "gala",
-        nominationsVisible: patch.nominationsVisible ?? state.nominationsVisible,
+        phase: (patch.phase ?? state.phase) as CanhoesPhase,
+        nominationsVisible:
+          patch.nominationsVisible ?? state.nominationsVisible,
         resultsVisible: patch.resultsVisible ?? state.resultsVisible,
       });
       await onUpdate();
@@ -37,139 +58,194 @@ export function EventStateCard({ state, categories, onUpdate }: Props) {
       console.error("Update state error:", error);
       toast.error("Erro ao atualizar estado");
     } finally {
-      setBusy(false);
+      setIsBusy(false);
     }
   };
 
   const createCategory = async () => {
-    const name = newCatName.trim();
+    const normalizedName = categoryName.trim();
 
-    if (!name) {
-      toast.error("Nome da categoria é obrigatório");
+    if (!normalizedName) {
+      toast.error("Nome da categoria e obrigatorio");
       return;
     }
 
-    if (name.length < 3) {
-      toast.error("Nome deve ter pelo menos 3 caracteres");
+    if (normalizedName.length < 3) {
+      toast.error("O nome deve ter pelo menos 3 caracteres");
       return;
     }
 
-    if (categories.some((c) => c.name.toLowerCase() === name.toLowerCase())) {
-      toast.error("Já existe uma categoria com este nome");
+    if (
+      categories.some(
+        (category) =>
+          category.name.toLowerCase() === normalizedName.toLowerCase()
+      )
+    ) {
+      toast.error("Ja existe uma categoria com esse nome");
       return;
     }
 
-    setBusy(true);
+    setIsBusy(true);
     try {
       await canhoesRepo.adminCreateCategory({
-        name,
-        kind: newCatKind,
+        name: normalizedName,
+        kind: categoryKind,
         sortOrder: null,
       });
-      setNewCatName("");
+      setCategoryName("");
       await onUpdate();
       toast.success("Categoria criada");
     } catch (error) {
       console.error("Create category error:", error);
       toast.error("Erro ao criar categoria");
     } finally {
-      setBusy(false);
+      setIsBusy(false);
     }
   };
 
   return (
-    <div className="space-y-3">
-      {/* Create Category */}
-      <Card className="canhoes-glass border-primary/30">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base text-primary/90">Criar Categoria</CardTitle>
+    <div className="space-y-4">
+      <Card className="border-[var(--color-moss)]/20">
+        <CardHeader className="pb-0">
+          <div className="flex items-center gap-2 text-[var(--color-title)]">
+            <PlusCircle className="h-4 w-4" />
+            <span className="label">Categorias</span>
+          </div>
+          <CardTitle className="text-base">Criar categoria</CardTitle>
+          <p className="body-small text-[var(--color-text-muted)]">
+            Mantem o formulario solto e legivel em mobile. Primeiro o nome,
+            depois o tipo, por fim a acao.
+          </p>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-[1fr,auto,auto]">
-          <Input
-            placeholder="Nome da categoria"
-            value={newCatName}
-            onChange={(e) => setNewCatName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && createCategory()}
-          />
-          <Select
-            value={newCatKind}
-            onValueChange={(v) => setNewCatKind(v as "Sticker" | "UserVote")}
-          >
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="UserVote">Voto em Pessoa</SelectItem>
-              <SelectItem value="Sticker">Sticker</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button disabled={busy} onClick={createCategory}>
-            Criar
-          </Button>
+        <CardContent className="space-y-3 pt-4">
+          <div className="space-y-2">
+            <label
+              htmlFor="admin-category-name"
+              className="label text-[var(--color-text-muted)]"
+            >
+              Nome da categoria
+            </label>
+            <Input
+              id="admin-category-name"
+              placeholder="Ex: Melhor meme do ano"
+              value={categoryName}
+              onChange={(event) => setCategoryName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  createCategory();
+                }
+              }}
+            />
+          </div>
+
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto]">
+            <div className="space-y-2">
+              <label className="label text-[var(--color-text-muted)]">
+                Tipo de voto
+              </label>
+              <Select
+                value={categoryKind}
+                onValueChange={(value) => setCategoryKind(value as CategoryKind)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="UserVote">Voto em pessoa</SelectItem>
+                  <SelectItem value="Sticker">Sticker</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-end">
+              <Button
+                disabled={isBusy}
+                onClick={createCategory}
+                className="w-full lg:w-auto"
+              >
+                Criar categoria
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
-      {/* Event State Controls */}
-      <Card className="canhoes-glass border-primary/30">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-base text-primary/90">Estado do Evento</CardTitle>
+      <Card className="border-[var(--color-moss)]/20">
+        <CardHeader className="pb-0">
+          <CardTitle className="text-base">Estado do evento</CardTitle>
+          <p className="body-small text-[var(--color-text-muted)]">
+            Cada controlo fica no seu proprio bloco para evitar uma fila apertada
+            de inputs e botoes.
+          </p>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-3">
-          {/* Phase */}
-          <div className="space-y-2">
-            <div className="text-sm font-medium">Fase</div>
+        <CardContent className="grid gap-3 pt-4 md:grid-cols-3">
+          <div className="space-y-2 rounded-[var(--radius-md-token)] border border-[var(--color-moss)]/15 bg-[var(--color-bg-surface)]/85 p-3">
+            <p className="label text-[var(--color-text-muted)]">Fase atual</p>
             <Select
               value={state?.phase ?? "nominations"}
-              onValueChange={(v) => updateState({ phase: v as import("@/lib/api/types").CanhoesPhase })}
-              disabled={busy}
+              onValueChange={(value) =>
+                updateState({ phase: value as CanhoesPhase })
+              }
+              disabled={isBusy}
             >
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="nominations">Nominations</SelectItem>
-                <SelectItem value="voting">Voting</SelectItem>
-                <SelectItem value="locked">Locked</SelectItem>
-                <SelectItem value="gala">Gala</SelectItem>
+                {PHASE_OPTIONS.map((phase) => (
+                  <SelectItem key={phase.value} value={phase.value}>
+                    {phase.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Nominations Visible */}
-          <div className="space-y-2">
-            <div className="text-sm font-medium">Nominations Visible</div>
+          <div className="space-y-2 rounded-[var(--radius-md-token)] border border-[var(--color-moss)]/15 bg-[var(--color-bg-surface)]/85 p-3">
+            <p className="label text-[var(--color-text-muted)]">
+              Nomeacoes visiveis
+            </p>
             <Button
-              variant="outline"
-              className="w-full justify-start"
-              disabled={busy}
+              variant={state?.nominationsVisible ? "default" : "outline"}
+              className="w-full justify-between"
+              disabled={isBusy}
               onClick={() =>
-                updateState({ nominationsVisible: !state?.nominationsVisible })
+                updateState({
+                  nominationsVisible: !state?.nominationsVisible,
+                })
               }
             >
-              <Eye className="h-4 w-4 mr-2" />
-              {state?.nominationsVisible ? "Sim" : "Não"}
+              <span>{state?.nominationsVisible ? "Ativas" : "Escondidas"}</span>
+              <Eye className="h-4 w-4" />
             </Button>
           </div>
 
-          {/* Results Visible */}
-          <div className="space-y-2">
-            <div className="text-sm font-medium">Results Visible</div>
+          <div className="space-y-2 rounded-[var(--radius-md-token)] border border-[var(--color-moss)]/15 bg-[var(--color-bg-surface)]/85 p-3">
+            <p className="label text-[var(--color-text-muted)]">
+              Resultados visiveis
+            </p>
             <Button
-              variant="outline"
-              className="w-full justify-start"
-              disabled={busy}
-              onClick={() => updateState({ resultsVisible: !state?.resultsVisible })}
+              variant={state?.resultsVisible ? "default" : "outline"}
+              className="w-full justify-between"
+              disabled={isBusy}
+              onClick={() =>
+                updateState({ resultsVisible: !state?.resultsVisible })
+              }
             >
-              <Eye className="h-4 w-4 mr-2" />
-              {state?.resultsVisible ? "Sim" : "Não"}
+              <span>{state?.resultsVisible ? "Ativos" : "Escondidos"}</span>
+              <Eye className="h-4 w-4" />
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <div className="text-sm text-muted-foreground px-1">
-        💡 A votação só funciona em <strong>voting</strong>. Resultados aparecem quando{" "}
-        <strong>resultsVisible=true</strong> ou fase <strong>gala</strong>.
+      <div className="flex gap-3 rounded-[var(--radius-md-token)] border border-[var(--color-beige-dark)]/30 bg-[var(--color-bg-surface)]/85 p-4">
+        <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-fire)]" />
+        <p className="body-small text-[var(--color-text-primary)]">
+          A votacao so funciona em <strong>voting</strong>. Os resultados aparecem
+          quando <strong>resultsVisible</strong> esta ativo ou quando a fase entra
+          em <strong>gala</strong>.
+        </p>
       </div>
     </div>
   );

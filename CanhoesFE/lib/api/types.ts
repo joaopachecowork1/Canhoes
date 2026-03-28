@@ -292,3 +292,133 @@ export type UpdateAwardCategoryRequest = {
   voteQuestion?: string | null;
   voteRules?: string | null;
 };
+
+// ------------------------------
+// Events v1
+// ------------------------------
+
+export type EventSummaryDto = {
+  id: string;
+  name: string;
+  isActive: boolean;
+};
+
+export type EventUserDto = {
+  id: string;
+  name: string;
+  role: "admin" | "user";
+};
+
+export type EventPhaseDto = {
+  id: string;
+  type: "DRAW" | "PROPOSALS" | "VOTING" | "RESULTS";
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+};
+
+export type EventContextDto = {
+  event: EventSummaryDto;
+  users: EventUserDto[];
+  phases: EventPhaseDto[];
+  activePhase?: EventPhaseDto | null;
+};
+
+export type EventFeedPostDto = {
+  id: string;
+  eventId: string;
+  userId: string;
+  userName: string;
+  content: string;
+  imageUrl?: string | null;
+  createdAt: string;
+};
+
+export type CreateEventPostRequest = {
+  content: string;
+  imageUrl?: string | null;
+};
+
+export type EventCategoryDto = {
+  id: string;
+  eventId: string;
+  title: string;
+  kind: "Sticker" | "UserVote";
+  isActive: boolean;
+  description?: string | null;
+};
+
+export type CreateEventCategoryRequest = {
+  title: string;
+  description?: string | null;
+  kind: "Sticker" | "UserVote";
+  sortOrder?: number | null;
+};
+
+export type EventVoteOptionDto = {
+  id: string;
+  categoryId: string;
+  label: string;
+};
+
+export type EventVotingCategoryDto = {
+  id: string;
+  eventId: string;
+  title: string;
+  kind: "Sticker" | "UserVote";
+  description?: string | null;
+  voteQuestion?: string | null;
+  options: EventVoteOptionDto[];
+  myOptionId?: string | null;
+};
+
+export type EventVotingBoardDto = {
+  eventId: string;
+  phaseId?: string | null;
+  canVote: boolean;
+  categories: EventVotingCategoryDto[];
+};
+
+export type CreateEventVoteRequest = {
+  categoryId: string;
+  optionId: string;
+};
+
+export type EventVoteDto = {
+  id: string;
+  userId: string;
+  categoryId: string;
+  optionId: string;
+  phaseId: string;
+};
+
+export type EventProposalDto = {
+  id: string;
+  eventId: string;
+  userId: string;
+  content: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+};
+
+export type CreateEventProposalRequest = {
+  content: string;
+};
+
+export type UpdateEventProposalRequest = {
+  status: "pending" | "approved" | "rejected";
+};
+
+export type EventWishlistItemDto = {
+  id: string;
+  userId: string;
+  eventId: string;
+  title: string;
+  link?: string | null;
+  updatedAt: string;
+};
+
+export type CreateEventWishlistItemRequest = {
+  title: string;
+  link?: string | null;
+};

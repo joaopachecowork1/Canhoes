@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+
 import type { HubPollDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -11,42 +12,65 @@ export function PollBox({
   poll: HubPollDto;
   onVote: (optionId: string) => void;
 }>) {
-  const total = Math.max(0, poll.totalVotes || 0);
+  const totalVotes = Math.max(0, poll.totalVotes || 0);
+
   return (
-    <div className="rounded-xl canhoes-glass p-3 space-y-2">
-      <div className="text-sm font-semibold text-jungle-100">{poll.question}</div>
-      <div className="space-y-2">
-        {poll.options.map((o) => {
-          const active = poll.myOptionId === o.id;
-          const pct = total > 0 ? Math.round((o.voteCount / total) * 100) : 0;
-          return (
-            <button
-              key={o.id}
-              type="button"
-              onClick={() => onVote(o.id)}
-              className={cn(
-                "w-full text-left rounded-xl border border-jungle-300/35 px-3 py-2 relative overflow-hidden canhoes-tap",
-                active ? "border-emerald-300/70 shadow-[0_0_16px_rgba(68,255,153,0.2)]" : "hover:bg-jungle-900/50"
-              )}
-            >
-              <div
+    <section className="rounded-[var(--radius-lg-token)] border border-[var(--color-moss)]/15 bg-[var(--color-bg-surface)] p-4 sm:p-5">
+      <div className="space-y-4">
+        <div className="space-y-1">
+          <p className="editorial-kicker">Votacao</p>
+          <h3 className="heading-3 text-[var(--color-text-primary)]">
+            {poll.question}
+          </h3>
+        </div>
+
+        <div className="space-y-3">
+          {poll.options.map((option) => {
+            const isActive = poll.myOptionId === option.id;
+            const percentage =
+              totalVotes > 0 ? Math.round((option.voteCount / totalVotes) * 100) : 0;
+
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => onVote(option.id)}
+                aria-pressed={isActive}
                 className={cn(
-                  "absolute inset-y-0 left-0",
-                  active ? "bg-emerald-400/28" : "bg-jungle-300/10"
+                  "relative w-full overflow-hidden rounded-[var(--radius-md-token)] border px-4 py-3 text-left transition-colors",
+                  isActive
+                    ? "border-[var(--color-moss)]/35 bg-[var(--color-bg-card)] shadow-[var(--shadow-card)]"
+                    : "border-[var(--color-beige-dark)]/25 bg-[var(--color-bg-card)] hover:border-[var(--color-brown)]/30"
                 )}
-                style={{ width: `${pct}%` }}
-              />
-              <div className="relative flex items-center justify-between gap-2">
-                <span className="text-sm font-medium text-jungle-50 truncate">{o.text}</span>
-                <span className="text-xs text-jungle-300/75 shrink-0">
-                  {o.voteCount} · {pct}%
+              >
+                <span
+                  className={cn(
+                    "absolute inset-y-0 left-0 rounded-[var(--radius-md-token)]",
+                    isActive
+                      ? "bg-[var(--color-moss)]/18"
+                      : "bg-[var(--color-brown)]/10"
+                  )}
+                  style={{ width: `${percentage}%` }}
+                />
+
+                <span className="relative flex items-center justify-between gap-3">
+                  <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+                    {option.text}
+                  </span>
+                  <span className="text-xs text-[var(--color-text-muted)]">
+                    {option.voteCount} · {percentage}%
+                  </span>
                 </span>
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="body-small text-[var(--color-text-muted)]">
+          {totalVotes} voto(s) registados. Podes trocar o teu voto enquanto a
+          fase estiver ativa.
+        </p>
       </div>
-      <div className="text-xs text-jungle-300/70">{total} voto(s) — podes trocar o teu voto</div>
-    </div>
+    </section>
   );
 }

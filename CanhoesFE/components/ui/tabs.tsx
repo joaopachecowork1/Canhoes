@@ -26,7 +26,7 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "inline-flex w-fit items-center justify-center gap-1 rounded-xl bg-[var(--color-bg-surface-alt)] p-1 text-[var(--color-text-muted)] group-data-[orientation=horizontal]/tabs:min-h-11 group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col",
+  "flex w-full items-center justify-start gap-2 rounded-xl bg-[var(--color-bg-surface-alt)] p-2 text-[var(--color-text-muted)] overflow-x-auto scrollbar-hide whitespace-nowrap",
   {
     variants: {
       variant: {
@@ -64,10 +64,9 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "relative inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-lg border border-transparent px-4 py-2 text-sm font-semibold whitespace-nowrap transition-all group-data-[orientation=vertical]/tabs:w-full group-data-[orientation=vertical]/tabs:justify-start focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--color-psycho-4)]/30 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        "text-[var(--color-text-muted)] hover:text-[var(--color-text-dark)] group-data-[variant=default]/tabs-list:data-[state=active]:border-transparent group-data-[variant=default]/tabs-list:data-[state=active]:bg-[var(--color-moss)] group-data-[variant=default]/tabs-list:data-[state=active]:text-[var(--color-text-primary)]",
-        "group-data-[variant=line]/tabs-list:rounded-none group-data-[variant=line]/tabs-list:px-0 group-data-[variant=line]/tabs-list:data-[state=active]:bg-transparent group-data-[variant=line]/tabs-list:data-[state=active]:text-[var(--color-text-primary)]",
-        "after:absolute after:opacity-0 after:transition-opacity group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px] group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0 group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 group-data-[variant=line]/tabs-list:data-[state=active]:after:bg-[var(--color-moss)] group-data-[variant=line]/tabs-list:data-[state=active]:after:opacity-100",
+        "inline-flex items-center justify-center gap-1.5 rounded-lg border border-transparent px-4 py-2.5 text-sm font-semibold whitespace-nowrap transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-moss)] disabled:pointer-events-none disabled:opacity-50 flex-shrink-0",
+        "data-[state=active]:bg-[var(--color-moss)] data-[state=active]:text-white data-[state=active]:shadow-sm",
+        "hover:bg-[var(--color-moss)]/10",
         className
       )}
       {...props}

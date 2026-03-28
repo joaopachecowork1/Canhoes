@@ -1,9 +1,11 @@
 "use client";
 
+import { AlertTriangle, CheckCircle, Trophy, Users, Vote } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-
+import { StatCard } from "@/components/ui/StatCard";
+import { colors } from "@/lib/theme/tokens";
 import type {
   AwardCategoryDto,
   CategoryProposalDto,
@@ -23,46 +25,12 @@ type AdminDashboardProps = {
   totalVotes: number;
 };
 
-type MetricAccent = "amber" | "blue" | "green" | "red";
-
-type MetricCardProps = {
-  accent?: MetricAccent;
-  badge?: string;
-  icon: string;
-  label: string;
-  value: number | string;
-};
-
-const METRIC_ACCENT_STYLES: Record<MetricAccent, string> = {
-  amber: "border-[var(--color-beige)]/25 bg-[rgba(107,76,42,0.16)] text-[var(--color-beige)]",
-  blue: "border-[var(--color-psycho-4)]/25 bg-[rgba(77,150,255,0.1)] text-[var(--color-psycho-4)]",
-  green: "border-[var(--color-moss)]/25 bg-[rgba(74,92,47,0.18)] text-[var(--color-text-primary)]",
-  red: "border-[var(--color-danger)]/25 bg-[rgba(224,90,58,0.12)] text-[var(--color-danger)]",
-};
-
-function MetricCard({ accent = "green", badge, icon, label, value }: Readonly<MetricCardProps>) {
-  return (
-    <div className={cn("canhoes-list-item flex flex-col gap-2 p-4", METRIC_ACCENT_STYLES[accent])}>
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-xl" aria-hidden="true">
-          {icon}
-        </span>
-
-        {badge ? <Badge variant="outline">{badge}</Badge> : null}
-      </div>
-
-      <div className="text-2xl font-bold">{value}</div>
-      <p className="body-small text-[var(--color-text-muted)]">{label}</p>
-    </div>
-  );
-}
-
 function MetricSkeleton() {
   return (
-    <div className="canhoes-list-item space-y-2 p-4">
-      <Skeleton className="h-6 w-6 rounded" />
-      <Skeleton className="h-7 w-16 rounded" />
-      <Skeleton className="h-3 w-24 rounded" />
+    <div className="min-w-[148px] rounded-[var(--radius-md-token)] border border-[var(--color-beige-dark)]/20 bg-[var(--color-bg-card)] p-4">
+      <Skeleton className="mb-3 h-10 w-10 rounded-full" />
+      <Skeleton className="mb-2 h-7 w-16 rounded" />
+      <Skeleton className="h-4 w-24 rounded" />
     </div>
   );
 }
@@ -77,7 +45,6 @@ export function AdminDashboard({
   pendingNominees,
   totalVotes,
 }: Readonly<AdminDashboardProps>) {
-  // Defensive: garantir que arrays não são null/undefined
   const safeCategories = categories ?? [];
   const safeAllNominees = allNominees ?? [];
   const safeMembers = members ?? [];
@@ -86,118 +53,158 @@ export function AdminDashboard({
   const safePendingNominees = pendingNominees ?? [];
 
   const activeCategories = safeCategories.filter((category) => category.isActive).length;
-  const approvedNominees = safeAllNominees.filter((nominee) => nominee.status === "approved").length;
-  const pendingReviews = safePendingNominees.length + safePendingCategoryProposals.length + safePendingMeasureProposals.length;
-  const adminCount = safeMembers.filter((member) => member.isAdmin).length;
+  const approvedNominees = safeAllNominees.filter(
+    (nominee) => nominee.status === "approved"
+  ).length;
+  const pendingReviews =
+    safePendingNominees.length +
+    safePendingCategoryProposals.length +
+    safePendingMeasureProposals.length;
 
   const recentNominees = [...safeAllNominees]
-    .sort((leftNominee, rightNominee) => new Date(rightNominee.createdAtUtc).getTime() - new Date(leftNominee.createdAtUtc).getTime())
+    .sort(
+      (left, right) =>
+        new Date(right.createdAtUtc).getTime() -
+        new Date(left.createdAtUtc).getTime()
+    )
     .slice(0, 5);
-
-  const metrics: MetricCardProps[] = [
-    {
-      accent: "green",
-      badge: `${categories.length} total`,
-      icon: "🏆",
-      label: "Categorias Ativas",
-      value: loading ? "—" : activeCategories,
-    },
-    {
-      accent: "blue",
-      icon: "✅",
-      label: "Nomeações Aprovadas",
-      value: loading ? "—" : approvedNominees,
-    },
-    {
-      accent: pendingReviews > 0 ? "amber" : "green",
-      icon: pendingReviews > 0 ? "⚠️" : "👌",
-      label: "Pendentes de Revisão",
-      value: loading ? "—" : pendingReviews,
-    },
-    {
-      accent: "blue",
-      icon: "🗳️",
-      label: "Votos Registados",
-      value: loading ? "—" : totalVotes,
-    },
-    {
-      accent: "green",
-      badge: `${adminCount} admin`,
-      icon: "👥",
-      label: "Membros",
-      value: loading ? "—" : members.length,
-    },
-  ];
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {loading
-          ? Array.from({ length: 5 }).map((_, index) => <MetricSkeleton key={index} />)
-          : metrics.map((metric) => <MetricCard key={metric.label} {...metric} />)}
+      <div className="space-y-2">
+        <p className="editorial-kicker">Resumo rapido</p>
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {loading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <MetricSkeleton key={index} />
+            ))
+          ) : (
+            <>
+              <StatCard
+                icon={<Trophy className="h-5 w-5" />}
+                label="Categorias ativas"
+                value={activeCategories}
+                color={colors.mossLight}
+                delay={0}
+                className="shrink-0"
+              />
+              <StatCard
+                icon={<CheckCircle className="h-5 w-5" />}
+                label="Nomeacoes aprovadas"
+                value={approvedNominees}
+                color={colors.success}
+                delay={80}
+                className="shrink-0"
+              />
+              <StatCard
+                icon={<AlertTriangle className="h-5 w-5" />}
+                label="Pendentes"
+                value={pendingReviews}
+                color={pendingReviews > 0 ? colors.warning : colors.success}
+                delay={160}
+                className="shrink-0"
+              />
+              <StatCard
+                icon={<Vote className="h-5 w-5" />}
+                label="Votos"
+                value={totalVotes}
+                color={colors.psycho4}
+                delay={240}
+                className="shrink-0"
+              />
+              <StatCard
+                icon={<Users className="h-5 w-5" />}
+                label="Membros"
+                value={safeMembers.length}
+                color={colors.beige}
+                delay={320}
+                className="shrink-0"
+              />
+            </>
+          )}
+        </div>
       </div>
 
       {!loading && pendingReviews > 0 ? (
-        <div className="canhoes-list-item space-y-2 border-[var(--color-beige)]/25 bg-[rgba(107,76,42,0.16)] p-4">
-          <div className="flex items-center gap-2 font-semibold text-[var(--color-beige)]">
-            <span aria-hidden="true">⚠️</span>
-            Atenção Necessária
-          </div>
+        <section className="editorial-shell rounded-[var(--radius-lg-token)] px-4 py-4 sm:px-5">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-[var(--color-brown)]">
+              <AlertTriangle className="h-4 w-4" />
+              <span className="editorial-kicker">Atencao</span>
+            </div>
 
-          <ul className="space-y-1">
-            {pendingNominees.length > 0 ? (
-              <li className="body-small text-[var(--color-text-primary)]">
-                • {pendingNominees.length} nomeações pendentes de aprovação
-              </li>
-            ) : null}
-            {pendingCategoryProposals.length > 0 ? (
-              <li className="body-small text-[var(--color-text-primary)]">
-                • {pendingCategoryProposals.length} propostas de categoria aguardam decisão
-              </li>
-            ) : null}
-            {pendingMeasureProposals.length > 0 ? (
-              <li className="body-small text-[var(--color-text-primary)]">
-                • {pendingMeasureProposals.length} medidas propostas aguardam decisão
-              </li>
-            ) : null}
-          </ul>
-        </div>
+            <div className="space-y-2">
+              <h3 className="heading-3 text-[var(--color-text-primary)]">
+                Existem blocos a precisar de moderacao
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {safePendingNominees.length > 0 ? (
+                  <Badge variant="secondary">
+                    {safePendingNominees.length} nomeacoes pendentes
+                  </Badge>
+                ) : null}
+                {safePendingCategoryProposals.length > 0 ? (
+                  <Badge variant="secondary">
+                    {safePendingCategoryProposals.length} propostas de categoria
+                  </Badge>
+                ) : null}
+                {safePendingMeasureProposals.length > 0 ? (
+                  <Badge variant="secondary">
+                    {safePendingMeasureProposals.length} medidas propostas
+                  </Badge>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </section>
       ) : null}
 
       {!loading && recentNominees.length > 0 ? (
-        <div className="space-y-2">
-          <p className="label text-[var(--color-text-muted)]">Actividade Recente</p>
+        <section className="space-y-3">
+          <div className="space-y-1">
+            <p className="editorial-kicker">Atividade recente</p>
+            <h3 className="heading-3 text-[var(--color-text-primary)]">
+              Ultimas nomeacoes recebidas
+            </h3>
+          </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             {recentNominees.map((nominee) => (
-              <div key={nominee.id} className="canhoes-list-item flex items-center justify-between gap-3 px-3 py-2.5">
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-[var(--color-text-primary)]">{nominee.title}</p>
-                  <p className="body-small text-[var(--color-text-muted)]">
-                    {new Date(nominee.createdAtUtc).toLocaleDateString("pt-PT", {
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      month: "short",
-                    })}
-                  </p>
-                </div>
+              <article
+                key={nominee.id}
+                className="editorial-shell rounded-[var(--radius-md-token)] px-4 py-4"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0 space-y-1">
+                    <p className="truncate font-semibold text-[var(--color-text-primary)]">
+                      {nominee.title}
+                    </p>
+                    <p className="text-xs text-[var(--color-text-muted)]">
+                      {new Date(nominee.createdAtUtc).toLocaleDateString("pt-PT", {
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        month: "short",
+                      })}
+                    </p>
+                  </div>
 
-                <Badge
-                  variant={
-                    nominee.status === "approved"
-                      ? "default"
-                      : nominee.status === "rejected"
-                        ? "destructive"
-                        : "outline"
-                  }
-                >
-                  {nominee.status}
-                </Badge>
-              </div>
+                  <Badge
+                    variant={
+                      nominee.status === "approved"
+                        ? "default"
+                        : nominee.status === "rejected"
+                          ? "destructive"
+                          : "outline"
+                    }
+                  >
+                    {nominee.status}
+                  </Badge>
+                </div>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
       ) : null}
     </div>
   );

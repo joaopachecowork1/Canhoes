@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CanhoesChrome } from "@/components/chrome/canhoes/CanhoesChrome";
 import { useAuth } from "@/hooks/useAuth";
-import { DevModeBanner } from "@/components/dev/DevModeBanner";
 
 export default function CanhoesAppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const router = useRouter();
@@ -48,9 +47,6 @@ export default function CanhoesAppLayout({ children }: Readonly<{ children: Reac
   }
 
   return (
-    <>
-      <CanhoesChrome>{children}</CanhoesChrome>
-      <DevModeBanner />
-    </>
+    <CanhoesChrome>{children}</CanhoesChrome>
   );
 }

@@ -13,6 +13,14 @@ import type {
   MeasureProposalDto,
   PublicUserDto,
   HubPostDto,
+  EventCategoryDto,
+  EventContextDto,
+  EventFeedPostDto,
+  EventPhaseDto,
+  EventProposalDto,
+  EventSummaryDto,
+  EventVotingBoardDto,
+  EventWishlistItemDto,
 } from "@/lib/api/types";
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -295,4 +303,136 @@ export const MOCK_VOTES = {
 export const MOCK_PROPOSALS_HISTORY = {
   categoryProposals: MOCK_CATEGORY_PROPOSALS,
   measureProposals: MOCK_MEASURE_PROPOSALS,
+};
+
+// Events v1
+
+export const MOCK_EVENT_SUMMARY: EventSummaryDto = {
+  id: "canhoes-do-ano",
+  name: "Canhoes do Ano",
+  isActive: true,
+};
+
+export const MOCK_EVENT_PHASES: EventPhaseDto[] = [
+  {
+    id: "phase-draw",
+    type: "DRAW",
+    startDate: "2026-01-01T00:00:00.000Z",
+    endDate: "2026-01-31T23:59:59.000Z",
+    isActive: false,
+  },
+  {
+    id: "phase-proposals",
+    type: "PROPOSALS",
+    startDate: "2026-02-01T00:00:00.000Z",
+    endDate: "2026-07-31T23:59:59.000Z",
+    isActive: true,
+  },
+  {
+    id: "phase-voting",
+    type: "VOTING",
+    startDate: "2026-08-01T00:00:00.000Z",
+    endDate: "2026-11-30T23:59:59.000Z",
+    isActive: false,
+  },
+  {
+    id: "phase-results",
+    type: "RESULTS",
+    startDate: "2026-12-01T00:00:00.000Z",
+    endDate: "2026-12-31T23:59:59.000Z",
+    isActive: false,
+  },
+];
+
+export const MOCK_EVENT_CONTEXT: EventContextDto = {
+  event: MOCK_EVENT_SUMMARY,
+  users: MOCK_MEMBERS.map((member) => ({
+    id: member.id,
+    name: member.displayName ?? member.email,
+    role: member.isAdmin ? "admin" : "user",
+  })),
+  phases: MOCK_EVENT_PHASES,
+  activePhase: MOCK_EVENT_PHASES.find((phase) => phase.isActive) ?? null,
+};
+
+export const MOCK_EVENT_POSTS: EventFeedPostDto[] = MOCK_HUB_POSTS.map((post) => ({
+  id: post.id,
+  eventId: MOCK_EVENT_SUMMARY.id,
+  userId: post.authorUserId,
+  userName: post.authorName,
+  content: post.text,
+  imageUrl: post.mediaUrl,
+  createdAt: post.createdAtUtc,
+}));
+
+export const MOCK_EVENT_CATEGORIES: EventCategoryDto[] = MOCK_CATEGORIES.map((category) => ({
+  id: category.id,
+  eventId: MOCK_EVENT_SUMMARY.id,
+  title: category.name,
+  kind: category.kind,
+  isActive: category.isActive,
+  description: category.description ?? null,
+}));
+
+export const MOCK_EVENT_PROPOSALS: EventProposalDto[] = MOCK_CATEGORY_PROPOSALS.map((proposal) => ({
+  id: proposal.id,
+  eventId: MOCK_EVENT_SUMMARY.id,
+  userId: "mock-admin-001",
+  content: [proposal.name, proposal.description].filter(Boolean).join("\n\n"),
+  status: proposal.status,
+  createdAt: proposal.createdAtUtc,
+}));
+
+export const MOCK_EVENT_WISHLIST: EventWishlistItemDto[] = [
+  {
+    id: "wishlist-001",
+    userId: "user-002",
+    eventId: MOCK_EVENT_SUMMARY.id,
+    title: "Vinil do album favorito",
+    link: "https://example.com/vinil",
+    updatedAt: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: "wishlist-002",
+    userId: "user-003",
+    eventId: MOCK_EVENT_SUMMARY.id,
+    title: "Bilhete para concerto",
+    link: "https://example.com/bilhete",
+    updatedAt: new Date(Date.now() - 7200000).toISOString(),
+  },
+];
+
+export const MOCK_EVENT_VOTING_BOARD: EventVotingBoardDto = {
+  eventId: MOCK_EVENT_SUMMARY.id,
+  phaseId: "phase-voting",
+  canVote: false,
+  categories: [
+    {
+      id: "cat-001",
+      eventId: MOCK_EVENT_SUMMARY.id,
+      title: "Melhor Album",
+      kind: "Sticker",
+      description: "O album que mais marcou o ano",
+      voteQuestion: "Em qual album votas?",
+      options: [
+        { id: "nom-001", categoryId: "cat-001", label: "SOS - ABBA" },
+        { id: "nom-002", categoryId: "cat-001", label: "Midnights - Taylor Swift" },
+      ],
+      myOptionId: null,
+    },
+    {
+      id: "cat-005",
+      eventId: MOCK_EVENT_SUMMARY.id,
+      title: "Mais Provavel a Tornar-se Admin",
+      kind: "UserVote",
+      description: "Votacao por membro do grupo",
+      voteQuestion: "Quem e o proximo admin?",
+      options: MOCK_MEMBERS.map((member) => ({
+        id: member.id,
+        categoryId: "cat-005",
+        label: member.displayName ?? member.email,
+      })),
+      myOptionId: null,
+    },
+  ],
 };

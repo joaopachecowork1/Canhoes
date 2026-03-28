@@ -10,16 +10,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--color-moss)] text-[var(--color-text-primary)] border-transparent shadow-[var(--shadow-card)] hover:bg-[var(--color-moss-light)] active:scale-95",
+          "border-transparent bg-[var(--color-moss)] text-[var(--color-bg-card)] shadow-[var(--shadow-card)] hover:bg-[var(--color-moss-light)] active:scale-95",
         destructive:
           "bg-[var(--color-danger)] text-white border-transparent shadow-[var(--shadow-card)] hover:opacity-90 active:scale-95",
         outline:
-          "border-[var(--color-beige-dark)]/30 bg-transparent text-[var(--color-text-primary)] hover:border-[var(--color-beige-dark)]/50 hover:bg-white/5 active:scale-95",
+          "border-[var(--color-beige-dark)]/30 bg-[var(--color-bg-card)]/75 text-[var(--color-text-primary)] hover:border-[var(--color-brown)]/35 hover:bg-[var(--color-bg-surface)] active:scale-95",
         secondary:
-          "bg-[var(--color-brown-dark)] text-[var(--color-beige)] border-[var(--color-beige-dark)]/20 shadow-[var(--shadow-card)] hover:bg-[var(--color-brown)] active:scale-95",
+          "border-[var(--color-brown-dark)]/10 bg-[var(--color-brown-dark)] text-[var(--color-bg-card)] shadow-[var(--shadow-card)] hover:bg-[var(--color-brown)] active:scale-95",
         ghost:
-          "border-transparent bg-transparent text-[var(--color-text-primary)] shadow-none hover:bg-white/6 active:scale-95",
-        link: "border-transparent px-0 text-[var(--color-beige)] underline-offset-4 shadow-none hover:text-[var(--color-text-primary)] hover:underline",
+          "border-transparent bg-transparent text-[var(--color-text-primary)] shadow-none hover:bg-[var(--color-bg-surface)] active:scale-95",
+        link: "border-transparent px-0 text-[var(--color-brown)] underline-offset-4 shadow-none hover:text-[var(--color-text-primary)] hover:underline",
       },
       size: {
         default: "px-4 py-3",

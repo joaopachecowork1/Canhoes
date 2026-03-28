@@ -4,7 +4,6 @@ import { Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import type { PublicUserDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
@@ -23,11 +22,13 @@ function getMemberInitials(member: PublicUserDto) {
 
 function MemberRowSkeleton() {
   return (
-    <div className="canhoes-list-item flex items-center gap-3 px-3 py-2.5">
-      <Skeleton className="h-8 w-8 rounded-full" />
-      <div className="flex-1 space-y-1.5">
-        <Skeleton className="h-3.5 w-28 rounded" />
-        <Skeleton className="h-3 w-36 rounded" />
+    <div className="rounded-[var(--radius-md-token)] border border-[var(--color-beige-dark)]/20 bg-[var(--color-bg-card)] px-4 py-3">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-9 w-9 rounded-full" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-28 rounded" />
+          <Skeleton className="h-3.5 w-40 rounded" />
+        </div>
       </div>
     </div>
   );
@@ -35,25 +36,31 @@ function MemberRowSkeleton() {
 
 function MemberRow({ member }: Readonly<{ member: PublicUserDto }>) {
   return (
-    <div className="canhoes-list-item flex items-center gap-3 px-3 py-2.5">
-      <div
-        className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
-          member.isAdmin
-            ? "border-[var(--color-moss)]/35 bg-[rgba(74,92,47,0.2)] text-[var(--color-text-primary)]"
-            : "border-[var(--color-beige-dark)]/25 bg-white/5 text-[var(--color-beige)]"
-        )}
-      >
-        {getMemberInitials(member) || "?"}
-      </div>
+    <article className="editorial-shell rounded-[var(--radius-md-token)] px-4 py-4">
+      <div className="flex items-center gap-3">
+        <div
+          className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-xs font-bold",
+            member.isAdmin
+              ? "border-[var(--color-moss)]/35 bg-[var(--color-moss)]/12 text-[var(--color-title)]"
+              : "border-[var(--color-beige-dark)]/25 bg-[var(--color-bg-surface)] text-[var(--color-brown)]"
+          )}
+        >
+          {getMemberInitials(member) || "?"}
+        </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-semibold text-[var(--color-text-primary)]">{member.displayName ?? "—"}</p>
-        <p className="body-small truncate text-[var(--color-text-muted)]">{member.email}</p>
-      </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold text-[var(--color-text-primary)]">
+            {member.displayName ?? "Sem nome"}
+          </p>
+          <p className="body-small truncate text-[var(--color-text-muted)]">
+            {member.email}
+          </p>
+        </div>
 
-      {member.isAdmin ? <Badge variant="outline">Admin</Badge> : null}
-    </div>
+        {member.isAdmin ? <Badge variant="secondary">Admin</Badge> : null}
+      </div>
+    </article>
   );
 }
 
@@ -63,18 +70,24 @@ export function UsersAdmin({ loading, members }: Readonly<UsersAdminProps>) {
 
   return (
     <div className="space-y-4">
-      <div className="canhoes-list-item flex items-center gap-3 p-4">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-moss)] text-[var(--color-text-primary)]">
-          <Users className="h-5 w-5" />
-        </div>
+      <section className="editorial-shell rounded-[var(--radius-lg-token)] px-4 py-4 sm:px-5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--color-moss)]/20 bg-[var(--color-bg-surface)] text-[var(--color-title)]">
+            <Users className="h-5 w-5" />
+          </div>
 
-        <div>
-          <p className="font-semibold text-[var(--color-text-primary)]">Membros ({loading ? "…" : members.length})</p>
-          <p className="body-small text-[var(--color-text-muted)]">
-            {loading ? "A carregar…" : `${adminMembers.length} admin · ${regularMembers.length} membros`}
-          </p>
+          <div>
+            <p className="heading-3 text-[var(--color-text-primary)]">
+              Membros ({loading ? "..." : members.length})
+            </p>
+            <p className="body-small text-[var(--color-text-muted)]">
+              {loading
+                ? "A carregar membros..."
+                : `${adminMembers.length} admins · ${regularMembers.length} membros`}
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
 
       {loading ? (
         <div className="space-y-2">
@@ -85,25 +98,27 @@ export function UsersAdmin({ loading, members }: Readonly<UsersAdminProps>) {
       ) : null}
 
       {!loading && adminMembers.length > 0 ? (
-        <div className="space-y-2">
-          <p className="label px-1 text-[var(--color-text-muted)]">Administradores</p>
+        <section className="space-y-2">
+          <p className="editorial-kicker px-1">Administradores</p>
           {adminMembers.map((member) => (
             <MemberRow key={member.id} member={member} />
           ))}
-        </div>
+        </section>
       ) : null}
 
       {!loading && regularMembers.length > 0 ? (
-        <div className="space-y-2">
-          <p className="label px-1 text-[var(--color-text-muted)]">Membros</p>
+        <section className="space-y-2">
+          <p className="editorial-kicker px-1">Membros</p>
           {regularMembers.map((member) => (
             <MemberRow key={member.id} member={member} />
           ))}
-        </div>
+        </section>
       ) : null}
 
       {!loading && members.length === 0 ? (
-        <p className="body-small py-10 text-center text-[var(--color-text-muted)]">Nenhum membro encontrado.</p>
+        <p className="body-small py-10 text-center text-[var(--color-text-muted)]">
+          Nenhum membro encontrado.
+        </p>
       ) : null}
     </div>
   );
