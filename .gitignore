@@ -86,6 +86,7 @@ Thumbs.db
 skills-lock.json
 .github/*
 !.github/workflows/
+!.github/dependabot.yml
 
 # Qwen Code local files
 .qwen/

@@ -1,0 +1,19 @@
+# Weekly update PRs; CI checks each one before it can be merged.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      # Minor and patch bumps in one PR; majors (React 19, Prisma 7, NextAuth 5) come one at a time.
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly

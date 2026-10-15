@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -19,6 +20,7 @@ jobs:
   checks:
     name: Lint, types, unit tests, knip, audit
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -36,6 +38,7 @@ jobs:
   integration:
     name: Integration and authorization tests (PostgreSQL)
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:17-alpine
@@ -64,6 +67,7 @@ jobs:
   docker:
     name: Docker image, migrations and OWASP ZAP baseline
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     services:
       postgres:
         image: postgres:17-alpine
@@ -80,8 +84,16 @@ jobs:
           --health-retries 20
     steps:
       - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v4
+      # The layer cache is shared with the publish job, which then rebuilds this same image almost for free.
       - name: Build the image
-        run: docker build -t canhoes:ci .
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          tags: canhoes:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Start the app (applies migrations and seeds)
         run: |
           docker run -d --name canhoes --network host \
@@ -91,20 +103,58 @@ jobs:
             -e ADMIN_EMAILS=admin@example.com \
             canhoes:ci
           for attempt in $(seq 1 60); do
-            if curl -fsS http://localhost:3000/api/health | grep -q '"database":"connected"'; then exit 0; fi
+            if curl -fsS http://localhost:3000/api/health; then exit 0; fi
             sleep 2
           done
           docker logs canhoes
           exit 1
+      - name: Check that the production seed left out the demo data
+        run: |
+          users=$(psql "postgresql://canhoes:canhoes_ci@localhost:5432/canhoes" -tAc 'SELECT count(*) FROM "Users"')
+          echo "Users after seeding: $users"
+          test "$users" = 1
       - name: OWASP ZAP baseline scan
-        uses: zaproxy/action-baseline@v0.14.0
+        uses: zaproxy/action-baseline@v0.15.0
         with:
           target: http://localhost:3000/canhoes/login
           rules_file_name: .zap/rules.tsv
           cmd_options: -a
           allow_issue_writing: false
-          # Report only for now; switch to failing the build once the first findings are triaged.
-          fail_action: false
+          # Fails on any alert not triaged in .zap/rules.tsv.
+          fail_action: true
       - name: Container logs
         if: always()
         run: docker logs canhoes || true
+
+  # Every merge to main publishes the tested image, ready for the deploy step.
+  publish:
+    name: Publish the image to GHCR
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [checks, integration, docker]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/canhoes
+          tags: |
+            type=sha
+            type=raw,value=latest
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
