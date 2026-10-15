@@ -1,17 +1,16 @@
 FROM docker.io/library/node:22-alpine AS base
 
-# Install dependencies only when needed
+# Dependencies (prisma/ is needed by the postinstall `prisma generate`).
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+# glibc compatibility for native binaries on Alpine (musl).
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 COPY prisma ./prisma/
 RUN npm ci
 
-# Rebuild the source code only when needed
+# Build the standalone Next.js server.
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -22,7 +21,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
 
-# Production image, copy all the files and run next
+# Production image: only the standalone server, migrations and the entrypoint.
 FROM base AS runner
 WORKDIR /app
 
@@ -47,12 +46,11 @@ RUN mkdir -p .next .data/uploads && chown -R nextjs:nodejs .next .data
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-start.sh ./docker-start.sh
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
+# Standalone output: the server and only the node_modules it traces.
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Fix Prisma missing modules for seed script and query engine in standalone mode
+# Prisma client and query engine, used by the server and by the seed script.
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
