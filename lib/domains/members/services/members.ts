@@ -10,27 +10,6 @@ import type {
   PagedResult,
 } from "@/lib/api/types";
 
-type CanhoesCategoryResultDto = {
-  categoryId: string;
-  categoryName: string;
-  totalVotes: number;
-  top: Array<{
-    nomineeId: string;
-    categoryId: string | null;
-    title: string;
-    imageUrl: string | null;
-    votes: number;
-  }>;
-};
-
-type CanhoesResultNomineeDto = {
-  nomineeId: string;
-  categoryId: string | null;
-  title: string;
-  imageUrl: string | null;
-  votes: number;
-};
-
 export async function getMembers(eventId: string): Promise<PublicUserDto[]> {
   const members = await prisma.eventMember.findMany({
     where: { eventId },
@@ -92,79 +71,6 @@ export async function createMeasureProposal(
     status: proposal.status as "pending" | "approved" | "rejected",
     createdAtUtc: proposal.createdAtUtc.toISOString(),
   };
-}
-
-export async function getResults(eventId: string): Promise<CanhoesCategoryResultDto[]> {
-  const categories = await prisma.awardCategory.findMany({
-    where: { eventId, isActive: true },
-    orderBy: { sortOrder: "asc" },
-  });
-
-  const userVoteCategories = categories.filter((c) => c.kind === 1);
-  const nomineeCategories = categories.filter((c) => c.kind !== 1);
-
-  const userVoteCategoryIds = userVoteCategories.map((c) => c.id);
-  const nomineeCategoryIds = nomineeCategories.map((c) => c.id);
-
-  const [userVotes, nomineeVotes, nominees] = await Promise.all([
-    userVoteCategoryIds.length > 0
-      ? prisma.userVote.findMany({ where: { eventId, categoryId: { in: userVoteCategoryIds } } })
-      : Promise.resolve([]),
-    nomineeCategoryIds.length > 0
-      ? prisma.vote.findMany({ where: { eventId, categoryId: { in: nomineeCategoryIds } } })
-      : Promise.resolve([]),
-    nomineeCategoryIds.length > 0
-      ? prisma.nominee.findMany({ where: { eventId, status: "approved" } })
-      : Promise.resolve([]),
-  ]);
-
-  const nomineeMap = new Map(nominees.map((n) => [n.id, n]));
-
-  const userVoteCounts = new Map<string, Map<string, number>>();
-  for (const vote of userVotes) {
-    const catMap = userVoteCounts.get(vote.categoryId) ?? new Map();
-    catMap.set(vote.targetUserId, (catMap.get(vote.targetUserId) ?? 0) + 1);
-    userVoteCounts.set(vote.categoryId, catMap);
-  }
-
-  const nomineeVoteCounts = new Map<string, Map<string, number>>();
-  for (const vote of nomineeVotes) {
-    const catMap = nomineeVoteCounts.get(vote.categoryId) ?? new Map();
-    catMap.set(vote.nomineeId, (catMap.get(vote.nomineeId) ?? 0) + 1);
-    nomineeVoteCounts.set(vote.categoryId, catMap);
-  }
-
-  return categories.map((cat) => {
-    let voteMap: Map<string, number>;
-    let titleLookup: (id: string) => string;
-
-    if (cat.kind === 1) {
-      voteMap = userVoteCounts.get(cat.id) ?? new Map();
-      titleLookup = (userId: string) => userId;
-    } else {
-      voteMap = nomineeVoteCounts.get(cat.id) ?? new Map();
-      titleLookup = (id: string) => nomineeMap.get(id)?.title ?? id;
-    }
-
-    const sortedEntries = [...voteMap.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-
-    const top: CanhoesResultNomineeDto[] = sortedEntries.map(([id, count]) => ({
-      nomineeId: id,
-      categoryId: cat.kind === 1 ? null : id,
-      title: titleLookup(id),
-      imageUrl: null,
-      votes: count,
-    }));
-
-    return {
-      categoryId: cat.id,
-      categoryName: cat.name,
-      totalVotes: sortedEntries.reduce((sum, [, count]) => sum + count, 0),
-      top,
-    };
-  });
 }
 
 export async function getMyNominationStatus(
