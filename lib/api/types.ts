@@ -141,7 +141,7 @@ export type EventProposalDto = {
   createdAt: string;
 };
 
-export type ProposalStatus = "pending" | "approved" | "rejected";
+type ProposalStatus = "pending" | "approved" | "rejected";
 
 export type CategoryProposalDto = {
   id: string;

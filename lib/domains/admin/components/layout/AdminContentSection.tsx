@@ -90,7 +90,7 @@ export function AdminContentSection({
           categoryProposals={categoryProposals}
           eventId={eventId}
           loading={loading}
-          measureProposalsAll={measureProposals}
+          measureProposals={measureProposals}
           onUpdate={onUpdate}
         />
       </div>
