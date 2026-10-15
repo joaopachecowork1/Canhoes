@@ -1,0 +1,16 @@
+stateDiagram-v2
+  direction TB
+  [*] --> DRAW
+  DRAW --> PROPOSALS : admin muda a fase
+  PROPOSALS --> VOTING : admin muda a fase
+  VOTING --> RESULTS : admin muda a fase
+  RESULTS --> [*]
+
+  DRAW : Sorteio
+  DRAW : amigo secreto e wishlists
+  PROPOSALS : Propostas
+  PROPOSALS : categorias, nomeações, stickers, medidas
+  VOTING : Votação
+  VOTING : um voto por categoria, alterável
+  RESULTS : Resultados
+  RESULTS : gala com o top 5 de cada categoria

@@ -1,0 +1,20 @@
+sequenceDiagram
+  actor Pessoa
+  participant NA as NextAuth
+  participant Rules as decideSignIn
+  participant DB as PostgreSQL
+
+  Pessoa->>NA: entrar com Google
+  NA->>DB: procura User por email ou id Google, e o convite desse email
+  NA->>Rules: { isAdmin, isMember, wasInvited, hasOpenInvitation }
+  alt admin, membro ou convite já usado
+    Rules-->>NA: allow
+  else convite aberto e válido
+    Rules-->>NA: accept-invitation
+    NA->>DB: transação: usa o convite, cria o User, cria EventMember
+  else nada disto
+    Rules-->>NA: deny
+    NA-->>Pessoa: volta ao login com ?error=AccessDenied
+  end
+  NA->>DB: callback jwt relê o User (isAdmin atual)
+  NA-->>Pessoa: sessão JWT (24 h)

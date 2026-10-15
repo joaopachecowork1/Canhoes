@@ -12,6 +12,7 @@
     "test:integration": "vitest run --project integration",
     "test:watch": "vitest",
     "knip": "knip",
+    "docs:diagrams": "node scripts/render-diagrams.mjs",
     "db:up": "node scripts/db.mjs up",
     "db:down": "node scripts/db.mjs down",
     "db:migrate": "prisma migrate deploy",
