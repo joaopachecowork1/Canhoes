@@ -1,3 +1,4 @@
+import { notFound } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
 import { deleteUpload, saveUpload } from "@/lib/storage/localStorage";
 import type {
@@ -18,6 +19,20 @@ type PostRow = {
   pinnedOrder: number | null;
   createdAtUtc: Date;
 };
+
+/** Every post-level action is scoped to the event in the URL: a post from another event is a 404. */
+async function assertPostInEvent(eventId: string, postId: string) {
+  const post = await prisma.hubPost.findFirst({ where: { id: postId, eventId }, select: { id: true } });
+  if (!post) throw notFound("Post not found.");
+}
+
+async function assertCommentInPost(eventId: string, postId: string, commentId: string) {
+  const comment = await prisma.hubPostComment.findFirst({
+    where: { id: commentId, postId, post: { eventId } },
+    select: { id: true },
+  });
+  if (!comment) throw notFound("Comment not found.");
+}
 
 async function fetchPollForPost(postId: string, userId: string): Promise<EventFeedPollDto | null> {
   const poll = await prisma.hubPostPoll.findUnique({
@@ -256,10 +271,11 @@ export async function createFeedPost(
 }
 
 export async function toggleLike(
-  _eventId: string,
+  eventId: string,
   postId: string,
   userId: string
 ): Promise<void> {
+  await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostReaction.findFirst({
     where: { postId, userId, emoji: "heart" },
   });
@@ -279,10 +295,11 @@ export async function toggleLike(
 }
 
 export async function toggleDownvote(
-  _eventId: string,
+  eventId: string,
   postId: string,
   userId: string
 ): Promise<void> {
+  await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostDownvote.findFirst({
     where: { postId, userId },
   });
@@ -302,11 +319,12 @@ export async function toggleDownvote(
 }
 
 export async function toggleReaction(
-  _eventId: string,
+  eventId: string,
   postId: string,
   userId: string,
   emoji: string
 ): Promise<void> {
+  await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostReaction.findFirst({
     where: { postId, userId, emoji },
   });
@@ -325,10 +343,11 @@ export async function toggleReaction(
 }
 
 export async function getPostComments(
-  _eventId: string,
+  eventId: string,
   postId: string,
   userId: string
 ): Promise<HubCommentDto[]> {
+  await assertPostInEvent(eventId, postId);
   const comments = await prisma.hubPostComment.findMany({
     where: { postId },
     orderBy: { createdAtUtc: "asc" },
@@ -366,12 +385,14 @@ export async function getPostComments(
 }
 
 export async function createComment(
-  _eventId: string,
+  eventId: string,
   postId: string,
   userId: string,
   text: string,
   replyToId?: string | null
 ): Promise<HubCommentDto> {
+  await assertPostInEvent(eventId, postId);
+  if (replyToId) await assertCommentInPost(eventId, postId, replyToId);
   const comment = await prisma.hubPostComment.create({
     data: { postId, userId, text: text.trim(), replyToId: replyToId || null },
     include: {
@@ -398,14 +419,14 @@ export async function createComment(
 }
 
 export async function deleteComment(
-  _eventId: string,
+  eventId: string,
   postId: string,
   commentId: string,
   userId: string,
   isAdmin: boolean
 ): Promise<boolean> {
   const comment = await prisma.hubPostComment.findFirst({
-    where: { id: commentId, postId },
+    where: { id: commentId, postId, post: { eventId } },
   });
 
   if (!comment) return false;
@@ -416,12 +437,13 @@ export async function deleteComment(
 }
 
 export async function toggleCommentReaction(
-  _eventId: string,
-  _postId: string,
+  eventId: string,
+  postId: string,
   commentId: string,
   userId: string,
   emoji: string
 ): Promise<void> {
+  await assertCommentInPost(eventId, postId, commentId);
   const existing = await prisma.hubPostCommentReaction.findFirst({
     where: { commentId, userId, emoji },
   });
@@ -438,11 +460,15 @@ export async function toggleCommentReaction(
 }
 
 export async function votePoll(
-  _eventId: string,
+  eventId: string,
   postId: string,
   userId: string,
   optionId: string
 ): Promise<void> {
+  await assertPostInEvent(eventId, postId);
+  const option = await prisma.hubPostPollOption.findFirst({ where: { id: optionId, postId }, select: { id: true } });
+  if (!option) throw notFound("Poll option not found.");
+
   const existing = await prisma.hubPostPollVote.findFirst({
     where: { postId, userId },
   });
