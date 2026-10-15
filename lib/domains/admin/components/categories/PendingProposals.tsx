@@ -1,27 +1,19 @@
 "use client";
 
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { useState, type ReactNode } from "react";
-import { FilePenLine, Gavel, ScrollText, Trash2 } from "lucide-react";
+import { useState } from "react";
 
-import { AdminReviewCard } from "@/lib/domains/admin/components/layout/AdminReviewCard";
 import { AdminSectionSummary } from "@/lib/domains/admin/components/layout/AdminSectionSummary";
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
 import { AdminStatusFilters } from "@/lib/domains/admin/components/layout/AdminStatusFilters";
 import { ProposalShell } from "@/lib/domains/admin/components/categories/ProposalShell";
-import { AdminDrawer } from "@/lib/domains/admin/components/layout/AdminDrawer";
-import { statusBadgeVariant } from "@/lib/domains/admin/components/moderationUtils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
-import type {
-  CategoryProposalDto,
-  MeasureProposalDto,
-} from "@/lib/api/types";
+import type { CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
 
-import { PROPOSAL_STATUS_LABELS, PROPOSAL_STATUS_OPTIONS } from "../proposalConstants";
+import {
+  PROPOSAL_STATUS_LABELS,
+  PROPOSAL_STATUS_OPTIONS,
+} from "../proposalConstants";
 import type {
   PendingProposalCard,
   PendingProposalPanel,
@@ -31,20 +23,9 @@ import type {
   ProposalType,
   DeleteConfirmationRequest,
 } from "../proposalTypes";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { ADMIN_OUTLINE_BUTTON_CLASS } from "../adminContentUi";
 import { usePendingProposals } from "../hooks/usePendingProposals";
-
-
+import { ProposalDeleteDialog } from "./ProposalDeleteDialog";
+import { ProposalReviewCard } from "./ProposalReviewCard";
 
 type PendingProposalsProps = {
   eventId: string | null;
@@ -76,9 +57,10 @@ function renderProposalPanelState(
   loading: boolean,
   controlsDisabled: boolean,
   hasItems: boolean,
-  emptyMessage: string
+  emptyMessage: string,
 ) {
-  if (loading) return <AdminStateMessage>A carregar propostas...</AdminStateMessage>;
+  if (loading)
+    return <AdminStateMessage>A carregar propostas...</AdminStateMessage>;
   if (controlsDisabled) {
     return (
       <AdminStateMessage>
@@ -86,169 +68,8 @@ function renderProposalPanelState(
       </AdminStateMessage>
     );
   }
-  return hasItems ? null : <AdminStateMessage variant="panel">{emptyMessage}</AdminStateMessage>;
-}
-
-function ProposalFieldInput({ field }: Readonly<{ field: { disabled?: boolean; icon: "description" | "measure" | "name"; id: string; label: string; multiline?: boolean; onChange: (value: string) => void; placeholder?: string; value: string } }>) {
-  const icon = field.icon === "name" ? (
-    <FilePenLine className="h-3.5 w-3.5" />
-  ) : (
-    <ScrollText className="h-3.5 w-3.5" />
-  );
-
-  return (
-    <div className="space-y-2">
-      <label htmlFor={field.id} className="editorial-kicker flex items-center gap-2">{icon}{field.label}</label>
-      {field.multiline ? (
-        <Textarea id={field.id} value={field.value} onChange={(event) => field.onChange(event.target.value)} disabled={field.disabled} placeholder={field.placeholder} rows={3} />
-      ) : (
-        <Input id={field.id} value={field.value} onChange={(event) => field.onChange(event.target.value)} disabled={field.disabled} placeholder={field.placeholder} />
-      )}
-    </div>
-  );
-}
-
-type ProposalCardActionsProps = {
-  deleteIcon?: ReactNode;
-  deleteLabel?: string;
-  isBusy: boolean;
-  onApprove?: () => void;
-  onDelete: () => void;
-  onReject?: () => void;
-  onReopen?: () => void;
-  onSave: () => void;
-  saveDisabled?: boolean;
-  saveLabel: string;
-};
-
-function ProposalCardActions({
-  deleteIcon,
-  deleteLabel = "Apagar",
-  isBusy,
-  onApprove,
-  onDelete,
-  onReject,
-  onReopen,
-  onSave,
-  saveDisabled = false,
-  saveLabel,
-}: Readonly<ProposalCardActionsProps>) {
-  const actions: Array<{
-    key: string;
-    label: string;
-    onClick: () => void;
-    variant?: "destructive" | "outline";
-  }> = [];
-
-  if (onApprove) actions.push({ key: "approve", label: "Aprovar", onClick: onApprove });
-  if (onReject) {
-    actions.push({
-      key: "reject",
-      label: "Rejeitar",
-      onClick: onReject,
-      variant: "destructive",
-    });
-  }
-  if (onReopen) {
-    actions.push({
-      key: "reopen",
-      label: "Reabrir",
-      onClick: onReopen,
-      variant: "outline",
-    });
-  }
-
-  return (
-    <>
-      <Button variant="outline" disabled={isBusy || saveDisabled} onClick={onSave} className={`${ADMIN_OUTLINE_BUTTON_CLASS} w-full sm:w-auto`}>
-        {saveLabel}
-      </Button>
-      {actions.map((action) => (
-        <Button key={action.key} variant={action.variant} disabled={isBusy} onClick={action.onClick} aria-label={`${action.label} proposta`} className={`${action.variant === "outline" ? ADMIN_OUTLINE_BUTTON_CLASS : ""} w-full sm:w-auto`}>
-          {action.label}
-        </Button>
-      ))}
-      <Button variant="outline" disabled={isBusy} className={`${ADMIN_OUTLINE_BUTTON_CLASS} ${deleteIcon ? "w-full gap-2 sm:w-auto" : "w-full sm:w-auto"}`} onClick={onDelete}>
-        {deleteIcon}
-        {deleteLabel}
-      </Button>
-    </>
-  );
-}
-
-function ProposalReviewCard({ proposal }: Readonly<{ proposal: PendingProposalCard }>) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <>
-      <button 
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="w-full flex items-center justify-between p-3 border-b border-[var(--border-paper-soft)] hover:bg-[var(--bg-paper-soft)] transition-colors text-left"
-      >
-        <div className="flex flex-col min-w-0 pr-4">
-          <p className="text-sm font-medium text-[var(--ink-primary)] truncate">
-            {proposal.title}
-          </p>
-          <p className="text-[10px] text-[var(--ink-muted)]">
-            {proposal.meta}
-          </p>
-        </div>
-        <Badge variant={statusBadgeVariant(proposal.status)} className="shrink-0 text-[10px]">
-          {proposal.status}
-        </Badge>
-      </button>
-
-      <AdminDrawer
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        title="Detalhes da Proposta"
-        description="Revê e fecha a proposta"
-      >
-        <AdminReviewCard
-          title={proposal.title}
-          meta={proposal.meta}
-          status={
-            <Badge variant={statusBadgeVariant(proposal.status)}>{proposal.status}</Badge>
-          }
-          actions={
-            <ProposalCardActions
-              isBusy={proposal.isBusy}
-              onSave={() => {
-                proposal.onSave();
-                setIsOpen(false);
-              }}
-              saveLabel={proposal.saveLabel}
-              saveDisabled={proposal.saveDisabled}
-              onApprove={proposal.onApprove ? () => { proposal.onApprove!(); setIsOpen(false); } : undefined}
-              onReject={proposal.onReject ? () => { proposal.onReject!(); setIsOpen(false); } : undefined}
-              onReopen={proposal.onReopen ? () => { proposal.onReopen!(); setIsOpen(false); } : undefined}
-              onDelete={() => {
-                proposal.onDelete();
-                setIsOpen(false);
-              }}
-              deleteLabel={proposal.deleteLabel}
-              deleteIcon={
-                proposal.deleteIcon === "trash" ? <Trash2 className="h-4 w-4" /> : undefined
-              }
-            />
-          }
-        >
-          {proposal.note ? (
-            <div className="flex items-center gap-2 text-[var(--ink-primary)]">
-              <Gavel className="h-4 w-4" />
-              <span className="editorial-kicker">
-                {PROPOSAL_STATUS_LABELS[proposal.note as keyof typeof PROPOSAL_STATUS_LABELS] ?? proposal.note}
-              </span>
-            </div>
-          ) : null}
-
-          {proposal.fields.map((field) => (
-            <ProposalFieldInput key={field.id} field={field} />
-          ))}
-        </AdminReviewCard>
-      </AdminDrawer>
-    </>
+  return hasItems ? null : (
+    <AdminStateMessage variant="panel">{emptyMessage}</AdminStateMessage>
   );
 }
 
@@ -257,15 +78,18 @@ export function PendingProposals({
   categoryProposals,
   measureProposalsAll,
   loading,
-    onUpdate,
+  onUpdate,
 }: Readonly<PendingProposalsProps>) {
   const [listRef] = useAutoAnimate();
-  const [deleteRequest, setDeleteRequest] = useState<DeleteConfirmationRequest | null>(null);
+  const [deleteRequest, setDeleteRequest] =
+    useState<DeleteConfirmationRequest | null>(null);
 
-  const {
-    state,
-    actions,
-  } = usePendingProposals(eventId, categoryProposals, measureProposalsAll, onUpdate);
+  const { state, actions } = usePendingProposals(
+    eventId,
+    categoryProposals,
+    measureProposalsAll,
+    onUpdate,
+  );
 
   const {
     categoryFilter,
@@ -290,9 +114,7 @@ export function PendingProposals({
     handleDeleteMeasure,
   } = actions;
 
-
   const controlsDisabled = !eventId;
-
 
   const requestDelete = ({
     id,
@@ -303,7 +125,9 @@ export function PendingProposals({
     setDeleteRequest({ id, title, type, onConfirm });
   };
 
-  const buildCategoryCard = (proposal: CategoryProposalDto): PendingProposalCard => {
+  const buildCategoryCard = (
+    proposal: CategoryProposalDto,
+  ): PendingProposalCard => {
     const draft = getCategoryDraft(proposal);
 
     return {
@@ -324,7 +148,8 @@ export function PendingProposals({
           id: `${proposal.id}-description`,
           label: "Descrição",
           multiline: true,
-          onChange: (value) => setCategoryDraft(proposal, { description: value }),
+          onChange: (value) =>
+            setCategoryDraft(proposal, { description: value }),
           placeholder: "Contexto da proposta",
           value: draft.description,
         },
@@ -361,8 +186,9 @@ export function PendingProposals({
     };
   };
 
-
-  const buildMeasureCard = (proposal: MeasureProposalDto): PendingProposalCard => {
+  const buildMeasureCard = (
+    proposal: MeasureProposalDto,
+  ): PendingProposalCard => {
     const draftText = getMeasureDraft(proposal);
 
     return {
@@ -384,7 +210,9 @@ export function PendingProposals({
       meta: new Date(proposal.createdAtUtc).toLocaleString("pt-PT"),
       note: proposal.status,
       onApprove:
-        proposal.status !== "approved" ? () => handleMeasureStatusChange(proposal, "approved") : undefined,
+        proposal.status !== "approved"
+          ? () => handleMeasureStatusChange(proposal, "approved")
+          : undefined,
       onDelete: () => {
         if (!eventId) return;
 
@@ -396,9 +224,13 @@ export function PendingProposals({
         });
       },
       onReject:
-        proposal.status !== "rejected" ? () => handleMeasureStatusChange(proposal, "rejected") : undefined,
+        proposal.status !== "rejected"
+          ? () => handleMeasureStatusChange(proposal, "rejected")
+          : undefined,
       onReopen:
-        proposal.status !== "pending" ? () => handleMeasureStatusChange(proposal, "pending") : undefined,
+        proposal.status !== "pending"
+          ? () => handleMeasureStatusChange(proposal, "pending")
+          : undefined,
       onSave: () => handleSaveMeasure(proposal),
       saveDisabled: !draftText.trim(),
       saveLabel: "Guardar texto",
@@ -413,15 +245,16 @@ export function PendingProposals({
     filter: ProposalFilter,
     setFilter: (filter: ProposalFilter) => void,
     counts: ProposalCounts,
-    buildCard: (item: T) => PendingProposalCard
+    buildCard: (item: T) => PendingProposalCard,
   ): PendingProposalPanel => ({
     counts,
     description: PANEL_META[type].description,
     emptyMessage: PANEL_META[type].emptyMessage,
     filter,
-    items: (filter === "all" ? items : items.filter((item) => item.status === filter)).map(
-      buildCard
-    ),
+    items: (filter === "all"
+      ? items
+      : items.filter((item) => item.status === filter)
+    ).map(buildCard),
     setFilter,
     subtitle: "Moderação",
     title: PANEL_META[type].title,
@@ -436,7 +269,7 @@ export function PendingProposals({
       categoryFilter,
       setCategoryFilter,
       categoryCounts,
-      buildCategoryCard
+      buildCategoryCard,
     ),
     buildPanel(
       "measure",
@@ -444,7 +277,7 @@ export function PendingProposals({
       measureFilter,
       setMeasureFilter,
       measureCounts,
-      buildMeasureCard
+      buildMeasureCard,
     ),
   ];
 
@@ -469,8 +302,7 @@ export function PendingProposals({
           },
           {
             label: "Categorias tratadas",
-            value:
-              categoryCounts.approved + categoryCounts.rejected,
+            value: categoryCounts.approved + categoryCounts.rejected,
             tone: "muted",
           },
           {
@@ -501,17 +333,22 @@ export function PendingProposals({
               loading && panel.items.length === 0,
               controlsDisabled,
               panel.items.length > 0,
-              panel.emptyMessage
+              panel.emptyMessage,
             )}
 
-                        {!controlsDisabled && panel.items.length > 0 ? (
-              <div ref={listRef} className="border border-[var(--border-paper-soft)] rounded-md bg-[var(--bg-paper-soft)]">
+            {!controlsDisabled && panel.items.length > 0 ? (
+              <div
+                ref={listRef}
+                className="border border-[var(--border-paper-soft)] rounded-md bg-[var(--bg-paper-soft)]"
+              >
                 <VirtualizedList
                   items={panel.items}
                   getKey={(proposal) => proposal.id}
                   estimateSize={() => 60}
                   className="max-h-[72svh]"
-                  renderItem={(proposal) => <ProposalReviewCard proposal={proposal} />}
+                  renderItem={(proposal) => (
+                    <ProposalReviewCard proposal={proposal} />
+                  )}
                 />
               </div>
             ) : null}
@@ -519,36 +356,10 @@ export function PendingProposals({
         ))}
       </div>
 
-      <AlertDialog
-        open={deleteRequest !== null}
-        onOpenChange={(open) => !open && clearDeleteRequest()}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Apagar proposta?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação remove a proposta &ldquo;
-              {deleteRequest?.title ?? ""}
-              &rdquo; permanentemente. Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={clearDeleteRequest}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                deleteRequest?.onConfirm();
-                clearDeleteRequest();
-              }}
-            >
-              Apagar proposta
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ProposalDeleteDialog
+        request={deleteRequest}
+        onClose={clearDeleteRequest}
+      />
     </div>
   );
 }
-
-

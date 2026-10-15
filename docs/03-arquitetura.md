@@ -20,6 +20,42 @@ Uma única aplicação Next.js 16 (App Router) serve as páginas e a API. Não h
 | Regras puras | `eventRules.ts`, `draw.ts`, `results.ts`, `adminRolePolicy.ts`, `signInAccess.ts` (`decideSignIn`) | Decisões sem I/O, testadas com testes unitários. |
 | Tipos partilhados | `lib/api/types.ts` | DTOs que o servidor devolve e o cliente consome. |
 
+### Organização de uma área de frontend
+
+Uma área de UI deve manter a composição visual separada do estado e das
+transformações de dados:
+
+```text
+<area>/
+  <Area>Page.tsx              composição da vista e estados de alto nível
+  <Area>List.tsx              apresentação de coleções
+  <Area>EditorDrawer.tsx      formulário/drawer de criação ou edição
+  <area>Types.ts              tipos, constantes e transformações puras
+  <area>Types.test.ts         regras puras e casos limite
+hooks/
+  use<Area>.ts                queries, mutações e coordenação do estado
+```
+
+Não é obrigatório criar todos estes ficheiros. A divisão deve seguir
+responsabilidades e ciclos de mudança: componentes pequenos podem permanecer
+juntos, mas um componente de composição não deve conter regras de serialização,
+acesso à API ou decisões de domínio.
+
+Convenções:
+
+- Componentes exportados têm nomes que descrevem o papel visual
+  (`CategoryEditorDrawer`, não `CategoryEditorSheet` quando o componente é um
+  drawer).
+- Hooks coordenam I/O e estado; regras sem I/O ficam em funções exportadas e
+  testáveis.
+- Constantes de domínio substituem números mágicos e labels duplicadas.
+- Comentários explicam intenção, limitações externas ou decisões não óbvias;
+  não descrevem JSX autoexplicativo.
+- Depois de uma mutação, a invalidação usa exatamente o prefixo da query que
+  foi carregada.
+- Erros são registados numa transição de estado ou num handler, nunca como
+  efeito colateral de cada render.
+
 ## Domínios
 
 | Domínio | Pasta | Conteúdo |

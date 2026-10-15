@@ -10,151 +10,25 @@ import type {
 } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import { useAdminMutation } from "./useAdminMutation";
+import {
+  buildCategoryForm,
+  buildCategoryUsage,
+  buildCreateCategoryPayload,
+  buildInitialCategoryForm,
+  buildUpdateCategoryPayload,
+  type CategoryFormState,
+  type CategorySheetState,
+  type CategoryUsage,
+} from "../categories/categoryTypes";
 
 const EMPTY_AWARD_CATEGORIES: AwardCategoryDto[] = [];
 const EMPTY_ADMIN_VOTES: AdminVoteAuditRowDto[] = [];
 const EMPTY_NOMINATIONS: AdminNomineeDto[] = [];
 
-type CategoryFormState = {
-  description: string;
-  isActive: boolean;
-  kind: string;
-  name: string;
-  sortOrder: string;
-  voteQuestion: string;
-  voteRules: string;
-};
-
-function kindToLabel(kind: number): string {
-  return kind === 1 ? "UserVote" : "Sticker";
-}
-
-function kindLabelToNumber(label: string): number {
-  return label === "UserVote" ? 1 : 0;
-}
-
-type CategoryUsage = {
-  canDelete: boolean;
-  deleteReason: string | null;
-  nomineeCount: number;
-  voteCount: number;
-};
-
-function buildInitialForm(sortOrder: number): CategoryFormState {
-  return {
-    description: "",
-    isActive: true,
-    kind: "Sticker",
-    name: "",
-    sortOrder: String(sortOrder),
-    voteQuestion: "",
-    voteRules: "",
-  };
-}
-
-function buildFormFromCategory(category: AwardCategoryDto): CategoryFormState {
-  return {
-    description: category.description ?? "",
-    isActive: category.isActive ?? false,
-    kind: kindToLabel(category.kind),
-    name: category.name,
-    sortOrder: String(category.sortOrder),
-    voteQuestion: category.voteQuestion ?? "",
-    voteRules: category.voteRules ?? "",
-  };
-}
-
-function toOptionalString(value: string) {
-  const normalizedValue = value.trim();
-  return normalizedValue.length > 0 ? normalizedValue : null;
-}
-
-function parseSortOrder(value: string) {
-  const parsedValue = Number.parseInt(value, 10);
-  return Number.isFinite(parsedValue) ? parsedValue : null;
-}
-
-function buildCreatePayload(
-  form: Readonly<CategoryFormState>
-): CreateAwardCategoryRequest {
-  return {
-    name: form.name.trim(),
-    sortOrder: parseSortOrder(form.sortOrder),
-    kind: kindLabelToNumber(form.kind),
-    description: toOptionalString(form.description),
-    voteQuestion:
-      form.kind === "UserVote" ? toOptionalString(form.voteQuestion) : null,
-    voteRules:
-      form.kind === "UserVote" ? toOptionalString(form.voteRules) : null,
-  };
-}
-
-function buildUpdatePayload(
-  form: Readonly<CategoryFormState>
-): UpdateAwardCategoryRequest {
-  return {
-    name: form.name.trim(),
-    sortOrder: parseSortOrder(form.sortOrder),
-    isActive: form.isActive,
-    kind: kindLabelToNumber(form.kind),
-    description: toOptionalString(form.description),
-    voteQuestion:
-      form.kind === "UserVote" ? toOptionalString(form.voteQuestion) : null,
-    voteRules:
-      form.kind === "UserVote" ? toOptionalString(form.voteRules) : null,
-  };
-}
-
-function formatKnownDependencyCount(label: string, count: number) {
-  if (count === 0) return null;
-  return `${count} ${label}${count > 1 ? "s" : ""}`;
-}
-
-function buildCategoryUsage(
-  category: AwardCategoryDto,
-  nomineeCount: number,
-  voteCount: number
-): CategoryUsage {
-  const knownDependencyCount = nomineeCount + voteCount;
-
-  if (knownDependencyCount > 0) {
-    const parts = [
-      formatKnownDependencyCount("nomeação", nomineeCount),
-      formatKnownDependencyCount("voto", voteCount),
-    ].filter(Boolean);
-
-    return {
-      canDelete: false,
-      deleteReason: `Apagamento bloqueado por ${parts.join(
-        " e "
-      )} já associados.`,
-      nomineeCount,
-      voteCount,
-    };
-  }
-
-  if (category.kind === 1) {
-    return {
-      canDelete: false,
-      deleteReason:
-        "Categorias de voto oficial ficam protegidas aqui; a validação final de votos continua no backend.",
-      nomineeCount,
-      voteCount,
-    };
-  }
-
-  return {
-    canDelete: true,
-    deleteReason: null,
-    nomineeCount,
-    voteCount,
-  };
-}
-
-type CategorySheetState =
-  | { mode: "create" }
-  | { category: AwardCategoryDto; mode: "edit" };
-  
+/**
+ * Provides category data, mutation state and editor actions to the admin UI.
+ * The pure DTO/form and deletion rules are kept in categoryTypes.
+ */
 export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promise<void>) {
   const queryClient = useQueryClient();
   const [sheetState, setSheetState] = useState<CategorySheetState | null>(null);
@@ -162,7 +36,7 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
     null
   );
   const [form, setForm] = useState<CategoryFormState>(() =>
-    buildInitialForm(1)
+    buildInitialCategoryForm(1)
   );
 
   const categoriesQuery = useQuery({
@@ -175,7 +49,7 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
 
   const nominationsSummaryQuery = useQuery({
     enabled: Boolean(eventId),
-    queryFn: () => adminRepo.getNominationsPaged(eventId!, 0, 1000), // Get all for summary
+    queryFn: () => adminRepo.getNominationsPaged(eventId!, 0, 1000),
     queryKey: ["canhoes", "admin", "nominations", "summary", eventId],
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 2,
@@ -237,7 +111,7 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
     mutationFn: (payload: CreateAwardCategoryRequest) =>
       adminRepo.createCategory(eventId!, payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["admin", "categories", eventId] });
+      await queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "categories", eventId] });
       setSheetState(null);
       await onUpdate();
     },
@@ -253,7 +127,7 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
       payload: UpdateAwardCategoryRequest;
     }) => adminRepo.updateCategory(eventId!, categoryId, payload),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["admin", "categories", eventId] });
+      await queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "categories", eventId] });
       setSheetState(null);
       await onUpdate();
     },
@@ -264,7 +138,7 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
     mutationFn: (categoryId: string) =>
       adminRepo.deleteCategory(eventId!, categoryId),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["admin", "categories", eventId] });
+      await queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "categories", eventId] });
       setDeleteTarget(null);
       setSheetState(null);
       await onUpdate();
@@ -277,12 +151,12 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
   };
 
   const openCreateSheet = () => {
-    setForm(buildInitialForm(sortedCategories.length + 1));
+    setForm(buildInitialCategoryForm(sortedCategories.length + 1));
     setSheetState({ mode: "create" });
   };
 
   const openEditSheet = (category: AwardCategoryDto) => {
-    setForm(buildFormFromCategory(category));
+    setForm(buildCategoryForm(category));
     setSheetState({ mode: "edit", category });
   };
 
@@ -298,10 +172,10 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
     if (sheetState.mode === "edit") {
       updateCategory.mutate({
         categoryId: sheetState.category.id,
-        payload: buildUpdatePayload(form),
+        payload: buildUpdateCategoryPayload(form),
       });
     } else {
-      createCategory.mutate(buildCreatePayload(form));
+      createCategory.mutate(buildCreateCategoryPayload(form));
     }
   };
   

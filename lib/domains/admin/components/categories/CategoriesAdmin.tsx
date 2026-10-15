@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { FolderTree, Pencil, Plus, Trash2 } from "lucide-react";
-
 
 import type { AwardCategoryDto } from "@/lib/api/types";
 import { logFrontendError } from "@/lib/errors";
@@ -42,40 +41,21 @@ import {
 } from "../adminContentUi";
 import { AdminDrawer } from "../layout/AdminDrawer";
 import { formatCount } from "@/lib/utils";
+import {
+  CATEGORY_KIND,
+  CATEGORY_KIND_FORM_LABELS,
+  CATEGORY_KIND_LABELS,
+  type CategoryFormState,
+  type CategorySheetState,
+  type CategoryUsage,
+} from "./categoryTypes";
 
 type CategoriesAdminProps = {
   eventId: string | null;
   onUpdate: () => Promise<void>;
 };
 
-type CategoryFormState = {
-  description: string;
-  isActive: boolean;
-  kind: string;
-  name: string;
-  sortOrder: string;
-  voteQuestion: string;
-  voteRules: string;
-};
-
 type CategoryFormPatch = Partial<CategoryFormState>;
-
-type CategorySheetState =
-  | { mode: "create" }
-  | { category: AwardCategoryDto; mode: "edit" };
-
-type CategoryUsage = {
-  canDelete: boolean;
-  deleteReason: string | null;
-  nomineeCount: number;
-  voteCount: number;
-};
-
-const CATEGORY_KIND_LABELS: Record<string, string> = {
-  Sticker: "Vota-se nas nomeações",
-  UserVote: "Vota-se num membro",
-};
-
 
 const CATEGORY_ITEM_CLASS =
   "w-full min-h-11 rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-4 py-3 text-left transition-colors hover:bg-[var(--bg-paper-soft)]";
@@ -106,10 +86,9 @@ function CategoryListItem({
           )}
 
           <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] uppercase tracking-[0.08em] text-[var(--ink-muted)]">
-            {/* Removed Ordem display */}
             <span>{formatCount(usage.nomineeCount, "nomeação", "nomeações")}</span>
             <span>{formatCount(usage.voteCount, "voto", "votos")}</span>
-            {category.kind === 1 && category.voteQuestion ? <span className="normal-case tracking-normal">{category.voteQuestion}</span> : null}
+            {category.kind === CATEGORY_KIND.USER_VOTE && category.voteQuestion ? <span className="normal-case tracking-normal">{category.voteQuestion}</span> : null}
           </div>
         </div>
 
@@ -167,7 +146,7 @@ function CategoryList({
   );
 }
 
-function CategoryEditorSheet({
+function CategoryEditorDrawer({
   categoryUsage,
   form,
   isBusy,
@@ -257,8 +236,12 @@ function CategoryEditorSheet({
                   <SelectValue placeholder="Selecionar tipo" />
                 </SelectTrigger>
                 <SelectContent className="z-[100]">
-                  <SelectItem value="Sticker">{CATEGORY_KIND_LABELS.Sticker}</SelectItem>
-                  <SelectItem value="UserVote">{CATEGORY_KIND_LABELS.UserVote}</SelectItem>
+                  <SelectItem value={CATEGORY_KIND_FORM_LABELS.STICKER}>
+                    {CATEGORY_KIND_LABELS[CATEGORY_KIND.STICKER]}
+                  </SelectItem>
+                  <SelectItem value={CATEGORY_KIND_FORM_LABELS.USER_VOTE}>
+                    {CATEGORY_KIND_LABELS[CATEGORY_KIND.USER_VOTE]}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -353,6 +336,10 @@ function CategoryEditorSheet({
   );
 }
 
+/**
+ * Coordinates the official category catalog. Data loading and mutations live
+ * in the domain hook; this component owns the admin view composition.
+ */
 export function CategoriesAdmin({
   eventId,
   onUpdate,
@@ -388,20 +375,25 @@ export function CategoriesAdmin({
   const activeCategoriesCount = sortedCategories.filter((category) => category.isActive).length;
   const inactiveCategoriesCount = sortedCategories.length - activeCategoriesCount;
   const userVoteCategoriesCount = sortedCategories.filter(
-    (category) => category.kind === 1
+    (category) => category.kind === CATEGORY_KIND.USER_VOTE
   ).length;
 
-    const activeCategoryUsage =
+  const activeCategoryUsage =
     sheetState?.mode === "edit" && sheetState.category
       ? categoryUsageById[sheetState.category.id]
       : { canDelete: false, deleteReason: null, nomineeCount: 0, voteCount: 0 };
+
+  useEffect(() => {
+    if (queryError) {
+      logFrontendError("CategoriesAdmin.query", queryError, { eventId });
+    }
+  }, [eventId, queryError]);
 
   if (!eventId) {
     return <AdminStateMessage>Falta uma edição ativa para gerir categorias.</AdminStateMessage>;
   }
 
   if (queryError) {
-    logFrontendError("CategoriesAdmin.query", queryError, { eventId });
     return (
       <AdminStateMessage
         tone="error"
@@ -483,12 +475,12 @@ export function CategoriesAdmin({
         </CardContent>
       </Card>
 
-      <CategoryEditorSheet
+      <CategoryEditorDrawer
         categoryUsage={activeCategoryUsage}
         form={form}
         isBusy={isBusy}
         onChange={patchForm}
-                onDelete={() => {
+        onDelete={() => {
           if (sheetState?.mode !== "edit" || !sheetState.category) return;
           setDeleteTarget(sheetState.category);
         }}
@@ -518,5 +510,3 @@ export function CategoriesAdmin({
     </div>
   );
 }
-
-

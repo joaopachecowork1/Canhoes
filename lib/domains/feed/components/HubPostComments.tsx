@@ -14,7 +14,7 @@ import { COMMENTS_QUERY_KEY } from "./hooks/useHubFeedComments";
 import { feedRepo } from "@/lib/repositories/feedRepo";
 
 import { formatDateTime, initials } from "./hubUtils";
-import type { HubCommentDto } from "@/lib/api/types";
+import { buildCommentTree, flattenCommentTree } from "./hubPostCommentTree";
 
 type HubPostCommentsProps = {
   postId: string;
@@ -60,43 +60,22 @@ export function HubPostComments({
     gcTime: 5 * 60 * 1000,
   });
 
-  const comments = (fetchedComments ?? []).filter(Boolean);
+  const loadedComments = (fetchedComments ?? []).filter(Boolean);
 
   const sortedComments =
-    comments.length < 2
-      ? comments
-      : [...comments].sort((left, right) =>
+    loadedComments.length < 2
+      ? loadedComments
+      : [...loadedComments].sort((left, right) =>
           String(left.createdAtUtc).localeCompare(String(right.createdAtUtc))
         );
 
-  type CommentNode = HubCommentDto & { children: CommentNode[] };
-  const buildCommentTree = (flatComments: HubCommentDto[]) => {
-    const map = new Map<string, CommentNode>();
-    const roots: CommentNode[] = [];
-    flatComments.forEach(c => map.set(c.id, { ...c, children: [] }));
-    flatComments.forEach(c => {
-      if (c.replyToId && map.has(c.replyToId)) {
-        map.get(c.replyToId)!.children.push(map.get(c.id)!);
-      } else {
-        roots.push(map.get(c.id)!);
-      }
-    });
-    return roots;
-  };
-
-  type FlatCommentNode = HubCommentDto & { indentLevel: number; hasChildren: boolean };
-  const flattenTree = (nodes: CommentNode[], level = 0): FlatCommentNode[] => {
-    return nodes.flatMap(node => [
-      { ...node, indentLevel: Math.min(level, 4), hasChildren: node.children.length > 0 },
-      ...flattenTree(node.children, level + 1)
-    ]);
-  };
-
-  const displayComments = flattenTree(buildCommentTree(sortedComments));
+  const displayComments = flattenCommentTree(buildCommentTree(sortedComments));
 
   if (!openComments) return null;
   
-  const replyingToComment = replyingToId ? comments.find(c => c.id === replyingToId) : null;
+  const replyingToComment = replyingToId
+    ? loadedComments.find((comment) => comment.id === replyingToId)
+    : null;
 
   return (
     <>
