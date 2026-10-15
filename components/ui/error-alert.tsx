@@ -2,7 +2,6 @@ import { AlertCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 import { Button } from "@/components/ui/button";
 
@@ -35,8 +34,11 @@ export function ErrorAlert({
   title = "Algo correu mal",
 }: Readonly<ErrorAlertProps>) {
   return (
-    <Alert
+    <div
+      role="alert"
       className={cn(
+        "relative w-full rounded-[var(--radius-sm-token)] border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current shadow-[0_4px_12px_rgba(0,0,0,0.12)]",
+        "border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] text-[var(--color-text-primary)]",
         "border border-white/[0.06] bg-white/[0.03] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] relative overflow-hidden border text-[rgba(255,236,231,0.94)]",
         tone === "danger" && "border-[rgba(224,90,58,0.24)]",
         tone === "official" &&
@@ -52,16 +54,17 @@ export function ErrorAlert({
           tone === "danger" ? "text-[rgba(255,236,231,0.94)]" : "text-[var(--neon-green)]"
         )}
       />
-      <AlertTitle
+      <div
         className={cn(
+          "col-start-2 line-clamp-1 min-h-4 font-semibold tracking-tight",
           tone === "danger" ? "text-[rgba(255,236,231,0.98)]" : "text-[var(--color-text-primary)]"
         )}
       >
         {title}
-      </AlertTitle>
-      <AlertDescription
+      </div>
+      <div
         className={cn(
-          "space-y-3",
+          "col-start-2 grid justify-items-start gap-1 text-sm text-[var(--color-text-muted)] [&_p]:leading-relaxed space-y-3",
           tone === "danger" ? "text-[rgba(255,236,231,0.82)]" : "text-[rgba(255,255,255,0.76)]"
         )}
       >
@@ -89,7 +92,7 @@ export function ErrorAlert({
             </Button>
           </>
         ) : null}
-      </AlertDescription>
-    </Alert>
+      </div>
+    </div>
   );
 }
