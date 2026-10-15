@@ -1,28 +1,30 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, JetBrains_Mono, Orbitron } from "next/font/google";
+import localFont from "next/font/local";
 
 import AppProviders from "@/components/providers/AppProviders";
 
 import "./globals.css";
 
-const orbitron = Orbitron({
-  subsets: ["latin"],
+// The fonts are committed (Google Fonts' latin variable files), so the build never depends on
+// reaching Google: a failed font download used to break `next build` in CI and on the server.
+const orbitron = localFont({
+  src: "./fonts/orbitron-latin.woff2",
   variable: "--font-orbitron",
-  weight: ["700", "800", "900"],
+  weight: "700 900",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
+const dmSans = localFont({
+  src: "./fonts/dm-sans-latin.woff2",
   variable: "--font-dm-sans",
-  weight: ["400", "700"],
+  weight: "400 700",
   display: "swap",
 });
 
-const jetBrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
+const jetBrainsMono = localFont({
+  src: "./fonts/jetbrains-mono-latin.woff2",
   variable: "--font-jetbrains-mono",
-  weight: ["400", "600"],
+  weight: "400 600",
 });
 
 const metadataBaseUrl =
