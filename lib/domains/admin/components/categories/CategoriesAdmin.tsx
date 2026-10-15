@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { FolderTree, Pencil, Plus, Trash2 } from "lucide-react";
 
 import type { AwardCategoryDto } from "@/lib/api/types";
@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 
 import { useCategoriesAdmin } from "../hooks/useCategoriesAdmin";
 import { AdminSectionSummary } from "../layout/AdminSectionSummary";
@@ -109,29 +108,6 @@ function CategoryList({
   categoryUsageById: Record<string, CategoryUsage>;
   onEdit: (category: AwardCategoryDto) => void;
 }>) {
-  const renderItem = useCallback(
-    (category: AwardCategoryDto) => (
-      <CategoryListItem
-        category={category}
-        onEdit={onEdit}
-        usage={categoryUsageById[category.id]}
-      />
-    ),
-    [categoryUsageById, onEdit]
-  );
-
-  if (categories.length > 10) {
-    return (
-      <VirtualizedList
-        items={categories}
-        estimateSize={() => 88}
-        getKey={(category) => category.id}
-        className="max-h-[400px]"
-        renderItem={renderItem}
-      />
-    );
-  }
-
   return (
     <div className="space-y-2">
       {categories.map((category) => (

@@ -5,7 +5,6 @@ import { ScrollText } from "lucide-react";
 
 import { SectionBoundary } from "@/components/ui/section-boundary";
 import { EmptyState } from "@/components/ui/empty-state";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import { feedCopy } from "@/lib/canhoesCopy";
 import type { EventFeedPostFullDto } from "@/lib/api/types";
 
@@ -40,8 +39,6 @@ type HubFeedListProps = {
   sentinelRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
-const POST_KEY = (post: EventFeedPostFullDto) => post.id;
-const POST_SIZE = () => 220;
 
 const HubFeedListItem = memo(function HubFeedListItem({
   post, index, eventId, isAdmin, openComments, commentDraft, replyingToId,
@@ -130,14 +127,10 @@ export const HubFeedList = memo(function HubFeedList({
     <div className="animate-fade-in flex flex-col">
 
                 {posts.length > 0 ? (
-            <VirtualizedList
-              items={posts}
-              overscan={4}
-              getKey={POST_KEY}
-              estimateSize={POST_SIZE}
-              useWindowScroll={true}
-              renderItem={(post, index) => (
+            <div>
+              {posts.map((post, index) => (
                 <HubFeedListItem
+                  key={post.id}
                   post={post}
                   index={index}
                   eventId={eventId}
@@ -160,8 +153,8 @@ export const HubFeedList = memo(function HubFeedList({
                   onAdminDelete={onAdminDelete}
                   setReplyingTo={setReplyingTo}
                 />
-              )}
-            />
+              ))}
+            </div>
         ) : (
           <EmptyState
             className="py-10"

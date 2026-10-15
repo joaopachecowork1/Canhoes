@@ -16,7 +16,6 @@ import { CanhoesFeatureCard, CanhoesModuleHeader } from "@/components/modules/ca
 import { Card, CardContent } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 
 function OfficialVotingLoadingState() {
   return (
@@ -209,12 +208,8 @@ function OfficialVotingCategoryCard({
       )}
 
       {category.options.length > 0 ? (
-        <VirtualizedList
-          items={category.options}
-          getKey={(option) => option.id}
-          estimateSize={() => 72}
-          className="max-h-[52svh]"
-          renderItem={(option) => {
+        <div className="space-y-2">
+          {category.options.map((option) => {
             const isOptionSelected = category.myOptionId === option.id;
             const isVotePending = isBusy && pendingPayload?.categoryId === category.id && pendingPayload.selectionId === option.id;
             let statusIcon = null;
@@ -227,6 +222,7 @@ function OfficialVotingCategoryCard({
 
             return (
               <button
+                key={option.id}
                 type="button"
                 disabled={!canVote || isBusy}
                 onClick={() => onVote({ categoryId: category.id, selectionId: option.id })}
@@ -242,8 +238,8 @@ function OfficialVotingCategoryCard({
                 <div className="shrink-0 text-[var(--moss)]">{statusIcon}</div>
               </button>
             );
-          }}
-        />
+          })}
+        </div>
       ) : null}
     </CanhoesFeatureCard>
   );

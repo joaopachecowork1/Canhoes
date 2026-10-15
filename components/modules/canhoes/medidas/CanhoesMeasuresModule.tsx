@@ -21,7 +21,6 @@ import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 
 function MeasuresLoadingState() {
   return (
@@ -158,20 +157,16 @@ export function CanhoesMeasuresModule({ initialData, initialContext }: { initial
           ) : null}
 
           {filteredMeasures.length > 0 ? (
-            <VirtualizedList
-              items={filteredMeasures}
-              getKey={(measure) => measure.id}
-              estimateSize={() => 72}
-              className="max-h-[44svh]"
-              renderItem={(measure) => (
-                <div className="canhoes-list-item space-y-1 p-2.5">
+            <div className="space-y-2">
+              {filteredMeasures.map((measure) => (
+                <div key={measure.id} className="canhoes-list-item space-y-1 p-2.5">
                   <p className="text-sm font-semibold text-[var(--color-text-primary)]">{measure.text}</p>
                   <p className="text-xs text-[var(--color-text-muted)]">
                     {new Date(measure.createdAtUtc).toLocaleString()}
                   </p>
                 </div>
-              )}
-            />
+              ))}
+            </div>
           ) : null}
         </CardContent>
       </Card>

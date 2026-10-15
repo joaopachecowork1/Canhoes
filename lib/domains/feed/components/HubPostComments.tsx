@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import { Textarea } from "@/components/ui/textarea";
 import { feedCopy } from "@/lib/canhoesCopy";
 import { COMMENTS_QUERY_KEY } from "./hooks/useHubFeedComments";
@@ -108,17 +107,14 @@ export function HubPostComments({
               {feedCopy.comments.empty}
             </div>
           ) : (
-              <VirtualizedList
-              items={displayComments}
-              getKey={(comment) => comment.id}
-              estimateSize={() => 120}
-              className="max-h-[50svh]"
-              renderItem={(comment) => {
+              <div className="space-y-2">
+                {displayComments.map((comment) => {
                 const isOwnComment = Boolean(currentUserId) && comment.userId === currentUserId;
                 const marginLeft = comment.indentLevel * 32;
 
                 return (
                   <article
+                    key={comment.id}
                     style={{ paddingLeft: `${marginLeft + 12}px` }}
                     className="group relative flex gap-3 pr-3 py-3 transition-colors hover:bg-white/[0.02]"
                   >
@@ -215,8 +211,8 @@ export function HubPostComments({
                     </div>
                   </article>
                 );
-              }}
-            />
+              })}
+              </div>
           )}
         </div>
 

@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import { formatCount } from "@/lib/utils";
 
 export function NominationsLoadingState() {
@@ -145,18 +144,13 @@ function ApprovedNomineesList({ nominees }: Readonly<{ nominees: NomineeDto[] }>
       {nominees.length === 0 ? (
         <p className="text-sm text-[var(--ink-muted)]">Ainda sem nomeações aprovadas nesta categoria oficial.</p>
       ) : (
-        <VirtualizedList
-          items={nominees}
-          getKey={(nominee) => nominee.id}
-          estimateSize={() => 52}
-          className="max-h-[34svh]"
-          renderItem={(nominee) => (
-            <div className="canhoes-list-item flex items-center gap-2 rounded-[var(--radius-md-token)] border border-[rgba(255,255,255,0.1)] px-3 py-2.5 transition-colors duration-150 hover:border-[rgba(122,173,58,0.2)]">
+        <div className="space-y-2">
+          {nominees.map((nominee) => (
+            <div key={nominee.id} className="canhoes-list-item flex items-center gap-2 rounded-[var(--radius-md-token)] border border-[rgba(255,255,255,0.1)] px-3 py-2.5 transition-colors duration-150 hover:border-[rgba(122,173,58,0.2)]">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--neon-green)]" />
               <span className="truncate text-sm font-medium text-[var(--ink-primary)]">{nominee.title}</span>
-            </div>
-          )}
-        />
+            </div>))}
+        </div>
       )}
     </div>
   );

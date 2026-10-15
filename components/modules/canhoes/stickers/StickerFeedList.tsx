@@ -5,7 +5,6 @@ import { Heart, Inbox, MoreHorizontal } from "lucide-react";
 import { absMediaUrl } from "@/lib/media";
 import { cn } from "@/lib/utils";
 import type { NomineeDto } from "@/lib/api/types";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import { EmptyState } from "@/components/ui/empty-state";
 
 const ITEM_CLASS =
@@ -81,20 +80,6 @@ function StickerFeedCard({ sticker }: { sticker: NomineeDto }) {
 export function StickerFeedList({ stickers }: { stickers: NomineeDto[] }) {
   if (stickers.length === 0) {
     return <EmptyState icon={Inbox} title="Sem stickers" description="Ainda não há stickers com imagem para mostrar." />;
-  }
-
-  if (stickers.length > 20) {
-     return (
-       <div className="max-w-xl mx-auto w-full">
-         <VirtualizedList
-            items={stickers}
-            getKey={(s) => s.id}
-            estimateSize={() => 400}
-            className="max-h-[70svh]"
-            renderItem={(sticker) => <StickerFeedCard sticker={sticker} />}
-         />
-       </div>
-     );
   }
 
   return (

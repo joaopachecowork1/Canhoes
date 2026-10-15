@@ -28,7 +28,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import {
   ADMIN_CONTENT_CARD_CLASS,
   ADMIN_SELECT_CONTENT_CLASS,
@@ -138,17 +137,14 @@ export function AdminNominationsView({
           ) : (
             <div
               ref={listRef}
-              className="max-h-[56svh] rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper-soft)] p-2"
+              className="max-h-[56svh] overflow-y-auto rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper-soft)] p-2"
             >
-              <VirtualizedList
-                className="px-0 py-0"
-                estimateSize={() => 72}
-                getKey={(nomination) => nomination.id}
-                items={filteredNominations}
-                renderItem={(nomination) => {
+              <div className="space-y-2">
+                {filteredNominations.map((nomination) => {
                   const isSelected = nomination.id === selectedNominationId;
                   return (
                     <AdminSelectableButton
+                      key={nomination.id}
                       type="button"
                       onClick={() => setSelectedNominationId(nomination.id)}
                       selected={isSelected}
@@ -170,8 +166,8 @@ export function AdminNominationsView({
                       </div>
                     </AdminSelectableButton>
                   );
-                }}
-              />
+                })}
+              </div>
             </div>
           )}
         </CardContent>

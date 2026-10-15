@@ -9,7 +9,6 @@ import { adminRepo } from "@/lib/repositories/adminRepo";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
 import { ADMIN_CONTENT_CARD_CLASS } from "./adminContentUi";
 import { formatDateTimeUtc } from "./dateUtils";
@@ -95,13 +94,9 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
               </p>
             </div>
           ) : (
-            <VirtualizedList
-              items={filteredVotes}
-              getKey={(vote) => `${vote.userId}-${vote.categoryId}`}
-              estimateSize={() => 82}
-              className="max-h-[60svh]"
-              renderItem={(vote) => (
-                <div className={VOTE_ROW_CLASS}>
+            <div className="space-y-2">
+              {filteredVotes.map((vote) => (
+                <div key={`${vote.userId}-${vote.categoryId}`} className={VOTE_ROW_CLASS}>
                   <div className="flex items-center justify-between gap-2">
                     <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">
                       {vote.userName}
@@ -120,8 +115,8 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
                     </span>
                   </div>
                 </div>
-              )}
-            />
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>
