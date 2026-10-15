@@ -8,7 +8,7 @@ Next.js 16 (App Router) com React 18 e TypeScript, Tailwind CSS 4, Prisma 6 + Po
 
 ## Requisitos
 
-- Node.js 20+ e npm
+- Node.js 22+ e npm
 - Docker ou Podman. Com Podman, o `podman compose` precisa de um provider: `pip install --user podman-compose` (ou `sudo dnf install podman-compose`).
 
 ## Arranque local (desenvolvimento)
@@ -34,7 +34,7 @@ podman compose up -d --build --force-recreate       # o mesmo com Podman
 docker compose --profile tunnel up -d               # + túnel público ngrok (precisa de NGROK_AUTHTOKEN)
 ```
 
-O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
+O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. Em produção o seed só cria os admins de `ADMIN_EMAILS` e o evento, e nunca mexe na fase de um evento que já existe; os dados de demonstração só entram com `SEED_DEMO_DATA=true`. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
 
 ## Base de dados
 
