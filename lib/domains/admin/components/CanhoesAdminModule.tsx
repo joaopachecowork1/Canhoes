@@ -4,7 +4,6 @@ import { useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
-import { SectionBoundary } from "@/components/ui/section-boundary";
 import { useAdminBootstrap } from "@/hooks/useAdminBootstrap";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
@@ -12,7 +11,7 @@ import { ApiError } from "@/lib/api/canhoesClient";
 import type { EventActiveContextDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 
-import { ADMIN_SECTIONS, type AdminSectionId } from "./adminSections";
+import type { AdminSectionId } from "./adminSections";
 import { ADMIN_OUTLINE_BUTTON_CLASS } from "./adminContentUi";
 import { useAdminProposals } from "./hooks/useAdminProposals";
 import { AdminContentSection } from "./layout/AdminContentSection";
@@ -90,8 +89,6 @@ export default function CanhoesAdminModule({
         logFrontendError("Admin.bootstrap", error);
     }, [error]);
 
-    const activeSectionLabel = ADMIN_SECTIONS.find((item) => item.id === section)?.label;
-
     return (
         <div className="space-y-5">
             {error ? (
@@ -120,12 +117,6 @@ export default function CanhoesAdminModule({
                 </AdminStateMessage>
             ) : null}
 
-            <SectionBoundary
-                title={`Erro ao abrir ${activeSectionLabel ?? "esta seccão"}`}
-                description="Esta seccão do admin falhou ao renderizar, mas o resto do painel continua disponível."
-                onRetry={() => void handleRefresh()}
-                resetKey={section}
-            >
                 {section === "conteudo" ? (
                     <AdminContentSection
                         categoryProposals={categoryProposals}
@@ -149,7 +140,6 @@ export default function CanhoesAdminModule({
                         state={eventState}
                     />
                 )}
-            </SectionBoundary>
         </div>
     );
 }
