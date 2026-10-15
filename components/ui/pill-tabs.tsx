@@ -24,7 +24,7 @@ type PillTabsProps = {
 };
 
 const CONTAINER_CLASS =
-  "overflow-hidden rounded-xl border border-white/6 bg-white/[0.03] px-1.5 py-1.5";
+  "overflow-hidden rounded-xl border border-white/6 bg-[var(--bg-paper-soft)] px-1.5 py-1.5";
 
 const SCROLL_CLASS =
   "-mx-1 overflow-x-auto px-1 scrollbar-none snap-x snap-mandatory";
@@ -36,7 +36,7 @@ const ITEM_ACTIVE_CLASS =
   "border-white/10 bg-white/[0.08] text-[var(--color-text-primary)] shadow-sm";
 
 const ITEM_IDLE_CLASS =
-  "border-transparent bg-transparent text-[var(--color-text-muted)] hover:bg-white/[0.04] hover:text-[var(--color-text-primary)]";
+  "border-transparent bg-transparent text-[var(--color-text-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--color-text-primary)]";
 
 const BADGE_ACTIVE_CLASS =
   "bg-[var(--moss)] text-white";

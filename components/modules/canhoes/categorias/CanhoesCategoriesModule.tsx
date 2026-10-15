@@ -30,7 +30,7 @@ function CategoriesLoadingState() {
             {Array.from({ length: 4 }).map((_, index) => (
                 <div
                     key={index}
-                    className="flex items-center gap-3.5 rounded-2xl border border-white/5 bg-white/[0.03] p-4"
+                    className="flex items-center gap-3.5 rounded-2xl border border-white/5 bg-[var(--bg-paper-soft)] p-4"
                 >
                     <Skeleton className="h-11 w-11 shrink-0 rounded-xl" />
                     <div className="min-w-0 flex-1 space-y-2">
@@ -234,7 +234,7 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
                             {filteredCategoryList.map((category, index) => (
                                 <div
                                     key={category.id}
-                                    className="flex items-center gap-3.5 rounded-2xl border border-white/5 bg-white/[0.03] p-4 transition-all duration-200 hover:border-white/10 hover:bg-white/[0.06] animate-fade-slide-up"
+                                    className="flex items-center gap-3.5 rounded-2xl border border-white/5 bg-[var(--bg-paper-soft)] p-4 transition-all duration-200 hover:border-white/10 hover:bg-white/[0.06] animate-fade-slide-up"
                                     style={{ "--item-index": index } as CSSProperties}
                                 >
                                     {/* Ícone translúcido */}

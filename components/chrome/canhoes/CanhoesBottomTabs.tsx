@@ -34,7 +34,7 @@ export function CanhoesBottomTabs({
     ariaLabel: "Criar post",
     ariaPressed: isComposeOpen,
     buttonClassName: cn(
-      "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] text-[var(--color-text-primary)]",
+      "border-[rgba(255,255,255,0.12)] bg-[var(--bg-paper)] text-[var(--color-text-primary)]",
       isComposeOpen &&
         "border-[rgba(95,123,56,0.24)] bg-[rgba(95,123,56,0.16)] text-[var(--color-text-primary)]"
     ),

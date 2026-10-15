@@ -39,7 +39,7 @@ export function ErrorAlert({
       className={cn(
         "relative w-full rounded-[var(--radius-sm-token)] border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current shadow-[0_4px_12px_rgba(0,0,0,0.12)]",
         "border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] text-[var(--color-text-primary)]",
-        "border border-white/[0.06] bg-white/[0.03] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] relative overflow-hidden border text-[rgba(255,236,231,0.94)]",
+        "border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] relative overflow-hidden border text-[rgba(255,236,231,0.94)]",
         tone === "danger" && "border-[rgba(224,90,58,0.24)]",
         tone === "official" &&
           "border-[rgba(0,255,136,0.18)] text-[rgba(255,255,255,0.94)]",

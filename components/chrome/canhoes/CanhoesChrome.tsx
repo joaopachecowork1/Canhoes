@@ -108,7 +108,7 @@ export function CanhoesChrome({
         data-theme="canhoes"
         className="bg-circuit relative isolate flex min-h-[100svh] flex-col overflow-x-clip bg-[var(--bg-void)] text-[var(--text-primary)]"
       >
-      <header className="sticky top-0 z-40 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(10,14,8,0.92)] backdrop-blur-[6px] supports-[backdrop-filter]:bg-[rgba(10,14,8,0.88)]">
+      <header className="sticky top-0 z-40 border-b border-[var(--border-paper)] bg-[rgba(10,14,8,0.92)] backdrop-blur-[6px] supports-[backdrop-filter]:bg-[rgba(10,14,8,0.88)]">
         <div className="mx-auto w-full max-w-[72rem] px-4 pb-2 pt-[env(safe-area-inset-top,0px)] sm:px-6 lg:px-8">
                   <div
                     className="rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.12)] bg-[rgba(18,24,12,0.94)] px-3 py-3 text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] sm:px-4 sm:py-3.5"

@@ -238,7 +238,7 @@ export function HubPostComments({
               value={commentDraft}
               onChange={(event) => onCommentDraftChange(postId, event.target.value)}
               placeholder={replyingToId ? "Escreve a tua resposta..." : feedCopy.comments.placeholder}
-              className="min-h-[72px] resize-none text-sm border-white/[0.08] bg-[var(--bg-surface)] placeholder:text-[var(--text-muted)] rounded-xl"
+              className="min-h-[72px] resize-none text-sm border-[var(--border-paper)] bg-[var(--bg-surface)] placeholder:text-[var(--text-muted)] rounded-xl"
             />
 
             <div className="flex justify-end gap-2">
@@ -278,7 +278,7 @@ function UserAvatar({
   return (
     <span
       className={cn(
-        "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/[0.08] text-[10px] font-semibold text-[var(--text-muted)]",
+        "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border-paper)] text-[10px] font-semibold text-[var(--text-muted)]",
         className
       )}
     >

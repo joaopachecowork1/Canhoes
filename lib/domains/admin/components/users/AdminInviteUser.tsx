@@ -85,7 +85,7 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
               <Input 
                 value={inviteUrl} 
                 readOnly 
-                className="h-8 text-xs bg-black/40 border-[rgba(255,255,255,0.08)]"
+                className="h-8 text-xs bg-black/40 border-[var(--border-paper)]"
               />
               <Button size="icon" variant="outline" className="h-8 w-8 shrink-0" onClick={copyToClipboard}>
                 {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}

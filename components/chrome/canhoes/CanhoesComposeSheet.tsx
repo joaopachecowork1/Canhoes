@@ -237,7 +237,7 @@ export function CanhoesComposeSheet({
                 value={text}
                 onChange={(event) => setText(event.target.value)}
                 placeholder={composeCopy.textPlaceholder}
-                className="min-h-24 resize-none border-white/10 bg-white/[0.03] text-base sm:min-h-28 sm:text-sm"
+                className="min-h-24 resize-none border-white/10 bg-[var(--bg-paper-soft)] text-base sm:min-h-28 sm:text-sm"
               />
 
               <ComposeMediaGrid
