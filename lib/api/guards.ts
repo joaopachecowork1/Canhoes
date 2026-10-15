@@ -1,8 +1,10 @@
 import { getServerSession } from "next-auth";
 
+import type { AdminModuleKey } from "@/lib/api/types";
 import { HttpError, unauthorized } from "@/lib/api/httpError";
 import { authOptions } from "@/lib/domains/auth/services/auth";
-import { prisma } from "@/lib/prisma";
+import { getEventRulesState, isEventMember } from "@/lib/domains/event/services/event";
+import { canSubmitProposals, resolveMemberModules } from "@/lib/domains/event/services/eventRules";
 
 export type SessionUser = { id: string; isAdmin: boolean };
 
@@ -26,16 +28,28 @@ export async function requireAdmin(): Promise<SessionUser> {
   return user;
 }
 
-/**
- * Admins always pass; members need the event to be set up (to have a `CanhoesEventState`).
- * Which modules a member can see comes from the event overview and is applied by the UI;
- * it is not enforced per endpoint.
- */
+/** Admins always pass; everyone else has to be a member of the event. */
 export async function requireEventAccess(eventId: string, user: SessionUser): Promise<void> {
   if (user.isAdmin) return;
+  if (!(await isEventMember(eventId, user.id))) {
+    throw new HttpError(403, "NOT_A_MEMBER", "You are not a member of this event.");
+  }
+}
 
-  const state = await prisma.canhoesEventState.findUnique({ where: { eventId }, select: { id: true } });
-  if (!state) {
+/** Event access plus the module being open for members in the current phase (see `eventRules`). */
+export async function requireModule(eventId: string, user: SessionUser, module: AdminModuleKey): Promise<void> {
+  await requireEventAccess(eventId, user);
+  if (user.isAdmin) return;
+  if (!resolveMemberModules(await getEventRulesState(eventId))[module]) {
     throw new HttpError(403, "MODULE_DISABLED", "Module not available.");
+  }
+}
+
+/** Event access plus proposals being open (category proposals, nominations, stickers, measures). */
+export async function requireProposalsOpen(eventId: string, user: SessionUser): Promise<void> {
+  await requireEventAccess(eventId, user);
+  if (user.isAdmin) return;
+  if (!canSubmitProposals(await getEventRulesState(eventId))) {
+    throw new HttpError(409, "PROPOSALS_CLOSED", "Proposals are closed in this phase.");
   }
 }

@@ -1,27 +1,37 @@
 import { prisma } from "@/lib/prisma";
 import type {
-  EventSummaryDto,
-  EventOverviewDto,
-  EventPhaseDto,
-  EventPermissionsDto,
-  EventModulesDto,
   EventActiveContextDto,
+  EventOverviewDto,
+  EventPermissionsDto,
 } from "@/lib/api/types";
+import { toEventSummary, toPhaseDto } from "@/lib/domains/admin/services/constants";
+import {
+  ALL_MODULES,
+  canSubmitProposals,
+  resolveMemberModules,
+  type EventRulesState,
+} from "@/lib/domains/event/services/eventRules";
 
-function toEventSummary(event: { id: string; name: string; isActive: boolean }): EventSummaryDto {
-  return { id: event.id, name: event.name, isActive: event.isActive };
+/** The inputs of `eventRules` for one event, read from its phases and `CanhoesEventState`. */
+export async function getEventRulesState(eventId: string): Promise<EventRulesState> {
+  const [activePhase, state] = await Promise.all([
+    prisma.eventPhase.findFirst({ where: { eventId, isActive: true }, select: { type: true } }),
+    prisma.canhoesEventState.findUnique({ where: { eventId } }),
+  ]);
+  return {
+    activePhaseType: activePhase?.type ?? null,
+    moduleVisibility: (state?.moduleVisibilityJson ?? {}) as EventRulesState["moduleVisibility"],
+    nominationsVisible: state?.nominationsVisible ?? true,
+    hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
+  };
 }
 
-function toPhaseDto(phase: {
-  id: string; type: string; startDateUtc: Date; endDateUtc: Date; isActive: boolean;
-}): EventPhaseDto {
-  return {
-    id: phase.id,
-    type: phase.type,
-    startDateUtc: phase.startDateUtc.toISOString(),
-    endDateUtc: phase.endDateUtc.toISOString(),
-    isActive: phase.isActive,
-  };
+export async function isEventMember(eventId: string, userId: string) {
+  const member = await prisma.eventMember.findUnique({
+    where: { eventId_userId: { eventId, userId } },
+    select: { id: true },
+  });
+  return member !== null;
 }
 
 export async function getEventOverview(
@@ -32,21 +42,21 @@ export async function getEventOverview(
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) return null;
 
-  const [phases, member, state] = await Promise.all([
+  const [phases, isMember, rules] = await Promise.all([
     prisma.eventPhase.findMany({ where: { eventId }, orderBy: { startDateUtc: "asc" } }),
-    prisma.eventMember.findFirst({ where: { eventId, userId } }),
-    prisma.canhoesEventState.findUnique({ where: { eventId } }),
+    isEventMember(eventId, userId),
+    getEventRulesState(eventId),
   ]);
-  const activePhase = phases.find((phase) => phase.isActive) ?? null;
   const activePhaseIndex = phases.findIndex((phase) => phase.isActive);
+  const activePhase = phases[activePhaseIndex] ?? null;
   const nextPhase = activePhaseIndex >= 0 ? phases[activePhaseIndex + 1] ?? null : null;
 
   const permissions: EventPermissionsDto = {
     isAdmin,
-    isMember: Boolean(member),
-    canPost: isAdmin || Boolean(member),
-    canSubmitProposal: isAdmin || (Boolean(member) && (state?.nominationsVisible ?? true)),
-    canVote: isAdmin || (Boolean(member) && activePhase?.type === "VOTING"),
+    isMember,
+    canPost: isAdmin || isMember,
+    canSubmitProposal: isAdmin || (isMember && canSubmitProposals(rules)),
+    canVote: isAdmin || (isMember && rules.activePhaseType === "VOTING"),
     canManage: isAdmin,
   };
   const [memberCount, feedPostCount, pendingProposalCount, wishlistItemCount] = await Promise.all([
@@ -55,25 +65,6 @@ export async function getEventOverview(
     prisma.categoryProposal.count({ where: { eventId, status: "pending" } }),
     prisma.wishlistItem.count({ where: { eventId, userId } }),
   ]);
-  const visibility = (state?.moduleVisibilityJson ?? {}) as Record<string, boolean>;
-  const isProposalPhase = activePhase?.type === "PROPOSALS";
-  const isVotingPhase = activePhase?.type === "VOTING";
-  const isResultsPhase = activePhase?.type === "RESULTS";
-  const isDrawPhase = activePhase?.type === "DRAW";
-  const modules: EventModulesDto = isAdmin
-    ? { feed: true, secretSanta: true, wishlist: true, categories: true, voting: true, gala: true, stickers: true, measures: true, nominees: true, admin: true }
-    : {
-        feed: visibility.feed ?? true,
-        secretSanta: (visibility.secretSanta ?? true) && (isDrawPhase || Boolean(state?.hasSecretSantaDraw) || isVotingPhase || isResultsPhase),
-        wishlist: visibility.wishlist ?? true,
-        categories: (visibility.categories ?? true) && (isProposalPhase || isVotingPhase || isResultsPhase),
-        voting: (visibility.voting ?? true) && isVotingPhase,
-        gala: (visibility.gala ?? true) && isResultsPhase,
-        stickers: (visibility.stickers ?? true) && isProposalPhase && (state?.nominationsVisible ?? true),
-        measures: (visibility.measures ?? true) && isProposalPhase && (state?.nominationsVisible ?? true),
-        nominees: (visibility.nominees ?? true) && ((state?.nominationsVisible ?? false) || isResultsPhase),
-        admin: false,
-      };
 
   return {
     event: toEventSummary(event),
@@ -81,13 +72,13 @@ export async function getEventOverview(
     nextPhase: nextPhase ? toPhaseDto(nextPhase) : null,
     permissions,
     counts: { memberCount, feedPostCount, categoryCount: 0, pendingProposalCount, wishlistItemCount },
-    hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
+    hasSecretSantaDraw: rules.hasSecretSantaDraw,
     hasSecretSantaAssignment: false,
     myWishlistItemCount: wishlistItemCount,
     myProposalCount: 0,
     myVoteCount: 0,
     votingCategoryCount: 0,
-    modules,
+    modules: isAdmin ? ALL_MODULES : resolveMemberModules(rules),
   };
 }
 

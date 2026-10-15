@@ -1,4 +1,7 @@
+import { HttpError } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
+import { KindUserVote } from "@/lib/domains/admin/services/constants";
+import { isVotingOpen } from "@/lib/domains/event/services/eventRules";
 import type {
   EventVotingBoardDto,
   EventVotingCategoryDto,
@@ -63,7 +66,7 @@ export async function getVotingBoard(
     let options: EventVoteOptionDto[];
     let mySelectionId: string | null = null;
 
-    if (cat.kind === 1) {
+    if (cat.kind === KindUserVote) {
       options = members
         .filter((m) => m.role !== "admin")
         .sort((a, b) => {
@@ -106,8 +109,7 @@ export async function getVotingBoard(
     };
   });
 
-  const now = new Date();
-  const canVote = votingPhase ? now >= votingPhase.startDateUtc && now <= votingPhase.endDateUtc : false;
+  const canVote = isVotingOpen(votingPhase, new Date());
 
   return {
     eventId,
@@ -121,47 +123,66 @@ function categoryIds(categories: { id: string }[]): string[] {
   return categories.map((c) => c.id);
 }
 
+type VoteErrorCode = "VOTING_CLOSED" | "CATEGORY_NOT_FOUND" | "INVALID_SELECTION";
+
+const VOTE_ERRORS: Record<VoteErrorCode, { status: number; message: string }> = {
+  VOTING_CLOSED: { status: 409, message: "A votação não está aberta." },
+  CATEGORY_NOT_FOUND: { status: 404, message: "Esta categoria não existe ou não está ativa." },
+  INVALID_SELECTION: { status: 400, message: "Esta opção não pertence à categoria." },
+};
+
+class VoteError extends HttpError {
+  constructor(override readonly code: VoteErrorCode) {
+    super(VOTE_ERRORS[code].status, code, VOTE_ERRORS[code].message);
+    this.name = "VoteError";
+  }
+}
+
+/**
+ * Records (or changes) the user's vote in a category. Only inside the active voting phase's dates,
+ * and only for an option the voting board offers: an approved nominee of that category, or a
+ * non-admin member for person categories.
+ */
 export async function castVote(
   eventId: string,
   userId: string,
   categoryId: string,
   selectionId: string
-): Promise<EventVoteDto | null> {
+): Promise<EventVoteDto> {
+  const votingPhase = await prisma.eventPhase.findFirst({
+    where: { eventId, type: "VOTING", isActive: true },
+  });
+  if (!isVotingOpen(votingPhase, new Date())) throw new VoteError("VOTING_CLOSED");
+
   const category = await prisma.awardCategory.findFirst({
     where: { id: categoryId, eventId, isActive: true },
   });
-  if (!category) return null;
+  if (!category) throw new VoteError("CATEGORY_NOT_FOUND");
 
-  if (category.kind === 1) {
-    const existing = await prisma.userVote.findFirst({
-      where: { eventId, categoryId, voterUserId: userId },
+  if (category.kind === KindUserVote) {
+    const target = await prisma.eventMember.findUnique({
+      where: { eventId_userId: { eventId, userId: selectionId } },
+      select: { role: true },
     });
+    if (!target || target.role === "admin") throw new VoteError("INVALID_SELECTION");
 
-    if (existing) {
-      await prisma.userVote.update({
-        where: { id: existing.id },
-        data: { targetUserId: selectionId },
-      });
-    } else {
-      await prisma.userVote.create({
-        data: { eventId, categoryId, voterUserId: userId, targetUserId: selectionId },
-      });
-    }
+    await prisma.userVote.upsert({
+      where: { categoryId_voterUserId: { categoryId, voterUserId: userId } },
+      update: { targetUserId: selectionId },
+      create: { eventId, categoryId, voterUserId: userId, targetUserId: selectionId },
+    });
   } else {
-    const existing = await prisma.vote.findFirst({
-      where: { eventId, categoryId, userId },
+    const nominee = await prisma.nominee.findFirst({
+      where: { id: selectionId, eventId, categoryId, status: "approved" },
+      select: { id: true },
     });
+    if (!nominee) throw new VoteError("INVALID_SELECTION");
 
-    if (existing) {
-      await prisma.vote.update({
-        where: { id: existing.id },
-        data: { nomineeId: selectionId },
-      });
-    } else {
-      await prisma.vote.create({
-        data: { eventId, categoryId, userId, nomineeId: selectionId },
-      });
-    }
+    await prisma.vote.upsert({
+      where: { categoryId_userId: { categoryId, userId } },
+      update: { nomineeId: selectionId },
+      create: { eventId, categoryId, userId, nomineeId: selectionId },
+    });
   }
 
   return { categoryId, selectionId };
