@@ -12,7 +12,7 @@ import { useAuth } from "@/components/providers/AuthContext";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import { SecretSantaAdmin } from "./SecretSantaAdmin";
 import { AdminInviteUser } from "./AdminInviteUser";
-import { AdminMembersDataTable } from "./AdminMembersDataTable";
+import { AdminMembersList } from "./AdminMembersList";
 
 type AdminMembersSectionProps = {
   eventId: string | null;
@@ -114,10 +114,10 @@ export function AdminMembersSection({
           {members.length === 0 ? (
             <AdminStateMessage>Nenhum membro nesta edição.</AdminStateMessage>
           ) : (
-            <AdminMembersDataTable 
-              data={members} 
-              onToggleRole={(member) => roleMutation.mutate(member)} 
-              isPendingRoleChange={roleMutation.isPending} 
+            <AdminMembersList
+              members={members}
+              onToggleRole={(member) => roleMutation.mutate(member)}
+              isPendingRoleChange={roleMutation.isPending}
             />
           )}
         </CardContent>

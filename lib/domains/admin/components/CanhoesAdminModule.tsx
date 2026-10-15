@@ -15,7 +15,6 @@ import { ApiError } from "@/lib/api/canhoesClient";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 
 import { getAdminSectionItem, type AdminSectionId } from "./adminSections";
-import { AdminMobileSummary } from "./AdminMobileSummary";
 import { buildAdminSectionContent } from "./adminSectionContent";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
 import { ADMIN_OUTLINE_BUTTON_CLASS } from "./adminContentUi";
@@ -156,22 +155,6 @@ export default function CanhoesAdminModule({
                     </div>
                 </AdminStateMessage>
             ) : null}
-
-            <AdminMobileSummary
-                activeEvent={activeEvent}
-                eventPhase={eventState?.activePhase?.type ?? null}
-                isLoading={loading}
-                pendingNominationCount={pendingNominationCount}
-                section={section}
-                summary={{
-                    memberCount: summary?.membersTotal ?? 0,
-                    pendingCategoryProposalCount: summary?.categoryProposalsPendingTotal ?? 0,
-                    pendingMeasureProposalCount: summary?.measureProposalsPendingTotal ?? 0,
-                    totalCategories: totalCategories,
-                    totalNominees: summary?.nomineesTotal ?? 0,
-                    visibleModuleCount: Object.values(eventState?.moduleVisibility ?? {}).filter(v => v).length,
-                }}
-            />
 
             <SectionBoundary
                 title={`Erro ao abrir ${activeSectionMeta?.label ?? "esta seccão"}`}
