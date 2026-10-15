@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminDrawer } from "@/lib/domains/admin/components/layout/AdminDrawer";
 
-import { ADMIN_OUTLINE_BUTTON_CLASS } from "../adminContentUi";
 import type { ProposalDraft, ProposalKind, useProposalModeration } from "../hooks/useProposalModeration";
 
 type ProposalField = { key: string; label: string; multiline?: boolean; placeholder?: string };
@@ -87,7 +86,7 @@ export function ProposalReviewItem({
         })}
 
         <div className="flex flex-col gap-2 border-t border-[var(--border-subtle)] pt-3 sm:flex-row sm:flex-wrap sm:justify-end">
-          <Button variant="outline" disabled={isDisabled} onClick={() => handleSave()} className={ADMIN_OUTLINE_BUTTON_CLASS}>
+          <Button variant="outline" disabled={isDisabled} onClick={() => handleSave()}>
             Guardar
           </Button>
           <Button disabled={isDisabled} onClick={() => handleSave("approved")}>
@@ -104,7 +103,7 @@ export function ProposalReviewItem({
               setIsOpen(false);
             }}
             trigger={
-              <Button variant="outline" disabled={moderation.isBusy} className={`${ADMIN_OUTLINE_BUTTON_CLASS} gap-2`}>
+              <Button variant="outline" disabled={moderation.isBusy} className="gap-2">
                 <Trash2 className="h-4 w-4" />
                 Apagar proposta
               </Button>

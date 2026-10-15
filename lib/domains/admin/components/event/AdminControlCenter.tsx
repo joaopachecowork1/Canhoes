@@ -15,9 +15,6 @@ import { Switch } from "@/components/ui/switch";
 
 import {
   ADMIN_CONTENT_CARD_CLASS,
-  ADMIN_SELECT_CONTENT_CLASS,
-  ADMIN_SELECT_ITEM_CLASS,
-  ADMIN_SELECT_TRIGGER_CLASS,
 } from "../adminContentUi";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import { useAdminControlCenter, type AdminModuleItem } from "../hooks/useAdminControlCenter";
@@ -52,12 +49,12 @@ export function AdminControlCenter({ eventId, events, loading, onRefresh, state 
               onValueChange={control.handleActivateEvent}
               disabled={control.savingKey === "event" || events.length === 0}
             >
-              <SelectTrigger aria-label="Evento ativo" className={`${ADMIN_SELECT_TRIGGER_CLASS} h-11`}>
+              <SelectTrigger aria-label="Evento ativo" className="h-11">
                 <SelectValue placeholder="Escolher evento" />
               </SelectTrigger>
-              <SelectContent className={ADMIN_SELECT_CONTENT_CLASS}>
+              <SelectContent>
                 {events.map((event) => (
-                  <SelectItem key={event.id} value={event.id} className={ADMIN_SELECT_ITEM_CLASS}>
+                  <SelectItem key={event.id} value={event.id}>
                     {event.name}
                   </SelectItem>
                 ))}
@@ -71,12 +68,12 @@ export function AdminControlCenter({ eventId, events, loading, onRefresh, state 
               onValueChange={control.handleUpdatePhase}
               disabled={control.savingKey === "phase" || loading}
             >
-              <SelectTrigger aria-label="Fase" className={`${ADMIN_SELECT_TRIGGER_CLASS} h-11`}>
+              <SelectTrigger aria-label="Fase" className="h-11">
                 <SelectValue placeholder="Escolher fase" />
               </SelectTrigger>
-              <SelectContent className={ADMIN_SELECT_CONTENT_CLASS}>
+              <SelectContent>
                 {PHASE_TYPES.map((phase) => (
-                  <SelectItem key={phase} value={phase} className={ADMIN_SELECT_ITEM_CLASS}>
+                  <SelectItem key={phase} value={phase}>
                     {getPhaseLabel(phase)}
                   </SelectItem>
                 ))}

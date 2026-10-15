@@ -12,7 +12,6 @@ import type { EventActiveContextDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 
 import type { AdminSectionId } from "./adminSections";
-import { ADMIN_OUTLINE_BUTTON_CLASS } from "./adminContentUi";
 import { useAdminProposals } from "./hooks/useAdminProposals";
 import { AdminContentSection } from "./layout/AdminContentSection";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
@@ -101,7 +100,6 @@ export default function CanhoesAdminModule({
                             size="sm"
                             variant="outline"
                             onClick={() => void handleRefresh()}
-                            className={ADMIN_OUTLINE_BUTTON_CLASS}
                         >
                             Tentar novamente
                         </Button>

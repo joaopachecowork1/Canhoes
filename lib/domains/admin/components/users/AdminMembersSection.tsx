@@ -105,7 +105,7 @@ export function AdminMembersSection({
 
       <AdminInviteUser eventId={eventId} />
 
-      <Card className="border border-white/[0.08] bg-white/[0.03] shadow-[0_12px_30px_rgba(0,0,0,0.2)] text-[var(--color-text-primary)] text-[var(--color-text-primary)] border border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
+      <Card className="border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
         <CardHeader className="space-y-1">
           <p className="editorial-kicker">Roster</p>
           <CardTitle>{members.length} {members.length === 1 ? "membro" : "membros"}</CardTitle>

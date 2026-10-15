@@ -34,7 +34,6 @@ import { useCategoriesAdmin } from "../hooks/useCategoriesAdmin";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import {
   ADMIN_CONTENT_CARD_CLASS,
-  ADMIN_OUTLINE_BUTTON_CLASS,
   AdminDetailPanel,
 } from "../adminContentUi";
 import { AdminDrawer } from "../layout/AdminDrawer";
@@ -380,7 +379,6 @@ export function CategoriesAdmin({
               queries.nominationsSummary.refetch(),
               queries.votes.refetch(),
             ])}
-            className={ADMIN_OUTLINE_BUTTON_CLASS}
           >
             Tentar novamente
           </Button>

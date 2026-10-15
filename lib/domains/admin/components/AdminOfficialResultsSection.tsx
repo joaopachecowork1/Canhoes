@@ -9,6 +9,7 @@ import { adminRepo } from "@/lib/repositories/adminRepo";
 import { useIsAdmin } from "@/components/providers/AuthContext";
 import { cn, formatCount } from "@/lib/utils";
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
+import { AdminDrawer } from "@/lib/domains/admin/components/layout/AdminDrawer";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -16,10 +17,7 @@ const EMPTY_ADMIN_CATEGORY_RESULTS: AdminCategoryResultDto[] = [];
 
 import {
   ADMIN_CONTENT_CARD_CLASS,
-  ADMIN_OUTLINE_BUTTON_CLASS,
   AdminDetailPanel,
-  AdminDetailSheet,
-  AdminListPanel,
   AdminSelectableButton,
 } from "./adminContentUi";
 
@@ -197,7 +195,7 @@ export function AdminOfficialResultsSection({
       <AdminStateMessage
         tone="warning"
         action={
-          <Button onClick={() => void resultsQuery.refetch()} className={ADMIN_OUTLINE_BUTTON_CLASS}>
+          <Button onClick={() => void resultsQuery.refetch()}>
             Tentar novamente
           </Button>
         }
@@ -231,7 +229,7 @@ export function AdminOfficialResultsSection({
       ) : null}
 
       {resultCategories.length > 0 ? (
-        <AdminListPanel>
+        <div className="max-h-[58svh] overflow-y-auto rounded-[var(--radius-md-token)] border border-[var(--border-paper)] bg-[var(--bg-paper-soft)] p-2">
           <div className="space-y-2">
             {resultCategories.map((category) => (
               <ResultsCategoryButton
@@ -243,13 +241,12 @@ export function AdminOfficialResultsSection({
               />
             ))}
           </div>
-        </AdminListPanel>
+        </div>
       ) : null}
 
-      <AdminDetailSheet
+      <AdminDrawer
         open={Boolean(selectedCategory)}
         onOpenChange={(open) => !open && setSelectedCategoryId(null)}
-        kicker="Resultados"
         title={selectedCategory?.categoryName ?? ""}
         description={
           selectedCategory
@@ -279,7 +276,7 @@ export function AdminOfficialResultsSection({
             <Button
               type="button"
               variant="outline"
-              className={`${ADMIN_OUTLINE_BUTTON_CLASS} w-full justify-center`}
+              className="w-full justify-center"
               onClick={() => setIsVotersVisible((current) => !current)}
             >
               {isVotersVisible ? (
@@ -293,7 +290,7 @@ export function AdminOfficialResultsSection({
             {isVotersVisible ? <ResultsVotersList nominees={sortedNominees} /> : null}
           </>
         ) : null}
-      </AdminDetailSheet>
+      </AdminDrawer>
     </div>
   );
 }

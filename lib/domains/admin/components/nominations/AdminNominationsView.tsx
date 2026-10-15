@@ -27,9 +27,6 @@ import {
 } from "@/components/ui/select";
 import {
   ADMIN_CONTENT_CARD_CLASS,
-  ADMIN_SELECT_CONTENT_CLASS,
-  ADMIN_SELECT_ITEM_CLASS,
-  ADMIN_SELECT_TRIGGER_CLASS,
   AdminDetailPanel,
   AdminSelectableButton,
 } from "../adminContentUi";
@@ -78,15 +75,15 @@ export function AdminNominationsView({
         <CardContent className="space-y-3">
           <div className="lg:w-64">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className={ADMIN_SELECT_TRIGGER_CLASS}>
+              <SelectTrigger>
                 <SelectValue placeholder="Filtrar categoria" />
               </SelectTrigger>
-              <SelectContent className={ADMIN_SELECT_CONTENT_CLASS}>
-                <SelectItem value="all" className={ADMIN_SELECT_ITEM_CLASS}>
+              <SelectContent>
+                <SelectItem value="all">
                   Todas as categorias
                 </SelectItem>
                 {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id} className={ADMIN_SELECT_ITEM_CLASS}>
+                  <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
                 ))}
@@ -167,15 +164,15 @@ export function AdminNominationsView({
                   setNominationCategory({ nomineeId: selectedNomination.id, categoryId })
                 }
               >
-                <SelectTrigger className={ADMIN_SELECT_TRIGGER_CLASS}>
+                <SelectTrigger>
                   <SelectValue placeholder="Mover para categoria" />
                 </SelectTrigger>
-                <SelectContent className={ADMIN_SELECT_CONTENT_CLASS}>
-                  <SelectItem value="none" className={ADMIN_SELECT_ITEM_CLASS}>
+                <SelectContent>
+                  <SelectItem value="none">
                     Sem categoria
                   </SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id} className={ADMIN_SELECT_ITEM_CLASS}>
+                    <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
                   ))}
