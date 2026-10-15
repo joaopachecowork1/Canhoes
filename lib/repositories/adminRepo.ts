@@ -124,5 +124,9 @@ export const adminRepo = {
       method: "POST",
       body: JSON.stringify(payload ?? {}),
     }),
-    
+
+  revealSecretSanta: (eventId: string) =>
+    canhoesFetch<T.EventAdminSecretSantaStateDto>(`/v1/events/${eventId}/admin/secret-santa/reveal`, {
+      method: "POST",
+    }),
 };

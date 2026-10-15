@@ -7,8 +7,9 @@ export async function getOverview(
 ): Promise<EventSecretSantaOverviewDto> {
   const eventCode = await getEventCode(eventId);
 
+  // Members only see a draw once the admin revealed (locked) it.
   const latestDraw = await prisma.secretSantaDraw.findFirst({
-    where: { eventCode },
+    where: { eventCode, isLocked: true },
     orderBy: { createdAtUtc: "desc" },
   });
 

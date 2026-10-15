@@ -1,8 +1,7 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { eventRepo } from "@/lib/repositories/eventRepo";
-import { adminRepo } from "@/lib/repositories/adminRepo";
 import type { EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 
 export function useSecretSanta(
@@ -10,8 +9,6 @@ export function useSecretSanta(
   initialOverview?: EventSecretSantaOverviewDto | null,
   initialWishlistData?: PagedResult<EventWishlistItemDto> | null
 ) {
-  const queryClient = useQueryClient();
-
   const { data: overview, isLoading, error, refetch } = useQuery({
     queryKey: ["secretSantaOverview", eventId],
     queryFn: () => eventRepo.getSecretSantaOverview(eventId!),
@@ -27,22 +24,11 @@ export function useSecretSanta(
     initialData: (overview?.hasAssignment && initialWishlistData) ? initialWishlistData : undefined,
   });
 
-  const drawMutation = useMutation({
-    mutationFn: (payload: { eventCode: string | null }) => 
-      adminRepo.drawSecretSanta(eventId!, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["secretSantaOverview", eventId] });
-      void queryClient.invalidateQueries({ queryKey: ["eventOverview"] });
-    }
-  });
-
   return {
     data: overview ? { overview, wishlistItems: wishlistData?.items ?? [] } : null,
     overview: overview ?? null,
     isLoading: isLoading,
     error,
     refetch,
-    drawSecretSanta: drawMutation.mutateAsync,
-    isDrawing: drawMutation.isPending,
   };
 }
