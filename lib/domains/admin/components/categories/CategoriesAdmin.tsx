@@ -31,7 +31,6 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 import { useCategoriesAdmin } from "../hooks/useCategoriesAdmin";
-import { AdminSectionSummary } from "../layout/AdminSectionSummary";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import {
   ADMIN_CONTENT_CARD_CLASS,
@@ -394,26 +393,6 @@ export function CategoriesAdmin({
 
   return (
     <div className="space-y-4">
-      <AdminSectionSummary
-        kicker="Estrutura"
-        title="Categorias oficiais"
-        description="CRUD compacto para manter a grelha oficial, sem misturar moderação ou auditoria nesta vista."
-        items={[
-          { label: "Categorias totais", value: sortedCategories.length },
-          {
-            label: "Ativas",
-            tone: activeCategoriesCount > 0 ? "success" : "muted",
-            value: activeCategoriesCount,
-          },
-          {
-            label: "Inativas",
-            tone: inactiveCategoriesCount > 0 ? "warning" : "muted",
-            value: inactiveCategoriesCount,
-          },
-          { label: "Voto oficial", value: userVoteCategoriesCount },
-        ]}
-      />
-
       <Card className={ADMIN_CONTENT_CARD_CLASS}>
         <CardHeader className="space-y-2">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -425,6 +404,9 @@ export function CategoriesAdmin({
               </CardTitle>
               <p className="text-sm text-[var(--ink-muted)]">
                 Toca numa categoria para editar, rever dependências e ajustar o estado sem sair do contexto admin.
+              </p>
+              <p className="text-sm text-[var(--ink-secondary)]">
+                {activeCategoriesCount} ativas · {inactiveCategoriesCount} inativas · {userVoteCategoriesCount} de voto oficial
               </p>
             </div>
 
