@@ -30,6 +30,10 @@ const LazyCanhoesComposeSheet = dynamic(loadCanhoesComposeSheet, {
   ssr: false,
 });
 
+/**
+ * The layout of every signed-in page: header (brand, page title, phase, logout, menu), the page,
+ * the dock, and the menu and compose sheets. Navigation rules live in `canhoesNavigation.ts`.
+ */
 export function CanhoesChrome({
   children,
 }: Readonly<{ children: React.ReactNode }>) {

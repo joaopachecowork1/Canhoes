@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { EventActiveContextDto } from "@/lib/api/types";
 import { eventRepo } from "@/lib/repositories/eventRepo";
 
+/** The active event and the user's overview of it, shared by the shell and every page. */
 export function useEventOverview(initialContext?: EventActiveContextDto | null) {
   const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ["eventOverview"],

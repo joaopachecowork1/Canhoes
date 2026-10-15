@@ -22,6 +22,7 @@ type CanhoesBottomTabsProps = {
   showCompose?: boolean;
 };
 
+/** The fixed dock at the bottom: left tabs, the Post button in the middle, right tabs. */
 export function CanhoesBottomTabs({
   isComposeOpen,
   leftItems,

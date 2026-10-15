@@ -76,6 +76,7 @@ function StickerSubmitLoadingState() {
   );
 }
 
+/** Stickers page: send a sticker image to a category and see the approved ones. */
 export function CanhoesStickerSubmitModule({ initialContext, initialStickerCategories, initialApprovedNominees }: {
     initialContext?: EventActiveContextDto | null;
     initialStickerCategories?: AwardCategoryDto[];

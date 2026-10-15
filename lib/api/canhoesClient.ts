@@ -28,6 +28,11 @@ async function readBody(response: Response) {
   try { return JSON.parse(text) as unknown; } catch { return text; }
 }
 
+/**
+ * Calls `/api/<path>` and returns the parsed JSON. Errors throw `ApiError`, except 401 and 403,
+ * which return null unless `throwOnUnauthorized` is set.
+ * Identical GETs in flight are shared, so components can load the same data without care.
+ */
 export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {}): Promise<T> {
   const { canhoes, ...requestInit } = init;
   const normalized = normalizePath(path);

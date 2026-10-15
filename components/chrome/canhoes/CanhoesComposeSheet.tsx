@@ -27,6 +27,7 @@ import {
   normalizeUploadImage,
 } from "./compose/composeUpload";
 
+/** Bottom sheet to write a mural post with up to 4 images or a poll. */
 export function CanhoesComposeSheet({
   open,
   onOpenChange,

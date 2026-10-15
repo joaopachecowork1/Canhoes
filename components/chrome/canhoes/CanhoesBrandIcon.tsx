@@ -11,6 +11,7 @@ const SIZE_CLASS: Record<NonNullable<CanhoesBrandIconProps["size"]>, string> = {
   lg: "h-16 w-16",
 };
 
+/** The Canhões logo on its own, in three sizes. */
 export function CanhoesBrandIcon({
   className,
   size = "md",

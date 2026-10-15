@@ -35,6 +35,7 @@ function MeasuresLoadingState() {
   );
 }
 
+/** Medidas page: the approved gala rules and the form to propose one. */
 export function CanhoesMeasuresModule({ initialData, initialContext }: { initialData?: GalaMeasureDto[]; initialContext?: EventActiveContextDto | null }) {
   const { overview, event } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;

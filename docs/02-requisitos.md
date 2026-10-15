@@ -67,24 +67,22 @@ As regras de fase vivem em funções puras em `lib/domains/event/services/eventR
 
 | ID | Regra | Código | Teste |
 |---|---|---|---|
-| RN-01 | Admins passam todas as regras de fase e de módulo. | `guards.ts`, `event.ts` | `authorization.int.test.ts` |
+| RN-01 | Admins passam todas as regras de fase e de módulo: abrem qualquer área, mesmo fechada. A navegação mostra-lhes as mesmas áreas que aos membros; as fechadas abrem-se em Admin › Evento. | `guards.ts`, `useEventModuleAccess.ts`, `AdminControlCenter.tsx` | `authorization.int.test.ts` |
 | RN-02 | Só membros do evento (ou admins) usam as rotas desse evento; outro utilizador recebe 403 `NOT_A_MEMBER`. | `guards.ts` (`requireEventAccess`) | `authorization.int.test.ts` |
-| RN-03 | Um módulo desligado pelo admin, ou fechado na fase atual, desaparece da navegação dos membros. No servidor, a votação e a gala respondem 403 `MODULE_DISABLED` nesse caso; os outros módulos só exigem ser membro (ver [08-lacunas.md](08-lacunas.md)). Um módulo sem valor guardado conta como ligado. | `eventRules.ts` (`resolveMemberModules`), `guards.ts` (`requireModule`) | `eventRules.int.test.ts` |
-| RN-04 | Módulos por fase, para membros: | `eventRules.ts` | `eventRules.int.test.ts` |
+| RN-03 | Um módulo desligado pelo admin, ou fechado na fase atual, desaparece da navegação (de membros e de admins). No servidor, a votação e a gala respondem 403 `MODULE_DISABLED` nesse caso; os outros módulos só exigem ser membro (ver [08-lacunas.md](08-lacunas.md)). Um módulo sem valor guardado conta como ligado. | `eventRules.ts` (`resolveMemberModules`), `guards.ts` (`requireModule`) | `eventRules.int.test.ts` |
+| RN-04 | Módulos por fase. Cada área só abre na fase em que há alguma coisa a fazer nela: | `eventRules.ts` | `eventRules.test.ts` |
 
 | Módulo | DRAW | PROPOSALS | VOTING | RESULTS |
 |---|---|---|---|---|
 | feed, wishlist | sim | sim | sim | sim |
 | secretSanta | sim | só se o sorteio já foi revelado | sim | sim |
-| categories | não | sim | sim | sim |
-| stickers, measures | não | se as nomeações estiverem visíveis | não | não |
-| nominees | se as nomeações estiverem visíveis | se as nomeações estiverem visíveis | se as nomeações estiverem visíveis | sim |
+| categories, nominees, stickers, measures | não | se o admin estiver a aceitar propostas | não | não |
 | voting | não | não | sim | não |
 | gala | não | não | não | sim |
 
 | ID | Regra | Código | Teste |
 |---|---|---|---|
-| RN-05 | Propostas de categoria, nomeações, stickers e medidas só são aceites na fase PROPOSALS com as nomeações visíveis (409 `PROPOSALS_CLOSED`). | `eventRules.ts` (`canSubmitProposals`), `guards.ts` (`requireProposalsOpen`) | `eventRules.int.test.ts` |
+| RN-05 | Propostas de categoria, nomeações, stickers e medidas só são aceites na fase PROPOSALS com "Aceitar propostas" ligado em Admin › Evento (`nominationsVisible`; 409 `PROPOSALS_CLOSED`). | `eventRules.ts` (`canSubmitProposals`), `guards.ts` (`requireProposalsOpen`) | `eventRules.int.test.ts` |
 | RN-06 | Um voto só conta dentro das datas da fase VOTING ativa (409 `VOTING_CLOSED`). | `eventRules.ts` (`isVotingOpen`), `voting.ts` | `eventRules.int.test.ts` |
 | RN-07 | Um voto só aceita opções do boletim: nomeação aprovada da mesma categoria e evento, ou membro não admin do evento em categorias de pessoa (400 `INVALID_SELECTION`). | `voting.ts` (`castVote`) | `eventRules.int.test.ts` |
 | RN-08 | Os resultados só são visíveis a membros na fase RESULTS. | `app/api/v1/events/[eventId]/results/route.ts` (`requireModule(..., "gala")`) | `eventRules.int.test.ts` |

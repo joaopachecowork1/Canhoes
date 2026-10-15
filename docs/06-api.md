@@ -10,7 +10,7 @@ Legenda da coluna "Quem":
 | sessão | `requireUser`: qualquer utilizador com sessão |
 | membro | `requireUser` + `requireEventAccess`: membro do evento ou admin |
 | membro + módulo X | `requireModule`: membro, e o módulo X aberto na fase atual (admins passam) |
-| membro + propostas | `requireProposalsOpen`: membro, e a fase PROPOSALS com as nomeações visíveis (admins passam) |
+| membro + propostas | `requireProposalsOpen`: membro, e a fase PROPOSALS com "Aceitar propostas" ligado (`nominationsVisible`; admins passam) |
 | admin | `requireAdmin` |
 
 ## Públicas e de conta

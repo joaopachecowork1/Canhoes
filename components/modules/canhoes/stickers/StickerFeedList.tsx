@@ -77,6 +77,7 @@ function StickerFeedCard({ sticker }: { sticker: NomineeDto }) {
   );
 }
 
+/** Approved stickers, one card each. */
 export function StickerFeedList({ stickers }: { stickers: NomineeDto[] }) {
   if (stickers.length === 0) {
     return <EmptyState icon={Inbox} title="Sem stickers" description="Ainda não há stickers com imagem para mostrar." />;

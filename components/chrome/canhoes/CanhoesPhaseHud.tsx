@@ -5,6 +5,7 @@ import { Loader2, Sparkles } from "lucide-react";
 import type { EventOverviewDto, EventSummaryDto } from "@/lib/api/types";
 import { getPhaseLabel } from "@/lib/canhoesEvent";
 
+/** Pill in the header with the event name and its active phase. */
 export function CanhoesPhaseHud({
   event,
   isLoading = false,

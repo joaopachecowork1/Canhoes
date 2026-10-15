@@ -50,6 +50,7 @@ type CanhoesWishlistModuleProps = {
   initialWishlistItems?: EventWishlistItemDto[];
 };
 
+/** Wishlist page: your own list to edit and every other member's list to read. */
 export function CanhoesWishlistModule({
   initialContext,
   initialMembers,

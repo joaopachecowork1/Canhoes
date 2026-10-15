@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 
+/** Pending category and measure proposals, for the admin counters (the review queue has its own hook). */
 export function usePendingProposals(eventId: string | null) {
   const categoryProposalsQuery = useQuery({
     queryKey: ["admin", "proposals", "categories", "pending", eventId],

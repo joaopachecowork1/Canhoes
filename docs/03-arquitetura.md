@@ -56,6 +56,16 @@ Convenções:
 - Erros são registados numa transição de estado ou num handler, nunca como
   efeito colateral de cada render.
 
+## Navegação
+
+O registo das áreas está em `lib/modules.ts` (`CANHOES_MODULES`): nome, rota, ícone, descrição e fase em que abre. Tudo o que mostra áreas lê dali:
+
+- `components/chrome/canhoes/canhoesNavigation.ts` divide as áreas abertas (`overview.modules`) entre a barra de baixo (as duas primeiras, por ordem do registo) e o menu (`CanhoesMenuSheet`).
+- `EventModuleGate` mostra uma página só se a área estiver aberta, ou se o utilizador for admin.
+- Admin › Evento (`AdminControlCenter`) lista todas as áreas com o interruptor de cada uma e um link, por isso o admin chega às fechadas sem as ter no menu.
+
+`overview.modules` é calculado por `resolveMemberModules` e é igual para admins e membros. Uma área nova entra no registo, em `resolveMemberModules` e numa pasta em `app/canhoes/(app)`.
+
 ## Domínios
 
 | Domínio | Pasta | Conteúdo |

@@ -13,6 +13,7 @@ import { AssignedWishlistPanel } from "@/lib/domains/secretSanta/components/Assi
 import { SecretSantaContent } from "@/lib/domains/secretSanta/components/SecretSantaContent";
 import { WishlistPreviewCard } from "@/lib/domains/secretSanta/components/WishlistPreviewCard";
 
+/** Amigo secreto page: who you give a present to, once the draw is revealed, and their wishlist. */
 export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOverview, initialWishlistData }: {
     initialContext?: EventActiveContextDto | null;
     initialSecretSantaOverview?: EventSecretSantaOverviewDto | null;

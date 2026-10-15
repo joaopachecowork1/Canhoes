@@ -19,6 +19,7 @@ type WishlistMemberPanelProps = {
   userId: string | null;
 };
 
+/** One member's wishlist, read-only. */
 export function WishlistMemberPanel({
   deletingItemId,
   items,

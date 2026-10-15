@@ -32,20 +32,20 @@ O mural (feed) está aberto em todas as fases, para posts, fotos, sondagens, com
 
 ## Módulos
 
-Cada área da app é um módulo. O admin pode desligar qualquer um; os que estão ligados só aparecem a membros na fase certa (regra RN-01 em [02-requisitos.md](02-requisitos.md)).
+Cada área da app é um módulo. O admin pode desligar qualquer um; os que estão ligados só aparecem na fase em que servem para alguma coisa (regra RN-04 em [02-requisitos.md](02-requisitos.md)). A navegação é igual para todos: o mural, as duas primeiras áreas abertas e o botão de post ficam na barra de baixo, e o resto no menu. O admin tem ainda o separador Admin, onde abre qualquer área, mesmo fechada, em Admin › Evento.
 
 | Módulo | Rota | Para quê |
 |---|---|---|
-| `feed` | `/canhoes/feed` | Mural social: posts com até 4 imagens, sondagens, comentários com respostas, reações, likes |
+| `feed` | `/canhoes` | Mural social: posts com até 4 imagens, sondagens, comentários com respostas, reações, likes |
 | `secretSanta` | `/canhoes/amigo-secreto` | A quem dou o presente, depois de o admin revelar o sorteio |
 | `wishlist` | `/canhoes/wishlist` | Lista de desejos de cada membro, visível ao grupo |
-| `categories` | `/canhoes/categorias` | Categorias do prémio e propostas de novas categorias |
-| `nominees` | `/canhoes/nomeacoes` | Nomeações aprovadas |
+| `categories` | `/canhoes/categorias` | Propor categorias novas |
+| `nominees` | `/canhoes/nomeacoes` | Nomear alguém para uma categoria e ver as nomeações aprovadas |
 | `stickers` | `/canhoes/stickers` | Submissão de stickers (nomeações do tipo sticker) |
 | `measures` | `/canhoes/medidas` | Medidas da gala e propostas de medidas |
 | `voting` | `/canhoes/votacao` | Boletim de voto |
 | `gala` | `/canhoes/gala` | Resultados oficiais |
-| `admin` | `/canhoes/admin` | Painel do admin: fases, módulos, membros, convites, moderação, sorteio |
+| `admin` | `/canhoes/admin` | Painel do admin: Resumo, Conteúdo (moderação, categorias, resultados), Membros (convites, sorteio) e Evento (evento ativo, fase, propostas e todas as áreas) |
 
 ## Glossário
 
