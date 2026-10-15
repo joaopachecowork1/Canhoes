@@ -16,11 +16,12 @@ export async function GET() {
       responseTimeMs: Date.now() - start,
     });
   } catch {
+    // 503 so the container health check and the host's load balancer see the outage.
     return NextResponse.json({
       status: "degraded",
       database: "disconnected",
       timestampUtc: new Date().toISOString(),
       responseTimeMs: Date.now() - start,
-    });
+    }, { status: 503 });
   }
 }
