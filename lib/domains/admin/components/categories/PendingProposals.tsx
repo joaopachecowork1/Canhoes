@@ -1,6 +1,5 @@
 "use client";
 
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useState } from "react";
 
 import { AdminSectionSummary } from "@/lib/domains/admin/components/layout/AdminSectionSummary";
@@ -79,7 +78,6 @@ export function PendingProposals({
   loading,
   onUpdate,
 }: Readonly<PendingProposalsProps>) {
-  const [listRef] = useAutoAnimate();
   const [deleteRequest, setDeleteRequest] =
     useState<DeleteConfirmationRequest | null>(null);
 
@@ -337,7 +335,6 @@ export function PendingProposals({
 
             {!controlsDisabled && panel.items.length > 0 ? (
               <div
-                ref={listRef}
                 className="border border-[var(--border-paper-soft)] rounded-md bg-[var(--bg-paper-soft)]"
               >
                 <div className="space-y-2">

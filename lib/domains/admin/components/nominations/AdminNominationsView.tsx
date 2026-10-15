@@ -1,6 +1,5 @@
 "use client";
 
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMemo, useState } from "react";
 import { CheckCircle2, Layers3, Trophy, User, XCircle } from "lucide-react";
 
@@ -77,7 +76,6 @@ export function AdminNominationsView({
   setNominationCategory,
   isMutationPending,
 }: AdminNominationsViewProps) {
-  const [listRef] = useAutoAnimate();
   const [statusFilter, setStatusFilter] = useState<NominationListFilter>("pending");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [rejectingNominationId, setRejectingNominationId] = useState<string | null>(null);
@@ -136,7 +134,6 @@ export function AdminNominationsView({
             </AdminStateMessage>
           ) : (
             <div
-              ref={listRef}
               className="max-h-[56svh] overflow-y-auto rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper-soft)] p-2"
             >
               <div className="space-y-2">
