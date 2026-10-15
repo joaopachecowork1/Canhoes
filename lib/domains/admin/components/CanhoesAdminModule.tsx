@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { SectionBoundary } from "@/components/ui/section-boundary";
 import { useAdminBootstrap } from "@/hooks/useAdminBootstrap";
 import { useEventOverview } from "@/hooks/useEventOverview";
-import { usePendingProposals } from "@/hooks/usePendingProposals";
+import { useAdminProposals } from "./hooks/useAdminProposals";
 import { adminCopy } from "@/lib/canhoesCopy";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { ApiError } from "@/lib/api/canhoesClient";
@@ -64,8 +64,8 @@ export default function CanhoesAdminModule({
     const {
         categoryProposals,
         measureProposals,
-        loading: proposalsLoading,
-    } = usePendingProposals(resolvedEventId);
+        isLoading: proposalsLoading,
+    } = useAdminProposals(resolvedEventId);
 
     const { data: pendingNominationCount = 0, isLoading: pendingNominationCountLoading } =
         useQuery({

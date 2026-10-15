@@ -28,7 +28,7 @@ const getStatusMessages = (status: ProposalStatus) => {
   }
 };
 
-export function usePendingProposals(
+export function useProposalModeration(
   eventId: string | null,
   categoryProposals: CategoryProposalDto[],
   measureProposalsAll: MeasureProposalDto[],

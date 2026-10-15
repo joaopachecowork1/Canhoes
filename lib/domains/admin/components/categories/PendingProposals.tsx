@@ -21,7 +21,7 @@ import type {
   ProposalType,
   DeleteConfirmationRequest,
 } from "../proposalTypes";
-import { usePendingProposals } from "../hooks/usePendingProposals";
+import { useProposalModeration } from "../hooks/useProposalModeration";
 import { ProposalDeleteDialog } from "./ProposalDeleteDialog";
 import { ProposalReviewCard } from "./ProposalReviewCard";
 
@@ -81,7 +81,7 @@ export function PendingProposals({
   const [deleteRequest, setDeleteRequest] =
     useState<DeleteConfirmationRequest | null>(null);
 
-  const { state, actions } = usePendingProposals(
+  const { state, actions } = useProposalModeration(
     eventId,
     categoryProposals,
     measureProposalsAll,
