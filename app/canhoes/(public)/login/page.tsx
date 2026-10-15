@@ -19,7 +19,7 @@ const LeafRain = dynamic(() => import("@/components/animations/LeafRain"), {
 });
 
 const authErrorMessages: Record<string, string> = {
-  AccessDenied: "A conta Google autenticou, mas nao tem acesso a esta area.",
+  AccessDenied: "Esta conta ainda não foi convidada. Pede um convite a um admin e entra com o email do convite.",
   Callback: "O regresso da Google falhou. Tenta novamente em alguns segundos.",
   Configuration: "O login Google nao esta configurado corretamente neste deploy.",
   OAuthAccountNotLinked: "Esta conta ja existe com outro metodo de acesso.",

@@ -1,6 +1,13 @@
 import { withAuth } from "next-auth/middleware";
 import { isDevelopmentAuthEnabled } from "@/lib/domains/auth/services/developmentAuth";
 
+/** Pages anyone can open without a session: sign-in and accepting an invitation. */
+const PUBLIC_PATHS = new Set(["/canhoes/login", "/canhoes/register"]);
+
+export function isPublicPath(pathname: string) {
+  return PUBLIC_PATHS.has(pathname);
+}
+
 export function shouldRedirectUnauthenticated(
   token: unknown,
   developmentAuthEnabled = isDevelopmentAuthEnabled()
@@ -14,9 +21,7 @@ export default withAuth(
     pages: { signIn: "/canhoes/login" },
     callbacks: {
       authorized: ({ req, token }) => {
-        if (req.nextUrl.pathname === "/canhoes/login") {
-          return true;
-        }
+        if (isPublicPath(req.nextUrl.pathname)) return true;
         return !shouldRedirectUnauthenticated(token);
       },
     },

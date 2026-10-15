@@ -5,9 +5,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { isDevelopmentAuthEnabled } from "@/lib/domains/auth/services/developmentAuth";
 import { isDatabaseUserId } from "@/lib/domains/auth/services/userIdentity";
-import { resolveDevelopmentAdmin } from "./authService";
-import { resolveUser } from "./authService";
-import type { ResolvedUser } from "./authService";
+import { resolveDevelopmentAdmin, resolveUser, type ResolvedUser } from "./authService";
+import { authorizeGoogleSignIn } from "./signInAccess";
 
 const developmentLoginEnabled = isDevelopmentAuthEnabled();
 
@@ -84,6 +83,17 @@ export const authOptions: NextAuthOptions = {
     error: "/canhoes/login",
   },
   callbacks: {
+    // Google proves who someone is, not that they belong here: only admins, members and invited
+    // people get in. A refusal lands on the login page with `?error=AccessDenied`.
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") return true;
+      if (!user.email) return false;
+      return authorizeGoogleSignIn({
+        email: user.email,
+        externalId: account.providerAccountId,
+        displayName: user.name ?? null,
+      });
+    },
     async jwt({ token, user, account }) {
       if (account?.providerAccountId) {
         token.externalId = account.providerAccountId;
