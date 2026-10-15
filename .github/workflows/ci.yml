@@ -32,6 +32,8 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm test
       - run: npm run knip
+      - name: Shell scripts
+        run: shellcheck scripts/*.sh
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
 
@@ -126,3 +128,33 @@ jobs:
         if: always()
         run: docker logs canhoes || true
 
+  home-server:
+    name: Home server deploy (compose.server.yml and update script)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The update script fast-forwards to origin/main, which needs the full history.
+          fetch-depth: 0
+      - name: Write .env.server
+        run: |
+          cat > .env.server <<EOF
+          POSTGRES_PASSWORD=$(openssl rand -hex 24)
+          NEXTAUTH_URL=http://127.0.0.1:3100
+          NEXTAUTH_SECRET=ci-only-secret
+          ADMIN_EMAILS=admin@example.com
+          CLOUDFLARE_TUNNEL_TOKEN=ci-placeholder
+          EOF
+      - name: First install
+        run: scripts/update-server.sh --force
+      - name: Redeploy keeps the data and backs it up first
+        run: |
+          scripts/update-server.sh --force
+          ls backups/canhoes-server-*.dump
+          users=$(docker exec canhoes-server-postgres psql -U canhoes -d canhoes -tAc 'SELECT count(*) FROM "Users"')
+          echo "Users after two deploys: $users"
+          test "$users" = 1
+      - name: Container logs
+        if: always()
+        run: docker compose -p canhoes-server -f compose.server.yml --env-file .env.server logs web || true

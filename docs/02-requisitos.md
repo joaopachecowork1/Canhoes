@@ -110,4 +110,5 @@ As regras de fase vivem em funções puras em `lib/domains/event/services/eventR
 | RNF-07 | **Idioma.** Interface em português de Portugal; código, nomes e commits em inglês. | Convenções em `CLAUDE.md` |
 | RNF-08 | **Manutenção.** Lint, tipos, testes unitários e de integração, código morto (knip) e audit de dependências passam em cada PR. | `.github/workflows/ci.yml` |
 | RNF-09 | **Operação.** Uma imagem Docker que aplica as migrations, faz o seed mínimo e responde em `/api/health` (503 sem base de dados). | `Dockerfile`, `scripts/docker-start.sh` |
-| RNF-10 | **Escala.** Um grupo de dezenas de pessoas numa só instância; o rate limit e os uploads em disco assumem uma única instância. | Ver [08-lacunas.md](08-lacunas.md) para o deploy |
+| RNF-10 | **Escala.** Um grupo de dezenas de pessoas numa só instância; o rate limit e os uploads em disco assumem uma única instância. | Ver [08-lacunas.md](08-lacunas.md) e [09-deploy.md](09-deploy.md) |
+| RNF-11 | **Operação.** Um merge para `main` chega à produção sem passos manuais, com backup da base de dados antes de cada deploy; um build falhado deixa a versão anterior a correr. | `scripts/update-server.sh`, `deploy/systemd/`; job "Home server deploy" da CI |

@@ -16,6 +16,7 @@ Cada regra cita o ficheiro onde vive no código e o teste que a garante, para qu
 | [06-api.md](06-api.md) | Todos os endpoints, o método, quem pode chamar e o serviço que executam |
 | [07-operacao.md](07-operacao.md) | Configuração, testes, CI, Docker e deploy |
 | [08-lacunas.md](08-lacunas.md) | O que ainda não está como devia, por prioridade |
+| [09-deploy.md](09-deploy.md) | Pôr o site online: domínio, túnel Cloudflare, atualizações automáticas e backups |
 
 ## Para um LLM
 

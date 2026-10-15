@@ -45,9 +45,10 @@ Os testes de integração exigem uma base de dados cujo nome termina em `_test`,
 
 | Job | Passos |
 |---|---|
-| Lint, types, unit tests, knip, audit | `npm ci`, lint, `tsc`, testes unitários, knip, `npm audit --omit=dev` |
+| Lint, types, unit tests, knip, audit | `npm ci`, lint, `tsc`, testes unitários, knip, `shellcheck` dos scripts, `npm audit --omit=dev` |
 | Integration and authorization tests | Testes de integração contra um PostgreSQL 17 de serviço |
 | Docker image, migrations and OWASP ZAP | Build da imagem, arranque contra uma base vazia (migrations + seed), verificação de que o seed de produção não cria dados de demonstração, varrimento ZAP |
+| Home server deploy | Corre `scripts/update-server.sh` duas vezes com `compose.server.yml`: instalação limpa e redeploy, com backup e dados preservados |
 
 O ZAP falha o build com qualquer alerta que não esteja triado em `.zap/rules.tsv`. O Dependabot (`.github/dependabot.yml`) propõe todas as semanas atualizações de npm, das GitHub Actions e da imagem base.
 
@@ -67,17 +68,14 @@ A imagem tem um `HEALTHCHECK` em `/api/health`, que responde 503 quando a base d
 
 ## Deploy
 
-O destino previsto é o Cloudflare. Seja qual for o produto, a app precisa de três coisas fora do servidor:
+O site corre num PC (ou num servidor alugado) com `compose.server.yml`, publicado no domínio através de um Cloudflare Tunnel. Cada merge para `main` é instalado automaticamente por `scripts/update-server.sh`. O guia completo, do domínio aos backups, está em [09-deploy.md](09-deploy.md).
 
-| Precisa de | Hoje | No Cloudflare |
+Para correr numa plataforma gerida, sem servidor próprio, a app precisaria de três coisas fora do contentor:
+
+| Precisa de | Hoje | Numa plataforma gerida |
 |---|---|---|
-| PostgreSQL | Contentor local | O Cloudflare não aloja PostgreSQL: uma base gerida (por exemplo Neon ou Supabase), ligada direta ou através do Hyperdrive |
-| Ficheiros enviados | Disco local (`UPLOADS_DIR`) | O disco não persiste: os uploads têm de passar para o R2 (`lib/storage/localStorage.ts` é o único ponto a trocar) |
+| PostgreSQL | Contentor ao lado da app | Uma base gerida, como Neon ou Supabase |
+| Ficheiros enviados | Volume em disco (`UPLOADS_DIR`) | Armazenamento de objetos, como o R2; `lib/storage/localStorage.ts` é o único ponto a trocar |
 | Rate limit | Memória do processo | Só vale por instância; aceitável para um grupo pequeno |
-
-Há dois caminhos possíveis:
-
-- **Cloudflare Containers** corre a imagem Docker que a CI já constrói e testa. É o caminho com menos alterações ao código.
-- **Cloudflare Workers** com o adaptador OpenNext corre o Next.js sem contentor. Exige o Prisma com driver adapter, e vale a pena confirmar o suporte ao Next 16 antes de escolher.
 
 Antes de abrir ao público falta também a Content-Security-Policy (ver [08-lacunas.md](08-lacunas.md)).

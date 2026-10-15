@@ -38,6 +38,10 @@ docker compose --profile tunnel up -d               # + túnel público ngrok (p
 
 O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. Em produção o seed só cria os admins de `ADMIN_EMAILS` e o evento, e nunca mexe na fase de um evento que já existe; os dados de demonstração só entram com `SEED_DEMO_DATA=true`. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
 
+## Produção
+
+O site corre num PC (ou servidor) com `compose.server.yml` e fica público no teu domínio através de um Cloudflare Tunnel, sem abrir portas no router. Cada merge para `main` é instalado sozinho por `scripts/update-server.sh`, com backup da base de dados antes. Guia passo a passo: [`docs/09-deploy.md`](docs/09-deploy.md).
+
 ## Base de dados
 
 O PostgreSQL é definido no `docker-compose.yml` e guarda os dados no volume `canhoes_postgres_data`. Os scripts funcionam com Docker ou Podman (`CONTAINER_ENGINE` força um deles).
