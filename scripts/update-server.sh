@@ -74,7 +74,8 @@ backup_database() {
 wait_until_healthy() {
   attempt=1
   while [ "$attempt" -le "$HEALTH_ATTEMPTS" ]; do
-    if curl -fsS -o /dev/null "$LOCAL_HEALTH_URL"; then
+    # Quiet: connection errors are expected while the server starts.
+    if curl -fs -o /dev/null "$LOCAL_HEALTH_URL"; then
       return 0
     fi
     attempt=$((attempt + 1))
