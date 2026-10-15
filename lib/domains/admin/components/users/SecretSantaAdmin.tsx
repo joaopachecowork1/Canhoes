@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ADMIN_CONTENT_CARD_CLASS,
-  ADMIN_OUTLINE_BUTTON_CLASS,
   AdminDetailPanel,
 } from "../adminContentUi";
 
@@ -130,7 +129,7 @@ export function SecretSantaAdmin({
                 variant="outline"
                 onClick={handleReveal}
                 disabled={!canReveal || isBusy}
-                className={`${ADMIN_OUTLINE_BUTTON_CLASS} min-h-12 flex-1 gap-2`}
+                className="min-h-12 flex-1 gap-2"
               >
                 <Eye className="h-4 w-4" />
                 Revelar aos membros
@@ -141,7 +140,7 @@ export function SecretSantaAdmin({
                 variant="outline"
                 onClick={() => void onRefresh()}
                 disabled={isBusy}
-                className={`${ADMIN_OUTLINE_BUTTON_CLASS} min-h-12 gap-2`}
+                className="min-h-12 gap-2"
               >
                 <RefreshCw className={cn("h-4 w-4", isBusy && "animate-spin")} />
                 Sincronizar estado

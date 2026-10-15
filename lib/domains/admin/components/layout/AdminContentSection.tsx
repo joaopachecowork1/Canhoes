@@ -1,24 +1,26 @@
 "use client";
 
-import { useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { BarChart2, FolderTree, Gavel } from "lucide-react";
 
+import { PillTabs } from "@/components/ui/pill-tabs";
 import type {
   CategoryProposalDto,
   MeasureProposalDto,
 } from "@/lib/api/types";
-import {
-  buildAdminContentSectionItems,
-  getDefaultAdminContentSection,
-  isAdminContentSectionId,
-  type AdminContentSectionId,
-} from "../adminContentSections";
-import { AdminContentTabs } from "./AdminContentTabs";
 import { AdminNominationsSection } from "../nominations/AdminNominationsSection";
 import { AdminOfficialResultsSection } from "../AdminOfficialResultsSection";
 import { CategoriesAdmin } from "../categories/CategoriesAdmin";
 import { PendingProposals } from "../categories/PendingProposals";
 import { VotesAudit } from "../VotesAudit";
+
+type ContentView = "queue" | "categorias" | "resultados";
+
+const DEFAULT_VIEW: ContentView = "queue";
+
+function isContentView(value: string | null): value is ContentView {
+  return value === "queue" || value === "categorias" || value === "resultados";
+}
 
 type AdminContentSectionProps = {
   categoryProposals: CategoryProposalDto[];
@@ -47,45 +49,29 @@ export function AdminContentSection({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const activeViewParam = searchParams.get("view");
-  const activeView: AdminContentSectionId =
-    activeViewParam && isAdminContentSectionId(activeViewParam)
-      ? activeViewParam
-      : getDefaultAdminContentSection();
+  const viewParam = searchParams.get("view");
+  const activeView = isContentView(viewParam) ? viewParam : DEFAULT_VIEW;
 
-  const safeCategoryProposals = Array.isArray(categoryProposals) ? categoryProposals : [];
-  const safeMeasureProposals = Array.isArray(measureProposals) ? measureProposals : [];
+  const queueCount = pendingNominationCount + categoryProposals.length + measureProposals.length;
+  const tabs = [
+    { id: "queue", label: "Fila", icon: Gavel, count: queueCount },
+    { id: "categorias", label: "Categorias", icon: FolderTree, count: categoriesCount },
+    { id: "resultados", label: "Resultados", icon: BarChart2, count: officialResultsCount },
+  ].map(({ count, ...tab }) => ({ ...tab, badge: count > 0 ? count : undefined }));
 
-  const pendingCounts = {
-    categoryProposals: safeCategoryProposals.filter((proposal) => proposal.status === "pending").length,
-    measureProposals: safeMeasureProposals.filter((proposal) => proposal.status === "pending").length,
-    nominations: pendingNominationCount,
+  const handleSelectView = (nextView: string) => {
+    if (nextView === activeView) return;
+
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    if (nextView === DEFAULT_VIEW) {
+      nextSearchParams.delete("view");
+    } else {
+      nextSearchParams.set("view", nextView);
+    }
+
+    const nextQuery = nextSearchParams.toString();
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
   };
-
-  const contentItems = buildAdminContentSectionItems({
-    categoriesCount,
-    pendingCategoryProposalsCount: pendingCounts.categoryProposals,
-    pendingMeasureProposalsCount: pendingCounts.measureProposals,
-    pendingNominationsCount: pendingCounts.nominations,
-    resultsCount: officialResultsCount,
-  });
-
-  const handleSelectView = useCallback(
-    (nextView: AdminContentSectionId) => {
-      if (nextView === activeView) return;
-
-      const nextSearchParams = new URLSearchParams(searchParams.toString());
-      if (nextView === getDefaultAdminContentSection()) {
-        nextSearchParams.delete("view");
-      } else {
-        nextSearchParams.set("view", nextView);
-      }
-
-      const nextQuery = nextSearchParams.toString();
-      router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
-    },
-    [activeView, pathname, router, searchParams]
-  );
 
   const content =
     activeView === "categorias" ? (
@@ -101,10 +87,10 @@ export function AdminContentSection({
         <AdminNominationsSection eventId={eventId} loading={loading} />
 
         <PendingProposals
-          categoryProposals={safeCategoryProposals}
+          categoryProposals={categoryProposals}
           eventId={eventId}
           loading={loading}
-          measureProposalsAll={safeMeasureProposals}
+          measureProposals={measureProposals}
           onUpdate={onUpdate}
         />
       </div>
@@ -112,10 +98,12 @@ export function AdminContentSection({
 
   return (
     <div className="space-y-4">
-      <AdminContentTabs
+      <PillTabs
+        items={tabs}
         activeId={activeView}
-        items={contentItems}
         onSelect={handleSelectView}
+        size="sm"
+        className="text-[var(--color-text-primary)]"
       />
 
       {content}

@@ -1,22 +1,4 @@
-/** Longer UI texts shared by the admin and the feed. Short labels live next to their component. */
-export const adminCopy = {
-  controlStrip: {
-    activeEventFallback: "Sem edição ativa",
-  },
-  dashboard: {
-    queueKicker: "Decisões por fechar",
-    recentKicker: "Arquivo recente",
-    queueTitle: "Há aprovações para fechar nesta edição",
-    recentTitle: "Nomeações recebidas mais recentemente",
-  },
-  shell: {
-    backendHint: "Atualiza a edição ou confirma o backend antes de continuar a moderação.",
-  },
-  state: {
-    noState: "Falta uma edição ativa para abrir os controlos globais.",
-  },
-} as const;
-
+/** Longer feed UI texts. Short labels live next to their component. */
 export const feedCopy = {
   hero: {
     title: "Mural social da edição",

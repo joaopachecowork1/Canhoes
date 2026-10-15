@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 
 import { logFrontendError } from "@/lib/errors";
-import { ADMIN_OUTLINE_BUTTON_CLASS } from "../adminContentUi";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import { AdminNominationsView } from "./AdminNominationsView";
 import { useAdminNominations } from "./useAdminNominations";
@@ -31,7 +30,7 @@ export function AdminNominationsSection({
       <AdminStateMessage
         tone="error"
         action={
-          <Button onClick={() => void nominations.refresh()} className={ADMIN_OUTLINE_BUTTON_CLASS}>
+          <Button onClick={() => void nominations.refresh()}>
             Tentar novamente
           </Button>
         }

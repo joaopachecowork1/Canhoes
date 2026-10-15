@@ -1,49 +1,28 @@
 "use client";
 
-import { Suspense, useCallback, useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { AsyncStatusCard } from "@/components/ui/async-status-card";
 import { Button } from "@/components/ui/button";
-import { SectionBoundary } from "@/components/ui/section-boundary";
 import { useAdminBootstrap } from "@/hooks/useAdminBootstrap";
 import { useEventOverview } from "@/hooks/useEventOverview";
-import { usePendingProposals } from "@/hooks/usePendingProposals";
-import { adminCopy } from "@/lib/canhoesCopy";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { ApiError } from "@/lib/api/canhoesClient";
+import type { EventActiveContextDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 
-import { getAdminSectionItem, type AdminSectionId } from "./adminSections";
-import { buildAdminSectionContent } from "./adminSectionContent";
+import type { AdminSectionId } from "./adminSections";
+import { useAdminProposals } from "./hooks/useAdminProposals";
+import { AdminContentSection } from "./layout/AdminContentSection";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
-import { ADMIN_OUTLINE_BUTTON_CLASS } from "./adminContentUi";
-import type { EventActiveContextDto } from "@/lib/api/types";
-
-function getAdminErrorMessage(error: unknown): string | null {
-  if (!error) return null;
-  if (error instanceof ApiError) {
-    return getErrorMessage(error, "Não foi possível carregar o admin.");
-  }
-  if (error instanceof Error) return error.message || "Não foi possível carregar o admin.";
-  return "Não foi possível carregar o admin.";
-}
+import { AdminControlCenter } from "./event/AdminControlCenter";
+import { AdminMembersSection } from "./users/AdminMembersSection";
 
 type CanhoesAdminModuleProps = {
     section: AdminSectionId;
     initialEventId?: string | null;
     initialContext?: EventActiveContextDto | null;
 };
-
-const LOADING_FALLBACK = (
-    <AsyncStatusCard
-        label="A abrir seccão do admin"
-        hint="A preparar os dados e o layout desta área."
-        timeoutHint="Se esta seccão não abrir, recarrega a página para recuperar o admin."
-        actionLabel="Recarregar"
-        onAction={() => globalThis.location.reload()}
-    />
-);
 
 export default function CanhoesAdminModule({
     section,
@@ -53,6 +32,7 @@ export default function CanhoesAdminModule({
     const { event: activeEvent, refresh: refreshOverview } = useEventOverview(initialContext);
     const queryClient = useQueryClient();
     const resolvedEventId = activeEvent?.id ?? initialEventId ?? null;
+    const eventId = activeEvent?.id ?? null;
     const {
         error,
         events,
@@ -64,13 +44,13 @@ export default function CanhoesAdminModule({
     const {
         categoryProposals,
         measureProposals,
-        loading: proposalsLoading,
-    } = usePendingProposals(resolvedEventId);
+        isLoading: proposalsLoading,
+    } = useAdminProposals(resolvedEventId);
 
     const { data: pendingNominationCount = 0, isLoading: pendingNominationCountLoading } =
         useQuery({
             enabled: !!resolvedEventId,
-            queryFn: () => adminRepo.getNominationsPaged(resolvedEventId!, 0, 1000, "pending"),
+            queryFn: () => adminRepo.getNominationsPaged(resolvedEventId!, 0, 1, "pending"),
             queryKey: ["canhoes", "admin", "nominations", "summary", "pending", resolvedEventId],
             refetchOnWindowFocus: false,
             select: (data) => data.total,
@@ -78,7 +58,7 @@ export default function CanhoesAdminModule({
         });
 
     const loading = bootstrapLoading || proposalsLoading || pendingNominationCountLoading;
-    const totalCategories = eventState?.counts.categoryCount ?? summary?.officialResultsCategoriesCount ?? 0;
+    const totalCategories = summary?.categoriesTotal ?? 0;
 
     const handleRefresh = useCallback(async () => {
         await Promise.all([
@@ -94,24 +74,6 @@ export default function CanhoesAdminModule({
         ]);
     }, [resolvedEventId, queryClient, refreshOverview]);
 
-    const dashboardError = getAdminErrorMessage(error);
-    const sectionContent = buildAdminSectionContent({
-      activeEventName: activeEvent?.name ?? null,
-      categoriesCount: totalCategories,
-      categoryProposals,
-      events,
-      eventId: activeEvent?.id ?? null,
-      eventState,
-      handleRefresh,
-      isLoading: loading,
-      measureProposals,
-      pendingNominationCount,
-      summary: {
-        memberCount: summary?.membersTotal ?? 0,
-        officialResultsCategoryCount: summary?.officialResultsCategoriesCount ?? 0,
-      },
-    });
-
     useEffect(() => {
         if (!error) return;
 
@@ -126,11 +88,9 @@ export default function CanhoesAdminModule({
         logFrontendError("Admin.bootstrap", error);
     }, [error]);
 
-    const activeSectionMeta = getAdminSectionItem(section);
-
     return (
         <div className="space-y-5">
-            {dashboardError ? (
+            {error ? (
                 <AdminStateMessage
                     variant="panel"
                     tone="error"
@@ -140,7 +100,6 @@ export default function CanhoesAdminModule({
                             size="sm"
                             variant="outline"
                             onClick={() => void handleRefresh()}
-                            className={ADMIN_OUTLINE_BUTTON_CLASS}
                         >
                             Tentar novamente
                         </Button>
@@ -150,22 +109,35 @@ export default function CanhoesAdminModule({
                         <p className="font-semibold text-[var(--ink-primary)]">
                             Erro ao carregar o admin
                         </p>
-                        <p>{dashboardError}</p>
-                        <p className="text-[var(--ink-muted)]">{adminCopy.shell.backendHint}</p>
+                        <p>{getErrorMessage(error, "Não foi possível carregar o admin.")}</p>
+                        <p className="text-[var(--ink-muted)]">Atualiza a edição ou confirma o backend antes de continuar a moderação.</p>
                     </div>
                 </AdminStateMessage>
             ) : null}
 
-            <SectionBoundary
-                title={`Erro ao abrir ${activeSectionMeta?.label ?? "esta seccão"}`}
-                description="Esta seccão do admin falhou ao renderizar, mas o resto do painel continua disponível."
-                onRetry={() => void handleRefresh()}
-                resetKey={section}
-            >
-                <Suspense fallback={LOADING_FALLBACK}>
-                    {sectionContent[section]()}
-                </Suspense>
-            </SectionBoundary>
+                {section === "conteudo" ? (
+                    <AdminContentSection
+                        categoryProposals={categoryProposals}
+                        categoriesCount={totalCategories}
+                        eventId={eventId}
+                        memberCount={summary?.membersTotal ?? 0}
+                        officialResultsCount={summary?.officialResultsCategoriesCount ?? 0}
+                        pendingNominationCount={pendingNominationCount}
+                        loading={loading}
+                        measureProposals={measureProposals}
+                        onUpdate={handleRefresh}
+                    />
+                ) : section === "membros" ? (
+                    <AdminMembersSection eventId={eventId} onUpdate={handleRefresh} loading={loading} />
+                ) : (
+                    <AdminControlCenter
+                        eventId={eventId}
+                        events={events}
+                        loading={loading}
+                        onRefresh={handleRefresh}
+                        state={eventState}
+                    />
+                )}
         </div>
     );
 }

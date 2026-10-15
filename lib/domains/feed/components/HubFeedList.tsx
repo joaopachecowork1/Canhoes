@@ -3,7 +3,6 @@
 import { memo } from "react";
 import { ScrollText } from "lucide-react";
 
-import { SectionBoundary } from "@/components/ui/section-boundary";
 import { EmptyState } from "@/components/ui/empty-state";
 import { feedCopy } from "@/lib/canhoesCopy";
 import type { EventFeedPostFullDto } from "@/lib/api/types";
@@ -63,35 +62,29 @@ const HubFeedListItem = memo(function HubFeedListItem({
 }) {
   return (
     <div className="mb-3">
-      <SectionBoundary
-        key={post.id}
-        title="Erro no post"
-        description="Ocorreu um erro ao renderizar este post."
-      >
-        <HubPostCard
-          post={post}
-          index={index}
-          eventId={eventId}
-          isAdmin={isAdmin}
-          openComments={openComments}
-          commentDraft={commentDraft}
-          replyingToId={replyingToId}
-          currentUserId={currentUserId}
-          currentUserName={currentUserName}
-          currentUserImage={currentUserImage}
-          onToggleReaction={onToggleReaction}
-          onToggleDownvote={onToggleDownvote}
-          onToggleComments={onToggleComments}
-          onVotePoll={onVotePoll}
-          onAddComment={onAddComment}
-          onDeleteComment={onDeleteComment}
-          onCommentDraftChange={onCommentDraftChange}
-          onAdminPin={onAdminPin}
-          onAdminMovePinned={onAdminMovePinned}
-          onAdminDelete={onAdminDelete}
-          setReplyingTo={setReplyingTo}
-        />
-      </SectionBoundary>
+      <HubPostCard
+        post={post}
+        index={index}
+        eventId={eventId}
+        isAdmin={isAdmin}
+        openComments={openComments}
+        commentDraft={commentDraft}
+        replyingToId={replyingToId}
+        currentUserId={currentUserId}
+        currentUserName={currentUserName}
+        currentUserImage={currentUserImage}
+        onToggleReaction={onToggleReaction}
+        onToggleDownvote={onToggleDownvote}
+        onToggleComments={onToggleComments}
+        onVotePoll={onVotePoll}
+        onAddComment={onAddComment}
+        onDeleteComment={onDeleteComment}
+        onCommentDraftChange={onCommentDraftChange}
+        onAdminPin={onAdminPin}
+        onAdminMovePinned={onAdminMovePinned}
+        onAdminDelete={onAdminDelete}
+        setReplyingTo={setReplyingTo}
+      />
     </div>
   );
 });

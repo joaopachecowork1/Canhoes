@@ -3,7 +3,7 @@
 import { Gift } from "lucide-react";
 
 import type { EventActiveContextDto, EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
-import { CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { useSecretSanta } from "@/hooks/useSecretSanta";
 import { getErrorMessage } from "@/lib/errors";

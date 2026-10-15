@@ -45,7 +45,7 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
   };
 
   return (
-    <Card className="border border-white/[0.08] bg-white/[0.03] shadow-[0_12px_30px_rgba(0,0,0,0.2)] text-[var(--color-text-primary)] border border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
+    <Card className="border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
       <CardHeader className="space-y-1">
         <CardTitle>Convidar Utilizador</CardTitle>
         <CardDescription className="text-xs text-[var(--ink-muted)]">
@@ -85,7 +85,7 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
               <Input 
                 value={inviteUrl} 
                 readOnly 
-                className="h-8 text-xs bg-black/40 border-[rgba(255,255,255,0.08)]"
+                className="h-8 text-xs bg-black/40 border-[var(--border-paper)]"
               />
               <Button size="icon" variant="outline" className="h-8 w-8 shrink-0" onClick={copyToClipboard}>
                 {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}

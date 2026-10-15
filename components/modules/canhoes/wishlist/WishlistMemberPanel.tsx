@@ -2,9 +2,7 @@
 
 import { Link as LinkIcon, Trash2 } from "lucide-react";
 
-import {
-  CanhoesMediaThumb,
-} from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesMediaThumb } from "@/lib/domains/event/components/CanhoesMediaThumb";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";

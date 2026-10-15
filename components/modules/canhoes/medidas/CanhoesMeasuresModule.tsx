@@ -6,10 +6,8 @@ import { Flame, Gavel, Inbox } from "lucide-react";
 import { toast } from "sonner";
 
 import type { EventActiveContextDto, GalaMeasureDto } from "@/lib/api/types";
-import {
-  CanhoesModuleHeader,
-  formatEventPhaseLabel,
-} from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
+import { getPhaseLabel } from "@/lib/canhoesEvent";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
@@ -97,7 +95,7 @@ export function CanhoesMeasuresModule({ initialData, initialContext }: { initial
         title="Medidas"
         description="Regras e castigos para a gala, propostos pelo grupo."
         badgeLabel={
-          phaseType ? `Fase: ${formatEventPhaseLabel(phaseType)}` : undefined
+          phaseType ? `Fase: ${getPhaseLabel(phaseType)}` : undefined
         }
       />
 

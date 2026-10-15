@@ -3,7 +3,6 @@
 import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function createQueryClient() {
   return new QueryClient({
@@ -31,10 +30,6 @@ export default function AppProviders({ children }: Readonly<{ children: React.Re
     <QueryClientProvider client={client}>
       {children}
       <Toaster />
-      {process.env.NODE_ENV === "development" &&
-      process.env.NEXT_PUBLIC_QUERY_DEVTOOLS === "true" ? (
-        <ReactQueryDevtools initialIsOpen={false} />
-      ) : null}
     </QueryClientProvider>
   );
 }

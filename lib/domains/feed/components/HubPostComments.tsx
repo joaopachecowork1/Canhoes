@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { MessageSquare, Trash2, Reply, X } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
@@ -13,6 +12,7 @@ import { COMMENTS_QUERY_KEY } from "./hooks/useHubFeedComments";
 import { feedRepo } from "@/lib/repositories/feedRepo";
 
 import { formatDateTime, initials } from "./hubUtils";
+import { cn } from "@/lib/utils";
 import { buildCommentTree, flattenCommentTree } from "./hubPostCommentTree";
 
 type HubPostCommentsProps = {
@@ -133,14 +133,11 @@ export function HubPostComments({
                     )}
 
                     <div className="relative flex flex-col items-center">
-                      <Avatar className="h-8 w-8 shrink-0 border border-white/[0.08] bg-[var(--bg-deep)]">
-                        {comment.userName === currentUserName && currentUserImage ? (
-                          <AvatarImage src={currentUserImage} alt={comment.userName} />
-                        ) : null}
-                        <AvatarFallback className="bg-[var(--bg-deep)] text-[10px] font-semibold text-[var(--text-muted)]">
-                          {initials(comment.userName)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <UserAvatar
+                        name={comment.userName}
+                        image={comment.userName === currentUserName ? currentUserImage : null}
+                        className="bg-[var(--bg-deep)]"
+                      />
                       
                       {/* Line connecting to children */}
                       {comment.hasChildren && (
@@ -218,14 +215,7 @@ export function HubPostComments({
 
         {/* Comment form */}
         <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-deep)]/50 rounded-b-[1.25rem] flex gap-3 p-4 -mx-4 sm:-mx-5 -mb-4 sm:-mb-5 mt-2">
-          <Avatar className="mt-1 h-8 w-8 shrink-0 border border-white/[0.08] bg-[var(--bg-surface)]">
-            {currentUserImage ? (
-              <AvatarImage src={currentUserImage} alt={currentUserName} />
-            ) : null}
-            <AvatarFallback className="bg-[var(--bg-surface)] text-[10px] font-semibold text-[var(--text-muted)]">
-              {initials(currentUserName)}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar name={currentUserName} image={currentUserImage} className="mt-1 bg-[var(--bg-surface)]" />
 
           <div className="min-w-0 flex-1 space-y-2">
             {replyingToComment && (
@@ -248,7 +238,7 @@ export function HubPostComments({
               value={commentDraft}
               onChange={(event) => onCommentDraftChange(postId, event.target.value)}
               placeholder={replyingToId ? "Escreve a tua resposta..." : feedCopy.comments.placeholder}
-              className="min-h-[72px] resize-none text-sm border-white/[0.08] bg-[var(--bg-surface)] placeholder:text-[var(--text-muted)] rounded-xl"
+              className="min-h-[72px] resize-none text-sm border-[var(--border-paper)] bg-[var(--bg-surface)] placeholder:text-[var(--text-muted)] rounded-xl"
             />
 
             <div className="flex justify-end gap-2">
@@ -277,5 +267,27 @@ export function HubPostComments({
       </section>
 
     </>
+  );
+}
+
+function UserAvatar({
+  name,
+  image,
+  className,
+}: Readonly<{ name: string; image?: string | null; className?: string }>) {
+  return (
+    <span
+      className={cn(
+        "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border-paper)] text-[10px] font-semibold text-[var(--text-muted)]",
+        className
+      )}
+    >
+      {image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={image} alt={name} className="size-full object-cover" />
+      ) : (
+        initials(name)
+      )}
+    </span>
   );
 }

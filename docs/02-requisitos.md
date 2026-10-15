@@ -67,7 +67,7 @@ As regras de fase vivem em funções puras em `lib/domains/event/services/eventR
 
 | ID | Regra | Código | Teste |
 |---|---|---|---|
-| RN-01 | Admins passam todas as regras de fase e de módulo: abrem qualquer área, mesmo fechada. A navegação mostra-lhes as mesmas áreas que aos membros; as fechadas abrem-se em Admin › Evento. | `guards.ts`, `useEventModuleAccess.ts`, `AdminControlCenter.tsx` | `authorization.int.test.ts` |
+| RN-01 | Admins passam todas as regras de fase e de módulo: abrem qualquer área, mesmo fechada. A navegação mostra-lhes as mesmas áreas que aos membros; as fechadas abrem-se em Admin › Evento. | `guards.ts`, `EventModuleGate.tsx`, `AdminControlCenter.tsx` | `authorization.int.test.ts` |
 | RN-02 | Só membros do evento (ou admins) usam as rotas desse evento; outro utilizador recebe 403 `NOT_A_MEMBER`. | `guards.ts` (`requireEventAccess`) | `authorization.int.test.ts` |
 | RN-03 | Um módulo desligado pelo admin, ou fechado na fase atual, desaparece da navegação (de membros e de admins). No servidor, a votação e a gala respondem 403 `MODULE_DISABLED` nesse caso; os outros módulos só exigem ser membro (ver [08-lacunas.md](08-lacunas.md)). Um módulo sem valor guardado conta como ligado. | `eventRules.ts` (`resolveMemberModules`), `guards.ts` (`requireModule`) | `eventRules.int.test.ts` |
 | RN-04 | Módulos por fase. Cada área só abre na fase em que há alguma coisa a fazer nela: | `eventRules.ts` | `eventRules.test.ts` |

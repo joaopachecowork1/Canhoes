@@ -12,7 +12,6 @@ import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { PageShell } from "@/components/ui/page-shell";
 
 import { CanhoesBottomTabs } from "./CanhoesBottomTabs";
 import { CanhoesBrandMark } from "./CanhoesBrandMark";
@@ -109,8 +108,8 @@ export function CanhoesChrome({
         data-theme="canhoes"
         className="bg-circuit relative isolate flex min-h-[100svh] flex-col overflow-x-clip bg-[var(--bg-void)] text-[var(--text-primary)]"
       >
-      <header className="sticky top-0 z-40 border-b border-[rgba(255,255,255,0.08)] bg-[rgba(10,14,8,0.92)] backdrop-blur-[6px] supports-[backdrop-filter]:bg-[rgba(10,14,8,0.88)]">
-        <PageShell wide className="pb-2 pt-[env(safe-area-inset-top,0px)]">
+      <header className="sticky top-0 z-40 border-b border-[var(--border-paper)] bg-[rgba(10,14,8,0.92)] backdrop-blur-[6px] supports-[backdrop-filter]:bg-[rgba(10,14,8,0.88)]">
+        <div className="mx-auto w-full max-w-[72rem] px-4 pb-2 pt-[env(safe-area-inset-top,0px)] sm:px-6 lg:px-8">
                   <div
                     className="rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.12)] bg-[rgba(18,24,12,0.94)] px-3 py-3 text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] sm:px-4 sm:py-3.5"
                   >
@@ -196,7 +195,7 @@ export function CanhoesChrome({
               />
             </div>
           </div>
-        </PageShell>
+        </div>
       </header>
 
       <div className="relative z-30 flex items-center gap-0 px-4" aria-hidden="true">
@@ -206,7 +205,7 @@ export function CanhoesChrome({
       </div>
 
       <main className="relative z-10 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
-        <PageShell wide={isEventHomePath}>
+        <div className={cn("mx-auto w-full px-4 sm:px-6 lg:px-8", isEventHomePath ? "max-w-[72rem]" : "max-w-[60rem]")}>
           <div
                       key={pathname}
                       className={cn(
@@ -216,7 +215,7 @@ export function CanhoesChrome({
                     >
                       {children}
                     </div>
-        </PageShell>
+        </div>
       </main>
 
       <CanhoesBottomTabs

@@ -22,7 +22,6 @@ function toAdminNomineeDto(nominee: Nominee, submitter: Submitter): AdminNominee
     imageUrl: nominee.imageUrl,
     status: nominee.status as AdminNomineeDto["status"],
     createdAtUtc: nominee.createdAtUtc.toISOString(),
-    submittedByUserId: nominee.submittedByUserId,
     submittedByName: submitter?.displayName ?? submitter?.email ?? "Unknown",
   };
 }

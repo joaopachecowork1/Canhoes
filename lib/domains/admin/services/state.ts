@@ -11,11 +11,11 @@ import { resolveMemberModules, type PhaseType } from "@/lib/domains/event/servic
 import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
 
 /*
- * The admin's control panel for an event: the active phase, the module switches and the counters
- * the dashboard shows. What members may do with these settings is decided in `eventRules.ts`.
+ * The admin's control panel for an event: the active phase, the module switches and the tab
+ * counters. What members may do with these settings is decided in `eventRules.ts`.
  */
 
-/** Phases, switches and counters of one event, plus which modules the members see right now. */
+/** Phases and switches of one event, plus which modules the members see right now. */
 async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   const [phases, state] = await Promise.all([
     prisma.eventPhase.findMany({ where: { eventId }, orderBy: { startDateUtc: "asc" } }),
@@ -37,18 +37,9 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
     nominees: visibility.nominees ?? true,
   };
 
-  const [memberCount, hubPostCount, pendingProposalsCount, wishlistCount, categoryCount] = await Promise.all([
-    prisma.eventMember.count({ where: { eventId } }),
-    prisma.hubPost.count({ where: { eventId } }),
-    prisma.categoryProposal.count({ where: { eventId, status: "pending" } }),
-    prisma.wishlistItem.count({ where: { eventId } }),
-    prisma.awardCategory.count({ where: { eventId } }),
-  ]);
-
   return {
     eventId,
     activePhase: activePhase ? toPhaseDto(activePhase) : null,
-    phases: phases.map(toPhaseDto),
     nominationsVisible: state?.nominationsVisible ?? true,
     resultsVisible: state?.resultsVisible ?? false,
     moduleVisibility,
@@ -58,13 +49,6 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
       nominationsVisible: state?.nominationsVisible ?? true,
       hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
     }),
-    counts: {
-      memberCount,
-      feedPostCount: hubPostCount,
-      categoryCount,
-      pendingProposalCount: pendingProposalsCount,
-      wishlistItemCount: wishlistCount,
-    },
   };
 }
 
@@ -172,36 +156,15 @@ export async function updateEventModules(
   });
 }
 
-/** Totals for the admin list badges. `votesTotal` counts nominee votes only, not votes for people. */
+/** Totals for the admin tab badges and the results participation. */
 async function getAdminListCounts(eventId: string): Promise<AdminListCountsDto> {
-  const [nominees, proposalsTotal, pendingProposals, measuresTotal, pendingMeasures, members, voteCategories] = await Promise.all([
-    prisma.nominee.count({ where: { eventId } }),
-    prisma.categoryProposal.count({ where: { eventId } }),
-    prisma.categoryProposal.count({ where: { eventId, status: "pending" } }),
-    prisma.measureProposal.count({ where: { eventId } }),
-    prisma.measureProposal.count({ where: { eventId, status: "pending" } }),
+  const [membersTotal, categoriesTotal, officialResultsCategoriesCount] = await Promise.all([
     prisma.eventMember.count({ where: { eventId } }),
+    prisma.awardCategory.count({ where: { eventId } }),
     prisma.awardCategory.count({ where: { eventId, kind: KindUserVote } }),
   ]);
 
-  const categoryIds = (await prisma.awardCategory.findMany({ where: { eventId }, select: { id: true } })).map(
-    (c: { id: string }) => c.id
-  );
-  const votesTotal = categoryIds.length > 0
-    ? await prisma.vote.count({ where: { categoryId: { in: categoryIds } } })
-    : 0;
-
-  return {
-    nomineesTotal: nominees,
-    adminNomineesTotal: nominees,
-    votesTotal,
-    categoryProposalsTotal: proposalsTotal,
-    categoryProposalsPendingTotal: pendingProposals,
-    measureProposalsTotal: measuresTotal,
-    measureProposalsPendingTotal: pendingMeasures,
-    membersTotal: members,
-    officialResultsCategoriesCount: voteCategories,
-  };
+  return { membersTotal, categoriesTotal, officialResultsCategoriesCount };
 }
 
 /** Everything the admin panel needs on load: all events, this event's state and the list counters. */

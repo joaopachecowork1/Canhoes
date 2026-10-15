@@ -220,7 +220,7 @@ function HubPostCardComponent({
                 "canhoes-tap flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
                 openComments
                   ? "bg-[rgba(79,99,54,0.12)] text-[var(--moss)]"
-                  : "text-[var(--ink-muted)] hover:bg-white/[0.04] hover:text-[var(--ink-primary)]"
+                  : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]"
               )}
               onClick={() => onToggleComments(post.id)}
               aria-label={openComments ? "Fechar comentários" : `${commentCount} comentários`}

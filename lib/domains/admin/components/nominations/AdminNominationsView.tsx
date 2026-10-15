@@ -1,14 +1,11 @@
 "use client";
 
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { useMemo, useState } from "react";
-import { CheckCircle2, Layers3, Trophy, User, XCircle } from "lucide-react";
+import { Trophy, User } from "lucide-react";
 
 import type { AdminNomineeDto, AwardCategoryDto } from "@/lib/api/types";
 import { formatDateTimeUtc } from "../dateUtils";
 import { AdminDrawer } from "../layout/AdminDrawer";
-import { AdminStatusFilters } from "../layout/AdminStatusFilters";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -30,24 +27,11 @@ import {
 } from "@/components/ui/select";
 import {
   ADMIN_CONTENT_CARD_CLASS,
-  ADMIN_SELECT_CONTENT_CLASS,
-  ADMIN_SELECT_ITEM_CLASS,
-  ADMIN_SELECT_TRIGGER_CLASS,
   AdminDetailPanel,
   AdminSelectableButton,
 } from "../adminContentUi";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
-import {
-  NOMINATION_BADGE_VARIANT_BY_STATUS,
-  NOMINATION_EMPTY_STATE_LABELS,
-  NOMINATION_FILTERS,
-  NOMINATION_STATUS_LABELS,
-  countNominationStatuses,
-  filterAndSortNominations,
-  getCategoryName,
-  type NominationListFilter,
-  type NominationStatus,
-} from "./nominationRules";
+import { filterAndSortNominations, getCategoryName } from "./nominationRules";
 
 type AdminNominationsViewProps = Readonly<{
   categories: AwardCategoryDto[];
@@ -58,17 +42,6 @@ type AdminNominationsViewProps = Readonly<{
   isMutationPending: boolean;
 }>;
 
-function getNominationStatusIcon(status: NominationStatus) {
-  switch (status) {
-    case "approved":
-      return <CheckCircle2 className="h-3.5 w-3.5" />;
-    case "rejected":
-      return <XCircle className="h-3.5 w-3.5" />;
-    case "pending":
-      return <Layers3 className="h-3.5 w-3.5" />;
-  }
-}
-
 export function AdminNominationsView({
   categories,
   nominations,
@@ -77,16 +50,13 @@ export function AdminNominationsView({
   setNominationCategory,
   isMutationPending,
 }: AdminNominationsViewProps) {
-  const [listRef] = useAutoAnimate();
-  const [statusFilter, setStatusFilter] = useState<NominationListFilter>("pending");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [rejectingNominationId, setRejectingNominationId] = useState<string | null>(null);
   const [selectedNominationId, setSelectedNominationId] = useState<string | null>(null);
 
-  const statusCounts = useMemo(() => countNominationStatuses(nominations), [nominations]);
   const filteredNominations = useMemo(
-    () => filterAndSortNominations(nominations, statusFilter, categoryFilter),
-    [categoryFilter, nominations, statusFilter]
+    () => filterAndSortNominations(nominations, categoryFilter),
+    [categoryFilter, nominations]
   );
   const selectedNomination = filteredNominations.find(
     (nomination) => nomination.id === selectedNominationId
@@ -103,24 +73,17 @@ export function AdminNominationsView({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
-            <AdminStatusFilters
-              active={statusFilter}
-              counts={{ all: nominations.length, ...statusCounts }}
-              labels={NOMINATION_STATUS_LABELS}
-              onChange={setStatusFilter}
-              options={NOMINATION_FILTERS}
-            />
+          <div className="lg:w-64">
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className={ADMIN_SELECT_TRIGGER_CLASS}>
+              <SelectTrigger>
                 <SelectValue placeholder="Filtrar categoria" />
               </SelectTrigger>
-              <SelectContent className={ADMIN_SELECT_CONTENT_CLASS}>
-                <SelectItem value="all" className={ADMIN_SELECT_ITEM_CLASS}>
+              <SelectContent>
+                <SelectItem value="all">
                   Todas as categorias
                 </SelectItem>
                 {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id} className={ADMIN_SELECT_ITEM_CLASS}>
+                  <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
                 ))}
@@ -130,13 +93,12 @@ export function AdminNominationsView({
 
           {filteredNominations.length === 0 ? (
             <AdminStateMessage variant="panel">
-              {statusFilter === "all"
-                ? "Sem nomeações neste filtro."
-                : `Sem nomeações ${NOMINATION_EMPTY_STATE_LABELS[statusFilter]}.`}
+              {categoryFilter === "all"
+                ? "Sem nomeações pendentes."
+                : "Sem nomeações pendentes nesta categoria."}
             </AdminStateMessage>
           ) : (
             <div
-              ref={listRef}
               className="max-h-[56svh] overflow-y-auto rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper-soft)] p-2"
             >
               <div className="space-y-2">
@@ -150,8 +112,7 @@ export function AdminNominationsView({
                       selected={isSelected}
                       aria-pressed={isSelected}
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0 space-y-1">
+                      <div className="min-w-0 space-y-1">
                           <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">
                             {nomination.title}
                           </p>
@@ -161,8 +122,6 @@ export function AdminNominationsView({
                           <p className="text-[11px] text-[var(--ink-muted)]">
                             {formatDateTimeUtc(nomination.createdAtUtc)}
                           </p>
-                        </div>
-                        <NominationStatusBadge status={nomination.status} />
                       </div>
                     </AdminSelectableButton>
                   );
@@ -186,8 +145,7 @@ export function AdminNominationsView({
         {selectedNomination ? (
           <>
             <AdminDetailPanel>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
+              <div className="space-y-1">
                   <p className="font-[var(--font-mono)] text-xs text-[var(--ink-muted)]">
                     {formatDateTimeUtc(selectedNomination.createdAtUtc)}
                   </p>
@@ -195,8 +153,6 @@ export function AdminNominationsView({
                     <User className="h-3.5 w-3.5" />
                     Submetido por {selectedNomination.submittedByName}
                   </p>
-                </div>
-                <NominationStatusBadge status={selectedNomination.status} />
               </div>
             </AdminDetailPanel>
 
@@ -208,15 +164,15 @@ export function AdminNominationsView({
                   setNominationCategory({ nomineeId: selectedNomination.id, categoryId })
                 }
               >
-                <SelectTrigger className={ADMIN_SELECT_TRIGGER_CLASS}>
+                <SelectTrigger>
                   <SelectValue placeholder="Mover para categoria" />
                 </SelectTrigger>
-                <SelectContent className={ADMIN_SELECT_CONTENT_CLASS}>
-                  <SelectItem value="none" className={ADMIN_SELECT_ITEM_CLASS}>
+                <SelectContent>
+                  <SelectItem value="none">
                     Sem categoria
                   </SelectItem>
                   {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id} className={ADMIN_SELECT_ITEM_CLASS}>
+                    <SelectItem key={category.id} value={category.id}>
                       {category.name}
                     </SelectItem>
                   ))}
@@ -227,7 +183,7 @@ export function AdminNominationsView({
             <div className="grid gap-2 sm:grid-cols-2">
               <Button
                 type="button"
-                disabled={isMutationPending || selectedNomination.status === "approved"}
+                disabled={isMutationPending}
                 className="min-h-11 border-[var(--border-neon)] bg-[rgba(0,255,136,0.12)] text-[var(--neon-green)] hover:bg-[rgba(0,255,136,0.18)]"
                 onClick={() => approveNomination(selectedNomination.id)}
                 aria-label={`Aprovar nomeação "${selectedNomination.title || selectedNomination.id}"`}
@@ -237,7 +193,7 @@ export function AdminNominationsView({
               <Button
                 type="button"
                 variant="outline"
-                disabled={isMutationPending || selectedNomination.status === "rejected"}
+                disabled={isMutationPending}
                 className="min-h-11 border-[var(--neon-red)] bg-[rgba(255,58,58,0.08)] text-[var(--neon-red)]"
                 onClick={() => setRejectingNominationId(selectedNomination.id)}
                 aria-label={`Rejeitar nomeação "${selectedNomination.title || selectedNomination.id}"`}
@@ -279,17 +235,5 @@ export function AdminNominationsView({
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
-}
-
-function NominationStatusBadge({ status }: { status: AdminNomineeDto["status"] }) {
-  return (
-    <Badge
-      variant={NOMINATION_BADGE_VARIANT_BY_STATUS[status]}
-      className="inline-flex items-center gap-1 self-start"
-    >
-      {getNominationStatusIcon(status)}
-      {status}
-    </Badge>
   );
 }

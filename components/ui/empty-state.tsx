@@ -24,7 +24,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "border border-white/[0.06] bg-white/[0.03] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] relative flex flex-col items-center justify-center gap-4 px-6 py-10 text-center",
+        "border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] relative flex flex-col items-center justify-center gap-4 px-6 py-10 text-center",
         tone === "social" && "canhoes-bits-panel--social",
         tone === "official" && "canhoes-bits-panel--official",
         tone === "admin" && "canhoes-bits-panel--admin",

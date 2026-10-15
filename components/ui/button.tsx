@@ -19,7 +19,7 @@ const buttonVariants = cva(
         outline: "border border-white/10 bg-white/[0.05] text-[var(--color-text-primary)] shadow-none hover:bg-white/[0.08] hover:border-white/15 hover:shadow-sm",
         secondary: "border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.08)] text-[var(--text-primary)] shadow-none hover:bg-[rgba(255,255,255,0.14)] hover:border-[rgba(255,255,255,0.18)]",
         ghost: "border-transparent bg-transparent text-[var(--text-primary)] shadow-none hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--moss)]",
-        "ghost-subtle": "border-transparent bg-transparent text-[var(--text-muted)] shadow-none hover:bg-[rgba(255,255,255,0.04)] hover:text-[var(--text-primary)]",
+        "ghost-subtle": "border-transparent bg-transparent text-[var(--text-muted)] shadow-none hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]",
         link: "px-0 text-[var(--moss)] underline-offset-4 shadow-none hover:text-[var(--ink-primary)] hover:underline decoration-[rgba(95,123,56,0.3)] decoration-2 hover:underline-offset-4",
         glow: "border border-[rgba(95,123,56,0.22)] bg-[rgba(95,123,56,0.12)] text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] hover:bg-[rgba(95,123,56,0.16)] hover:shadow-[0_0_15px_rgba(95,123,56,0.2)]",
         neon: "bg-neon-glow border border-neon-green/30 text-neon-green hover:bg-neon-green/25 shadow-neon font-semibold",

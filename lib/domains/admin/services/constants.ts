@@ -5,12 +5,10 @@ import type { EventPhaseDto, EventSummaryDto } from "@/lib/api/types";
 /** `AwardCategory.kind` for categories where members vote for a person of the event; 0 votes for a nomination. */
 export const KindUserVote = 1;
 
-export function toPhaseDto(phase: { id: string; type: string; startDateUtc: Date; endDateUtc: Date; isActive: boolean }): EventPhaseDto {
+export function toPhaseDto(phase: { id: string; type: string; isActive: boolean }): EventPhaseDto {
   return {
     id: phase.id,
     type: phase.type,
-    startDateUtc: phase.startDateUtc.toISOString(),
-    endDateUtc: phase.endDateUtc.toISOString(),
     isActive: phase.isActive,
   };
 }

@@ -7,26 +7,13 @@ export type EventSummaryDto = {
 export type EventPhaseDto = {
   id: string;
   type: string;
-  startDateUtc: string;
-  endDateUtc: string;
   isActive: boolean;
 };
 
 export type EventPermissionsDto = {
   isAdmin: boolean;
-  isMember: boolean;
-  canPost: boolean;
   canSubmitProposal: boolean;
   canVote: boolean;
-  canManage: boolean;
-};
-
-type EventCountsDto = {
-  memberCount: number;
-  feedPostCount: number;
-  categoryCount: number;
-  pendingProposalCount: number;
-  wishlistItemCount: number;
 };
 
 export type EventModulesDto = Record<string, boolean>;
@@ -36,7 +23,6 @@ export type EventOverviewDto = {
   event: EventSummaryDto;
   activePhase: EventPhaseDto | null;
   permissions: EventPermissionsDto;
-  hasSecretSantaDraw: boolean;
   /** Areas open in the active phase (`resolveMemberModules`), the same for admins and members. */
   modules: EventModulesDto;
 };
@@ -69,9 +55,7 @@ export type EventSecretSantaOverviewDto = {
   eventId: string;
   hasDraw: boolean;
   hasAssignment: boolean;
-  drawEventCode: string | null;
   assignedUser: EventUserDto | null;
-  assignedWishlistItemCount: number;
   myWishlistItemCount: number;
 };
 
@@ -138,10 +122,9 @@ export type EventProposalDto = {
   name: string;
   description: string | null;
   status: string;
-  createdAt: string;
 };
 
-export type ProposalStatus = "pending" | "approved" | "rejected";
+type ProposalStatus = "pending" | "approved" | "rejected";
 
 export type CategoryProposalDto = {
   id: string;
@@ -190,7 +173,6 @@ export type AdminNomineeDto = {
   imageUrl: string | null;
   status: ProposalStatus;
   createdAtUtc: string;
-  submittedByUserId: string;
   submittedByName: string;
 };
 
@@ -202,14 +184,8 @@ export type AdminMemberDto = {
 };
 
 export type AdminListCountsDto = {
-  nomineesTotal: number;
-  adminNomineesTotal: number;
-  votesTotal: number;
-  categoryProposalsTotal: number;
-  categoryProposalsPendingTotal: number;
-  measureProposalsTotal: number;
-  measureProposalsPendingTotal: number;
   membersTotal: number;
+  categoriesTotal: number;
   officialResultsCategoriesCount: number;
 };
 
@@ -218,19 +194,16 @@ export type EventAdminModuleVisibilityDto = Record<string, boolean>;
 export type EventAdminStateDto = {
   eventId: string;
   activePhase: EventPhaseDto | null;
-  phases: EventPhaseDto[];
   nominationsVisible: boolean;
   resultsVisible: boolean;
   moduleVisibility: EventAdminModuleVisibilityDto;
   effectiveModules: EventModulesDto;
-  counts: EventCountsDto;
 };
 
 export type EventAdminSecretSantaStateDto = {
   eventId: string;
   eventCode: string;
   hasDraw: boolean;
-  drawId: string | null;
   createdAtUtc: string | null;
   isLocked: boolean;
   memberCount: number;
@@ -255,7 +228,6 @@ export type EventVotingCategoryDto = {
 
 export type EventVotingBoardDto = {
   eventId: string;
-  phaseId: string | null;
   canVote: boolean;
   categories: EventVotingCategoryDto[];
 };

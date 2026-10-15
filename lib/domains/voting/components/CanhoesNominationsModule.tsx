@@ -5,7 +5,7 @@ import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmen
 
 import type { AwardCategoryDto, EventActiveContextDto } from "@/lib/api/types";
 import { getErrorMessage } from "@/lib/errors";
-import { CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { formatCount } from "@/lib/utils";
