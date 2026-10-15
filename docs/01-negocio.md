@@ -1,0 +1,79 @@
+# 1. O negócio
+
+## Em resumo
+
+Os **Canhões do Ano** são o ritual anual de um grupo de amigos: um amigo secreto com troca de presentes e uma gala de prémios humorísticos ("canhões") votados pelo grupo. A app é o portal privado onde tudo isso acontece ao longo de algumas semanas, do sorteio à gala.
+
+É um negócio simples: um grupo fechado (dezenas de pessoas, não milhares), um evento por ano, e um ou dois admins que conduzem o calendário.
+
+## Atores
+
+| Ator | Quem é | O que pode fazer |
+|---|---|---|
+| **Visitante** | Qualquer pessoa sem sessão | Só vê o login e, com um link de convite, a página de registo |
+| **Convidado** | Alguém com um convite aberto para o seu email | Cria conta (Google ou email + password) e entra no evento do convite |
+| **Membro** | Utilizador inscrito no evento (`EventMember`) | Usa os módulos que a fase atual abre: mural, wishlist, propostas, votação, gala |
+| **Admin** | Utilizador com `User.isAdmin` | Tudo o que um membro faz, em qualquer fase, mais a gestão do evento |
+
+Os emails em `ADMIN_EMAILS` tornam-se admins no seed. Fora de produção existe ainda o login de desenvolvimento, que entra automaticamente como admin.
+
+## O ciclo anual
+
+Cada edição é um `Event`. O admin ativa um evento de cada vez e faz avançar as fases à mão.
+
+```mermaid
+stateDiagram-v2
+  direction LR
+  [*] --> DRAW
+  DRAW --> PROPOSALS : admin muda a fase
+  PROPOSALS --> VOTING : admin muda a fase
+  VOTING --> RESULTS : admin muda a fase
+  RESULTS --> [*]
+
+  DRAW : Sorteio
+  DRAW : amigo secreto e wishlists
+  PROPOSALS : Propostas
+  PROPOSALS : categorias, nomeações, stickers, medidas
+  VOTING : Votação
+  VOTING : um voto por categoria, alterável
+  RESULTS : Resultados
+  RESULTS : gala com o top 5 de cada categoria
+```
+
+1. **Sorteio (`DRAW`).** Os membros preenchem a wishlist. O admin sorteia o amigo secreto, pode repetir o sorteio as vezes que quiser e, quando estiver satisfeito, revela-o. A partir daí cada membro vê a quem dá o presente e a wishlist dessa pessoa.
+2. **Propostas (`PROPOSALS`).** Os membros propõem categorias de prémio, nomeiam momentos para as categorias, submetem stickers e propõem medidas para a gala. O admin aprova ou rejeita cada proposta.
+3. **Votação (`VOTING`).** Cada membro escolhe uma opção por categoria ativa e pode mudar de ideias enquanto a votação estiver aberta. Há dois tipos de categoria: voto num momento nomeado, ou voto numa pessoa do grupo.
+4. **Resultados (`RESULTS`).** A gala mostra, por categoria, os 5 mais votados com o número de votos.
+
+O mural (feed) está aberto em todas as fases, para posts, fotos, sondagens, comentários e reações.
+
+## Módulos
+
+Cada área da app é um módulo. O admin pode desligar qualquer um; os que estão ligados só aparecem a membros na fase certa (regra RN-01 em [02-requisitos.md](02-requisitos.md)).
+
+| Módulo | Rota | Para quê |
+|---|---|---|
+| `feed` | `/canhoes/feed` | Mural social: posts com até 4 imagens, sondagens, comentários com respostas, reações, likes |
+| `secretSanta` | `/canhoes/amigo-secreto` | A quem dou o presente, depois de o admin revelar o sorteio |
+| `wishlist` | `/canhoes/wishlist` | Lista de desejos de cada membro, visível ao grupo |
+| `categories` | `/canhoes/categorias` | Categorias do prémio e propostas de novas categorias |
+| `nominees` | `/canhoes/nomeacoes` | Nomeações aprovadas |
+| `stickers` | `/canhoes/stickers` | Submissão de stickers (nomeações do tipo sticker) |
+| `measures` | `/canhoes/medidas` | Medidas da gala e propostas de medidas |
+| `voting` | `/canhoes/votacao` | Boletim de voto |
+| `gala` | `/canhoes/gala` | Resultados oficiais |
+| `admin` | `/canhoes/admin` | Painel do admin: fases, módulos, membros, convites, moderação, sorteio |
+
+## Glossário
+
+| Termo | Significado |
+|---|---|
+| Canhão | Prémio humorístico atribuído na gala |
+| Evento / edição | Um ano dos Canhões (`Event`); só um está ativo |
+| Fase | Etapa do ciclo anual (`EventPhase.type`) |
+| Categoria | Um prémio a votar (`AwardCategory`); `kind = 0` vota em nomeações, `kind = 1` vota em pessoas |
+| Nomeação | Um candidato proposto para uma categoria (`Nominee`), também usado para stickers |
+| Medida | Regra ou "lei" da gala (`GalaMeasure`), proposta pelos membros (`MeasureProposal`) |
+| Sorteio | Atribuição do amigo secreto (`SecretSantaDraw` + `SecretSantaAssignment`) |
+| Revelar | Trancar o sorteio (`isLocked`) e mostrá-lo aos membros; não pode ser repetido depois |
+| Mural / feed / hub | Rede social interna (`HubPost*`) |
