@@ -3,10 +3,8 @@
 import { Medal, Trophy } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
-import {
-  CanhoesMediaThumb,
-  CanhoesModuleHeader,
-} from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesMediaThumb } from "@/lib/domains/event/components/CanhoesMediaThumb";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { getErrorMessage } from "@/lib/errors";

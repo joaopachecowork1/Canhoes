@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  CanhoesFileTrigger,
-} from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesFileTrigger } from "@/lib/domains/event/components/CanhoesFileTrigger";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

@@ -12,7 +12,8 @@ import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmen
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { cn } from "@/lib/utils";
-import { CanhoesFeatureCard, CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesFeatureCard } from "@/lib/domains/event/components/CanhoesFeatureCard";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { Skeleton } from "@/components/ui/skeleton";

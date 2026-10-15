@@ -6,12 +6,10 @@ import { Cigarette } from "lucide-react";
 import { toast } from "sonner";
 
 import type { EventActiveContextDto, AwardCategoryDto, NomineeDto } from "@/lib/api/types";
-import {
-  CanhoesFileTrigger,
-  CanhoesMediaThumb,
-  CanhoesModuleHeader,
-  formatEventPhaseLabel,
-} from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesFileTrigger } from "@/lib/domains/event/components/CanhoesFileTrigger";
+import { CanhoesMediaThumb } from "@/lib/domains/event/components/CanhoesMediaThumb";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
+import { getPhaseLabel } from "@/lib/canhoesEvent";
 import { StickerFeedList } from "./StickerFeedList";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { ErrorAlert } from "@/components/ui/error-alert";
@@ -197,7 +195,7 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
         title="Stickers"
         description="Escolhe a imagem do teu sticker do ano, confirma a pré-visualização e submete-a para aprovação."
         badgeLabel={
-          phaseType ? `Fase: ${formatEventPhaseLabel(phaseType)}` : undefined
+          phaseType ? `Fase: ${getPhaseLabel(phaseType)}` : undefined
         }
       />
 

@@ -9,7 +9,7 @@ import { useHubFeed } from "@/lib/domains/feed/components/hooks/useHubFeed";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { useAuth, useIsAdmin } from "@/components/providers/AuthContext";
 import { feedCopy } from "@/lib/canhoesCopy";
-import { CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { HubFeedList } from "./HubFeedList";
 import { useFeedInfiniteScroll } from "./useFeedInfiniteScroll";

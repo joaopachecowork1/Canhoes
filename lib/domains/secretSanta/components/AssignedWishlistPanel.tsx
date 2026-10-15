@@ -1,7 +1,7 @@
 import { Gift, Link as LinkIcon } from "lucide-react";
 
 import type { EventWishlistItemDto } from "@/lib/api/types";
-import { CanhoesMediaThumb } from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesMediaThumb } from "@/lib/domains/event/components/CanhoesMediaThumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function AssignedWishlistPanel({

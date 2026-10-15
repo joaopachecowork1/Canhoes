@@ -10,10 +10,8 @@ import type { EventActiveContextDto, AwardCategoryDto } from "@/lib/api/types";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { useEventOverview } from "@/hooks/useEventOverview";
-import {
-    CanhoesModuleHeader,
-    formatEventPhaseLabel,
-} from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
+import { getPhaseLabel } from "@/lib/canhoesEvent";
 
 import { CanhoesDecorativeDivider } from "@/components/ui/canhoes-bits";
 import { Badge } from "@/components/ui/badge";
@@ -128,7 +126,7 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
                     description="Consulta as categorias oficiais e propõe novas enquanto a fase de propostas estiver aberta."
                     badgeLabel={
                         overview
-                            ? `Fase: ${formatEventPhaseLabel(overview.activePhase?.type)}`
+                            ? `Fase: ${getPhaseLabel(overview.activePhase?.type)}`
                             : undefined
                     }
                 />

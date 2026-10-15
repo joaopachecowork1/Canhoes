@@ -2,9 +2,7 @@
 
 import { Gift, Inbox } from "lucide-react";
 
-import {
-  CanhoesModuleHeader,
-} from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmentTabs";
 import { useAuth } from "@/components/providers/AuthContext";
 import { EmptyState } from "@/components/ui/empty-state";
