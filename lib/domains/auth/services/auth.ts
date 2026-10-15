@@ -2,6 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { isDevelopmentAuthEnabled } from "@/lib/domains/auth/services/developmentAuth";
 import { isDatabaseUserId } from "@/lib/domains/auth/services/userIdentity";
@@ -84,6 +85,13 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 },
   secret: process.env.NEXTAUTH_SECRET,
+  // Sign-in failures (a wrong Google redirect URI, a missing secret) go to the same log as the API.
+  logger: {
+    error: (code, metadata) =>
+      logger.error(`NextAuth ${code}`, metadata instanceof Error ? metadata : metadata.error),
+    warn: (code) => logger.warn(`NextAuth ${code}`),
+    debug: (code, metadata) => logger.debug(`NextAuth ${code}`, { metadata }),
+  },
   pages: {
     signIn: "/canhoes/login",
     error: "/canhoes/login",

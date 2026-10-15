@@ -11,7 +11,7 @@ import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/c
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/providers/AuthContext";
 import { signIn } from "next-auth/react";
 
 const LeafRain = dynamic(() => import("@/components/animations/LeafRain"), {

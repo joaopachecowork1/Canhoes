@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { apiRoute, noContent, readJson } from "@/lib/api/route";
+import { logger } from "@/lib/logger";
 
 // Public on purpose (errors happen before login too), so every field is bounded.
 const MAX_DATA_LENGTH = 2000;
@@ -18,12 +19,11 @@ const telemetrySchema = z.object({
 
 export const POST = apiRoute(async (request) => {
   const { level, message, data, url, timestamp } = await readJson(request, telemetrySchema);
-  const details = { url, timestamp, data: JSON.stringify(data)?.slice(0, MAX_DATA_LENGTH) };
-  const line = `[TELEMETRY ${level.toUpperCase()}] ${message}`;
+  const context = { url, browserTime: timestamp, data: JSON.stringify(data)?.slice(0, MAX_DATA_LENGTH) };
+  const line = `Browser: ${message}`;
 
-  if (level === "error") console.error(line, details);
-  else if (level === "warn") console.warn(line, details);
-  else console.log(line, details);
+  if (level === "error") logger.error(line, undefined, context);
+  else logger[level](line, context);
 
   return noContent();
 });

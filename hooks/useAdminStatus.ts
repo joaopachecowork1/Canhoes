@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/providers/AuthContext";
 import { resolveAdminStatus } from "@/lib/domains/auth/services/adminStatus";
 
 /**

@@ -7,7 +7,7 @@ import { ScrollText } from "lucide-react";
 import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
 import { useHubFeed } from "@/lib/domains/feed/components/hooks/useHubFeed";
 import { useEventOverview } from "@/hooks/useEventOverview";
-import { useAuth, useIsAdmin } from "@/contexts/AuthContext";
+import { useAuth, useIsAdmin } from "@/components/providers/AuthContext";
 import { feedCopy } from "@/lib/canhoesCopy";
 import { CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleParts";
 import { ErrorAlert } from "@/components/ui/error-alert";

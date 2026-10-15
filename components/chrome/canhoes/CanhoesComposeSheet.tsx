@@ -11,7 +11,7 @@ import { feedRepo } from "@/lib/repositories/feedRepo";
 import { cn } from "@/lib/utils";
 import { MAX_MEDIA_FILES, MAX_POLL_OPTIONS, useComposer } from "@/lib/domains/feed/components/hooks/useComposer";
 import { useEventOverview } from "@/hooks/useEventOverview";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/providers/AuthContext";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";

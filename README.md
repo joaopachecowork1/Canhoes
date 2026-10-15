@@ -30,12 +30,30 @@ O login Google precisa de `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`, com o red
 
 ## Stack completa em contentores
 
+Corre a app e o PostgreSQL em contentores, como em produção:
+
 ```bash
+cp .env.example .env                                # se ainda não existir
 docker compose up -d --build                        # app em http://localhost:3000, PostgreSQL em localhost:5433
 podman compose up -d --build --force-recreate       # o mesmo com Podman
+docker compose logs -f web                          # logs da app (Ctrl+C para sair)
+docker compose down                                 # parar (os dados ficam nos volumes)
 ```
 
-O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. Em produção o seed só cria os admins de `ADMIN_EMAILS` e o evento, e nunca mexe na fase de um evento que já existe; os dados de demonstração só entram com `SEED_DEMO_DATA=true`. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
+O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. Em produção o seed só cria os admins de `ADMIN_EMAILS` e o evento, e nunca mexe na fase de um evento que já existe; os dados de demonstração só entram com `SEED_DEMO_DATA=true`. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google (com o redirect URI de `localhost` registado) ou uma conta por convite.
+
+Para pôr a mesma stack na internet com o teu domínio, através do Cloudflare, segue [`docs/09-deploy.md`](docs/09-deploy.md).
+
+## Logs
+
+Cada pedido à API escreve uma linha no log com o método, o caminho, o estado e a duração. Os erros 500 trazem a stack e um `requestId`, que também vai na resposta (header `X-Request-Id`):
+
+```
+2026-10-15T16:30:00.123Z ERROR Unhandled API error {"requestId":"a1b2c3d4","error":"...","stack":"..."}
+2026-10-15T16:30:00.125Z ERROR POST /api/v1/events/e1/votes 500 {"requestId":"a1b2c3d4","durationMs":12}
+```
+
+Com `LOG_LEVEL=debug` no `.env` aparecem também as leituras com sucesso. Os comandos para ver e filtrar os logs, no PC e no servidor, estão em [`docs/07-operacao.md`](docs/07-operacao.md#logs-e-debugging).
 
 ## Produção
 
@@ -62,6 +80,28 @@ Numa base de dados que já existia antes das migrations Prisma, corre `npm run d
 ## Uploads
 
 Por omissão os ficheiros ficam em `.data/uploads`, fora do Git; `UPLOADS_DIR` muda o diretório. Os nomes são gerados no servidor, a escrita é atómica, os caminhos são validados e só são aceites JPEG, PNG, GIF e WebP até 10 MB.
+
+## Pastas
+
+| Pasta | O que tem |
+|---|---|
+| `app/` | Páginas (`app/canhoes`) e API (`app/api`) |
+| `components/` | Interface partilhada: `chrome` (navegação), `modules` (páginas de cada módulo), `providers` (sessão e TanStack Query) e `ui` (componentes base) |
+| `hooks/` | Hooks React usados por várias páginas |
+| `lib/` | Lógica: `domains/<área>` (componentes e serviços de cada área), `api` (cliente, guards, rotas, rate limit), `repositories`, `zod`, `storage` e `logger.ts` |
+| `prisma/` | Schema, migrations e seed |
+| `scripts/` | Base de dados local (`db.mjs`), arranque do contentor e deploy no servidor |
+| `tests/integration/` | Testes dos route handlers contra PostgreSQL |
+| `deploy/systemd/` | Timer que instala cada merge no servidor |
+| `docs/` | Negócio, requisitos, arquitetura e operação |
+| `public/` | Ícone e imagem de partilha |
+| `.github/`, `.zap/` | CI, Dependabot e as regras do scan de segurança |
+
+Tudo o resto que aparece na pasta é local e não vai para o Git. Para ver o que é, corre `git status --short --ignored`:
+
+- **Podes apagar sempre:** `node_modules/` (volta com `npm install`), `.next/` e `next-env.d.ts` (voltam com `npm run dev` ou `npm run build`), `coverage/` e `tsconfig.tsbuildinfo`.
+- **Não apagues:** `.env` e `.env.server` (as tuas configurações), `.data/` (imagens enviadas em desenvolvimento) e `backups/` (dumps da base de dados).
+- `.claude/`, `.agents/` e `skills/` são de ferramentas de IA locais.
 
 ## Qualidade
 

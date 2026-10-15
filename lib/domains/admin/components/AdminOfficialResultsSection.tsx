@@ -6,7 +6,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import type { AdminCategoryResultDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
-import { useIsAdmin } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/components/providers/AuthContext";
 import { cn } from "@/lib/utils";
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";

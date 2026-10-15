@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { HttpError, notFound } from "./httpError";
@@ -71,12 +71,32 @@ describe("apiRoute", () => {
     expect(await response.json()).toEqual({ code: "NOT_FOUND", message: "Post not found." });
   });
 
-  it("hides unexpected errors behind a generic 500", async () => {
+  it("hides unexpected errors behind a generic 500 that carries the request id", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     const route = apiRoute<{ id: string }>(async () => {
       throw new Error("connection refused at 10.0.0.3");
     });
     const response = await route(new NextRequest(BASE_URL), context);
+    const requestId = response.headers.get("X-Request-Id");
+
     expect(response.status).toBe(500);
-    expect(await response.json()).toEqual({ code: "UNHANDLED_SERVER_ERROR", message: "Unexpected server error." });
+    expect(await response.json()).toEqual({
+      code: "UNHANDLED_SERVER_ERROR",
+      message: "Unexpected server error.",
+      requestId,
+    });
+    // The error and the request line are logged with the same id, so one grep finds both.
+    const loggedLines = consoleError.mock.calls.map(([line]) => String(line));
+    expect(loggedLines).toHaveLength(2);
+    expect(loggedLines.every((line) => line.includes(`"requestId":"${requestId}"`))).toBe(true);
+    expect(loggedLines[0]).toContain("connection refused at 10.0.0.3");
+    expect(loggedLines[1]).toContain("GET /api/test 500");
+    consoleError.mockRestore();
+  });
+
+  it("sets an X-Request-Id header on every response", async () => {
+    const route = apiRoute<{ id: string }>(async (_request, { id }) => json({ id }));
+    const response = await route(new NextRequest(BASE_URL), context);
+    expect(response.headers.get("X-Request-Id")).toMatch(/^[0-9a-f]{8}$/);
   });
 });
