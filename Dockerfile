@@ -1,4 +1,4 @@
-FROM docker.io/library/node:22-alpine AS base
+FROM docker.io/library/node:25-alpine AS base
 
 # Dependencies (prisma/ is needed by the postinstall `prisma generate`).
 FROM base AS deps
