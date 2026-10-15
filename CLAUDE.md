@@ -18,12 +18,14 @@ npm run db:migrate && npm run db:seed
 npm run dev            # http://localhost:3000/canhoes (login de dev automático)
 npm run lint
 npx tsc --noEmit
-npm test               # vitest (testes unitários de lógica pura)
+npm test               # vitest, testes unitários de lógica pura
+npm run test:integration  # route handlers contra PostgreSQL real (base de dados canhoes_test, ver tests/integration)
+npm run knip           # exports, ficheiros e dependências mortos
 npm run build
 docker compose up -d --build   # stack completa; com Podman: podman compose up -d --build --force-recreate
 ```
 
-Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit` e `npm test`.
+Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run test:integration` e `npm run knip` (o CI corre todos).
 
 ## Prioridades
 
@@ -38,9 +40,9 @@ Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit` e `npm test`
 
 - **Camadas:** UI (`components/`, `lib/domains/*/components`) → repositórios de cliente (`lib/repositories/*`, via `canhoesFetch` em `lib/api/canhoesClient.ts`, que chama `/api/...`) → route handlers (`app/api/v1/events/[eventId]/…`) → serviços de servidor com Prisma (`lib/domains/*/services`). Tipos partilhados em `lib/api/types.ts`; validação de input com Zod em `lib/zod/`.
 - **Estado no cliente:** TanStack Query. Depois de uma escrita, invalida as queries em vez de copiar estado à mão.
-- **Route handlers:** finos e todos iguais — `apiRoute` + `requireUser`/`requireAdmin`/`requireEventAccess` (`lib/api/guards.ts`) + `readJson(schema)`/`readPaging` (`lib/api/route.ts`) + uma chamada ao serviço. Para parar com um erro, lança um `HttpError` (`lib/api/httpError.ts`); erros de domínio que o cliente pode tratar estendem-no. O resto vira um 500 com log.
-- **Auth:** NextAuth com Google, credenciais (email + password com bcrypt, para contas criadas por convite em `/api/admin/invites` → `/canhoes/register`) e, só fora de produção, o provider `development` (`DEV_AUTH_BYPASS_ENABLED=true`). O callback `jwt` relê o `User` da BD em cada pedido; o admin é só `User.isAdmin`. `requireEventAccess` só exige que o evento tenha `CanhoesEventState` (admins passam sempre): a visibilidade por módulo vem do overview e é aplicada na UI.
-- **Schema:** alterações ao `prisma/schema.prisma` precisam de uma migration em `prisma/migrations` (`npx prisma migrate dev --name <nome>`). Atenção: a imagem Docker arranca com `prisma db push --accept-data-loss`, não com `migrate deploy`.
+- **Route handlers:** finos e todos iguais — `apiRoute` + `requireUser`/`requireAdmin`/`requireEventAccess`/`requireModule`/`requireProposalsOpen` (`lib/api/guards.ts`) + `readJson(schema)`/`readPaging` (`lib/api/route.ts`) + uma chamada ao serviço. Para parar com um erro, lança um `HttpError` (`lib/api/httpError.ts`); erros de domínio que o cliente pode tratar estendem-no. O resto vira um 500 com log.
+- **Auth:** NextAuth com Google, credenciais (email + password com bcrypt, para contas criadas por convite em `/api/admin/invites` → `/canhoes/register`) e, só fora de produção, o provider `development` (`DEV_AUTH_BYPASS_ENABLED=true`). O callback `jwt` relê o `User` da BD em cada pedido; o admin é só `User.isAdmin`. Google só deixa entrar admins, membros e quem tem um convite aberto para esse email (`signInAccess.ts`). `requireEventAccess` exige ser membro do evento; `requireModule` e `requireProposalsOpen` aplicam no servidor as mesmas regras de fase que o overview mostra na UI (`lib/domains/event/services/eventRules.ts`). Admins passam sempre. Toda a rota nova fica coberta pela matriz de autorização em `tests/integration/authorization.int.test.ts`.
+- **Schema:** alterações ao `prisma/schema.prisma` precisam de uma migration em `prisma/migrations` (`npx prisma migrate dev --name <nome>`). A imagem Docker aplica-as no arranque com `prisma migrate deploy` (`scripts/docker-start.sh`); uma base de dados antiga criada com `db push` é marcada como baseline uma única vez.
 - **Uploads:** em disco, em `UPLOADS_DIR` (por defeito `.data/uploads`), servidos por `app/api/uploads/[...path]`; `/uploads/*` é reescrito para lá em `next.config.mjs`.
 - **Tailwind 4:** configurado em CSS (`@import "tailwindcss"` no `app/globals.css`, via `@tailwindcss/postcss`); o `tailwind.config.js` ainda é carregado com `@config`.
 - **Design system:** tema escuro único (fundo verde-oliva quase preto, texto pergaminho, acentos musgo e amarelo). Os tokens vivem em `app/globals.css` (variáveis `--color-*`, `--bg-*`, `--text-*`, `--border-*`, `--shadow-*`). Usa-os; não metas cores hardcoded.
