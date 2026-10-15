@@ -103,7 +103,9 @@ flowchart LR
   RA -- sim --> E403A["403 FORBIDDEN"]
   RA -- não --> M{"Membro do evento?"}
   M -- não --> E403M["403 NOT_A_MEMBER"]
-  M -- sim --> MOD{"Módulo aberto<br/>ou propostas abertas?"}
+  M -- sim --> R{"A rota exige um módulo<br/>ou propostas abertas?"}
+  R -- não --> OK
+  R -- sim --> MOD{"Está aberto<br/>na fase atual?"}
   MOD -- não --> E4xx["403 MODULE_DISABLED<br/>409 PROPOSALS_CLOSED"]
   MOD -- sim --> OK
 ```

@@ -6,19 +6,16 @@ O único custo é o domínio. O site só está online enquanto o PC estiver liga
 
 ```mermaid
 flowchart LR
-  subgraph Internet
-    B[Browser dos membros] -->|https://teu-dominio| CF[Cloudflare<br/>DNS + HTTPS]
-    GH[GitHub<br/>branch main]
-  end
+  B[Browser dos membros] -->|https://teu-dominio| CF[Cloudflare<br/>DNS + HTTPS]
+  CF -->|pedidos pelo túnel,<br/>que o PC abriu| T
   subgraph PC["O teu PC (compose.server.yml)"]
     T[tunnel<br/>cloudflared] -->|http://web:3000| W[web<br/>Next.js]
     W --> P[(postgres)]
     W --> U[(volume uploads)]
     TM[systemd timer<br/>a cada 5 min] --> S[scripts/update-server.sh]
+    S -->|backup, build, restart| W
   end
-  T -. ligação de saída .-> CF
-  S -->|git fetch| GH
-  S -->|backup, build, restart| W
+  S -->|git fetch| GH[GitHub<br/>branch main]
 ```
 
 ## Ficheiros envolvidos
