@@ -8,7 +8,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import type { EventWishlistItemDto, PublicUserDto } from "@/lib/api/types";
 import { formatCount } from "@/lib/utils";
 
@@ -20,6 +19,7 @@ type WishlistMemberPanelProps = {
   userId: string | null;
 };
 
+/** One member's wishlist, read-only. */
 export function WishlistMemberPanel({
   deletingItemId,
   items,
@@ -46,13 +46,9 @@ export function WishlistMemberPanel({
         {items.length === 0 ? (
           <p className="py-4 text-center text-sm text-[var(--text-muted)]">Sem itens nesta wishlist.</p>
         ) : (
-          <VirtualizedList
-            items={items}
-            getKey={(wishlistItem) => wishlistItem.id}
-            estimateSize={() => 108}
-            className="max-h-[50svh]"
-            renderItem={(wishlistItem) => (
-              <div className="canhoes-list-item flex gap-3 p-2.5">
+          <div className="space-y-2">
+            {items.map((wishlistItem) => (
+              <div key={wishlistItem.id} className="canhoes-list-item flex gap-3 p-2.5">
                 <CanhoesMediaThumb alt={wishlistItem.title} src={wishlistItem.imageUrl} />
 
                 <div className="min-w-0 flex-1">
@@ -99,8 +95,8 @@ export function WishlistMemberPanel({
                   ) : null}
                 </div>
               </div>
-            )}
-          />
+            ))}
+          </div>
         )}
       </CardContent>
     </Card>

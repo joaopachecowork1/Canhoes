@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 
+/** Events, admin state and counters for the admin area, in one request. */
 export function useAdminBootstrap(eventId: string | null, enabled = true) {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["adminBootstrap", eventId],

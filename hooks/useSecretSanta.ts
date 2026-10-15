@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { eventRepo } from "@/lib/repositories/eventRepo";
 import type { EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 
+/** The user's secret santa assignment and the wishlist of the person they give to. */
 export function useSecretSanta(
   eventId?: string,
   initialOverview?: EventSecretSantaOverviewDto | null,

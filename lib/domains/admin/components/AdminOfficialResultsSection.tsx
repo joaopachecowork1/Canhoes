@@ -11,7 +11,6 @@ import { cn, formatCount } from "@/lib/utils";
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 
 const EMPTY_ADMIN_CATEGORY_RESULTS: AdminCategoryResultDto[] = [];
 
@@ -124,28 +123,13 @@ function ResultsVotersList({
 }: Readonly<{
   nominees: AdminCategoryNomineeResult[];
 }>) {
-  const content =
-    nominees.length > 20 ? (
-      <VirtualizedList
-        items={nominees}
-        estimateSize={() => 40}
-        className="max-h-[34svh]"
-        getKey={(nominee) => nominee.nomineeId}
-        renderItem={(nominee) => (
-          <p className="text-xs text-[var(--ink-secondary)]"><span className="text-[var(--ink-primary)]">{nominee.title}</span>: {nominee.voterUserIds.join(", ") || "Sem votos"}</p>
-        )}
-      />
-    ) : (
-      <div className="space-y-1">
-        {nominees.map((nominee) => (
-          <p key={nominee.nomineeId} className="text-xs text-[var(--ink-secondary)]"><span className="text-[var(--ink-primary)]">{nominee.title}</span>: {nominee.voterUserIds.join(", ") || "Sem votos"}</p>
-        ))}
-      </div>
-    );
-
   return (
     <AdminDetailPanel className="max-h-[34svh] space-y-1 overflow-y-auto">
-      {content}
+      {nominees.map((nominee) => (
+        <p key={nominee.nomineeId} className="text-xs text-[var(--ink-secondary)]">
+          <span className="text-[var(--ink-primary)]">{nominee.title}</span>: {nominee.voterUserIds.join(", ") || "Sem votos"}
+        </p>
+      ))}
     </AdminDetailPanel>
   );
 }
@@ -248,20 +232,17 @@ export function AdminOfficialResultsSection({
 
       {resultCategories.length > 0 ? (
         <AdminListPanel>
-          <VirtualizedList
-            items={resultCategories}
-            getKey={(category) => category.categoryId}
-            estimateSize={() => 58}
-            className="max-h-[58svh]"
-            renderItem={(category) => (
+          <div className="space-y-2">
+            {resultCategories.map((category) => (
               <ResultsCategoryButton
+                key={category.categoryId}
                 category={category}
                 isSelected={category.categoryId === selectedCategoryId}
                 totalMembers={memberCount}
                 onSelect={setSelectedCategoryId}
               />
-            )}
-          />
+            ))}
+          </div>
         </AdminListPanel>
       ) : null}
 
@@ -284,19 +265,16 @@ export function AdminOfficialResultsSection({
               Participação {Math.round(selectedCategory.participationRate * 100)}%
             </AdminDetailPanel>
 
-            <VirtualizedList
-              items={sortedNominees}
-              getKey={(nominee) => nominee.nomineeId}
-              estimateSize={() => 72}
-              className="max-h-[42svh]"
-              renderItem={(nominee, index) => (
+            <div className="space-y-2">
+              {sortedNominees.map((nominee, index) => (
                 <ResultsNomineeBar
+                  key={nominee.nomineeId}
                   nominee={nominee}
                   index={index}
                   totalVotes={selectedCategory.totalVotes}
                 />
-              )}
-            />
+              ))}
+            </div>
 
             <Button
               type="button"

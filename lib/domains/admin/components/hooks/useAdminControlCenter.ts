@@ -1,162 +1,94 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import type {
-  AdminModuleKey,
-  EventAdminStateDto,
-} from "@/lib/api/types";
-import { adminRepo } from "@/lib/repositories/adminRepo";
-import { useModuleVisibility, type ModuleVisibilityItem } from "@/hooks/useModuleVisibility";
+
+import type { AdminModuleKey, EventAdminStateDto } from "@/lib/api/types";
+import { getPhaseLabel } from "@/lib/canhoesEvent";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
+import { CANHOES_MODULES, type CanhoesModule } from "@/lib/modules";
+import { adminRepo } from "@/lib/repositories/adminRepo";
 
-export type SettingsFeedbackState = {
-  message: string;
-  tone: "default" | "error" | "success";
+export type AdminModuleItem = CanhoesModule & {
+  /** The admin switch: off hides the module in every phase. */
+  isEnabled: boolean;
+  /** Whether members see it right now (switch and phase together). */
+  isOpenNow: boolean;
 };
 
-export const PHASE_LABELS: Record<string, string> = {
-  PROPOSALS: "Nomeações",
-  VOTING: "Votação",
-  RESULTS: "Resultados",
-  DRAW: "Sorteio",
-};
+/** "event", "phase", "proposals" or a module key: the control currently saving. */
+type SavingKey = "event" | "phase" | "proposals" | AdminModuleKey;
 
+/**
+ * State and actions of the admin "Evento" tab: active event, phase, the proposals switch and
+ * the per-module switches. Every action saves, then `onRefresh` reloads the admin state.
+ */
 export function useAdminControlCenter(
   eventId: string | null,
   state: EventAdminStateDto | null,
-  events: Array<{ id: string; name: string }>,
   onRefresh: () => Promise<void>
 ) {
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [feedback, setFeedback] = useState<SettingsFeedbackState | null>(null);
-  const [secondarySavingKey, setSecondarySavingKey] = useState<string | null>(null);
+  const [savingKey, setSavingKey] = useState<SavingKey | null>(null);
 
-  const {
-    toggleModule,
-    updatingKey,
-  } = useModuleVisibility(eventId);
+  async function save(key: SavingKey, action: () => Promise<unknown>, success: string, failure: string) {
+    setSavingKey(key);
+    try {
+      await action();
+      await onRefresh();
+      toast.success(success);
+    } catch (error) {
+      logFrontendError("AdminControlCenter.save", error, { key });
+      toast.error(getErrorMessage(error, failure));
+    } finally {
+      setSavingKey(null);
+    }
+  }
 
-  const handleUpdatePhase = async (phaseType: string) => {
+  const handleActivateEvent = (nextEventId: string) => {
+    if (!nextEventId || nextEventId === eventId) return;
+    void save("event", () => adminRepo.activateEvent(nextEventId), "Evento ativo atualizado.", "Não foi possível mudar o evento ativo.");
+  };
+
+  const handleUpdatePhase = (phaseType: string) => {
     if (!eventId || phaseType === state?.activePhase?.type) return;
-
-    setFeedback({ message: "A guardar fase...", tone: "default" });
-    try {
-      await adminRepo.updatePhase(eventId, { phaseType });
-      await onRefresh();
-      toast.success("Fase do evento atualizada");
-      setFeedback({
-        message: `Fase atualizada para ${PHASE_LABELS[phaseType] || phaseType}.`,
-        tone: "success",
-      });
-    } catch (error) {
-      logFrontendError("AdminControlCenter.updatePhase", error, { phaseType });
-      toast.error(getErrorMessage(error, "Não foi possível mudar a fase."));
-      setFeedback({ message: "Falha ao guardar a fase atual.", tone: "error" });
-    }
+    void save(
+      "phase",
+      () => adminRepo.updatePhase(eventId, { phaseType }),
+      `Fase mudada para ${getPhaseLabel(phaseType)}.`,
+      "Não foi possível mudar a fase."
+    );
   };
 
-  const handleActivateEvent = async (eventIdToActivate: string) => {
-    if (!eventIdToActivate || eventIdToActivate === eventId) return;
-
-    setFeedback({ message: "A mudar evento ativo...", tone: "default" });
-    try {
-      await adminRepo.activateEvent(eventIdToActivate);
-      await onRefresh();
-      toast.success("Evento ativo atualizado");
-      const nextEventName =
-        events.find((event) => event.id === eventIdToActivate)?.name ?? "evento";
-      setFeedback({
-        message: `Evento ativo atualizado para ${nextEventName}.`,
-        tone: "success",
-      });
-    } catch (error) {
-      logFrontendError("AdminControlCenter.activateEvent", error, { eventId: eventIdToActivate });
-      toast.error(getErrorMessage(error, "Não foi possível mudar o evento ativo."));
-      setFeedback({ message: "Falha ao atualizar o evento ativo.", tone: "error" });
-    }
-  };
-
-  const handleModuleToggle = async (item: ModuleVisibilityItem, checked: boolean) => {
-    const updated = await toggleModule(item.key, checked);
-    if (updated) await onRefresh();
-  };
-
-  const handleNominationsVisibility = async (checked: boolean) => {
+  const handleProposalsOpen = (isOpen: boolean) => {
     if (!eventId) return;
-    setSecondarySavingKey("nominations");
-    try {
-      await adminRepo.updateAdminState(eventId, { nominationsVisible: checked });
-      await onRefresh();
-      toast.success(checked ? "Nomeações abertas ao grupo." : "Nomeações ocultadas do grupo.");
-    } catch (error) {
-      logFrontendError("AdminControlCenter.nominationsVisibility", error, { checked });
-      toast.error("Erro ao atualizar visibilidade das nomeações.");
-    } finally {
-      setSecondarySavingKey(null);
-    }
+    void save(
+      "proposals",
+      () => adminRepo.updateAdminState(eventId, { nominationsVisible: isOpen }),
+      isOpen ? "Propostas abertas." : "Propostas fechadas.",
+      "Não foi possível guardar."
+    );
   };
 
-  const handleResultsVisibility = async (checked: boolean) => {
+  const handleModuleToggle = (module: CanhoesModule, isEnabled: boolean) => {
     if (!eventId) return;
-    setSecondarySavingKey("results");
-    try {
-      await adminRepo.updateAdminState(eventId, { resultsVisible: checked });
-      await onRefresh();
-      toast.success(checked ? "Resultados abertos ao grupo." : "Resultados ocultados do grupo.");
-    } catch (error) {
-      logFrontendError("AdminControlCenter.resultsVisibility", error, { checked });
-      toast.error("Erro ao atualizar visibilidade dos resultados.");
-    } finally {
-      setSecondarySavingKey(null);
-    }
+    void save(
+      module.key,
+      () => adminRepo.updateModules(eventId, { [module.key]: isEnabled }),
+      `${module.label} ${isEnabled ? "ligado" : "desligado"}.`,
+      "Não foi possível guardar."
+    );
   };
 
-  const handleSetAllModules = async (enabled: boolean) => {
-    if (!eventId) return;
-    setSecondarySavingKey(enabled ? "all-enabled" : "all-disabled");
-    try {
-      const keys = Object.keys(state?.moduleVisibility ?? {});
-      const patch = Object.fromEntries(keys.map((k) => [k, enabled]));
-      await adminRepo.updateModules(eventId, patch);
-      await onRefresh();
-      toast.success(enabled ? "Todos os módulos ativados." : "Todos os módulos desativados.");
-    } catch (error) {
-      logFrontendError("AdminControlCenter.allModulesVisibility", error, { enabled });
-      toast.error("Erro ao atualizar visibilidade dos módulos.");
-    } finally {
-      setSecondarySavingKey(null);
-    }
-  };
-
-  const moduleItems: ModuleVisibilityItem[] = Object.entries(state?.moduleVisibility ?? {}).map(
-    ([key, isEnabled]) => ({
-      key: key as AdminModuleKey,
-      label: key,
-      isEnabled: isEnabled as boolean,
-    })
-  );
-
-  const visibleCount = moduleItems.filter((m) => m.isEnabled).length;
-  const allEnabled = moduleItems.length > 0 && visibleCount === moduleItems.length;
-  const allDisabled = moduleItems.length > 0 && visibleCount === 0;
+  const moduleItems: AdminModuleItem[] = CANHOES_MODULES.map((module) => ({
+    ...module,
+    isEnabled: state?.moduleVisibility[module.key] ?? true,
+    isOpenNow: Boolean(state?.effectiveModules[module.key]),
+  }));
 
   return {
-    state: {
-      advancedOpen,
-      feedback,
-      moduleItems,
-      visibleCount,
-      allEnabled,
-      allDisabled,
-      visibilitySavingKey: updatingKey ?? secondarySavingKey,
-    },
-    actions: {
-      setAdvancedOpen,
-      handleUpdatePhase,
-      handleActivateEvent,
-      handleModuleToggle,
-      handleNominationsVisibility,
-      handleResultsVisibility,
-      handleSetAllModules,
-    },
+    moduleItems,
+    savingKey,
+    handleActivateEvent,
+    handleModuleToggle,
+    handleProposalsOpen,
+    handleUpdatePhase,
   };
 }

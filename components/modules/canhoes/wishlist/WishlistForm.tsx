@@ -17,6 +17,7 @@ type WishlistFormProps = {
   onSubmit: () => void;
 };
 
+/** Form to add an item (title, link, notes, image) to your wishlist. */
 export function WishlistForm({
   formState,
   isSaving,

@@ -88,6 +88,7 @@ function NomineeRankCard({
   );
 }
 
+/** Gala page: the top results of each category, open in the RESULTS phase. */
 export function CanhoesGalaModule({ initialContext, initialResults }: {
     initialContext?: EventActiveContextDto | null;
     initialResults?: PublicCategoryResultDto[];

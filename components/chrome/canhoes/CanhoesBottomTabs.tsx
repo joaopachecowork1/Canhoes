@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 import { Dock, type DockItem } from "@/components/ui/dock-two";
 
-import type { CanhoesNavItem } from "./canhoesNavigation";
+import { MENU_NAV_ITEM, type CanhoesNavItem } from "./canhoesNavigation";
 
 export type CanhoesBottomTabEntry = {
   item: CanhoesNavItem;
@@ -22,6 +22,7 @@ type CanhoesBottomTabsProps = {
   showCompose?: boolean;
 };
 
+/** The fixed dock at the bottom: left tabs, the Post button in the middle, right tabs. */
 export function CanhoesBottomTabs({
   isComposeOpen,
   leftItems,
@@ -68,17 +69,17 @@ export function CanhoesBottomTabs({
 
 function toDockItem(entry: CanhoesBottomTabEntry): DockItem {
   const isActive = Boolean(entry.isActive);
-  const isMoreItem = entry.item.id === "more";
+  const isMenuItem = entry.item.id === MENU_NAV_ITEM.id;
 
   return {
     ariaLabel: entry.item.label,
     buttonClassName: cn(
-      isMoreItem && !isActive && "text-[var(--color-text-primary)]"
+      isMenuItem && !isActive && "text-[var(--color-text-primary)]"
     ),
     icon: entry.item.icon,
     iconClassName: cn(
       "h-[18px] w-[18px]",
-      isMoreItem && !isActive && "text-[var(--color-text-primary)]",
+      isMenuItem && !isActive && "text-[var(--color-text-primary)]",
       isActive && "text-[var(--neon-amber)]"
     ),
     isActive,

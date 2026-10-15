@@ -46,6 +46,7 @@ function CategoriesLoadingState() {
     );
 }
 
+/** Categorias page: the edition's categories and the form to propose a new one. */
 export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
     initialContext?: EventActiveContextDto | null;
     initialCategories?: AwardCategoryDto[];

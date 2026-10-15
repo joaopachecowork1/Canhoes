@@ -5,7 +5,7 @@ import { CalendarClock, Eye, TimerReset, Vote } from "lucide-react";
 
 import { formatEventPhaseLabel } from "@/components/modules/canhoes/CanhoesModuleParts";
 import { adminCopy } from "@/lib/canhoesCopy";
-import { countVisibleModules } from "@/lib/modules";
+import { countOpenModules } from "@/lib/modules";
 import type { EventAdminStateDto } from "@/lib/api/types";
 
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +62,7 @@ export function AdminOverviewSection({
     pendingCategoryProposalsCount +
     pendingMeasureProposalsCount;
 
-  const visibleModuleCount = countVisibleModules(state?.effectiveModules);
+  const visibleModuleCount = countOpenModules(state?.effectiveModules);
 
   return (
     <div className="space-y-4">

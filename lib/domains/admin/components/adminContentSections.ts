@@ -1,7 +1,5 @@
 import { BarChart2, FolderTree, Gavel, type LucideIcon } from "lucide-react";
 
-import type { AdminModuleKey } from "@/lib/api/types";
-
 export type AdminContentSectionId = "queue" | "categorias" | "resultados";
 
 type AdminContentSectionCountContext = {
@@ -68,18 +66,3 @@ export function buildAdminContentSectionItems(
 export function getDefaultAdminContentSection(): AdminContentSectionId {
   return "queue";
 }
-
-export const QUICK_ADMIN_MODULE_ORDER: readonly AdminModuleKey[] = [
-  "feed",
-  "nominees",
-  "categories",
-  "secretSanta",
-] as const;
-
-export const ADVANCED_ADMIN_MODULE_ORDER: readonly AdminModuleKey[] = [
-  "wishlist",
-  "voting",
-  "stickers",
-  "measures",
-  "gala",
-] as const;

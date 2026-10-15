@@ -19,31 +19,32 @@ export type PhaseType = (typeof PHASE_TYPES)[number];
 
 export type VotingWindow = { startDateUtc: Date; endDateUtc: Date };
 
+/**
+ * The modules open to members right now. Each module only opens in the phase where it has
+ * something to do, so the navigation never lists an area that would only say "closed":
+ * everything that takes proposals (categories, nominations, stickers, measures) opens in
+ * PROPOSALS, the ballot in VOTING and the gala in RESULTS. Feed and wishlist are always open.
+ */
 export function resolveMemberModules(state: EventRulesState): EventModulesDto {
   const phase = state.activePhaseType;
   const isOn = (key: AdminModuleKey) => state.moduleVisibility[key] ?? true;
-  const isProposals = phase === "PROPOSALS";
   const isVoting = phase === "VOTING";
   const isResults = phase === "RESULTS";
+  const isTakingProposals = canSubmitProposals(state);
 
   return {
     feed: isOn("feed"),
     secretSanta: isOn("secretSanta") && (phase === "DRAW" || state.hasSecretSantaDraw || isVoting || isResults),
     wishlist: isOn("wishlist"),
-    categories: isOn("categories") && (isProposals || isVoting || isResults),
+    categories: isOn("categories") && isTakingProposals,
     voting: isOn("voting") && isVoting,
     gala: isOn("gala") && isResults,
-    stickers: isOn("stickers") && isProposals && state.nominationsVisible,
-    measures: isOn("measures") && isProposals && state.nominationsVisible,
-    nominees: isOn("nominees") && (state.nominationsVisible || isResults),
+    stickers: isOn("stickers") && isTakingProposals,
+    measures: isOn("measures") && isTakingProposals,
+    nominees: isOn("nominees") && isTakingProposals,
     admin: false,
   };
 }
-
-export const ALL_MODULES: EventModulesDto = {
-  feed: true, secretSanta: true, wishlist: true, categories: true, voting: true,
-  gala: true, stickers: true, measures: true, nominees: true, admin: true,
-};
 
 /** Category proposals, nominations, stickers and measures are only accepted while proposals are open. */
 export function canSubmitProposals(state: EventRulesState) {

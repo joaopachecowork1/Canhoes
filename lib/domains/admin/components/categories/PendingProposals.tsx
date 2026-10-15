@@ -7,7 +7,6 @@ import { AdminSectionSummary } from "@/lib/domains/admin/components/layout/Admin
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
 import { AdminStatusFilters } from "@/lib/domains/admin/components/layout/AdminStatusFilters";
 import { ProposalShell } from "@/lib/domains/admin/components/categories/ProposalShell";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 import type { CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
 
 import {
@@ -341,15 +340,11 @@ export function PendingProposals({
                 ref={listRef}
                 className="border border-[var(--border-paper-soft)] rounded-md bg-[var(--bg-paper-soft)]"
               >
-                <VirtualizedList
-                  items={panel.items}
-                  getKey={(proposal) => proposal.id}
-                  estimateSize={() => 60}
-                  className="max-h-[72svh]"
-                  renderItem={(proposal) => (
-                    <ProposalReviewCard proposal={proposal} />
-                  )}
-                />
+                <div className="space-y-2">
+                  {panel.items.map((proposal) => (
+                    <ProposalReviewCard key={proposal.id} proposal={proposal} />
+                  ))}
+                </div>
               </div>
             ) : null}
           </ProposalShell>

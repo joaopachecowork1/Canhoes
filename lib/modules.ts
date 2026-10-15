@@ -1,123 +1,106 @@
-import type {
-  AdminModuleKey,
-  EventAdminModuleVisibilityDto,
-  EventModulesDto,
-} from "@/lib/api/types";
+import type { LucideIcon } from "lucide-react";
+import { Flame, Gift, Medal, Ruler, ScrollText, Sticker, Trophy, Vote } from "lucide-react";
 
-export type CanhoesMemberModuleKey = AdminModuleKey;
+import type { AdminModuleKey, EventModulesDto } from "@/lib/api/types";
 
-export type CanhoesMemberModuleDefinition = {
-  description: string;
-  group: "community" | "core" | "finale";
-  href: string;
-  key: CanhoesMemberModuleKey;
+export type CanhoesModule = {
+  key: AdminModuleKey;
+  /** Short name, used in the dock, the menu and the admin list. */
   label: string;
-  navLabel?: string;
+  href: string;
+  icon: LucideIcon;
+  /** One line on what members do there, shown in the menu. */
+  description: string;
+  /** When the phase opens it (`resolveMemberModules`), shown in the admin area. */
+  opensIn: string;
 };
 
-// Source of truth for member-facing modules. Admin UI, visibility toggles and
-// shell navigation should read from this registry instead of spreading labels
-// and descriptions across unrelated files.
-const CANHOES_MEMBER_MODULES: readonly CanhoesMemberModuleDefinition[] = [
-  {
-    key: "feed",
-    label: "Feed",
-    navLabel: "Mural",
-    href: "/canhoes/feed",
-    group: "core",
-    description: "Mural social da edição com posts, imagens e sondagens rápidas do grupo.",
-  },
-  {
-    key: "nominees",
-    label: "Nomeações",
-    navLabel: "Nomeações",
-    href: "/canhoes/nomeacoes",
-    group: "community",
-    description: "Área oficial para consultar nomeações aprovadas e o que já entrou no ciclo.",
-  },
-  {
-    key: "categories",
-    label: "Categorias",
-    navLabel: "Categorias",
-    href: "/canhoes/categorias",
-    group: "core",
-    description: "Área oficial com categorias do prémio e propostas abertas nesta fase.",
-  },
-  {
-    key: "secretSanta",
-    label: "Amigos",
-    navLabel: "Amigo",
-    href: "/canhoes/amigo-secreto",
-    group: "community",
-    description: "Acesso ao Amigo Secreto, atribuição individual e ritual desta fase.",
-  },
-  {
-    key: "wishlist",
-    label: "Wishlist",
-    navLabel: "Wishlist",
-    href: "/canhoes/wishlist",
-    group: "community",
-    description: "Pistas, desejos e referências ligadas ao teu Amigo Secreto.",
-  },
+/**
+ * Every member-facing area of an edition, in navigation order: the first two open ones go to
+ * the dock and the rest to the menu, so the area of the current phase (ballot, gala) comes
+ * first. Admin screens, the shell and the module gates all read labels and links from here.
+ */
+export const CANHOES_MODULES: readonly CanhoesModule[] = [
   {
     key: "voting",
     label: "Votação",
-    navLabel: "Boletim",
     href: "/canhoes/votacao",
-    group: "core",
-    description: "Boletim oficial da edição com voto validado e progresso por categoria.",
-  },
-  {
-    key: "stickers",
-    label: "Stickers",
-    navLabel: "Stickers",
-    href: "/canhoes/stickers",
-    group: "community",
-    description: "Submissão e consulta de stickers aprovados nesta edição.",
-  },
-  {
-    key: "measures",
-    label: "Medidas",
-    navLabel: "Medidas",
-    href: "/canhoes/medidas",
-    group: "finale",
-    description: "Regras, medidas aprovadas e ajustes para a reta final.",
+    icon: Flame,
+    description: "Escolhe um vencedor por categoria.",
+    opensIn: "Votação",
   },
   {
     key: "gala",
     label: "Gala",
-    navLabel: "Gala",
     href: "/canhoes/gala",
-    group: "finale",
-    description: "Momento final da edição com resultados e fecho do ritual.",
+    icon: Medal,
+    description: "Os vencedores de cada categoria.",
+    opensIn: "Resultados",
   },
-] as const;
+  {
+    key: "secretSanta",
+    label: "Amigo",
+    href: "/canhoes/amigo-secreto",
+    icon: Gift,
+    description: "A quem dás o presente.",
+    opensIn: "Sorteio em diante",
+  },
+  {
+    key: "wishlist",
+    label: "Wishlist",
+    href: "/canhoes/wishlist",
+    icon: Gift,
+    description: "O que gostavas de receber.",
+    opensIn: "Sempre",
+  },
+  {
+    key: "nominees",
+    label: "Nomeações",
+    href: "/canhoes/nomeacoes",
+    icon: Vote,
+    description: "Nomeia alguém para uma categoria.",
+    opensIn: "Propostas",
+  },
+  {
+    key: "categories",
+    label: "Categorias",
+    href: "/canhoes/categorias",
+    icon: Trophy,
+    description: "Propõe uma categoria nova.",
+    opensIn: "Propostas",
+  },
+  {
+    key: "stickers",
+    label: "Stickers",
+    href: "/canhoes/stickers",
+    icon: Sticker,
+    description: "Envia um sticker para uma categoria.",
+    opensIn: "Propostas",
+  },
+  {
+    key: "measures",
+    label: "Medidas",
+    href: "/canhoes/medidas",
+    icon: Ruler,
+    description: "Propõe uma regra para a gala.",
+    opensIn: "Propostas",
+  },
+  {
+    key: "feed",
+    label: "Mural",
+    href: "/canhoes",
+    icon: ScrollText,
+    description: "Posts, fotos e sondagens do grupo.",
+    opensIn: "Sempre",
+  },
+];
 
-export const CANHOES_MEMBER_NAV_ORDER: readonly CanhoesMemberModuleKey[] = [
-  "feed",
-  "secretSanta",
-  "wishlist",
-  "categories",
-  "voting",
-  "stickers",
-  "nominees",
-  "measures",
-  "gala",
-] as const;
+export const CANHOES_MODULE_BY_KEY = Object.fromEntries(
+  CANHOES_MODULES.map((module) => [module.key, module])
+) as Record<AdminModuleKey, CanhoesModule>;
 
-export const CANHOES_MEMBER_MODULE_MAP = Object.fromEntries(
-  CANHOES_MEMBER_MODULES.map((moduleDefinition) => [
-    moduleDefinition.key,
-    moduleDefinition,
-  ])
-) as Record<CanhoesMemberModuleKey, CanhoesMemberModuleDefinition>;
-
-export function countVisibleModules(
-  visibility: EventAdminModuleVisibilityDto | EventModulesDto | null | undefined
-) {
-  if (!visibility) return 0;
-
-  return CANHOES_MEMBER_MODULES.filter(
-    (moduleDefinition) => visibility[moduleDefinition.key]
-  ).length;
+/** How many member areas are open, for the admin summary. */
+export function countOpenModules(modules: EventModulesDto | null | undefined) {
+  if (!modules) return 0;
+  return CANHOES_MODULES.filter((module) => modules[module.key]).length;
 }

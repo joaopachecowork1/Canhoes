@@ -6,6 +6,7 @@ type CanhoesHeroEmblemProps = {
   compact?: boolean;
 };
 
+/** The large emblem on the login and register pages. */
 export function CanhoesHeroEmblem({
   className,
   compact = false,

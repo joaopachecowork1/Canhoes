@@ -3,7 +3,6 @@ import { Gift, Link as LinkIcon } from "lucide-react";
 import type { EventWishlistItemDto } from "@/lib/api/types";
 import { CanhoesMediaThumb } from "@/components/modules/canhoes/CanhoesModuleParts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { VirtualizedList } from "@/components/ui/virtualized-list";
 
 export function AssignedWishlistPanel({
   assignedWishlistItems,
@@ -26,13 +25,9 @@ export function AssignedWishlistPanel({
             Ainda não há itens na wishlist. Diz ao teu amigo secreto para adicionar.
           </p>
         ) : (
-          <VirtualizedList
-            items={assignedWishlistItems}
-            getKey={(wishlistItem) => wishlistItem.id}
-            estimateSize={() => 92}
-            className="max-h-[50svh]"
-            renderItem={(wishlistItem) => (
-              <div className="canhoes-list-item flex gap-3 p-3">
+          <div className="space-y-2">
+            {assignedWishlistItems.map((wishlistItem) => (
+              <div key={wishlistItem.id} className="canhoes-list-item flex gap-3 p-3">
                 <CanhoesMediaThumb alt={wishlistItem.title} src={wishlistItem.imageUrl} />
                 <div className="min-w-0 flex-1 space-y-1">
                   <p className="truncate font-semibold text-[var(--color-text-primary)]">{wishlistItem.title}</p>
@@ -47,8 +42,8 @@ export function AssignedWishlistPanel({
                   ) : null}
                 </div>
               </div>
-            )}
-          />
+            ))}
+          </div>
         )}
       </CardContent>
     </Card>
