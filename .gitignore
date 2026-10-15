@@ -112,7 +112,8 @@ canhoes-vault/
 .cache/
 .data/
 backups/
-uploads/
+/uploads/
+/public/uploads/
 
 .aider*
 .openclaw/

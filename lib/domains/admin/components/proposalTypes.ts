@@ -1,4 +1,6 @@
-export type ProposalStatus = "pending" | "approved" | "rejected";
+import type { ProposalStatus } from "@/lib/api/types";
+
+export type { ProposalStatus };
 export type ProposalFilter = "all" | ProposalStatus;
 
 export type ProposalCounts = Record<ProposalStatus, number> & { all: number };

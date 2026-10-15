@@ -5,16 +5,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export const MAX_MEDIA_FILES = 4;
 export const MAX_POLL_OPTIONS = 6;
 
-export interface ComposerState {
-  text: string;
-  files: File[];
-  previewUrls: string[];
-  isPollEnabled: boolean;
-  pollQuestion: string;
-  pollOptions: string[];
-  isSubmitting: boolean;
-}
-
 export function useComposer() {
   const [text, setText] = useState("");
   const [files, setFiles] = useState<File[]>([]);

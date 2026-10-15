@@ -21,7 +21,7 @@ export type EventPermissionsDto = {
   canManage: boolean;
 };
 
-export type EventCountsDto = {
+type EventCountsDto = {
   memberCount: number;
   feedPostCount: number;
   categoryCount: number;
@@ -80,7 +80,7 @@ export type EventSecretSantaOverviewDto = {
   myWishlistItemCount: number;
 };
 
-export type EventFeedPollOptionDto = {
+type EventFeedPollOptionDto = {
   id: string;
   text: string;
   voteCount: number;

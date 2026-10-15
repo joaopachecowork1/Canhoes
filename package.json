@@ -11,6 +11,7 @@
     "test": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
     "test:watch": "vitest",
+    "knip": "knip",
     "db:up": "node scripts/db.mjs up",
     "db:down": "node scripts/db.mjs down",
     "db:migrate": "prisma migrate deploy",
@@ -59,6 +60,7 @@
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.3.8",
     "jsdom": "^29.0.1",
+    "knip": "^6.41.0",
     "tailwindcss": "^4.3.3",
     "typescript": "5.9.3",
     "vitest": "^4.1.2"
