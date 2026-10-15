@@ -1,38 +1,19 @@
 "use client";
 
-import { PillTabs, type PillTabItem } from "@/components/ui/pill-tabs";
+import { PillTabs } from "@/components/ui/pill-tabs";
 
-import type { AdminSectionId, AdminSectionItem } from "../adminSections";
-import { getAdminSectionMeta } from "../adminSections";
+import { ADMIN_SECTIONS, type AdminSectionId } from "../adminSections";
 
-type AdminRouteTabItem = Pick<AdminSectionItem, "count" | "icon" | "id" | "label">;
+const ADMIN_TAB_ITEMS = ADMIN_SECTIONS.map((section) => ({
+  ...section,
+  href: `/canhoes/admin/${section.id}`,
+}));
 
-type AdminRouteTabsProps = {
-  activeId: AdminSectionId;
-  items?: ReadonlyArray<AdminRouteTabItem>;
-  onSelect?: (id: AdminSectionId) => void;
-};
-
-export function AdminRouteTabs({
-  activeId,
-  items,
-  onSelect,
-}: Readonly<AdminRouteTabsProps>) {
-  const sections = items ?? getAdminSectionMeta().map((section) => ({ ...section, count: 0 }));
-
-  const pillItems: PillTabItem[] = sections.map((section) => ({
-    badge: section.count > 0 ? section.count : undefined,
-    href: `/canhoes/admin/${section.id}`,
-    icon: section.icon,
-    id: section.id,
-    label: section.label,
-  }));
-
+export function AdminRouteTabs({ activeId }: Readonly<{ activeId: AdminSectionId }>) {
   return (
     <PillTabs
-      items={pillItems}
+      items={ADMIN_TAB_ITEMS}
       activeId={activeId}
-      onSelect={onSelect as ((id: string) => void) | undefined}
       size="sm"
       stretch
       className="canhoes-bits-panel canhoes-bits-panel--admin text-[var(--color-text-primary)]"

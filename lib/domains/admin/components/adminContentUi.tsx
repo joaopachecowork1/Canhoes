@@ -14,20 +14,6 @@ import { cn } from "@/lib/utils";
 export const ADMIN_CONTENT_CARD_CLASS =
   "border border-white/[0.08] bg-white/[0.03] shadow-[0_12px_30px_rgba(0,0,0,0.2)] text-[var(--color-text-primary)] text-[var(--color-text-primary)] border border-[var(--border-paper)] bg-[var(--bg-paper)] shadow-[var(--shadow-paper)]";
 
-const ADMIN_SECTION_PANEL_CLASS =
-  "text-[var(--color-text-primary)] rounded-[var(--radius-lg-token)] border border-[var(--border-paper)] bg-[var(--bg-paper)] px-4 py-4 text-[var(--ink-primary)] shadow-[var(--shadow-paper)] sm:px-5";
-
-/**
- * Standardised section wrapper for admin panels.
- * Replaces the repeated inline className pattern across admin components.
- */
-export function AdminSectionPanel({
-  children,
-  className,
-}: Readonly<{ children: ReactNode; className?: string }>) {
-  return <section className={cn(ADMIN_SECTION_PANEL_CLASS, className)}>{children}</section>;
-}
-
 const ADMIN_CONTENT_DETAIL_PANEL_CLASS =
   "text-[var(--color-text-primary)] rounded-[var(--radius-md-token)] border border-[var(--border-paper)] bg-[var(--bg-paper-soft)] px-4 py-3 shadow-none";
 

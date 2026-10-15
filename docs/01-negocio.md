@@ -45,7 +45,7 @@ Cada área da app é um módulo. O admin pode desligar qualquer um; os que estã
 | `measures` | `/canhoes/medidas` | Medidas da gala e propostas de medidas |
 | `voting` | `/canhoes/votacao` | Boletim de voto |
 | `gala` | `/canhoes/gala` | Resultados oficiais |
-| `admin` | `/canhoes/admin` | Painel do admin: Resumo, Conteúdo (moderação, categorias, resultados), Membros (convites, sorteio) e Evento (evento ativo, fase, propostas e todas as áreas) |
+| `admin` | `/canhoes/admin` | Painel do admin: Conteúdo (moderação, categorias, resultados), Membros (convites, sorteio) e Evento (evento ativo, fase, propostas e todas as áreas) |
 
 ## Glossário
 

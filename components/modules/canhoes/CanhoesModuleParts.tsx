@@ -7,5 +7,4 @@ export { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModul
 export { CanhoesMediaThumb } from "@/lib/domains/event/components/CanhoesMediaThumb";
 export { CanhoesFileTrigger } from "@/lib/domains/event/components/CanhoesFileTrigger";
 export { CanhoesFeatureCard } from "@/lib/domains/event/components/CanhoesFeatureCard";
-export { getNomineeStatusBadgeVariant } from "@/lib/domains/event/components/nomineeUtils";
 export { getPhaseLabel as formatEventPhaseLabel } from "@/lib/canhoesEvent";

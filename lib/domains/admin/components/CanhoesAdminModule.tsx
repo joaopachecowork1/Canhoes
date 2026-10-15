@@ -9,12 +9,11 @@ import { SectionBoundary } from "@/components/ui/section-boundary";
 import { useAdminBootstrap } from "@/hooks/useAdminBootstrap";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { useAdminProposals } from "./hooks/useAdminProposals";
-import { adminCopy } from "@/lib/canhoesCopy";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { ApiError } from "@/lib/api/canhoesClient";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 
-import { getAdminSectionItem, type AdminSectionId } from "./adminSections";
+import { ADMIN_SECTIONS, type AdminSectionId } from "./adminSections";
 import { buildAdminSectionContent } from "./adminSectionContent";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
 import { ADMIN_OUTLINE_BUTTON_CLASS } from "./adminContentUi";
@@ -96,7 +95,6 @@ export default function CanhoesAdminModule({
 
     const dashboardError = getAdminErrorMessage(error);
     const sectionContent = buildAdminSectionContent({
-      activeEventName: activeEvent?.name ?? null,
       categoriesCount: totalCategories,
       categoryProposals,
       events,
@@ -126,7 +124,7 @@ export default function CanhoesAdminModule({
         logFrontendError("Admin.bootstrap", error);
     }, [error]);
 
-    const activeSectionMeta = getAdminSectionItem(section);
+    const activeSectionMeta = ADMIN_SECTIONS.find((item) => item.id === section);
 
     return (
         <div className="space-y-5">
@@ -151,7 +149,7 @@ export default function CanhoesAdminModule({
                             Erro ao carregar o admin
                         </p>
                         <p>{dashboardError}</p>
-                        <p className="text-[var(--ink-muted)]">{adminCopy.shell.backendHint}</p>
+                        <p className="text-[var(--ink-muted)]">Atualiza a edição ou confirma o backend antes de continuar a moderação.</p>
                     </div>
                 </AdminStateMessage>
             ) : null}

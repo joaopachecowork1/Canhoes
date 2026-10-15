@@ -9,15 +9,11 @@ const AdminContentSection = lazy(() =>
 const AdminMembersSection = lazy(() =>
   import("./users/AdminMembersSection").then((module) => ({ default: module.AdminMembersSection }))
 );
-const AdminOverviewSection = lazy(() =>
-  import("./overview/AdminOverviewSection").then((module) => ({ default: module.AdminOverviewSection }))
-);
 const AdminControlCenter = lazy(() =>
   import("./overview/AdminControlCenter").then((module) => ({ default: module.AdminControlCenter }))
 );
 
 type BuildSectionContentArgs = {
-  activeEventName: string | null;
   categoriesCount: number;
   categoryProposals: Parameters<typeof AdminContentSection>[0]["categoryProposals"];
   events: { id: string; name: string }[];
@@ -35,7 +31,6 @@ type BuildSectionContentArgs = {
 
 /** Builds the selected admin area without coupling the shell to section props. */
 export function buildAdminSectionContent({
-  activeEventName,
   categoriesCount,
   categoryProposals,
   events,
@@ -48,17 +43,6 @@ export function buildAdminSectionContent({
   summary,
 }: Readonly<BuildSectionContentArgs>): Record<AdminSectionId, () => ReactNode> {
   return {
-    dashboard: () => (
-      <AdminOverviewSection
-        activeEventName={activeEventName}
-        eventId={eventId}
-        loading={isLoading}
-        pendingCategoryProposalsCount={categoryProposals.length}
-        pendingMeasureProposalsCount={measureProposals.length}
-        pendingNominationCount={pendingNominationCount}
-        state={eventState}
-      />
-    ),
     conteudo: () => (
       <AdminContentSection
         categoryProposals={categoryProposals}

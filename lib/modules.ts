@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Flame, Gift, Medal, Ruler, ScrollText, Sticker, Trophy, Vote } from "lucide-react";
 
-import type { AdminModuleKey, EventModulesDto } from "@/lib/api/types";
+import type { AdminModuleKey } from "@/lib/api/types";
 
 export type CanhoesModule = {
   key: AdminModuleKey;
@@ -98,9 +98,3 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
 export const CANHOES_MODULE_BY_KEY = Object.fromEntries(
   CANHOES_MODULES.map((module) => [module.key, module])
 ) as Record<AdminModuleKey, CanhoesModule>;
-
-/** How many member areas are open, for the admin summary. */
-export function countOpenModules(modules: EventModulesDto | null | undefined) {
-  if (!modules) return 0;
-  return CANHOES_MODULES.filter((module) => modules[module.key]).length;
-}
