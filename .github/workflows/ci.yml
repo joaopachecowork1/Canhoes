@@ -78,6 +78,8 @@ jobs:
         engine: [docker, podman]
     env:
       CONTAINER_ENGINE: ${{ matrix.engine }}
+      # Ignored by Docker; without it `podman compose` picks the runner's docker-compose plugin.
+      PODMAN_COMPOSE_PROVIDER: podman-compose
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

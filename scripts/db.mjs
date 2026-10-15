@@ -26,6 +26,12 @@ const dbUser = process.env.POSTGRES_USER || "canhoes";
 const dbName = process.env.POSTGRES_DB || "canhoes";
 const engine = process.env.CONTAINER_ENGINE || (isCommandAvailable("docker") ? "docker" : "podman");
 
+// `podman compose` prefers the docker-compose plugin when both are installed, and that one needs the
+// Podman socket service; podman-compose talks to podman directly.
+if (engine === "podman" && !process.env.PODMAN_COMPOSE_PROVIDER && isCommandAvailable("podman-compose")) {
+  process.env.PODMAN_COMPOSE_PROVIDER = "podman-compose";
+}
+
 function isCommandAvailable(command) {
   return spawnSync(command, ["--version"], { stdio: "ignore" }).status === 0;
 }

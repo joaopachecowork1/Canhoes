@@ -27,7 +27,7 @@ npm run db:seed                          # admins + dados de demonstração
 npm run dev                              # http://localhost:3000/canhoes
 ```
 
-Os scripts usam o `docker` se existir e senão o `podman`; `CONTAINER_ENGINE=podman npm run db:up` força o Podman. A CI corre exatamente estes passos com Docker e com Podman (job "Local setup").
+Os scripts usam o `docker` se existir e senão o `podman`; `CONTAINER_ENGINE=podman npm run db:up` força o Podman. Se o `podman compose` disser que não consegue ligar ao "Docker daemon", está a usar o plugin do docker-compose: `export PODMAN_COMPOSE_PROVIDER=podman-compose` (os scripts `db:*` já o fazem). A CI corre exatamente estes passos com Docker e com Podman (job "Local setup").
 
 Com `DEV_AUTH_BYPASS_ENABLED=true` (o valor do `.env.example`), a app entra sozinha como o admin definido em `DEV_AUTH_EMAIL`/`DEV_AUTH_NAME`. Este modo nunca funciona com `NODE_ENV=production`.
 
