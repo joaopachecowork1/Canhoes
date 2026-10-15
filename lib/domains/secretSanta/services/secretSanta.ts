@@ -21,9 +21,7 @@ export async function getOverview(
       eventId,
       hasDraw: false,
       hasAssignment: false,
-      drawEventCode: null,
       assignedUser: null,
-      assignedWishlistItemCount: 0,
       myWishlistItemCount: await countMyWishlistItems(eventId, userId),
     };
   }
@@ -33,7 +31,6 @@ export async function getOverview(
   });
 
   let assignedUser: EventUserDto | null = null;
-  let assignedWishlistItemCount = 0;
 
   if (assignment) {
     const targetUser = await prisma.user.findUnique({
@@ -48,19 +45,13 @@ export async function getOverview(
         role: "user",
       };
     }
-
-    assignedWishlistItemCount = await prisma.wishlistItem.count({
-      where: { eventId, userId: assignment.receiverUserId },
-    });
   }
 
   return {
     eventId,
     hasDraw: true,
     hasAssignment: !!assignment,
-    drawEventCode: latestDraw.eventCode,
     assignedUser,
-    assignedWishlistItemCount,
     myWishlistItemCount: await countMyWishlistItems(eventId, userId),
   };
 }

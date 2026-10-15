@@ -123,7 +123,6 @@ export async function getVotingBoard(
 
   return {
     eventId,
-    phaseId: votingPhase?.id ?? null,
     canVote,
     categories: categoriesDto,
   };
@@ -224,6 +223,5 @@ export async function createProposal(
     name: proposal.name,
     description: proposal.description,
     status: proposal.status,
-    createdAt: proposal.createdAtUtc.toISOString(),
   };
 }

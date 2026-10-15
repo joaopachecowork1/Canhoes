@@ -40,7 +40,6 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   return {
     eventId,
     activePhase: activePhase ? toPhaseDto(activePhase) : null,
-    phases: phases.map(toPhaseDto),
     nominationsVisible: state?.nominationsVisible ?? true,
     resultsVisible: state?.resultsVisible ?? false,
     moduleVisibility,

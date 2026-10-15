@@ -37,7 +37,6 @@ export async function getAdminSecretSantaState(eventId: string): Promise<EventAd
     eventId,
     eventCode,
     hasDraw: !!latestDraw,
-    drawId: latestDraw?.id ?? null,
     createdAtUtc: latestDraw?.createdAtUtc.toISOString() ?? null,
     isLocked: latestDraw?.isLocked ?? false,
     memberCount,

@@ -56,18 +56,14 @@ export async function getEventOverview(
 
   const permissions: EventPermissionsDto = {
     isAdmin,
-    isMember,
-    canPost: isAdmin || isMember,
     canSubmitProposal: isAdmin || (isMember && canSubmitProposals(rules)),
     canVote: isAdmin || (isMember && rules.activePhaseType === "VOTING"),
-    canManage: isAdmin,
   };
 
   return {
     event: toEventSummary(event),
     activePhase: activePhase ? toPhaseDto(activePhase) : null,
     permissions,
-    hasSecretSantaDraw: rules.hasSecretSantaDraw,
     modules: resolveMemberModules(rules),
   };
 }
