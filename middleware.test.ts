@@ -1,33 +1,25 @@
 import { describe, expect, it } from "vitest";
 
-import { isPublicPath, shouldRedirectUnauthenticated } from "./middleware";
+import { shouldRedirectUnauthenticated } from "./middleware";
 
 describe("shouldRedirectUnauthenticated", () => {
   it("requires a token for protected routes", () => {
-    expect(shouldRedirectUnauthenticated(null, false)).toBe(true);
-    expect(shouldRedirectUnauthenticated(undefined, false)).toBe(true);
+    expect(shouldRedirectUnauthenticated("/canhoes", null)).toBe(true);
+    expect(shouldRedirectUnauthenticated("/canhoes/votacao", undefined)).toBe(true);
   });
 
   it("allows any authenticated token without forcing admin from middleware", () => {
-    expect(shouldRedirectUnauthenticated({ sub: "user-1" }, false)).toBe(false);
-    expect(shouldRedirectUnauthenticated({ sub: "user-2", isAdmin: false }, false)).toBe(false);
+    expect(shouldRedirectUnauthenticated("/canhoes", { sub: "user-1" })).toBe(false);
+    expect(shouldRedirectUnauthenticated("/canhoes/admin", { sub: "user-2", isAdmin: false })).toBe(false);
   });
 
-  it("allows the app shell to create the local session in development", () => {
-    expect(shouldRedirectUnauthenticated(null, true)).toBe(false);
-  });
-});
-
-describe("isPublicPath", () => {
-  it("lets the login and invitation pages through without a session", () => {
-    expect(isPublicPath("/canhoes/login")).toBe(true);
-    expect(isPublicPath("/canhoes/register")).toBe(true);
+  it("lets anonymous visitors reach the login and invite registration pages", () => {
+    expect(shouldRedirectUnauthenticated("/canhoes/login", null)).toBe(false);
+    expect(shouldRedirectUnauthenticated("/canhoes/register", null)).toBe(false);
   });
 
-  it("protects everything else, including look-alike paths", () => {
-    expect(isPublicPath("/canhoes")).toBe(false);
-    expect(isPublicPath("/canhoes/admin")).toBe(false);
-    expect(isPublicPath("/canhoes/register/../admin")).toBe(false);
-    expect(isPublicPath("/canhoes/registerx")).toBe(false);
+  it("protects look-alike paths", () => {
+    expect(shouldRedirectUnauthenticated("/canhoes/registerx", null)).toBe(true);
+    expect(shouldRedirectUnauthenticated("/canhoes/register/../admin", null)).toBe(true);
   });
 });

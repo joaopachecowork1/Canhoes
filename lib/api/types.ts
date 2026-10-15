@@ -265,25 +265,6 @@ export type EventVotingBoardDto = {
   categories: EventVotingCategoryDto[];
 };
 
-export type OfficialVotingCategoryDto = {
-  id: string;
-  eventId: string;
-  title: string;
-  kind: number;
-  description: string | null;
-  voteQuestion: string | null;
-  nominees: Array<{ id: string; categoryId: string; label: string; voteCount?: number }>;
-  myNomineeId: string | null;
-  totalVotes?: number;
-};
-
-export type OfficialVotingBoardDto = {
-  eventId: string;
-  phaseId: string | null;
-  canVote: boolean;
-  categories: OfficialVotingCategoryDto[];
-};
-
 export type PublicCategoryResultDto = {
   categoryId: string;
   categoryName: string;

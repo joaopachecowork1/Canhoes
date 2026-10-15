@@ -6,15 +6,13 @@ import { resolveAdminStatus } from "@/lib/domains/auth/services/adminStatus";
 /**
  * Unified admin status hook.
  *
- * The authenticated profile returned by `/api/me` is the only source of truth.
+ * The session is the only source of truth: the NextAuth `jwt` callback re-reads `isAdmin` from the database.
  */
 export function useAdminStatus() {
-  const { isLogged, loading, profileError, profileLoading, user } = useAuth();
+  const { isLogged, loading, user } = useAuth();
   return resolveAdminStatus({
     authLoading: loading,
     isLogged,
-    profileError,
-    profileLoading,
     userIsAdmin: Boolean(user?.isAdmin),
   });
 }

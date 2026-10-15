@@ -1,18 +1,11 @@
 import { withAuth } from "next-auth/middleware";
-import { isDevelopmentAuthEnabled } from "@/lib/domains/auth/services/developmentAuth";
 
-/** Pages anyone can open without a session: sign-in and accepting an invitation. */
+// The register page is reached through an invite link, before the account exists.
 const PUBLIC_PATHS = new Set(["/canhoes/login", "/canhoes/register"]);
 
-export function isPublicPath(pathname: string) {
-  return PUBLIC_PATHS.has(pathname);
-}
-
-export function shouldRedirectUnauthenticated(
-  token: unknown,
-  developmentAuthEnabled = isDevelopmentAuthEnabled()
-) {
-  return !token && !developmentAuthEnabled;
+/** In development, the login page signs in automatically and returns to `callbackUrl`. */
+export function shouldRedirectUnauthenticated(pathname: string, token: unknown) {
+  return !token && !PUBLIC_PATHS.has(pathname);
 }
 
 export default withAuth(
@@ -20,10 +13,7 @@ export default withAuth(
   {
     pages: { signIn: "/canhoes/login" },
     callbacks: {
-      authorized: ({ req, token }) => {
-        if (isPublicPath(req.nextUrl.pathname)) return true;
-        return !shouldRedirectUnauthenticated(token);
-      },
+      authorized: ({ req, token }) => !shouldRedirectUnauthenticated(req.nextUrl.pathname, token),
     },
   }
 );

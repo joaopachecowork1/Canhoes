@@ -26,8 +26,8 @@ function AdminStateCard({ action, description, title }: Readonly<{ action?: Reac
 }
 
 export function AdminGate({ children }: Readonly<{ children: ReactNode }>) {
-  const { loading, profileError, isLogged, refreshProfile, user, loginGoogle, logout } = useAuth();
-  const { error: adminError, isAdmin, isLoading: adminLoading } = useAdminStatus();
+  const { loading, isLogged, user, loginGoogle } = useAuth();
+  const { isAdmin, isLoading: adminLoading } = useAdminStatus();
   const router = useRouter();
 
   if (loading || (isLogged && !user) || adminLoading) {
@@ -37,32 +37,6 @@ export function AdminGate({ children }: Readonly<{ children: ReactNode }>) {
         description="A verificar a sessao e as permissoes administrativas deste evento."
         action={
           <div className="mx-auto h-9 w-9 rounded-full border-4 border-[var(--color-moss)] border-t-transparent animate-spin" />
-        }
-      />
-    );
-  }
-
-  if (isLogged && (profileError || adminError) && !isAdmin) {
-    return (
-      <AdminStateCard
-        title="Perfil nao validado"
-        description={`A sessao autenticou, mas o backend nao conseguiu validar o teu perfil agora: ${(profileError ?? adminError)?.message}`}
-        action={
-          <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Button
-              className="w-full sm:w-auto"
-              onClick={() => void refreshProfile()}
-            >
-              Tentar novamente
-            </Button>
-            <Button
-              variant="outline"
-              className={`${ADMIN_OUTLINE_BUTTON_CLASS} w-full sm:w-auto`}
-              onClick={() => logout()}
-            >
-              Terminar sessao
-            </Button>
-          </div>
         }
       />
     );

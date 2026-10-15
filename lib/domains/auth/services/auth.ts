@@ -129,7 +129,11 @@ export const authOptions: NextAuthOptions = {
       }
 
       token.isAdmin = Boolean(dbUser?.isAdmin);
-      if (dbUser) token.sub = dbUser.id;
+      if (dbUser) {
+        token.sub = dbUser.id;
+        token.email = dbUser.email;
+        token.name = dbUser.displayName ?? token.name;
+      }
 
       return token;
     },

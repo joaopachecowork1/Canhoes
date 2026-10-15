@@ -120,9 +120,8 @@
   }
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   * { border-color: var(--border-subtle); }

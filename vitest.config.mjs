@@ -1,5 +1,5 @@
 import path from "path";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 // Integration tests run against a real PostgreSQL database whose name must end in "_test"
 // (checked in tests/integration/setup/globalSetup.ts, because every test file truncates it).
@@ -20,7 +20,7 @@ export default defineConfig({
         test: {
           name: "unit",
           include: ["**/*.test.ts"],
-          exclude: ["**/node_modules/**", ".next/**", "**/*.int.test.ts"],
+          exclude: [...configDefaults.exclude, ".next/**", "**/*.int.test.ts"],
         },
       },
       {

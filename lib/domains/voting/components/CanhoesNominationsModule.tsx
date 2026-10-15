@@ -65,7 +65,7 @@ export function CanhoesNominationsModule({ initialCategories, initialContext }: 
     refetchOnWindowFocus: false,
   });
 
-  const myStatusQuery = useQuery({
+  const myStatusQuery = useQuery<MyNominationStatusDto>({
     queryKey: ["nominations", queryEventId, "my-status"],
     enabled: Boolean(eventId),
     queryFn: () => awardsRepo.getMyNominationStatus(queryEventId),
@@ -239,13 +239,22 @@ function CategoryNominationCard({
     onMutate: async () => {
       const previousMyStatus = queryClient.getQueryData<MyNominationStatusDto | null>(["nominations", eventId, "my-status"]);
       const previousApproved = queryClient.getQueryData<NomineeDto[]>(["nominations", eventId, "approved"]);
-      queryClient.setQueryData<MyNominationStatusDto | null>(["nominations", eventId, "my-status"], {
-        hasNomination: true,
-        nomineeId: category.id,
-        nomineeTitle: category.name,
-        categoryId: category.id,
-        status: "pending",
-      });
+      queryClient.setQueryData<MyNominationStatusDto | null>(
+        ["nominations", eventId, "my-status"],
+        (current): MyNominationStatusDto => ({
+          ...(current ?? {
+            categoryId: null,
+            nomineeId: null,
+            nomineeTitle: null,
+            status: null,
+          }),
+          hasNomination: true,
+          nomineeId: category.id,
+          nomineeTitle: titleTrimmed,
+          categoryId: category.id,
+          status: "pending",
+        }),
+      );
       setPendingLabel(titleTrimmed);
       setTitle("");
       setFile(null);
@@ -266,7 +275,7 @@ function CategoryNominationCard({
       if (file) {
         try {
           await awardsRepo.uploadNomineeImage(eventId, createdNominee.id, file);
-        } catch (_uploadError) {
+        } catch {
           toast.error("Nomeação criada, mas falhou o upload da imagem.");
         }
       }

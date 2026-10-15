@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { type InfiniteData, type QueryClient, useMutation } from "@tanstack/react-query";
+import { type QueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import type { EventFeedPostFullDto } from "@/lib/api/types";
@@ -7,18 +7,13 @@ import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { feedRepo } from "@/lib/repositories/feedRepo";
 import { HEART_REACTION } from "@/lib/reactions";
 
+import { removePostFromFeed, type FeedInfiniteData } from "./feedInfiniteData";
+
 export type HubFeedParticlesState = {
   postId: string;
   x: number;
   y: number;
 } | null;
-
-type FeedPageData = {
-  posts: EventFeedPostFullDto[];
-  nextCursor: number | null;
-};
-
-type FeedInfiniteData = InfiniteData<FeedPageData>;
 
 type UseHubFeedPostActionsArgs = {
   eventId: string | null;
@@ -351,21 +346,15 @@ export function useHubFeedPostActions({
   const adminDelete = useCallback(async (postId: string) => {
     if (!eventId) return;
 
+    await queryClient.cancelQueries({ queryKey: ["hub-posts", eventId] });
+    const previousFeed = queryClient.getQueryData<FeedInfiniteData>(["hub-posts", eventId]);
+    queryClient.setQueryData<FeedInfiniteData>(["hub-posts", eventId], (old) => removePostFromFeed(old, postId));
+
     try {
       await feedRepo.adminDeletePost(eventId, postId);
-      queryClient.setQueryData<FeedInfiniteData>(["hub-posts", eventId], (old) => {
-        if (!old) return old;
-
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            posts: page.posts.filter((post) => post.id !== postId),
-          })),
-        };
-      });
       toast.success("Post removido");
     } catch (error) {
+      queryClient.setQueryData(["hub-posts", eventId], previousFeed);
       const message = getErrorMessage(error, "Não foi possível remover o post.");
       logFrontendError("HubFeed.adminDelete", error, { postId });
       toast.error(message);

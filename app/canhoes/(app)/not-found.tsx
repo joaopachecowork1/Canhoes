@@ -1,10 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 
 export default function CanhoesNotFound() {
+  const router = useRouter();
+
   return (
     <Card className="rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.14)] bg-[linear-gradient(180deg,rgba(18,24,11,0.92),rgba(11,14,8,0.94))] text-[var(--bg-paper)] shadow-[var(--shadow-panel)]">
       <CardContent className="space-y-4 p-5 sm:p-6">
@@ -21,7 +25,7 @@ export default function CanhoesNotFound() {
         />
 
         <div className="flex flex-wrap gap-2">
-          <Button type="button" onClick={() => globalThis.location.assign("/canhoes")}>
+          <Button type="button" onClick={() => router.push("/canhoes")}>
             Voltar ao evento
           </Button>
           <Button

@@ -50,6 +50,8 @@ export default function GlobalError({
             </Button>
             <Button
               variant="ghost"
+              // The root layout crashed, so the router cannot be trusted: do a full reload.
+              // eslint-disable-next-line @next/next/no-location-assign-relative-destination
               onClick={() => globalThis.location.assign("/canhoes")}
             >
               Ir para o evento

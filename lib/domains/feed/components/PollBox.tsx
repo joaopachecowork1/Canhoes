@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 import { CheckCircle2 } from "lucide-react";
 
 import type { EventFeedPollDto } from "@/lib/api/types";
