@@ -21,14 +21,6 @@ export type EventPermissionsDto = {
   canManage: boolean;
 };
 
-type EventCountsDto = {
-  memberCount: number;
-  feedPostCount: number;
-  categoryCount: number;
-  pendingProposalCount: number;
-  wishlistItemCount: number;
-};
-
 export type EventModulesDto = Record<string, boolean>;
 
 /** The active event as the shell sees it: phase, what the user may do and which areas are open. */
@@ -202,14 +194,8 @@ export type AdminMemberDto = {
 };
 
 export type AdminListCountsDto = {
-  nomineesTotal: number;
-  adminNomineesTotal: number;
-  votesTotal: number;
-  categoryProposalsTotal: number;
-  categoryProposalsPendingTotal: number;
-  measureProposalsTotal: number;
-  measureProposalsPendingTotal: number;
   membersTotal: number;
+  categoriesTotal: number;
   officialResultsCategoriesCount: number;
 };
 
@@ -223,7 +209,6 @@ export type EventAdminStateDto = {
   resultsVisible: boolean;
   moduleVisibility: EventAdminModuleVisibilityDto;
   effectiveModules: EventModulesDto;
-  counts: EventCountsDto;
 };
 
 export type EventAdminSecretSantaStateDto = {

@@ -58,7 +58,7 @@ export default function CanhoesAdminModule({
         });
 
     const loading = bootstrapLoading || proposalsLoading || pendingNominationCountLoading;
-    const totalCategories = eventState?.counts.categoryCount ?? summary?.officialResultsCategoriesCount ?? 0;
+    const totalCategories = summary?.categoriesTotal ?? 0;
 
     const handleRefresh = useCallback(async () => {
         await Promise.all([
