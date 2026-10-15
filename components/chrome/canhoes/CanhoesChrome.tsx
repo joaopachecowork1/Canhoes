@@ -9,7 +9,6 @@ import { OPEN_COMPOSE_SHEET_EVENT } from "@/lib/canhoesEvent";
 import { useAuth } from "@/components/providers/AuthContext";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
-import { useAdminNavigation } from "@/hooks/useAdminNavigation";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import { PageShell } from "@/components/ui/page-shell";
 
 import { CanhoesBottomTabs } from "./CanhoesBottomTabs";
 import { CanhoesBrandMark } from "./CanhoesBrandMark";
+import { CanhoesMenuSheet } from "./CanhoesMenuSheet";
 import { CanhoesPhaseHud } from "./CanhoesPhaseHud";
 import { useCanhoesShellNavigation } from "./useCanhoesShellNavigation";
 
@@ -25,17 +25,7 @@ const loadCanhoesComposeSheet = () =>
     default: module.CanhoesComposeSheet,
   }));
 
-const loadCanhoesFloatingActionMenu = () =>
-  import("./CanhoesFloatingActionMenu").then((module) => ({
-    default: module.CanhoesFloatingActionMenu,
-  }));
-
 const LazyCanhoesComposeSheet = dynamic(loadCanhoesComposeSheet, {
-  loading: () => null,
-  ssr: false,
-});
-
-const LazyCanhoesFloatingActionMenu = dynamic(loadCanhoesFloatingActionMenu, {
   loading: () => null,
   ssr: false,
 });
@@ -45,32 +35,17 @@ export function CanhoesChrome({
 }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isLogged, isDevAuthBypass, logout, user } = useAuth();
-  
+  const { isLogged, logout, user } = useAuth();
+
   const eventOverview = useEventOverview();
-  const { isAdmin, isLoading: adminLoading } = useAdminStatus();
+  const { isAdmin } = useAdminStatus();
   const canCompose = !!eventOverview.overview?.modules.feed;
-  const { navigateToAdmin: handleNavigateAdmin } = useAdminNavigation({
-    canAccessAdmin: isAdmin,
-    adminLoading,
-    router,
-  });
-  
 
   const [isComposeSheetOpen, setIsComposeSheetOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
 
   const handleComposeSheetChange = useCallback((open: boolean) => {
     setIsComposeSheetOpen(open);
-  }, []);
-
-  const handleMenuOpenChange = useCallback((open: boolean) => {
-    if (open) {
-      setHasOpenedMenu(true);
-    }
-
-    setIsMenuOpen(open);
   }, []);
 
   useEffect(() => {
@@ -94,15 +69,10 @@ export function CanhoesChrome({
     return () => globalThis.removeEventListener(OPEN_COMPOSE_SHEET_EVENT, handleOpenCompose);
   }, [canCompose]);
 
+  // Preload the compose sheet shortly after the page settles, so the first tap on Post is instant.
   useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void loadCanhoesFloatingActionMenu();
-
-      if (canCompose) {
-        void loadCanhoesComposeSheet();
-      }
-    }, 1200);
-
+    if (!canCompose) return;
+    const timeoutId = window.setTimeout(() => void loadCanhoesComposeSheet(), 1200);
     return () => window.clearTimeout(timeoutId);
   }, [canCompose]);
 
@@ -110,18 +80,16 @@ export function CanhoesChrome({
     bottomLeftEntries,
     bottomRightEntries,
     isEventHomePath,
-    menuPrimaryIds,
+    menuItems,
     pageContext,
     userLabel,
   } = useCanhoesShellNavigation({
     isAdmin,
-    isLocalMode: isDevAuthBypass,
     isMenuOpen,
-    onNavigateAdmin: handleNavigateAdmin,
-    onOpenMenu: () => handleMenuOpenChange(true),
+    onNavigate: (href) => router.push(href),
+    onOpenMenu: () => setIsMenuOpen(true),
     overview: eventOverview.overview,
     pathname,
-    router,
     user,
   });
 
@@ -201,7 +169,7 @@ export function CanhoesChrome({
                   variant="ghost"
                   size="icon"
                   className="min-h-10 h-10 w-10 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-canhoes-gold hover:bg-[rgba(255,255,255,0.1)]"
-                  onClick={() => handleMenuOpenChange(!isMenuOpen)}
+                  onClick={() => setIsMenuOpen(true)}
                   aria-expanded={isMenuOpen}
                   aria-label="Abrir menu"
                 >
@@ -255,20 +223,13 @@ export function CanhoesChrome({
         showCompose={canCompose}
       />
 
-      {isMenuOpen || hasOpenedMenu ? (
-        <LazyCanhoesFloatingActionMenu
-          isOpen={isMenuOpen}
-          onOpenChange={handleMenuOpenChange}
-          isAdmin={isAdmin}
-          isLocalMode={isDevAuthBypass}
-          overview={eventOverview.overview}
-          primaryIds={menuPrimaryIds}
-          onNavigate={(href) => {
-            handleMenuOpenChange(false);
-            router.push(href);
-          }}
-        />
-      ) : null}
+      <CanhoesMenuSheet
+        isAdmin={isAdmin}
+        items={menuItems}
+        onOpenChange={setIsMenuOpen}
+        open={isMenuOpen}
+        pathname={pathname}
+      />
 
       {isComposeSheetOpen ? (
         <LazyCanhoesComposeSheet

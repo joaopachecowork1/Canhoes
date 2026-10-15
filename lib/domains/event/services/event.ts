@@ -6,7 +6,6 @@ import type {
 } from "@/lib/api/types";
 import { toEventSummary, toPhaseDto } from "@/lib/domains/admin/services/constants";
 import {
-  ALL_MODULES,
   canSubmitProposals,
   resolveMemberModules,
   type EventRulesState,
@@ -37,7 +36,9 @@ export async function isEventMember(eventId: string, userId: string) {
 
 /**
  * The event as one user sees it: active and next phase, what they may do, counters, and which
- * modules are open to them. Admins get every module; members get `resolveMemberModules`.
+ * modules are open in this phase. `modules` is the same for admins and members, so an admin's
+ * navigation matches the group's; admins still open any module (the gates let them through)
+ * and reach the closed ones from the admin area.
  */
 export async function getEventOverview(
   eventId: string,
@@ -83,7 +84,7 @@ export async function getEventOverview(
     myProposalCount: 0,
     myVoteCount: 0,
     votingCategoryCount: 0,
-    modules: isAdmin ? ALL_MODULES : resolveMemberModules(rules),
+    modules: resolveMemberModules(rules),
   };
 }
 

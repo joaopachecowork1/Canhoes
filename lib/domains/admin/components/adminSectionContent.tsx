@@ -81,7 +81,6 @@ export function buildAdminSectionContent({
     ),
     configuracoes: () => (
       <AdminControlCenter
-        activeEventName={activeEventName}
         eventId={eventId}
         events={events}
         loading={isLoading}

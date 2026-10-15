@@ -2,10 +2,8 @@
 
 import type { ReactNode } from "react";
 
-import {
-  useEventModuleAccess,
-  type EventRouteModuleKey,
-} from "@/hooks/useEventModuleAccess";
+import type { AdminModuleKey } from "@/lib/api/types";
+import { useEventModuleAccess } from "@/hooks/useEventModuleAccess";
 import { AsyncStatusCard } from "@/components/ui/async-status-card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { SectionBoundary } from "@/components/ui/section-boundary";
@@ -13,17 +11,17 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { EventModuleUnavailableState } from "./EventModuleUnavailableState";
 
+/** Shows a module page only when the user may open it, with loading, error and "closed" states. */
 export function EventModuleGate({
   children,
   moduleKey,
 }: Readonly<{
   children: ReactNode;
-  moduleKey: EventRouteModuleKey;
+  moduleKey: AdminModuleKey;
 }>) {
   const access = useEventModuleAccess(moduleKey);
 
-  // OPTIMIZATION: Only show loading on initial fetch when no cached data exists
-  // When data is cached (isFetching but not isLoading), render children immediately
+  // Only the first fetch shows a loader; a background refetch keeps the page on screen.
   if (access.isLoading) {
     return (
       <AsyncStatusCard

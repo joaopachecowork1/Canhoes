@@ -7,7 +7,7 @@ import { CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleP
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { useSecretSanta } from "@/hooks/useSecretSanta";
 import { getErrorMessage } from "@/lib/errors";
-import { CANHOES_MEMBER_MODULE_MAP } from "@/lib/modules";
+import { CANHOES_MODULE_BY_KEY } from "@/lib/modules";
 
 import { AssignedWishlistPanel } from "@/lib/domains/secretSanta/components/AssignedWishlistPanel";
 import { SecretSantaContent } from "@/lib/domains/secretSanta/components/SecretSantaContent";
@@ -27,7 +27,7 @@ export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOve
     ? data.wishlistItems.filter((item) => item.userId === data.overview.assignedUser?.id)
     : [];
 
-  const wishlistHref = overview?.modules.wishlist ? CANHOES_MEMBER_MODULE_MAP.wishlist.href : "/canhoes";
+  const wishlistHref = overview?.modules.wishlist ? CANHOES_MODULE_BY_KEY.wishlist.href : "/canhoes";
   const wishlistLabel = overview?.modules.wishlist ? "Abrir wishlist" : "Voltar ao evento";
 
   const isBusy = isOverviewLoading || isLoading;

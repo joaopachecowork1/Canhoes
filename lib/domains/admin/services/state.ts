@@ -7,7 +7,7 @@ import type {
   AdminListCountsDto,
   EventAdminBootstrapDto,
 } from "@/lib/api/types";
-import type { PhaseType } from "@/lib/domains/event/services/eventRules";
+import { resolveMemberModules, type PhaseType } from "@/lib/domains/event/services/eventRules";
 import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
 
 /*
@@ -15,7 +15,7 @@ import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
  * the dashboard shows. What members may do with these settings is decided in `eventRules.ts`.
  */
 
-/** Phases, switches and counters of one event, as the admin dashboard shows them. Admins see every module. */
+/** Phases, switches and counters of one event, plus which modules the members see right now. */
 async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   const [phases, state] = await Promise.all([
     prisma.eventPhase.findMany({ where: { eventId }, orderBy: { startDateUtc: "asc" } }),
@@ -52,11 +52,12 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
     nominationsVisible: state?.nominationsVisible ?? true,
     resultsVisible: state?.resultsVisible ?? false,
     moduleVisibility,
-    effectiveModules: {
-      feed: true, secretSanta: true, wishlist: true, categories: true,
-      voting: true, gala: true, stickers: true, measures: true,
-      nominees: true, admin: true,
-    },
+    effectiveModules: resolveMemberModules({
+      activePhaseType: activePhase?.type ?? null,
+      moduleVisibility,
+      nominationsVisible: state?.nominationsVisible ?? true,
+      hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
+    }),
     counts: {
       memberCount,
       feedPostCount: hubPostCount,

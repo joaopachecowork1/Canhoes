@@ -1,55 +1,28 @@
-import { notFound, redirect } from "next/navigation";
-import dynamic from "next/dynamic";
+import { notFound } from "next/navigation";
 
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto } from "@/lib/api/types";
 import CanhoesAdminModule from "@/lib/domains/admin/components/CanhoesAdminModule";
 import { isAdminSectionId } from "@/lib/domains/admin/components/adminSections";
 import { AdminRouteTabs } from "@/lib/domains/admin/components/layout/AdminRouteTabs";
-import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
 
-const AdminGate = dynamic(
-  () => import("@/lib/domains/admin/components/AdminGate").then((m) => ({ default: m.AdminGate })),
-  { loading: () => <FeedSkeleton /> }
-);
-
-const LEGACY_SECTION_REDIRECTS: Record<string, string> = {
-  overview: "/canhoes/admin/dashboard",
-  categories: "/canhoes/admin/conteudo?view=categorias",
-  nominations: "/canhoes/admin/conteudo",
-  results: "/canhoes/admin/conteudo?view=resultados",
-  members: "/canhoes/admin/membros",
-  modules: "/canhoes/admin/configuracoes",
-  phase: "/canhoes/admin/configuracoes",
-};
-
-type AdminSectionPageProps = {
-  params: Promise<{ section: string }>;
-};
-
+/** One tab of the admin area. Only admins get here: `admin/layout.tsx` redirects everyone else. */
 export default async function AdminSectionPage({
   params,
-}: Readonly<AdminSectionPageProps>) {
+}: Readonly<{ params: Promise<{ section: string }> }>) {
   const { section } = await params;
-
-  const legacyRedirectTarget = LEGACY_SECTION_REDIRECTS[section];
-  if (legacyRedirectTarget) {
-    redirect(legacyRedirectTarget);
-  }
-
-  if (!isAdminSectionId(section)) {
-    notFound();
-  }
+  if (!isAdminSectionId(section)) notFound();
 
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
-  const initialEventId = activeContext?.event?.id ?? null;
 
   return (
-    <AdminGate>
-      <div className="zone-admin space-y-2">
-        <AdminRouteTabs activeId={section} />
-        <CanhoesAdminModule section={section} initialEventId={initialEventId} initialContext={activeContext ?? undefined} />
-      </div>
-    </AdminGate>
+    <div className="zone-admin space-y-2">
+      <AdminRouteTabs activeId={section} />
+      <CanhoesAdminModule
+        section={section}
+        initialEventId={activeContext?.event?.id ?? null}
+        initialContext={activeContext ?? undefined}
+      />
+    </div>
   );
 }
