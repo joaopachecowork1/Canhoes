@@ -51,11 +51,7 @@ export function useAdminNominations(eventId: string | null) {
     enabled: Boolean(eventId),
     queryFn: () => adminRepo.getNominationsPaged(queryEventId, NOMINATIONS_PAGE, NOMINATIONS_PAGE_SIZE, "pending"),
     queryKey: nominationsQueryKey,
-    refetchInterval: (query) => {
-      const nominations = query.state.data?.nominations;
-      if (!nominations?.length) return false;
-      return nominations.some((nomination) => nomination.status === "pending") ? 30_000 : false;
-    },
+    refetchInterval: (query) => (query.state.data?.nominations.length ? 30_000 : false),
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 2,
   });
@@ -97,7 +93,7 @@ export function useAdminNominations(eventId: string | null) {
   const approveNomination = useMutation({
     mutationFn: (nomineeId: string) => adminRepo.approveNomination(queryEventId, nomineeId),
     onSuccess: async (_data, nomineeId) => {
-      updateCachedNomination(nomineeId, (nomination) => ({ ...nomination, status: "approved" }));
+      removeNominationFromCache(nomineeId);
       toast.success("Nomeação aprovada.");
       await invalidateRelatedQueries();
     },
