@@ -1,15 +1,30 @@
+import crypto from "node:crypto";
+
 import { prisma } from "@/lib/prisma";
 import type { EventAdminSecretSantaStateDto } from "@/lib/api/types";
 import { HttpError } from "@/lib/api/httpError";
+import { drawSecretSanta } from "@/lib/domains/secretSanta/services/draw";
+
+/*
+ * A draw starts hidden: the admin can repeat it as often as needed. Revealing it locks it
+ * (`isLocked`) and only then do members see who they give a present to.
+ */
+
+async function getEventCode(eventId: string) {
+  const state = await prisma.canhoesEventState.findUnique({
+    where: { eventId },
+    select: { secretSantaEventCode: true },
+  });
+  return state?.secretSantaEventCode ?? eventId;
+}
+
+function findLatestDraw(eventCode: string) {
+  return prisma.secretSantaDraw.findFirst({ where: { eventCode }, orderBy: { createdAtUtc: "desc" } });
+}
 
 export async function getAdminSecretSantaState(eventId: string): Promise<EventAdminSecretSantaStateDto> {
-  const state = await prisma.canhoesEventState.findUnique({ where: { eventId } });
-  const eventCode = state?.secretSantaEventCode ?? eventId;
-
-  const latestDraw = await prisma.secretSantaDraw.findFirst({
-    where: { eventCode },
-    orderBy: { createdAtUtc: "desc" },
-  });
+  const eventCode = await getEventCode(eventId);
+  const latestDraw = await findLatestDraw(eventCode);
 
   const [memberCount, assignmentCount] = await Promise.all([
     prisma.eventMember.count({ where: { eventId } }),
@@ -30,113 +45,76 @@ export async function getAdminSecretSantaState(eventId: string): Promise<EventAd
   };
 }
 
-/** A draw that cannot run with the current members or state. */
+type DrawErrorCode = "DRAW_REVEALED" | "NOT_ENOUGH_PARTICIPANTS" | "NO_DRAW";
+
+const DRAW_ERRORS: Record<DrawErrorCode, { status: number; message: string }> = {
+  DRAW_REVEALED: { status: 409, message: "O sorteio já foi revelado e não pode ser repetido." },
+  NOT_ENOUGH_PARTICIPANTS: { status: 400, message: "São precisos pelo menos 2 membros para o sorteio." },
+  NO_DRAW: { status: 409, message: "Ainda não há sorteio para revelar." },
+};
+
 class SecretSantaDrawError extends HttpError {
-  constructor(message: string) {
-    super(400, "DRAW_ERROR", message);
+  constructor(override readonly code: DrawErrorCode) {
+    super(DRAW_ERRORS[code].status, code, DRAW_ERRORS[code].message);
     this.name = "SecretSantaDrawError";
   }
 }
 
-export async function executeSecretSantaDraw(eventId: string, createdByUserId: string, eventCode?: string): Promise<EventAdminSecretSantaStateDto> {
-  const code = eventCode?.trim() || eventId;
+const secureRandom = () => crypto.randomInt(0, 2 ** 32) / 2 ** 32;
 
-  const existingDraw = await prisma.secretSantaDraw.findFirst({
-    where: { eventCode: code },
-    orderBy: { createdAtUtc: "desc" },
-  });
+/** Draws (or redraws) the pairs among the event's members. Refused once the draw was revealed. */
+export async function executeSecretSantaDraw(
+  eventId: string,
+  createdByUserId: string,
+  eventCode?: string
+): Promise<EventAdminSecretSantaStateDto> {
+  const code = eventCode?.trim() || (await getEventCode(eventId));
 
-  if (existingDraw?.isLocked) {
-    throw new SecretSantaDrawError("Draw is already locked. Cannot re-run.");
+  if ((await findLatestDraw(code))?.isLocked) throw new SecretSantaDrawError("DRAW_REVEALED");
+
+  const members = await prisma.eventMember.findMany({ where: { eventId }, select: { userId: true } });
+  if (new Set(members.map((member) => member.userId)).size < 2) {
+    throw new SecretSantaDrawError("NOT_ENOUGH_PARTICIPANTS");
   }
+  const pairs = drawSecretSanta(members.map((member) => member.userId), secureRandom);
 
-  const members = await prisma.eventMember.findMany({
-    where: { eventId },
-  });
-
-  const memberUserIds = [...new Set(members.map((m) => m.userId))];
-  const memberUsers = memberUserIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: memberUserIds } }, select: { id: true, displayName: true, email: true } })
-    : [];
-  const memberUserMap = new Map(memberUsers.map((u) => [u.id, u]));
-
-  const participants = members.map((m) => {
-    const u = memberUserMap.get(m.userId);
-    return { id: m.userId, name: u?.displayName ?? u?.email ?? "Unknown" };
-  });
-
-  if (participants.length < 2) {
-    throw new SecretSantaDrawError("Need at least 2 participants for Secret Santa.");
-  }
-
-  // Fisher-Yates shuffle
-  const shuffled = [...participants];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-
-  // Ensure no one gets themselves
-  const assignments: { giverUserId: string; receiverUserId: string }[] = [];
-  for (let i = 0; i < shuffled.length; i++) {
-    const giver = shuffled[i];
-    const receiver = shuffled[(i + 1) % shuffled.length];
-    if (giver.id === receiver.id) {
-      // Swap with next person to avoid self-assignment
-      const nextIdx = (i + 2) % shuffled.length;
-      if (nextIdx !== i) {
-        [shuffled[(i + 1) % shuffled.length], shuffled[nextIdx]] = [shuffled[nextIdx], shuffled[(i + 1) % shuffled.length]];
-      }
-      const receiver2 = shuffled[(i + 1) % shuffled.length];
-      if (giver.id !== receiver2.id) {
-        assignments.push({ giverUserId: giver.id, receiverUserId: receiver2.id });
-      } else {
-        throw new SecretSantaDrawError("Could not generate valid Secret Santa pairs. Try again.");
-      }
-    } else {
-      assignments.push({ giverUserId: giver.id, receiverUserId: receiver.id });
-    }
-  }
-
-  // Use transaction
   await prisma.$transaction(async (tx) => {
-    const existing = await tx.secretSantaDraw.findMany({
-      where: { eventCode: code },
-      select: { id: true },
-    });
-    if (existing.length > 0) {
-      await tx.secretSantaAssignment.deleteMany({
-        where: { drawId: { in: existing.map((d) => d.id) } },
-      });
-      await tx.secretSantaDraw.deleteMany({ where: { eventCode: code } });
-    }
+    const previousDraws = await tx.secretSantaDraw.findMany({ where: { eventCode: code }, select: { id: true } });
+    await tx.secretSantaAssignment.deleteMany({ where: { drawId: { in: previousDraws.map((draw) => draw.id) } } });
+    await tx.secretSantaDraw.deleteMany({ where: { eventCode: code } });
 
     const draw = await tx.secretSantaDraw.create({
-      data: {
-        eventCode: code,
-        createdByUserId,
-        isLocked: true,
-      },
+      data: { eventCode: code, createdByUserId, isLocked: false },
     });
-
     await tx.secretSantaAssignment.createMany({
-      data: assignments.map((a) => ({ ...a, drawId: draw.id })),
+      data: pairs.map((pair) => ({ ...pair, drawId: draw.id })),
+    });
+
+    await tx.canhoesEventState.upsert({
+      where: { eventId },
+      create: {
+        eventId,
+        phase: "gala",
+        nominationsVisible: true,
+        resultsVisible: false,
+        secretSantaEventCode: code,
+      },
+      update: { secretSantaEventCode: code },
     });
   });
 
-  const existingState = await prisma.canhoesEventState.findUnique({ where: { eventId } });
-  await prisma.canhoesEventState.upsert({
-    where: { eventId },
-    create: {
-      eventId,
-      phase: existingState?.phase ?? "gala",
-      nominationsVisible: existingState?.nominationsVisible ?? true,
-      resultsVisible: existingState?.resultsVisible ?? false,
-      hasSecretSantaDraw: true,
-      secretSantaEventCode: code,
-    },
-    update: { hasSecretSantaDraw: true, secretSantaEventCode: code },
-  });
+  return getAdminSecretSantaState(eventId);
+}
+
+/** Shows the current draw to the members. From then on it cannot be repeated. */
+export async function revealSecretSantaDraw(eventId: string): Promise<EventAdminSecretSantaStateDto> {
+  const latestDraw = await findLatestDraw(await getEventCode(eventId));
+  if (!latestDraw) throw new SecretSantaDrawError("NO_DRAW");
+
+  await prisma.$transaction([
+    prisma.secretSantaDraw.update({ where: { id: latestDraw.id }, data: { isLocked: true } }),
+    prisma.canhoesEventState.update({ where: { eventId }, data: { hasSecretSantaDraw: true } }),
+  ]);
 
   return getAdminSecretSantaState(eventId);
 }

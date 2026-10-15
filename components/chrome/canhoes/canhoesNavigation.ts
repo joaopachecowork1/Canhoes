@@ -30,7 +30,7 @@ export type CanhoesNavItem = {
   requiresAdmin?: boolean;
 };
 
-export type CanhoesPageTone = "admin" | "event" | "official" | "social";
+type CanhoesPageTone = "admin" | "event" | "official" | "social";
 
 export type CanhoesPageContext = {
   description?: string;

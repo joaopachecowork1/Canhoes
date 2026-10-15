@@ -43,6 +43,8 @@ export default function CanhoesError({
           <Button
             className="canhoes-tap"
             variant="outline"
+            // A full reload discards the client state that crashed.
+            // eslint-disable-next-line @next/next/no-location-assign-relative-destination
             onClick={() => globalThis.location.assign("/canhoes")}
           >
             Voltar ao evento

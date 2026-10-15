@@ -21,7 +21,7 @@ export type EventPermissionsDto = {
   canManage: boolean;
 };
 
-export type EventCountsDto = {
+type EventCountsDto = {
   memberCount: number;
   feedPostCount: number;
   categoryCount: number;
@@ -80,7 +80,7 @@ export type EventSecretSantaOverviewDto = {
   myWishlistItemCount: number;
 };
 
-export type EventFeedPollOptionDto = {
+type EventFeedPollOptionDto = {
   id: string;
   text: string;
   voteCount: number;
@@ -263,25 +263,6 @@ export type EventVotingBoardDto = {
   phaseId: string | null;
   canVote: boolean;
   categories: EventVotingCategoryDto[];
-};
-
-export type OfficialVotingCategoryDto = {
-  id: string;
-  eventId: string;
-  title: string;
-  kind: number;
-  description: string | null;
-  voteQuestion: string | null;
-  nominees: Array<{ id: string; categoryId: string; label: string; voteCount?: number }>;
-  myNomineeId: string | null;
-  totalVotes?: number;
-};
-
-export type OfficialVotingBoardDto = {
-  eventId: string;
-  phaseId: string | null;
-  canVote: boolean;
-  categories: OfficialVotingCategoryDto[];
 };
 
 export type PublicCategoryResultDto = {

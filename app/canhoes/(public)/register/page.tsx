@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 import { CanhoesBrandMark } from "@/components/chrome/canhoes/CanhoesBrandMark";
@@ -138,6 +139,21 @@ function RegisterForm() {
           {isRegistering ? "A criar conta..." : "Criar Conta"}
         </Button>
       </form>
+
+      <div className="space-y-2 text-center">
+        <p className="text-sm text-[var(--text-muted)]">
+          Preferes usar a conta Google? Entra com o email para onde recebeste o convite.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={isRegistering}
+          onClick={() => signIn("google", { callbackUrl: "/canhoes" })}
+        >
+          Entrar com Google
+        </Button>
+      </div>
     </div>
   );
 }

@@ -13,14 +13,7 @@ import { CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleP
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { HubFeedList } from "./HubFeedList";
 import { useFeedInfiniteScroll } from "./useFeedInfiniteScroll";
-import type { EventFeedPostFullDto } from "@/lib/api/types";
-
-type FeedPageData = {
-  posts: EventFeedPostFullDto[];
-  nextCursor: number | null;
-};
-
-type FeedInfiniteData = { pages: FeedPageData[]; pageParams: unknown[] };
+import type { FeedInfiniteData } from "./hooks/feedInfiniteData";
 
 export function HubFeedModule({
   initialData,
@@ -43,7 +36,7 @@ function HubFeedModuleView({
 }>) {
   const {
     posts,
-    allPostsCount,
+    remainingPostsCount,
     errorMessage,
     hasMore,
     isFetchingNextPage,
@@ -75,7 +68,7 @@ function HubFeedModuleView({
   const feedList = (
     <HubFeedList
       posts={posts}
-      allPostsCount={allPostsCount}
+      remainingPostsCount={remainingPostsCount}
       eventId={state.eventId ?? ""}
       isAdmin={isAdmin}
       hasMore={hasMore}

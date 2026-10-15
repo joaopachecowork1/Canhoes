@@ -2,6 +2,10 @@
 
 App full-stack em Next.js para o ritual anual dos Canhões: mural social, propostas e nomeações, votação oficial, amigo secreto com wishlist e gala de resultados. O browser, a API (`app/api`), a autenticação (NextAuth) e a base de dados (Prisma + PostgreSQL) vivem todos neste projeto.
 
+## Stack
+
+Next.js 16 (App Router) com React 18 e TypeScript, Tailwind CSS 4, Prisma 6 + PostgreSQL, NextAuth v4 e TanStack Query. Qualidade com ESLint 9 em flat config (`eslint-config-next`) e Vitest.
+
 ## Requisitos
 
 - Node.js 20+ e npm
@@ -30,7 +34,7 @@ podman compose up -d --build --force-recreate       # o mesmo com Podman
 docker compose --profile tunnel up -d               # + túnel público ngrok (precisa de NGROK_AUTHTOKEN)
 ```
 
-O contentor `web` lê o `.env`, aplica o schema com `prisma db push`, corre o seed e arranca o servidor. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
+O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
 
 ## Base de dados
 
@@ -60,5 +64,11 @@ Por omissão os ficheiros ficam em `.data/uploads`, fora do Git; `UPLOADS_DIR` m
 npm run lint
 npx tsc --noEmit
 npm test
+npm run test:integration   # precisa de PostgreSQL com uma base de dados canhoes_test
+npm run knip
 npm run build
 ```
+
+Os testes de integração chamam os route handlers contra uma base de dados real, que é limpa antes de cada teste; por isso só correm numa base de dados cujo nome acaba em `_test` (`TEST_DATABASE_URL`, por omissão `canhoes_test` em localhost:5433). Para a criar: `docker exec canhoes-postgres createdb -U canhoes canhoes_test`.
+
+O CI (`.github/workflows/ci.yml`) corre tudo isto em cada push e PR, mais `npm audit` às dependências de produção e um scan OWASP ZAP à app a correr.

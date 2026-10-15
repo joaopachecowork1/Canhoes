@@ -14,7 +14,7 @@ import { HubPostCard } from "./HubPostCard";
 
 type HubFeedListProps = {
   posts: EventFeedPostFullDto[];
-  allPostsCount: number;
+  remainingPostsCount: number;
   eventId: string;
   isAdmin: boolean;
   hasMore: boolean;
@@ -101,7 +101,7 @@ const HubFeedListItem = memo(function HubFeedListItem({
 
 export const HubFeedList = memo(function HubFeedList({
   posts,
-  allPostsCount,
+  remainingPostsCount,
   eventId,
   isAdmin,
   hasMore,
@@ -175,7 +175,7 @@ export const HubFeedList = memo(function HubFeedList({
         <FeedLoadMore
           hasMore={hasMore}
           isFetchingNextPage={isFetchingNextPage}
-          remainingCount={allPostsCount - posts.length}
+          remainingCount={remainingPostsCount}
           onLoadMore={onLoadMore}
           sentinelRef={sentinelRef}
         />

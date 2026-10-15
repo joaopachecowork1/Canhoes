@@ -1,4 +1,4 @@
-FROM docker.io/library/node:20-alpine AS base
+FROM docker.io/library/node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -29,7 +29,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Prisma CLI for `db push` at startup, installed at build time so the container starts offline.
+# Prisma CLI for `migrate deploy` at startup, installed at build time so the container starts offline.
 # Keep the version in sync with package-lock.json.
 ARG PRISMA_VERSION=6.19.3
 RUN npm install -g prisma@${PRISMA_VERSION} && npm cache clean --force
@@ -42,8 +42,9 @@ COPY --from=builder /app/public ./public
 # Writable folders for the prerender cache and uploaded images (UPLOADS_DIR defaults to .data/uploads)
 RUN mkdir -p .next .data/uploads && chown -R nextjs:nodejs .next .data
 
-# Copy prisma folder for migrations
+# Copy prisma folder for migrations, and the entrypoint that applies them
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/scripts/docker-start.sh ./docker-start.sh
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
@@ -61,4 +62,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-CMD ["sh", "-c", "prisma db push --accept-data-loss --skip-generate && node prisma/seed.mjs && node server.js"]
+CMD ["sh", "./docker-start.sh"]

@@ -1,16 +1,11 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAdminMutation } from "./useAdminMutation";
-import {
-  type CategoryProposalDto,
-  type MeasureProposalDto,
-  type ProposalStatus,
-} from "@/lib/api/types";
+import type { CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
 import { getErrorMessage } from "@/lib/errors";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import { summarizeModerationStatuses } from "../moderationUtils";
-
-type ProposalFilter = "all" | ProposalStatus;
+import type { ProposalFilter, ProposalStatus } from "../proposalTypes";
 type CategoryDraft = { description: string; name: string };
 
 const getStatusMessages = (status: ProposalStatus) => {

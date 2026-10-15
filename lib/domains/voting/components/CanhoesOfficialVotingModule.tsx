@@ -5,7 +5,7 @@ import { CheckCircle2, Flame, Loader2, Vote } from "lucide-react";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import type { CastOfficialVoteRequest, EventActiveContextDto, OfficialVotingBoardDto, OfficialVotingCategoryDto } from "@/lib/api/types";
+import type { CastOfficialVoteRequest, EventActiveContextDto, EventVotingBoardDto, EventVotingCategoryDto } from "@/lib/api/types";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { useCategorySelection } from "./useCategorySelection";
 import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmentTabs";
@@ -35,7 +35,7 @@ function OfficialVotingLoadingState() {
   );
 }
 
-export function CanhoesOfficialVotingModule({ initialData, initialContext }: { initialData?: OfficialVotingBoardDto; initialContext?: EventActiveContextDto | null }) {
+export function CanhoesOfficialVotingModule({ initialData, initialContext }: { initialData?: EventVotingBoardDto; initialContext?: EventActiveContextDto | null }) {
   const queryClient = useQueryClient();
   const { event } = useEventOverview(initialContext);
 
@@ -69,15 +69,15 @@ export function CanhoesOfficialVotingModule({ initialData, initialContext }: { i
       if (!eventId) return { previousBoardData: null };
 
       await queryClient.cancelQueries({ queryKey: ["official-voting", activeEventId] });
-      const previousBoardData = queryClient.getQueryData<OfficialVotingBoardDto>(["official-voting", activeEventId]);
+      const previousBoardData = queryClient.getQueryData<EventVotingBoardDto>(["official-voting", activeEventId]);
 
-      queryClient.setQueryData<OfficialVotingBoardDto>(["official-voting", activeEventId], (oldData) => {
+      queryClient.setQueryData<EventVotingBoardDto>(["official-voting", activeEventId], (oldData) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
           categories: oldData.categories.map((category) =>
             category.id === votePayload.categoryId
-              ? { ...category, myNomineeId: votePayload.selectionId }
+              ? { ...category, myOptionId: votePayload.selectionId }
               : category
           ),
         };
@@ -125,7 +125,7 @@ export function CanhoesOfficialVotingModule({ initialData, initialContext }: { i
 
   const officialVotingBoard = votingBoardQuery.data;
   const totalCategoriesCount = officialVotingBoard.categories.length;
-  const votedCategoriesCount = officialVotingBoard.categories.filter((category) => Boolean(category.myNomineeId)).length;
+  const votedCategoriesCount = officialVotingBoard.categories.filter((category) => Boolean(category.myOptionId)).length;
   const votingCompletionPercentage = totalCategoriesCount > 0 
     ? Math.round((votedCategoriesCount / totalCategoriesCount) * 100) 
     : 0;
@@ -156,7 +156,7 @@ export function CanhoesOfficialVotingModule({ initialData, initialContext }: { i
         items={officialVotingCategories.map((category) => ({
           id: category.id,
           label: category.title,
-          badge: category.myNomineeId ? "Votado" : undefined,
+          badge: category.myOptionId ? "Votado" : undefined,
         }))}
         onSelect={setSelectedCategoryId}
       />
@@ -189,21 +189,12 @@ function OfficialVotingCategoryCard({
   onVote,
   pendingPayload,
 }: Readonly<{
-  category: OfficialVotingCategoryDto;
+  category: EventVotingCategoryDto;
   canVote: boolean;
   isBusy: boolean;
   onVote: (payload: CastOfficialVoteRequest) => void;
   pendingPayload: CastOfficialVoteRequest | null;
 }>) {
-  const nomineeVoteMap = useMemo(() => {
-    const totalVotes = category.totalVotes ?? 0;
-    return category.nominees.map((nominee) => {
-      const count = nominee.voteCount ?? 0;
-      const percentage = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
-      return { id: nominee.id, count, percentage };
-    });
-  }, [category.nominees, category.totalVotes]);
-
   return (
     <CanhoesFeatureCard
       title={category.title}
@@ -217,21 +208,20 @@ function OfficialVotingCategoryCard({
         </div>
       )}
 
-      {category.nominees.length > 0 ? (
+      {category.options.length > 0 ? (
         <VirtualizedList
-          items={category.nominees}
-          getKey={(nominee) => nominee.id}
+          items={category.options}
+          getKey={(option) => option.id}
           estimateSize={() => 72}
           className="max-h-[52svh]"
-          renderItem={(nominee) => {
-            const isNomineeSelected = category.myNomineeId === nominee.id;
-            const isVotePending = isBusy && pendingPayload?.categoryId === category.id && pendingPayload.selectionId === nominee.id;
-            const nomineeVoteStatistics = nomineeVoteMap.find((voteEntry) => voteEntry.id === nominee.id);
+          renderItem={(option) => {
+            const isOptionSelected = category.myOptionId === option.id;
+            const isVotePending = isBusy && pendingPayload?.categoryId === category.id && pendingPayload.selectionId === option.id;
             let statusIcon = null;
 
             if (isVotePending) {
               statusIcon = <Loader2 className="h-4 w-4 animate-spin" />;
-            } else if (isNomineeSelected) {
+            } else if (isOptionSelected) {
               statusIcon = <CheckCircle2 className="h-4 w-4" />;
             }
 
@@ -239,17 +229,14 @@ function OfficialVotingCategoryCard({
               <button
                 type="button"
                 disabled={!canVote || isBusy}
-                onClick={() => onVote({ categoryId: category.id, selectionId: nominee.id })}
+                onClick={() => onVote({ categoryId: category.id, selectionId: option.id })}
                 className={cn(
                   "canhoes-list-item w-full text-left px-3 py-2 flex items-center justify-between gap-3 border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-none",
-                  isNomineeSelected && "border-[rgba(95,123,56,0.28)] bg-[rgba(95,123,56,0.08)]"
+                  isOptionSelected && "border-[rgba(95,123,56,0.28)] bg-[rgba(95,123,56,0.08)]"
                 )}
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[var(--ink-primary)]">{nominee.label}</p>
-                  {category.totalVotes && category.totalVotes > 0 ? (
-                    <p className="text-xs text-[var(--ink-secondary)]">{nomineeVoteStatistics?.count ?? 0} votos ({nomineeVoteStatistics?.percentage ?? 0}%)</p>
-                  ) : null}
+                  <p className="truncate text-sm font-medium text-[var(--ink-primary)]">{option.label}</p>
                 </div>
 
                 <div className="shrink-0 text-[var(--moss)]">{statusIcon}</div>

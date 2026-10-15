@@ -11,5 +11,3 @@ export const PROPOSAL_STATUS_LABELS = {
 } as const;
 
 export const PROPOSAL_STATUS_OPTIONS = ["all", "pending", "approved", "rejected"] as const;
-
-export type ProposalFilter = typeof PROPOSAL_STATUS_OPTIONS[number];

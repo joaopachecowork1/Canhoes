@@ -28,7 +28,7 @@ export const awardsRepo = {
   },
   
   getVotingBoard: (eventId: string) =>
-    canhoesFetch<T.OfficialVotingBoardDto>(`/v1/events/${eventId}/voting`),
+    canhoesFetch<T.EventVotingBoardDto>(`/v1/events/${eventId}/voting`),
     
   castOfficialVote: (eventId: string, payload: T.CastOfficialVoteRequest) =>
     canhoesFetch<void>(`/v1/events/${eventId}/votes`, {

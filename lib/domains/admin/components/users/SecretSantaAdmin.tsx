@@ -1,6 +1,6 @@
 "use client";
 
-import { Gift, Lock, RefreshCw, Shuffle, Users } from "lucide-react";
+import { Eye, Gift, Lock, RefreshCw, Shuffle, Users } from "lucide-react";
 import { useAdminMutation } from "../hooks/useAdminMutation";
 import type { EventAdminSecretSantaStateDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
@@ -28,18 +28,33 @@ export function SecretSantaAdmin({
   const drawMutation = useAdminMutation({
     mutationFn: (payload?: unknown) => adminRepo.drawSecretSanta(eventId, payload),
     onSuccess: onRefresh,
-    successMessage: "Sorteio realizado com sucesso.",
+    successMessage: "Sorteio realizado. Ainda ninguém o vê até o revelares.",
+  });
+  const revealMutation = useAdminMutation({
+    mutationFn: () => adminRepo.revealSecretSanta(eventId),
+    onSuccess: onRefresh,
+    successMessage: "Sorteio revelado aos membros.",
   });
 
-  const handleDraw = async () => {
-    if (state.hasDraw && !confirm("O sorteio já foi realizado. Desejas repetir? Isso apagará as atribuições atuais.")) {
+  const handleDraw = () => {
+    if (state.hasDraw && !confirm("Repetir o sorteio apaga as atribuições atuais. Continuar?")) {
       return;
     }
     drawMutation.mutate({});
   };
 
+  const handleReveal = () => {
+    if (!confirm("Depois de revelado, cada membro vê o seu amigo secreto e o sorteio já não pode ser repetido. Revelar?")) {
+      return;
+    }
+    revealMutation.mutate();
+  };
+
+  // A locked draw is a revealed one: members see it and it can no longer be repeated.
   const isLocked = state.isLocked;
+  const isBusy = drawMutation.isPending || revealMutation.isPending;
   const canDraw = state.memberCount >= 2 && !isLocked;
+  const canReveal = state.hasDraw && !isLocked;
 
   return (
     <div className="space-y-4">
@@ -56,7 +71,7 @@ export function SecretSantaAdmin({
             {isLocked ? (
               <Badge variant="outline" className="gap-1.5 border-[rgba(255,255,255,0.1)] py-1">
                 <Lock className="h-3 w-3" />
-                Sorteio trancado
+                Sorteio revelado
               </Badge>
             ) : null}
           </div>
@@ -91,7 +106,7 @@ export function SecretSantaAdmin({
           <div className="space-y-4">
             {isLocked ? (
               <AdminDetailPanel className="border-amber-500/20 bg-amber-500/5">
-                Este sorteio está trancado porque já existem participações ativas ou a fase atual não permite alterações.
+                O sorteio já foi revelado aos membros e não pode ser repetido.
               </AdminDetailPanel>
             ) : null}
 
@@ -99,7 +114,7 @@ export function SecretSantaAdmin({
               <Button
                 type="button"
                 onClick={handleDraw}
-                disabled={!canDraw || drawMutation.isPending}
+                disabled={!canDraw || isBusy}
                 className="min-h-12 flex-1 gap-2"
               >
                 {drawMutation.isPending ? (
@@ -113,11 +128,22 @@ export function SecretSantaAdmin({
               <Button
                 type="button"
                 variant="outline"
+                onClick={handleReveal}
+                disabled={!canReveal || isBusy}
+                className={`${ADMIN_OUTLINE_BUTTON_CLASS} min-h-12 flex-1 gap-2`}
+              >
+                <Eye className="h-4 w-4" />
+                Revelar aos membros
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => void onRefresh()}
-                disabled={drawMutation.isPending}
+                disabled={isBusy}
                 className={`${ADMIN_OUTLINE_BUTTON_CLASS} min-h-12 gap-2`}
               >
-                <RefreshCw className={cn("h-4 w-4", drawMutation.isPending && "animate-spin")} />
+                <RefreshCw className={cn("h-4 w-4", isBusy && "animate-spin")} />
                 Sincronizar estado
               </Button>
             </div>
@@ -136,9 +162,13 @@ export function SecretSantaAdmin({
                   <Lock className="h-3 w-3 text-black" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-[var(--neon-green)]">Sorteio válido</p>
+                  <p className="text-sm font-semibold text-[var(--neon-green)]">
+                    {isLocked ? "Sorteio revelado" : "Sorteio por revelar"}
+                  </p>
                   <p className="text-xs text-[var(--ink-muted)]">
-                    As atribuições foram geradas e estão disponíveis para consulta individual pelos membros na seção do Amigo Secreto.
+                    {isLocked
+                      ? "Cada membro já vê o seu amigo secreto na secção Amigo Secreto."
+                      : "As atribuições existem, mas os membros só as veem depois de revelares. Podes repetir o sorteio até lá."}
                   </p>
                 </div>
               </div>
