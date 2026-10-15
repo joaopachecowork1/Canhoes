@@ -35,8 +35,8 @@ export async function isEventMember(eventId: string, userId: string) {
 }
 
 /**
- * The event as one user sees it: active and next phase, what they may do, counters, and which
- * modules are open in this phase. `modules` is the same for admins and members, so an admin's
+ * The event as one user sees it: active phase, what they may do, and which modules are open
+ * in this phase. `modules` is the same for admins and members, so an admin's
  * navigation matches the group's; admins still open any module (the gates let them through)
  * and reach the closed ones from the admin area.
  */
@@ -48,14 +48,11 @@ export async function getEventOverview(
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) return null;
 
-  const [phases, isMember, rules] = await Promise.all([
-    prisma.eventPhase.findMany({ where: { eventId }, orderBy: { startDateUtc: "asc" } }),
+  const [activePhase, isMember, rules] = await Promise.all([
+    prisma.eventPhase.findFirst({ where: { eventId, isActive: true } }),
     isEventMember(eventId, userId),
     getEventRulesState(eventId),
   ]);
-  const activePhaseIndex = phases.findIndex((phase) => phase.isActive);
-  const activePhase = phases[activePhaseIndex] ?? null;
-  const nextPhase = activePhaseIndex >= 0 ? phases[activePhaseIndex + 1] ?? null : null;
 
   const permissions: EventPermissionsDto = {
     isAdmin,
@@ -65,25 +62,12 @@ export async function getEventOverview(
     canVote: isAdmin || (isMember && rules.activePhaseType === "VOTING"),
     canManage: isAdmin,
   };
-  const [memberCount, feedPostCount, pendingProposalCount, wishlistItemCount] = await Promise.all([
-    prisma.eventMember.count({ where: { eventId } }),
-    prisma.hubPost.count({ where: { eventId } }),
-    prisma.categoryProposal.count({ where: { eventId, status: "pending" } }),
-    prisma.wishlistItem.count({ where: { eventId, userId } }),
-  ]);
 
   return {
     event: toEventSummary(event),
     activePhase: activePhase ? toPhaseDto(activePhase) : null,
-    nextPhase: nextPhase ? toPhaseDto(nextPhase) : null,
     permissions,
-    counts: { memberCount, feedPostCount, categoryCount: 0, pendingProposalCount, wishlistItemCount },
     hasSecretSantaDraw: rules.hasSecretSantaDraw,
-    hasSecretSantaAssignment: false,
-    myWishlistItemCount: wishlistItemCount,
-    myProposalCount: 0,
-    myVoteCount: 0,
-    votingCategoryCount: 0,
     modules: resolveMemberModules(rules),
   };
 }

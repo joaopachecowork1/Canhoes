@@ -31,18 +31,13 @@ type EventCountsDto = {
 
 export type EventModulesDto = Record<string, boolean>;
 
+/** The active event as the shell sees it: phase, what the user may do and which areas are open. */
 export type EventOverviewDto = {
   event: EventSummaryDto;
   activePhase: EventPhaseDto | null;
-  nextPhase: EventPhaseDto | null;
   permissions: EventPermissionsDto;
-  counts: EventCountsDto;
   hasSecretSantaDraw: boolean;
-  hasSecretSantaAssignment: boolean;
-  myWishlistItemCount: number;
-  myProposalCount: number;
-  myVoteCount: number;
-  votingCategoryCount: number;
+  /** Areas open in the active phase (`resolveMemberModules`), the same for admins and members. */
   modules: EventModulesDto;
 };
 
