@@ -63,7 +63,7 @@ sequenceDiagram
   participant DB as PostgreSQL
 
   Admin->>API: { phaseType: "VOTING" }
-  API->>DB: ativa a EventPhase desse tipo, desativa as outras
+  API->>DB: desativa as outras fases e ativa a desse tipo (cria-a, aberta por um ano, se ainda não existir)
   API->>DB: CanhoesEventState: nominationsVisible = (PROPOSALS), resultsVisible = (RESULTS)
   API-->>Admin: novo estado do evento
   Note over API,DB: Os módulos visíveis a membros mudam no pedido seguinte (RN-04)
@@ -130,7 +130,7 @@ stateDiagram-v2
   approved --> [*]
 ```
 
-Ao aprovar uma proposta de categoria, o admin cria a `AwardCategory` correspondente. Ao aprovar uma nomeação, ela passa a aparecer na página de nomeações e no boletim da sua categoria.
+Ao aprovar uma proposta de categoria ou de medida, a app cria a `AwardCategory` ou a `GalaMeasure` correspondente, só na primeira aprovação. Ao aprovar uma nomeação, ela passa a aparecer na página de nomeações e no boletim da sua categoria.
 
 ## Publicar no mural com imagens
 

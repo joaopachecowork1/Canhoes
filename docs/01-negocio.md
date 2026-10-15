@@ -19,7 +19,7 @@ Os emails em `ADMIN_EMAILS` tornam-se admins no seed. Fora de produção existe 
 
 ## O ciclo anual
 
-Cada edição é um `Event`. O admin ativa um evento de cada vez e faz avançar as fases à mão.
+Cada edição é um `Event`. O admin ativa um evento de cada vez e faz avançar as fases à mão; um evento novo começa em PROPOSALS e as outras fases são criadas quando o admin as abre.
 
 ```mermaid
 stateDiagram-v2

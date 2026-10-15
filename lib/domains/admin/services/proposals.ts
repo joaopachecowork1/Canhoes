@@ -11,6 +11,11 @@ import { createCategory } from "./categories";
  * `pending`; the admin approves, rejects, edits or deletes it.
  */
 
+/** Only the move into `approved` creates the category or measure, so approving twice creates one. */
+function isNewlyApproved(currentStatus: string, nextStatus: string | undefined) {
+  return nextStatus === "approved" && currentStatus !== "approved";
+}
+
 /** Category proposals of the event, newest first, optionally filtered by status. */
 export async function getCategoryProposals(
   eventId: string,
@@ -62,7 +67,7 @@ export async function updateCategoryProposal(
   if (data.description !== undefined) updateData.description = data.description?.trim() ?? null;
   if (data.status !== undefined) updateData.status = data.status;
 
-  if (data.status === "approved") {
+  if (isNewlyApproved(proposal.status, data.status)) {
     await createCategory(eventId, {
       name: data.name ?? proposal.name,
       kind: proposal.kind,
@@ -127,7 +132,7 @@ export async function getMeasureProposals(
   };
 }
 
-/** Edits a measure proposal or changes its status. Approving it does not create the gala measure yet (docs/08-lacunas.md). */
+/** Edits a measure proposal or changes its status. Approving it adds the (possibly edited) text as an active gala measure. */
 export async function updateMeasureProposal(
   eventId: string,
   proposalId: string,
@@ -140,9 +145,12 @@ export async function updateMeasureProposal(
   if (data.text !== undefined) updateData.text = data.text.trim();
   if (data.status !== undefined) updateData.status = data.status;
 
-  const updated = await prisma.measureProposal.update({
-    where: { id: proposalId },
-    data: updateData,
+  const updated = await prisma.$transaction(async (tx) => {
+    const saved = await tx.measureProposal.update({ where: { id: proposalId }, data: updateData });
+    if (isNewlyApproved(proposal.status, data.status)) {
+      await tx.galaMeasure.create({ data: { eventId, text: saved.text, isActive: true } });
+    }
+    return saved;
   });
 
   return {

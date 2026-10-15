@@ -7,6 +7,7 @@ import type {
   AdminListCountsDto,
   EventAdminBootstrapDto,
 } from "@/lib/api/types";
+import type { PhaseType } from "@/lib/domains/event/services/eventRules";
 import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
 
 /*
@@ -91,21 +92,29 @@ export async function updateAdminState(
   return getAdminState(eventId);
 }
 
-/**
- * Makes `phaseType` the event's only active phase. It only switches phases that already exist (see
- * docs/08-lacunas.md). Nominations are visible exactly during PROPOSALS and results during RESULTS.
- */
-export async function updateAdminPhase(eventId: string, phaseType: string): Promise<EventAdminStateDto> {
-  const phases = await prisma.eventPhase.findMany({ where: { eventId } });
+/** A phase the admin opens for the first time stays open for a year, so its dates never close voting by surprise. */
+const NEW_PHASE_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
 
-  await prisma.$transaction(
-    phases.map((p) =>
-      prisma.eventPhase.update({
-        where: { id: p.id },
-        data: { isActive: p.type === phaseType },
-      })
-    )
-  );
+/**
+ * Makes `phaseType` the event's only active phase, creating it the first time it is opened (an event
+ * starts with PROPOSALS only). Nominations are visible exactly during PROPOSALS and results during RESULTS.
+ */
+export async function updateAdminPhase(eventId: string, phaseType: PhaseType): Promise<EventAdminStateDto> {
+  const now = new Date();
+  await prisma.$transaction([
+    prisma.eventPhase.updateMany({ where: { eventId, type: { not: phaseType } }, data: { isActive: false } }),
+    prisma.eventPhase.upsert({
+      where: { eventId_type: { eventId, type: phaseType } },
+      update: { isActive: true },
+      create: {
+        eventId,
+        type: phaseType,
+        startDateUtc: now,
+        endDateUtc: new Date(now.getTime() + NEW_PHASE_WINDOW_MS),
+        isActive: true,
+      },
+    }),
+  ]);
 
   const legacyPhase = phaseType === "DRAW" ? "locked"
     : phaseType === "PROPOSALS" ? "nominations"

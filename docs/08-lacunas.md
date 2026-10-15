@@ -2,13 +2,6 @@
 
 O que a aplicação ainda não faz como devia, por prioridade. Cada linha diz onde está o problema e o que o resolve. Quando uma lacuna for resolvida, sai daqui e o requisito correspondente em [02-requisitos.md](02-requisitos.md) passa a descrever o novo comportamento.
 
-## Bloqueiam o uso numa base de dados nova
-
-| Lacuna | Onde | Como resolver |
-|---|---|---|
-| Só existe a fase PROPOSALS. O seed cria apenas essa `EventPhase` e nenhum ecrã cria as outras, por isso mudar para DRAW, VOTING ou RESULTS deixa o evento sem fase ativa. | `prisma/seed.mjs`, `lib/domains/admin/services/state.ts` (`updateAdminPhase`) | Criar as quatro fases quando o evento é criado, ou criar a fase em falta ao ativá-la. Decidir junto o que fazer às datas da fase VOTING (hoje são a janela em que os votos contam, e não há ecrã para as mudar). |
-| Aprovar uma proposta de medida não cria a `GalaMeasure`; nenhum código a cria, por isso a página de medidas fica sempre vazia. | `lib/domains/admin/services/proposals.ts` (`updateMeasureProposal`) | Ao aprovar, criar a medida, como já acontece com as propostas de categoria. |
-
 ## Segurança
 
 | Lacuna | Onde | Como resolver |
@@ -22,8 +15,8 @@ O que a aplicação ainda não faz como devia, por prioridade. Cada linha diz on
 
 | Lacuna | Onde | Como resolver |
 |---|---|---|
-| Aprovar duas vezes a mesma proposta de categoria cria duas categorias. | `proposals.ts` (`updateCategoryProposal`) | Criar a categoria só na transição de `pending` para `approved`. |
 | `CanhoesEventState.phase` e `resultsVisible` são escritos mas nenhuma regra os lê. | `state.ts`, `eventRules.ts` | Fase 3 do plano: uma só fonte para a fase do evento. |
+| As datas das fases não têm ecrã: uma fase criada pelo admin fica aberta um ano, e a janela de votação só se muda na base de dados. | `state.ts` (`updateAdminPhase`) | Decidir se a votação fecha por data ou só quando o admin muda de fase, e simplificar o modelo em conformidade (Fase 3). |
 | Estados e tipos são strings e números sem enum, e a maior parte das tabelas liga-se por IDs sem chave estrangeira. | `prisma/schema.prisma` | Fase 3 do plano: enums e relações com migrations. |
 | O contador de votos do bootstrap do admin só conta votos em nomeações, não em pessoas. | `state.ts` (`getAdminListCounts`) | Somar também `UserVote`. |
 

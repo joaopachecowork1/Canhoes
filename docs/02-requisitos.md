@@ -20,7 +20,7 @@ Os requisitos descrevem o comportamento atual da aplicação. Cada um aponta par
 | ID | Requisito | Código | Teste |
 |---|---|---|---|
 | RF-10 | Só um evento está ativo de cada vez; o admin pode ativar outro. | `lib/domains/admin/services/state.ts` (`activateEvent`) | |
-| RF-11 | O admin muda a fase ativa do evento (DRAW, PROPOSALS, VOTING, RESULTS). | `state.ts` (`updateAdminPhase`) | |
+| RF-11 | O admin muda a fase ativa do evento (DRAW, PROPOSALS, VOTING, RESULTS). Uma fase que o evento ainda não tem é criada nesse momento, aberta durante um ano. | `state.ts` (`updateAdminPhase`) | `adminWorkflow.int.test.ts` |
 | RF-12 | O admin liga e desliga cada módulo para os membros. | `state.ts` (`updateEventModules`, `updateAdminState`) | |
 | RF-13 | O overview diz a cada utilizador que módulos e ações tem disponíveis agora. | `lib/domains/event/services/event.ts` (`getEventOverview`) | |
 
@@ -39,7 +39,7 @@ Os requisitos descrevem o comportamento atual da aplicação. Cada um aponta par
 | RF-30 | Os membros propõem categorias novas (nome, descrição, tipo). | `lib/domains/voting/services/voting.ts` (`createProposal`) | `eventRules.int.test.ts` |
 | RF-31 | Os membros nomeiam candidatos para uma categoria, ou submetem stickers (`kind: "stickers"`), com imagem opcional. | `members.ts` (`createNomination`, `replaceNomineeImage`) | |
 | RF-32 | Os membros propõem medidas para a gala. | `members.ts` (`createMeasureProposal`) | |
-| RF-33 | O admin aprova, rejeita, edita ou apaga propostas de categoria; aprovar cria a categoria. | `lib/domains/admin/services/proposals.ts` | |
+| RF-33 | O admin aprova, rejeita, edita ou apaga propostas de categoria e de medida. Aprovar cria a categoria ou a medida da gala, uma só vez mesmo que se aprove de novo. | `lib/domains/admin/services/proposals.ts` | `adminWorkflow.int.test.ts` |
 | RF-34 | O admin aprova ou rejeita nomeações e muda a categoria de uma nomeação. | `lib/domains/admin/services/nominations.ts` | |
 | RF-35 | O admin cria, edita, ordena, desativa e apaga categorias. | `lib/domains/admin/services/categories.ts` | |
 
