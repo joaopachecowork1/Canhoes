@@ -1,4 +1,4 @@
-FROM docker.io/library/node:20-alpine AS base
+FROM docker.io/library/node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps

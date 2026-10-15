@@ -1,0 +1,110 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  checks:
+    name: Lint, types, unit tests, knip, audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npm run knip
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  integration:
+    name: Integration and authorization tests (PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: canhoes_test
+          POSTGRES_USER: canhoes
+          POSTGRES_PASSWORD: canhoes_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U canhoes -d canhoes_test"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      TEST_DATABASE_URL: postgresql://canhoes:canhoes_ci@localhost:5432/canhoes_test?schema=public
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration
+
+  docker:
+    name: Docker image, migrations and OWASP ZAP baseline
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: canhoes
+          POSTGRES_USER: canhoes
+          POSTGRES_PASSWORD: canhoes_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U canhoes -d canhoes"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t canhoes:ci .
+      - name: Start the app (applies migrations and seeds)
+        run: |
+          docker run -d --name canhoes --network host \
+            -e DATABASE_URL="postgresql://canhoes:canhoes_ci@localhost:5432/canhoes?schema=public" \
+            -e NEXTAUTH_URL=http://localhost:3000 \
+            -e NEXTAUTH_SECRET=ci-only-secret \
+            -e ADMIN_EMAILS=admin@example.com \
+            canhoes:ci
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://localhost:3000/api/health | grep -q '"database":"connected"'; then exit 0; fi
+            sleep 2
+          done
+          docker logs canhoes
+          exit 1
+      - name: OWASP ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: http://localhost:3000/canhoes/login
+          rules_file_name: .zap/rules.tsv
+          cmd_options: -a
+          allow_issue_writing: false
+          # Report only for now; switch to failing the build once the first findings are triaged.
+          fail_action: false
+      - name: Container logs
+        if: always()
+        run: docker logs canhoes || true

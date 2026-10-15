@@ -84,7 +84,8 @@ Thumbs.db
 .claude/
 .agents/
 skills-lock.json
-.github/
+.github/*
+!.github/workflows/
 
 # Qwen Code local files
 .qwen/
