@@ -26,6 +26,7 @@ export async function getEventRulesState(eventId: string): Promise<EventRulesSta
   };
 }
 
+/** Whether the user belongs to the event. Admin rights come from `User.isAdmin`, not from membership. */
 export async function isEventMember(eventId: string, userId: string) {
   const member = await prisma.eventMember.findUnique({
     where: { eventId_userId: { eventId, userId } },
@@ -34,6 +35,10 @@ export async function isEventMember(eventId: string, userId: string) {
   return member !== null;
 }
 
+/**
+ * The event as one user sees it: active and next phase, what they may do, counters, and which
+ * modules are open to them. Admins get every module; members get `resolveMemberModules`.
+ */
 export async function getEventOverview(
   eventId: string,
   userId: string,
@@ -82,6 +87,7 @@ export async function getEventOverview(
   };
 }
 
+/** The overview of the active event (the most recent one if several are active), or null when none is. */
 export async function getActiveEventContext(
   userId: string,
   isAdmin: boolean

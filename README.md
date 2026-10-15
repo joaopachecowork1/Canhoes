@@ -2,13 +2,15 @@
 
 App full-stack em Next.js para o ritual anual dos Canhões: mural social, propostas e nomeações, votação oficial, amigo secreto com wishlist e gala de resultados. O browser, a API (`app/api`), a autenticação (NextAuth) e a base de dados (Prisma + PostgreSQL) vivem todos neste projeto.
 
+A documentação do negócio, dos requisitos e da arquitetura, com diagramas UML, está em [`docs/`](docs/README.md).
+
 ## Stack
 
 Next.js 16 (App Router) com React 18 e TypeScript, Tailwind CSS 4, Prisma 6 + PostgreSQL, NextAuth v4 e TanStack Query. Qualidade com ESLint 9 em flat config (`eslint-config-next`) e Vitest.
 
 ## Requisitos
 
-- Node.js 20+ e npm
+- Node.js 22+ e npm
 - Docker ou Podman. Com Podman, o `podman compose` precisa de um provider: `pip install --user podman-compose` (ou `sudo dnf install podman-compose`).
 
 ## Arranque local (desenvolvimento)
@@ -34,7 +36,11 @@ podman compose up -d --build --force-recreate       # o mesmo com Podman
 docker compose --profile tunnel up -d               # + túnel público ngrok (precisa de NGROK_AUTHTOKEN)
 ```
 
-O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
+O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. Em produção o seed só cria os admins de `ADMIN_EMAILS` e o evento, e nunca mexe na fase de um evento que já existe; os dados de demonstração só entram com `SEED_DEMO_DATA=true`. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite.
+
+## Produção
+
+O site corre num PC (ou servidor) com `compose.server.yml` e fica público no teu domínio através de um Cloudflare Tunnel, sem abrir portas no router. Cada merge para `main` é instalado sozinho por `scripts/update-server.sh`, com backup da base de dados antes. Guia passo a passo: [`docs/09-deploy.md`](docs/09-deploy.md).
 
 ## Base de dados
 

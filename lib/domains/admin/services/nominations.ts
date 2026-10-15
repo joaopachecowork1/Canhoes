@@ -1,120 +1,88 @@
+import type { Nominee } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
 import type {
   AdminNomineeDto,
   AdminNomineesPagedDto,
 } from "@/lib/api/types";
 
-export async function setNominationCategory(
+/*
+ * Moderation of nominations (and stickers, which are nominations with `submissionKind: "stickers"`).
+ * Only approved nominations reach the members' pages and the voting board.
+ */
+
+type NominationChange = { categoryId: string | null } | { status: "approved" | "rejected" };
+type Submitter = { displayName: string | null; email: string } | null | undefined;
+
+function toAdminNomineeDto(nominee: Nominee, submitter: Submitter): AdminNomineeDto {
+  return {
+    id: nominee.id,
+    categoryId: nominee.categoryId,
+    title: nominee.title,
+    imageUrl: nominee.imageUrl,
+    status: nominee.status as AdminNomineeDto["status"],
+    createdAtUtc: nominee.createdAtUtc.toISOString(),
+    submittedByUserId: nominee.submittedByUserId,
+    submittedByName: submitter?.displayName ?? submitter?.email ?? "Unknown",
+  };
+}
+
+/** Applies one admin change to a nomination of this event; null when it does not exist here. */
+async function updateNomination(
   eventId: string,
   nomineeId: string,
-  categoryId?: string | null
+  change: NominationChange
 ): Promise<AdminNomineeDto | null> {
-  const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId } });
+  const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId }, select: { id: true } });
   if (!nominee) return null;
 
-  const updated = await prisma.nominee.update({
-    where: { id: nomineeId },
-    data: { categoryId: categoryId ?? null },
+  const updated = await prisma.nominee.update({ where: { id: nomineeId }, data: change });
+  const submitter = await prisma.user.findUnique({
+    where: { id: updated.submittedByUserId },
+    select: { displayName: true, email: true },
   });
-
-  const user = await prisma.user.findUnique({ where: { id: updated.submittedByUserId } });
-  return {
-    id: updated.id,
-    categoryId: updated.categoryId,
-    title: updated.title,
-    imageUrl: updated.imageUrl,
-    status: updated.status as "pending" | "approved" | "rejected",
-    createdAtUtc: updated.createdAtUtc.toISOString(),
-    submittedByUserId: updated.submittedByUserId,
-    submittedByName: user?.displayName ?? user?.email ?? "Unknown",
-  };
+  return toAdminNomineeDto(updated, submitter);
 }
 
-export async function approveNomination(eventId: string, nomineeId: string): Promise<AdminNomineeDto | null> {
-  const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId } });
-  if (!nominee) return null;
-
-  const updated = await prisma.nominee.update({
-    where: { id: nomineeId },
-    data: { status: "approved" },
-  });
-
-  const user = await prisma.user.findUnique({ where: { id: updated.submittedByUserId } });
-  return {
-    id: updated.id,
-    categoryId: updated.categoryId,
-    title: updated.title,
-    imageUrl: updated.imageUrl,
-    status: updated.status as "pending" | "approved" | "rejected",
-    createdAtUtc: updated.createdAtUtc.toISOString(),
-    submittedByUserId: updated.submittedByUserId,
-    submittedByName: user?.displayName ?? user?.email ?? "Unknown",
-  };
+/** Moves a nomination to another category, or out of any category with `null`. */
+export function setNominationCategory(eventId: string, nomineeId: string, categoryId?: string | null) {
+  return updateNomination(eventId, nomineeId, { categoryId: categoryId ?? null });
 }
 
-export async function rejectNomination(eventId: string, nomineeId: string): Promise<AdminNomineeDto | null> {
-  const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId } });
-  if (!nominee) return null;
-
-  const updated = await prisma.nominee.update({
-    where: { id: nomineeId },
-    data: { status: "rejected" },
-  });
-
-  const user = await prisma.user.findUnique({ where: { id: updated.submittedByUserId } });
-  return {
-    id: updated.id,
-    categoryId: updated.categoryId,
-    title: updated.title,
-    imageUrl: updated.imageUrl,
-    status: updated.status as "pending" | "approved" | "rejected",
-    createdAtUtc: updated.createdAtUtc.toISOString(),
-    submittedByUserId: updated.submittedByUserId,
-    submittedByName: user?.displayName ?? user?.email ?? "Unknown",
-  };
+/** Approves a nomination: it shows up for members and on its category's voting board. */
+export function approveNomination(eventId: string, nomineeId: string) {
+  return updateNomination(eventId, nomineeId, { status: "approved" });
 }
 
+/** Rejects a nomination: it disappears for members and from the voting board. */
+export function rejectNomination(eventId: string, nomineeId: string) {
+  return updateNomination(eventId, nomineeId, { status: "rejected" });
+}
+
+/** Nominations of the event for the moderation list, newest first, with the submitter's name. */
 export async function getAdminNominationsPaged(
   eventId: string,
   status?: string | null,
   skip = 0,
   take = 50
 ): Promise<AdminNomineesPagedDto> {
-  const where: Record<string, unknown> = { eventId };
-  if (status) where.status = status;
-
+  const where = status ? { eventId, status } : { eventId };
   const [total, nominees] = await Promise.all([
     prisma.nominee.count({ where }),
-    prisma.nominee.findMany({
-      where,
-      orderBy: { createdAtUtc: "desc" },
-      skip,
-      take,
-    }),
+    prisma.nominee.findMany({ where, orderBy: { createdAtUtc: "desc" }, skip, take }),
   ]);
 
-  const userIds = [...new Set(nominees.map((n) => n.submittedByUserId))];
-  const users = userIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, displayName: true, email: true } })
+  const submitterIds = [...new Set(nominees.map((nominee) => nominee.submittedByUserId))];
+  const submitters = submitterIds.length > 0
+    ? await prisma.user.findMany({ where: { id: { in: submitterIds } }, select: { id: true, displayName: true, email: true } })
     : [];
-  const userMap = new Map(users.map((u) => [u.id, u]));
+  const submitterById = new Map(submitters.map((submitter) => [submitter.id, submitter]));
 
   return {
     total,
-    nominations: nominees.map((n) => {
-      const u = userMap.get(n.submittedByUserId);
-      return {
-        id: n.id,
-        categoryId: n.categoryId,
-        title: n.title,
-        imageUrl: n.imageUrl,
-        status: n.status as "pending" | "approved" | "rejected",
-        createdAtUtc: n.createdAtUtc.toISOString(),
-        submittedByUserId: n.submittedByUserId,
-        submittedByName: u?.displayName ?? u?.email ?? "Unknown",
-      };
-    }),
-    skip, take,
+    nominations: nominees.map((nominee) => toAdminNomineeDto(nominee, submitterById.get(nominee.submittedByUserId))),
+    skip,
+    take,
     hasMore: skip + take < total,
   };
 }

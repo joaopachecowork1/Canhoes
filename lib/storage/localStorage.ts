@@ -18,8 +18,9 @@ export class UploadValidationError extends HttpError {
   }
 }
 
+// Resolved at runtime; the ignore comment stops Turbopack from tracing the whole project into the build.
 function storageRoot() {
-  return path.resolve(process.env.UPLOADS_DIR || path.join(process.cwd(), ".data", "uploads"));
+  return path.resolve(/*turbopackIgnore: true*/ process.env.UPLOADS_DIR || path.join(process.cwd(), ".data", "uploads"));
 }
 
 function safePath(segments: string[]) {

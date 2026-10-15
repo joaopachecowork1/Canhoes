@@ -1,2 +1,11 @@
 # ZAP baseline rules: <rule id>	<IGNORE|WARN|FAIL>	<reason>
+# CI fails on any alert not listed here, so a new finding has to be fixed or triaged on purpose.
+10019	IGNORE	Content-Type missing: only on the empty-body 307 redirects of the auth proxy
+10038	IGNORE	Known gap: no Content-Security-Policy yet (needs nonces, see next.config.mjs); to add with the deploy
+10044	IGNORE	Big redirect: the 307 body is the Next.js redirect markup, no sensitive data
+10049	IGNORE	Non-storable content: informational, dynamic pages are not cached on purpose
+10094	IGNORE	Base64 disclosure: Next.js build ids, hashes and the NextAuth callbackUrl
 10096	IGNORE	Timestamp disclosure: Next.js build ids and cache headers
+10109	IGNORE	Modern web application: informational
+90004	IGNORE	Cross-Origin-Embedder-Policy: the app embeds cross-origin images (avatars, uploads)
+90005	IGNORE	Sec-Fetch-Dest missing: a request header the scanner itself does not send

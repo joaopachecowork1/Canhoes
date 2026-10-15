@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import type { PagedResult, PublicUserDto } from "@/lib/api/types";
 import { AdminRoleChangeError, assertAdminRoleChangeAllowed } from "./adminRolePolicy";
 
+/* Event members as the admin sees them, and promoting or demoting admins (rules in `adminRolePolicy.ts`). */
+
+/** Members of the event, admins first and then by name. */
 export async function getAdminMembersPaged(
   eventId: string,
   skip = 0,
@@ -40,6 +43,10 @@ export async function getAdminMembersPaged(
   };
 }
 
+/**
+ * Grants or removes admin rights for a member of the event. Serializable, so two admins demoting
+ * each other at the same time cannot leave the portal without an admin.
+ */
 export async function setAdminRole(input: {
   actorUserId: string;
   eventId: string;

@@ -9,11 +9,21 @@ import type {
   EventProposalDto,
 } from "@/lib/api/types";
 
+/*
+ * The members' side of the awards: the voting board, casting a vote and proposing new categories.
+ * A vote counts only inside the active voting phase's dates (`isVotingOpen` in `eventRules.ts`).
+ */
+
 type EventVoteDto = {
   categoryId: string;
   selectionId: string;
 };
 
+/**
+ * The voting board: every active category with its options and the user's current choice. Nominee
+ * categories offer their approved nominations; person categories (`KindUserVote`) offer the
+ * event's non-admin members.
+ */
 export async function getVotingBoard(
   eventId: string,
   userId: string
@@ -188,6 +198,7 @@ export async function castVote(
   return { categoryId, selectionId };
 }
 
+/** Records a proposal for a new category as `pending`, for the admin to moderate. */
 export async function createProposal(
   eventId: string,
   userId: string,

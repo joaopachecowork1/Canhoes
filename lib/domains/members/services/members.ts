@@ -10,6 +10,12 @@ import type {
   PagedResult,
 } from "@/lib/api/types";
 
+/*
+ * What members do outside the feed and the voting: see who is in the event, keep a wishlist, nominate
+ * candidates and stickers, and propose gala measures. Route guards decide who may call each one.
+ */
+
+/** Members of the event, admins first and then by name. `isAdmin` here is the event role, not the account flag. */
 export async function getMembers(eventId: string): Promise<PublicUserDto[]> {
   const members = await prisma.eventMember.findMany({
     where: { eventId },
@@ -37,6 +43,7 @@ export async function getMembers(eventId: string): Promise<PublicUserDto[]> {
   return result;
 }
 
+/** Official gala measures of the event, newest first. */
 export async function getMeasures(eventId: string): Promise<GalaMeasureDto[]> {
   const measures = await prisma.galaMeasure.findMany({
     where: { eventId },
@@ -51,6 +58,7 @@ export async function getMeasures(eventId: string): Promise<GalaMeasureDto[]> {
   }));
 }
 
+/** Records a measure proposal as `pending`, for the admin to moderate. */
 export async function createMeasureProposal(
   eventId: string,
   userId: string,
@@ -73,6 +81,7 @@ export async function createMeasureProposal(
   };
 }
 
+/** The user's most recent nomination in the event and its status, for the nominations page. */
 export async function getMyNominationStatus(
   eventId: string,
   userId: string
@@ -95,6 +104,7 @@ export async function getMyNominationStatus(
   };
 }
 
+/** Approved nominations of the event, newest first. */
 export async function getApprovedNominees(eventId: string): Promise<NomineeDto[]> {
   const nominees = await prisma.nominee.findMany({
     where: { eventId, status: "approved" },
@@ -111,6 +121,7 @@ export async function getApprovedNominees(eventId: string): Promise<NomineeDto[]
   }));
 }
 
+/** Records a nomination (or a sticker, with `kind: "stickers"`) as `pending`, for the admin to moderate. */
 export async function createNomination(
   eventId: string,
   userId: string,
@@ -194,6 +205,7 @@ export async function replaceWishlistImage(
   };
 }
 
+/** Every wishlist item of the event: wishlists are shared with the whole group. */
 export async function getWishlistItems(
   eventId: string,
   skip = 0,
@@ -229,6 +241,7 @@ export async function getWishlistItems(
   };
 }
 
+/** Adds an item to the user's wishlist in this event. */
 export async function createWishlistItem(
   eventId: string,
   userId: string,
@@ -256,6 +269,7 @@ export async function createWishlistItem(
   };
 }
 
+/** Deletes a wishlist item of this event; only its owner or an admin may. False when not allowed or not found. */
 export async function deleteWishlistItem(
   eventId: string,
   itemId: string,

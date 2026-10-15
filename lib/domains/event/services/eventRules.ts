@@ -13,6 +13,10 @@ export type EventRulesState = {
   hasSecretSantaDraw: boolean;
 };
 
+/** The stages of an edition, in order (`EventPhase.type`). */
+export const PHASE_TYPES = ["DRAW", "PROPOSALS", "VOTING", "RESULTS"] as const;
+export type PhaseType = (typeof PHASE_TYPES)[number];
+
 export type VotingWindow = { startDateUtc: Date; endDateUtc: Date };
 
 export function resolveMemberModules(state: EventRulesState): EventModulesDto {

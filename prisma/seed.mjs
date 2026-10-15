@@ -12,10 +12,16 @@ function adminEmails() {
     .filter(Boolean);
 }
 
+// Fake members, categories and posts are for local development. A production container only gets
+// the admins and the event, unless SEED_DEMO_DATA=true.
+const shouldSeedDemoData = process.env.SEED_DEMO_DATA
+  ? process.env.SEED_DEMO_DATA === "true"
+  : process.env.NODE_ENV !== "production";
+
 const randomEl = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 async function main() {
-  console.log("Starting massive seed...");
+  console.log("Seeding admins and the event...");
 
   // 1. Ensure Admins
   const seededAdmins = [];
@@ -45,14 +51,10 @@ async function main() {
     },
   });
 
-  // Forçar estado inicial para Propostas (ainda sem votações)
+  // Initial state only: the seed runs on every container start and must not reset the phase.
   await prisma.canhoesEventState.upsert({
     where: { eventId },
-    update: {
-      phase: "Proposals",
-      nominationsVisible: true,
-      resultsVisible: false,
-    },
+    update: {},
     create: {
       eventId,
       phase: "Proposals",
@@ -91,6 +93,16 @@ async function main() {
       },
     });
   }
+
+  if (shouldSeedDemoData) {
+    await seedDemoData(eventId, seededAdmins, now);
+  }
+
+  console.log("Seed completed.");
+}
+
+async function seedDemoData(eventId, seededAdmins, now) {
+  console.log("Adding demo data...");
 
   // 3. Fake Users
   const fakeUsers = [
@@ -147,9 +159,9 @@ async function main() {
       
       // Create Nominees for this new category
       const nomineesData = [
-        { title: `O tombo do ${randomEl(allUsers).displayName}`, status: "Approved" },
-        { title: `A dança de ${randomEl(allUsers).displayName}`, status: "Approved" },
-        { title: `${randomEl(allUsers).displayName} a dormir no sofá`, status: "Approved" },
+        { title: `O tombo do ${randomEl(allUsers).displayName}`, status: "approved" },
+        { title: `A dança de ${randomEl(allUsers).displayName}`, status: "approved" },
+        { title: `${randomEl(allUsers).displayName} a dormir no sofá`, status: "approved" },
       ];
 
       for (const nom of nomineesData) {
@@ -158,7 +170,7 @@ async function main() {
             eventId,
             categoryId: catId,
             title: nom.title,
-            submissionKind: "Text",
+            submissionKind: "nominees",
             submittedByUserId: randomEl(allUsers).id,
             status: nom.status,
           }
@@ -241,8 +253,6 @@ async function main() {
       });
     }
   }
-
-  console.log("Massive seed completed successfully!");
 }
 
 main()

@@ -9,7 +9,7 @@ export function shouldRedirectUnauthenticated(pathname: string, token: unknown) 
 }
 
 export default withAuth(
-  function middleware() {},
+  function proxy() {},
   {
     pages: { signIn: "/canhoes/login" },
     callbacks: {

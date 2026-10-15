@@ -6,6 +6,9 @@ import type {
 } from "@/lib/api/types";
 import { KindUserVote } from "./constants";
 
+/* What the admin sees of the voting: every individual vote and the official results so far. */
+
+/** Nominee votes of the event, most recently changed first, with category, nominee and voter names. */
 export async function getAdminVotesPaged(
   eventId: string,
   skip = 0,
@@ -58,6 +61,7 @@ export async function getAdminVotesPaged(
   };
 }
 
+/** Official results per category so far, for the admin, at any phase (members only see them in RESULTS). */
 export async function getAdminOfficialResultsPaged(
   eventId: string,
   skip = 0,

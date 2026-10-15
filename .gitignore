@@ -86,6 +86,7 @@ Thumbs.db
 skills-lock.json
 .github/*
 !.github/workflows/
+!.github/dependabot.yml
 
 # Qwen Code local files
 .qwen/
@@ -123,5 +124,9 @@ IDENTITY.md
 SOUL.md
 USER.md
 
-# Committed template for .env
+# Committed templates for .env and .env.server
 !.env.example
+!.env.server.example
+
+# Lock of scripts/update-server.sh
+.update-server.lock

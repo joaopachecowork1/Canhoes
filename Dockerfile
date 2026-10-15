@@ -30,9 +30,10 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Prisma CLI for `migrate deploy` at startup, installed at build time so the container starts offline.
-# Keep the version in sync with package-lock.json.
-ARG PRISMA_VERSION=6.19.3
-RUN npm install -g prisma@${PRISMA_VERSION} && npm cache clean --force
+# The version comes from package-lock.json, so it always matches the generated client.
+COPY package-lock.json /tmp/package-lock.json
+RUN npm install -g "prisma@$(node -p "require('/tmp/package-lock.json').packages['node_modules/prisma'].version")" \
+  && npm cache clean --force && rm /tmp/package-lock.json
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -61,5 +62,9 @@ EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+
+# /api/health answers 503 when the database is unreachable.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD wget -qO /dev/null http://127.0.0.1:3000/api/health || exit 1
 
 CMD ["sh", "./docker-start.sh"]
