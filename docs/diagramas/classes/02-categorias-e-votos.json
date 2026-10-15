@@ -1,0 +1,839 @@
+{
+  "id": "e8fedc75-6ee5-57c8-9c93-796be0787e74",
+  "title": "Categorias e votos",
+  "model": {
+    "version": "3.0.0",
+    "type": "ClassDiagram",
+    "size": {
+      "width": 1180,
+      "height": 1060
+    },
+    "interactive": {
+      "elements": {},
+      "relationships": {}
+    },
+    "elements": {
+      "88264b40-2bdd-4716-b84d-f762b306d549": {
+        "id": "88264b40-2bdd-4716-b84d-f762b306d549",
+        "name": "AwardCategory",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -555,
+          "y": -220,
+          "width": 210,
+          "height": 190
+        },
+        "attributes": [
+          "57e11648-e071-4735-a34a-4031b3280298",
+          "d41e9f85-3f9c-4f0e-bd22-ddddbf6a70df",
+          "cbb70d94-e828-4bb9-8799-b98163c45c75",
+          "759fd037-4be8-4a71-99da-68e8ca9c0c72",
+          "3d5996ba-eb70-4a4d-a856-0d78ed913082"
+        ],
+        "methods": []
+      },
+      "57e11648-e071-4735-a34a-4031b3280298": {
+        "id": "57e11648-e071-4735-a34a-4031b3280298",
+        "name": "isActive",
+        "type": "ClassAttribute",
+        "owner": "88264b40-2bdd-4716-b84d-f762b306d549",
+        "bounds": {
+          "x": -554.5,
+          "y": -179.5,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "d41e9f85-3f9c-4f0e-bd22-ddddbf6a70df": {
+        "id": "d41e9f85-3f9c-4f0e-bd22-ddddbf6a70df",
+        "name": "kind",
+        "type": "ClassAttribute",
+        "owner": "88264b40-2bdd-4716-b84d-f762b306d549",
+        "bounds": {
+          "x": -554.5,
+          "y": -149.5,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "CategoryKind",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "cbb70d94-e828-4bb9-8799-b98163c45c75": {
+        "id": "cbb70d94-e828-4bb9-8799-b98163c45c75",
+        "name": "name",
+        "type": "ClassAttribute",
+        "owner": "88264b40-2bdd-4716-b84d-f762b306d549",
+        "bounds": {
+          "x": -554.5,
+          "y": -119.5,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "759fd037-4be8-4a71-99da-68e8ca9c0c72": {
+        "id": "759fd037-4be8-4a71-99da-68e8ca9c0c72",
+        "name": "sortOrder",
+        "type": "ClassAttribute",
+        "owner": "88264b40-2bdd-4716-b84d-f762b306d549",
+        "bounds": {
+          "x": -554.5,
+          "y": -89.5,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "int",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "3d5996ba-eb70-4a4d-a856-0d78ed913082": {
+        "id": "3d5996ba-eb70-4a4d-a856-0d78ed913082",
+        "name": "voteQuestion",
+        "type": "ClassAttribute",
+        "owner": "88264b40-2bdd-4716-b84d-f762b306d549",
+        "bounds": {
+          "x": -554.5,
+          "y": -59.5,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "be066fe1-267b-46b7-88dd-4006432ac70f": {
+        "id": "be066fe1-267b-46b7-88dd-4006432ac70f",
+        "name": "CategoryKind",
+        "type": "Enumeration",
+        "owner": null,
+        "bounds": {
+          "x": -390,
+          "y": -510,
+          "width": 160,
+          "height": 110
+        },
+        "attributes": [
+          "115589ec-d188-43aa-a35f-e065ca712d35",
+          "061aca13-bc43-4eb3-aaab-70849d8d552b"
+        ],
+        "methods": []
+      },
+      "115589ec-d188-43aa-a35f-e065ca712d35": {
+        "id": "115589ec-d188-43aa-a35f-e065ca712d35",
+        "name": "Nominees",
+        "type": "ClassAttribute",
+        "owner": "be066fe1-267b-46b7-88dd-4006432ac70f",
+        "bounds": {
+          "x": -389.5,
+          "y": -460,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "061aca13-bc43-4eb3-aaab-70849d8d552b": {
+        "id": "061aca13-bc43-4eb3-aaab-70849d8d552b",
+        "name": "People",
+        "type": "ClassAttribute",
+        "owner": "be066fe1-267b-46b7-88dd-4006432ac70f",
+        "bounds": {
+          "x": -389.5,
+          "y": -430,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "c6f6fd04-a927-4e75-a76e-04ffea6e148f": {
+        "id": "c6f6fd04-a927-4e75-a76e-04ffea6e148f",
+        "name": "Event",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -530,
+          "y": -350,
+          "width": 160,
+          "height": 40
+        },
+        "attributes": [],
+        "methods": []
+      },
+      "48ac5029-7fe8-436c-887e-7707f3fdb27a": {
+        "id": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+        "name": "Nominee",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -340,
+          "y": 60,
+          "width": 320,
+          "height": 190
+        },
+        "attributes": [
+          "792c0044-2b34-4196-96a9-6be275c6e15e",
+          "61e9304b-3026-4ac0-9aff-cafee46b9e7c",
+          "824aa1e1-bb0d-4c94-a239-0c4c0bbd6de0",
+          "45dafdce-bf3d-441f-90e3-e9acadb0cffc",
+          "189bdefd-ea96-40ed-87b3-570fda1a6f8e"
+        ],
+        "methods": []
+      },
+      "792c0044-2b34-4196-96a9-6be275c6e15e": {
+        "id": "792c0044-2b34-4196-96a9-6be275c6e15e",
+        "name": "imageUrl",
+        "type": "ClassAttribute",
+        "owner": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+        "bounds": {
+          "x": -339.5,
+          "y": 190,
+          "width": 319,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "61e9304b-3026-4ac0-9aff-cafee46b9e7c": {
+        "id": "61e9304b-3026-4ac0-9aff-cafee46b9e7c",
+        "name": "status",
+        "type": "ClassAttribute",
+        "owner": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+        "bounds": {
+          "x": -339.5,
+          "y": 160,
+          "width": 319,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "ReviewStatus",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "824aa1e1-bb0d-4c94-a239-0c4c0bbd6de0": {
+        "id": "824aa1e1-bb0d-4c94-a239-0c4c0bbd6de0",
+        "name": "submissionKind",
+        "type": "ClassAttribute",
+        "owner": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+        "bounds": {
+          "x": -339.5,
+          "y": 130,
+          "width": 319,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "SubmissionKind",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "45dafdce-bf3d-441f-90e3-e9acadb0cffc": {
+        "id": "45dafdce-bf3d-441f-90e3-e9acadb0cffc",
+        "name": "submittedBy",
+        "type": "ClassAttribute",
+        "owner": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+        "bounds": {
+          "x": -339.5,
+          "y": 220,
+          "width": 319,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "189bdefd-ea96-40ed-87b3-570fda1a6f8e": {
+        "id": "189bdefd-ea96-40ed-87b3-570fda1a6f8e",
+        "name": "title",
+        "type": "ClassAttribute",
+        "owner": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+        "bounds": {
+          "x": -339.5,
+          "y": 100,
+          "width": 319,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "ef92ec46-0b9a-4749-8385-dbc8e005b640": {
+        "id": "ef92ec46-0b9a-4749-8385-dbc8e005b640",
+        "name": "ReviewStatus",
+        "type": "Enumeration",
+        "owner": null,
+        "bounds": {
+          "x": -20,
+          "y": -510,
+          "width": 160,
+          "height": 140
+        },
+        "attributes": [
+          "10b38554-cdbb-4402-a3c2-e8bd566422e0",
+          "0fc80c5d-89a3-4b82-8d9e-7a9a68f79741",
+          "dc707568-bd28-438a-b498-2a871a4711e1"
+        ],
+        "methods": []
+      },
+      "10b38554-cdbb-4402-a3c2-e8bd566422e0": {
+        "id": "10b38554-cdbb-4402-a3c2-e8bd566422e0",
+        "name": "approved",
+        "type": "ClassAttribute",
+        "owner": "ef92ec46-0b9a-4749-8385-dbc8e005b640",
+        "bounds": {
+          "x": -19.5,
+          "y": -430,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "0fc80c5d-89a3-4b82-8d9e-7a9a68f79741": {
+        "id": "0fc80c5d-89a3-4b82-8d9e-7a9a68f79741",
+        "name": "pending",
+        "type": "ClassAttribute",
+        "owner": "ef92ec46-0b9a-4749-8385-dbc8e005b640",
+        "bounds": {
+          "x": -19.5,
+          "y": -460,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "dc707568-bd28-438a-b498-2a871a4711e1": {
+        "id": "dc707568-bd28-438a-b498-2a871a4711e1",
+        "name": "rejected",
+        "type": "ClassAttribute",
+        "owner": "ef92ec46-0b9a-4749-8385-dbc8e005b640",
+        "bounds": {
+          "x": -19.5,
+          "y": -400,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "defd9d8a-9987-4e80-886e-1547e435c12c": {
+        "id": "defd9d8a-9987-4e80-886e-1547e435c12c",
+        "name": "SubmissionKind",
+        "type": "Enumeration",
+        "owner": null,
+        "bounds": {
+          "x": -210,
+          "y": -510,
+          "width": 170,
+          "height": 110
+        },
+        "attributes": [
+          "642c025d-16d9-408e-a6a5-e6108762be43",
+          "85786528-08a8-4fa6-abfe-041408036fe2"
+        ],
+        "methods": []
+      },
+      "642c025d-16d9-408e-a6a5-e6108762be43": {
+        "id": "642c025d-16d9-408e-a6a5-e6108762be43",
+        "name": "nominees",
+        "type": "ClassAttribute",
+        "owner": "defd9d8a-9987-4e80-886e-1547e435c12c",
+        "bounds": {
+          "x": -209.5,
+          "y": -460,
+          "width": 169,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "85786528-08a8-4fa6-abfe-041408036fe2": {
+        "id": "85786528-08a8-4fa6-abfe-041408036fe2",
+        "name": "stickers",
+        "type": "ClassAttribute",
+        "owner": "defd9d8a-9987-4e80-886e-1547e435c12c",
+        "bounds": {
+          "x": -209.5,
+          "y": -430,
+          "width": 169,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "426998cf-464a-4070-a62e-5fb2314394d9": {
+        "id": "426998cf-464a-4070-a62e-5fb2314394d9",
+        "name": "User",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -570,
+          "y": -510,
+          "width": 160,
+          "height": 40
+        },
+        "attributes": [],
+        "methods": []
+      },
+      "e2aa5595-dc63-4b66-b7a2-653e47d9837e": {
+        "id": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
+        "name": "UserVote",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -570,
+          "y": 60,
+          "width": 170,
+          "height": 100
+        },
+        "attributes": [
+          "cce670f0-99ac-41c1-9f81-ed903a6466d3",
+          "6a944265-fdb6-4251-8106-7da42eba9e74"
+        ],
+        "methods": []
+      },
+      "cce670f0-99ac-41c1-9f81-ed903a6466d3": {
+        "id": "cce670f0-99ac-41c1-9f81-ed903a6466d3",
+        "name": "votedFor",
+        "type": "ClassAttribute",
+        "owner": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
+        "bounds": {
+          "x": -569.5,
+          "y": 130,
+          "width": 169,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "6a944265-fdb6-4251-8106-7da42eba9e74": {
+        "id": "6a944265-fdb6-4251-8106-7da42eba9e74",
+        "name": "voter",
+        "type": "ClassAttribute",
+        "owner": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
+        "bounds": {
+          "x": -569.5,
+          "y": 100,
+          "width": 169,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "c84f4102-b6ac-41fc-a574-4fe40a9fb7a7": {
+        "id": "c84f4102-b6ac-41fc-a574-4fe40a9fb7a7",
+        "name": "Vote",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -260,
+          "y": 340,
+          "width": 160,
+          "height": 70
+        },
+        "attributes": [
+          "a456f3d3-b327-438a-9c43-5aa4b2b22752"
+        ],
+        "methods": []
+      },
+      "a456f3d3-b327-438a-9c43-5aa4b2b22752": {
+        "id": "a456f3d3-b327-438a-9c43-5aa4b2b22752",
+        "name": "voter",
+        "type": "ClassAttribute",
+        "owner": "c84f4102-b6ac-41fc-a574-4fe40a9fb7a7",
+        "bounds": {
+          "x": -259.5,
+          "y": 380,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      }
+    },
+    "relationships": {
+      "54cf4046-3a8d-421d-b7a3-524eadbbef2a": {
+        "id": "54cf4046-3a8d-421d-b7a3-524eadbbef2a",
+        "name": "AwardCategory_nominees",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -415,
+          "y": -30,
+          "width": 235,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 30
+          },
+          {
+            "x": 235,
+            "y": 30
+          },
+          {
+            "x": 235,
+            "y": 90
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "88264b40-2bdd-4716-b84d-f762b306d549",
+          "multiplicity": "0..1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -520,
+            "y": -110,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -520,
+            "y": -100,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "f05ab88a-9375-4b5b-bb1e-fe879d775f63": {
+        "id": "f05ab88a-9375-4b5b-bb1e-fe879d775f63",
+        "name": "AwardCategory_userVotes",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -485,
+          "y": -30,
+          "width": 0,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 90
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "88264b40-2bdd-4716-b84d-f762b306d549",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -520,
+            "y": -110,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": 100,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "46c17cb4-f74e-4682-b7db-3698d3567058": {
+        "id": "46c17cb4-f74e-4682-b7db-3698d3567058",
+        "name": "Event_categories",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -450,
+          "y": -310,
+          "width": 0,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 90
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "c6f6fd04-a927-4e75-a76e-04ffea6e148f",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -280,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "88264b40-2bdd-4716-b84d-f762b306d549",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -205,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "54c2932b-0590-440d-be95-2f6c3b68ee42": {
+        "id": "54c2932b-0590-440d-be95-2f6c3b68ee42",
+        "name": "Nominee_votes",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -180,
+          "y": 250,
+          "width": 0,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 90
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "48ac5029-7fe8-436c-887e-7707f3fdb27a",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -5,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "c84f4102-b6ac-41fc-a574-4fe40a9fb7a7",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": 135,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      }
+    },
+    "assessments": {}
+  },
+  "lastUpdate": "2026-10-15T00:00:00.000Z"
+}

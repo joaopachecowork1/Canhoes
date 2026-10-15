@@ -1,0 +1,938 @@
+{
+  "id": "2cc6f0d6-5845-5303-964c-c5b5397ba238",
+  "title": "Mural",
+  "model": {
+    "version": "3.0.0",
+    "type": "ClassDiagram",
+    "size": {
+      "width": 1820,
+      "height": 840
+    },
+    "interactive": {
+      "elements": {},
+      "relationships": {}
+    },
+    "elements": {
+      "e27532f9-6ac4-4bdb-ad9b-4bced0e8e5c0": {
+        "id": "e27532f9-6ac4-4bdb-ad9b-4bced0e8e5c0",
+        "name": "Event",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -643.3333333333333,
+          "y": -400,
+          "width": 160,
+          "height": 40
+        },
+        "attributes": [],
+        "methods": []
+      },
+      "b0cf14ff-2ef0-4b77-a715-99ad49a43029": {
+        "id": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+        "name": "HubPost",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -663.3333333333333,
+          "y": -270,
+          "width": 200,
+          "height": 160
+        },
+        "attributes": [
+          "3fdc4eed-f392-4858-880a-9db8aed5f9c8",
+          "2b5c6cdb-5a9f-42be-85b6-df1ea887abac",
+          "478da393-9b8f-4000-bacb-80c0fbddc32b",
+          "ce8e2567-a2be-4062-8197-02cf3ad98aad"
+        ],
+        "methods": []
+      },
+      "3fdc4eed-f392-4858-880a-9db8aed5f9c8": {
+        "id": "3fdc4eed-f392-4858-880a-9db8aed5f9c8",
+        "name": "author",
+        "type": "ClassAttribute",
+        "owner": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+        "bounds": {
+          "x": -662.8333333333333,
+          "y": -229.5,
+          "width": 199,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "2b5c6cdb-5a9f-42be-85b6-df1ea887abac": {
+        "id": "2b5c6cdb-5a9f-42be-85b6-df1ea887abac",
+        "name": "isPinned",
+        "type": "ClassAttribute",
+        "owner": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+        "bounds": {
+          "x": -662.8333333333333,
+          "y": -199.5,
+          "width": 199,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "478da393-9b8f-4000-bacb-80c0fbddc32b": {
+        "id": "478da393-9b8f-4000-bacb-80c0fbddc32b",
+        "name": "pinnedOrder",
+        "type": "ClassAttribute",
+        "owner": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+        "bounds": {
+          "x": -662.8333333333333,
+          "y": -169.5,
+          "width": 199,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "int",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "ce8e2567-a2be-4062-8197-02cf3ad98aad": {
+        "id": "ce8e2567-a2be-4062-8197-02cf3ad98aad",
+        "name": "text",
+        "type": "ClassAttribute",
+        "owner": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+        "bounds": {
+          "x": -662.8333333333333,
+          "y": -139.5,
+          "width": 199,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "e41ba64a-85f2-4ae6-ac69-1398c644bd1e": {
+        "id": "e41ba64a-85f2-4ae6-ac69-1398c644bd1e",
+        "name": "HubPostComment",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -10,
+          "y": 25,
+          "width": 260,
+          "height": 130
+        },
+        "attributes": [
+          "b30fec84-7e9b-432f-912b-83b3401e3cee",
+          "a18326ae-05d6-421d-80c6-22f24e7c4834",
+          "397618d2-c04c-4928-b69e-8030bd2a4a16"
+        ],
+        "methods": []
+      },
+      "b30fec84-7e9b-432f-912b-83b3401e3cee": {
+        "id": "b30fec84-7e9b-432f-912b-83b3401e3cee",
+        "name": "author",
+        "type": "ClassAttribute",
+        "owner": "e41ba64a-85f2-4ae6-ac69-1398c644bd1e",
+        "bounds": {
+          "x": -9.5,
+          "y": 95,
+          "width": 259,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "a18326ae-05d6-421d-80c6-22f24e7c4834": {
+        "id": "a18326ae-05d6-421d-80c6-22f24e7c4834",
+        "name": "replyTo",
+        "type": "ClassAttribute",
+        "owner": "e41ba64a-85f2-4ae6-ac69-1398c644bd1e",
+        "bounds": {
+          "x": -9.5,
+          "y": 125,
+          "width": 259,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "HubPostComment",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "397618d2-c04c-4928-b69e-8030bd2a4a16": {
+        "id": "397618d2-c04c-4928-b69e-8030bd2a4a16",
+        "name": "text",
+        "type": "ClassAttribute",
+        "owner": "e41ba64a-85f2-4ae6-ac69-1398c644bd1e",
+        "bounds": {
+          "x": -9.5,
+          "y": 65,
+          "width": 259,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "754b7df2-db08-4d0e-8257-f3556f86f582": {
+        "id": "754b7df2-db08-4d0e-8257-f3556f86f582",
+        "name": "HubPostCommentReaction",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -5,
+          "y": 260,
+          "width": 250,
+          "height": 100
+        },
+        "attributes": [
+          "bd848408-1a77-4a00-aaeb-4662d9ed8062",
+          "4eef1f09-1568-4e6c-8fc4-d66abd4d0dfb"
+        ],
+        "methods": []
+      },
+      "bd848408-1a77-4a00-aaeb-4662d9ed8062": {
+        "id": "bd848408-1a77-4a00-aaeb-4662d9ed8062",
+        "name": "emoji",
+        "type": "ClassAttribute",
+        "owner": "754b7df2-db08-4d0e-8257-f3556f86f582",
+        "bounds": {
+          "x": -4.5,
+          "y": 300,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "4eef1f09-1568-4e6c-8fc4-d66abd4d0dfb": {
+        "id": "4eef1f09-1568-4e6c-8fc4-d66abd4d0dfb",
+        "name": "user",
+        "type": "ClassAttribute",
+        "owner": "754b7df2-db08-4d0e-8257-f3556f86f582",
+        "bounds": {
+          "x": -4.5,
+          "y": 330,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "f676f951-b1bb-4f48-bf7d-720ce9e682ed": {
+        "id": "f676f951-b1bb-4f48-bf7d-720ce9e682ed",
+        "name": "HubPostDownvote",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -490,
+          "y": 10,
+          "width": 180,
+          "height": 70
+        },
+        "attributes": [
+          "0681d09f-adf9-4760-b8b4-def7ad966cb0"
+        ],
+        "methods": []
+      },
+      "0681d09f-adf9-4760-b8b4-def7ad966cb0": {
+        "id": "0681d09f-adf9-4760-b8b4-def7ad966cb0",
+        "name": "user",
+        "type": "ClassAttribute",
+        "owner": "f676f951-b1bb-4f48-bf7d-720ce9e682ed",
+        "bounds": {
+          "x": -489.5,
+          "y": 50,
+          "width": 179,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "2db406d8-053f-45ee-a025-e46f7856c418": {
+        "id": "2db406d8-053f-45ee-a025-e46f7856c418",
+        "name": "HubPostLike",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -710,
+          "y": 10,
+          "width": 160,
+          "height": 70
+        },
+        "attributes": [
+          "584415e0-f8d2-4a49-92ae-705b51c23282"
+        ],
+        "methods": []
+      },
+      "584415e0-f8d2-4a49-92ae-705b51c23282": {
+        "id": "584415e0-f8d2-4a49-92ae-705b51c23282",
+        "name": "user",
+        "type": "ClassAttribute",
+        "owner": "2db406d8-053f-45ee-a025-e46f7856c418",
+        "bounds": {
+          "x": -709.5,
+          "y": 50,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "d1a206e6-18ba-4c63-a648-d4f0e2c78e6a": {
+        "id": "d1a206e6-18ba-4c63-a648-d4f0e2c78e6a",
+        "name": "HubPostMedia",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": 310,
+          "y": 10,
+          "width": 240,
+          "height": 160
+        },
+        "attributes": [
+          "d62bc9f9-f662-49f2-ab5c-1ef9d3dfb4a2",
+          "0cf082a3-533d-4f74-8b36-379ca3178077",
+          "afb81571-4605-49c0-b7f1-d7bf22af7cd3",
+          "69f6e2dd-8453-4b85-ac75-218caa98ccea"
+        ],
+        "methods": []
+      },
+      "d62bc9f9-f662-49f2-ab5c-1ef9d3dfb4a2": {
+        "id": "d62bc9f9-f662-49f2-ab5c-1ef9d3dfb4a2",
+        "name": "contentType",
+        "type": "ClassAttribute",
+        "owner": "d1a206e6-18ba-4c63-a648-d4f0e2c78e6a",
+        "bounds": {
+          "x": 310.5,
+          "y": 110,
+          "width": 239,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "0cf082a3-533d-4f74-8b36-379ca3178077": {
+        "id": "0cf082a3-533d-4f74-8b36-379ca3178077",
+        "name": "originalFileName",
+        "type": "ClassAttribute",
+        "owner": "d1a206e6-18ba-4c63-a648-d4f0e2c78e6a",
+        "bounds": {
+          "x": 310.5,
+          "y": 80,
+          "width": 239,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "afb81571-4605-49c0-b7f1-d7bf22af7cd3": {
+        "id": "afb81571-4605-49c0-b7f1-d7bf22af7cd3",
+        "name": "uploadedBy",
+        "type": "ClassAttribute",
+        "owner": "d1a206e6-18ba-4c63-a648-d4f0e2c78e6a",
+        "bounds": {
+          "x": 310.5,
+          "y": 140,
+          "width": 239,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "69f6e2dd-8453-4b85-ac75-218caa98ccea": {
+        "id": "69f6e2dd-8453-4b85-ac75-218caa98ccea",
+        "name": "url",
+        "type": "ClassAttribute",
+        "owner": "d1a206e6-18ba-4c63-a648-d4f0e2c78e6a",
+        "bounds": {
+          "x": 310.5,
+          "y": 50,
+          "width": 239,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "32c136ce-8a66-4b9c-8bcd-ec804b304e4e": {
+        "id": "32c136ce-8a66-4b9c-8bcd-ec804b304e4e",
+        "name": "HubPostReaction",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -250,
+          "y": 10,
+          "width": 180,
+          "height": 100
+        },
+        "attributes": [
+          "f6566441-41ad-44ee-a096-4fc83592f5e2",
+          "96aa530a-d8ee-4c5d-9f95-b71643d9d0ce"
+        ],
+        "methods": []
+      },
+      "f6566441-41ad-44ee-a096-4fc83592f5e2": {
+        "id": "f6566441-41ad-44ee-a096-4fc83592f5e2",
+        "name": "emoji",
+        "type": "ClassAttribute",
+        "owner": "32c136ce-8a66-4b9c-8bcd-ec804b304e4e",
+        "bounds": {
+          "x": -249.5,
+          "y": 50,
+          "width": 179,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "96aa530a-d8ee-4c5d-9f95-b71643d9d0ce": {
+        "id": "96aa530a-d8ee-4c5d-9f95-b71643d9d0ce",
+        "name": "user",
+        "type": "ClassAttribute",
+        "owner": "32c136ce-8a66-4b9c-8bcd-ec804b304e4e",
+        "bounds": {
+          "x": -249.5,
+          "y": 80,
+          "width": 179,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "46a8c537-0760-4ee4-9e09-10b053b6eaa7": {
+        "id": "46a8c537-0760-4ee4-9e09-10b053b6eaa7",
+        "name": "User",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -890,
+          "y": -400,
+          "width": 160,
+          "height": 40
+        },
+        "attributes": [],
+        "methods": []
+      }
+    },
+    "relationships": {
+      "17ae8ba5-9cc1-4d8b-8a58-2b3943706580": {
+        "id": "17ae8ba5-9cc1-4d8b-8a58-2b3943706580",
+        "name": "Event_posts",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -563.3333333333333,
+          "y": -360,
+          "width": 0,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 90
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "e27532f9-6ac4-4bdb-ad9b-4bced0e8e5c0",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -280,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -300,
+            "y": -220,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "43820688-daab-4cd8-a9a1-b04443b9d460": {
+        "id": "43820688-daab-4cd8-a9a1-b04443b9d460",
+        "name": "HubPostComment_reactions",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": 120,
+          "y": 155,
+          "width": 0,
+          "height": 105
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 105
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "754b7df2-db08-4d0e-8257-f3556f86f582",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -50,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "e41ba64a-85f2-4ae6-ac69-1398c644bd1e",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -235,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "5e8e8caf-02fb-4379-a6a1-632b84251da2": {
+        "id": "5e8e8caf-02fb-4379-a6a1-632b84251da2",
+        "name": "HubPost_comments",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -530,
+          "y": -110,
+          "width": 650,
+          "height": 135
+        },
+        "path": [
+          {
+            "x": 650,
+            "y": 135
+          },
+          {
+            "x": 650,
+            "y": 50
+          },
+          {
+            "x": 0,
+            "y": 50
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "e41ba64a-85f2-4ae6-ac69-1398c644bd1e",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -235,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -140,
+            "y": -220,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "ff573b0e-4200-4fb5-9ab6-738c675a9996": {
+        "id": "ff573b0e-4200-4fb5-9ab6-738c675a9996",
+        "name": "HubPost_downvotes",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -596.6666666666667,
+          "y": -110,
+          "width": 196.66666666666674,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 196.66666666666674,
+            "y": 120
+          },
+          {
+            "x": 196.66666666666674,
+            "y": 90
+          },
+          {
+            "x": 0,
+            "y": 90
+          },
+          {
+            "x": 1.1368683772161603e-13,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "f676f951-b1bb-4f48-bf7d-720ce9e682ed",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": -100,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": -140,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "1365edc5-57d0-4032-b3e3-e3d11d88d586": {
+        "id": "1365edc5-57d0-4032-b3e3-e3d11d88d586",
+        "name": "HubPost_likes",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -630,
+          "y": -110,
+          "width": 0,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 120
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "2db406d8-053f-45ee-a025-e46f7856c418",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -65,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -140,
+            "y": -220,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "031dd007-172f-45be-a938-819f261396eb": {
+        "id": "031dd007-172f-45be-a938-819f261396eb",
+        "name": "HubPost_media",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -496.6666666666667,
+          "y": -110,
+          "width": 926.6666666666667,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 926.6666666666667,
+            "y": 120
+          },
+          {
+            "x": 926.6666666666667,
+            "y": 30
+          },
+          {
+            "x": 0,
+            "y": 30
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "d1a206e6-18ba-4c63-a648-d4f0e2c78e6a",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -520,
+            "y": 100,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+          "multiplicity": "0..1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": -140,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "2c0052ac-95ba-4b39-ae19-d0942485f716": {
+        "id": "2c0052ac-95ba-4b39-ae19-d0942485f716",
+        "name": "HubPost_reactions",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -563.3333333333334,
+          "y": -110,
+          "width": 403.33333333333337,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 403.33333333333337,
+            "y": 120
+          },
+          {
+            "x": 403.33333333333337,
+            "y": 70
+          },
+          {
+            "x": 0,
+            "y": 70
+          },
+          {
+            "x": 1.1368683772161603e-13,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "32c136ce-8a66-4b9c-8bcd-ec804b304e4e",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": 100,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "b0cf14ff-2ef0-4b77-a715-99ad49a43029",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": -140,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      }
+    },
+    "assessments": {}
+  },
+  "lastUpdate": "2026-10-15T00:00:00.000Z"
+}
