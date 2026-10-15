@@ -52,7 +52,7 @@ export function CanhoesBottomTabs({
 
   return (
     <nav
-      aria-label="Navegacao principal do evento"
+      aria-label="Navegação principal do evento"
       className="fixed inset-x-0 bottom-0 z-50"
     >
       <div className="mx-auto max-w-[calc(var(--page-max-width)+10rem)] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:px-3">

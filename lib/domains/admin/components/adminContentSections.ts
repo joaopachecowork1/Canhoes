@@ -23,8 +23,8 @@ export type AdminContentSectionItem = {
 const ADMIN_CONTENT_SECTIONS = [
   {
     id: "queue",
-    label: "Queue",
-    description: "Propostas pendentes e moderacao prioritaria.",
+    label: "Fila",
+    description: "Propostas pendentes e moderação prioritária.",
     icon: Gavel,
     count: (context: AdminContentSectionCountContext) =>
       context.pendingNominationsCount +
@@ -41,7 +41,7 @@ const ADMIN_CONTENT_SECTIONS = [
   {
     id: "resultados",
     label: "Resultados",
-    description: "Resultados oficiais e auditoria isolados da moderacao.",
+    description: "Resultados oficiais e auditoria isolados da moderação.",
     icon: BarChart2,
     count: (context: AdminContentSectionCountContext) => context.resultsCount,
   },

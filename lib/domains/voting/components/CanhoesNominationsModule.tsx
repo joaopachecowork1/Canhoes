@@ -10,7 +10,7 @@ import { useEventOverview } from "@/hooks/useEventOverview";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 
-import { CanhoesFeatureCard, CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleParts";
+import { CanhoesFeatureCard, CanhoesFileTrigger, CanhoesModuleHeader } from "@/components/modules/canhoes/CanhoesModuleParts";
 import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmentTabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
+import { formatCount } from "@/lib/utils";
 
 const EMPTY_EVENT_CATEGORIES: AwardCategoryDto[] = [];
 const EMPTY_NOMINEES: NomineeDto[] = [];
@@ -57,7 +58,8 @@ export function CanhoesNominationsModule({ initialCategories, initialContext }: 
     enabled: Boolean(eventId),
     queryFn: async () => {
       const result = await awardsRepo.getCategories(queryEventId);
-      return result.items.filter((category) => category.isActive);
+      // Kind 1 categories are voted on by picking a member, so only the others take nominations.
+      return result.items.filter((category) => category.isActive && category.kind !== 1);
     },
     initialData: initialCategories,
     placeholderData: keepPreviousData,
@@ -166,12 +168,12 @@ export function CanhoesNominationsModule({ initialCategories, initialContext }: 
         icon={Trophy}
         title="Nomeações oficiais"
         description="Cada membro pode submeter uma nomeação oficial por categoria."
-        badgeLabel={`Categorias: ${categories.filter(c => c.kind === 1).length}`}
+        badgeLabel={formatCount(categories.length, "categoria", "categorias")}
       />
 
       <CompactSegmentTabs
         activeId={selectedCategory?.id ?? ""}
-        items={categories.filter(c => c.kind === 1).map((category) => ({
+        items={categories.map((category) => ({
           id: category.id,
           label: category.name,
           badge: myStatus?.hasNomination && myStatus.nomineeId && myStatus.nomineeId === category.id
@@ -314,18 +316,11 @@ function CategoryNominationCard({
               <span>2 a 120 caracteres.</span>
               <span className="font-[var(--font-mono)]">{titleTrimmed.length}/120</span>
             </div>
-            {file ? <p className="text-xs text-[var(--ink-muted)]">Ficheiro selecionado: {file.name}</p> : null}
-            <div className="space-y-1 text-xs text-[var(--ink-muted)]">
-              <label htmlFor={`nomination-file-${category.id}`}>Upload opcional</label>
-              <input
-                id={`nomination-file-${category.id}`}
-                type="file"
-                accept="image/*"
-                className="block w-full text-xs"
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                disabled={!isPhaseOpen || createNomination.isPending}
-              />
-            </div>
+            <CanhoesFileTrigger
+              fileName={file?.name}
+              onChange={setFile}
+              placeholder="Adicionar imagem (opcional)"
+            />
           </div>
 
           <Button
@@ -344,7 +339,7 @@ function CategoryNominationCard({
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-medium text-[var(--ink-primary)]">Nomeações aprovadas</h4>
           <span className="font-[var(--font-mono)] text-xs text-[var(--ink-muted)]">
-            {approvedNominees.length} nominee(s)
+            {formatCount(approvedNominees.length, "aprovada", "aprovadas")}
           </span>
         </div>
 

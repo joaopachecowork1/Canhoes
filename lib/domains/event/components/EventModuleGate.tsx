@@ -28,8 +28,8 @@ export function EventModuleGate({
     return (
       <AsyncStatusCard
         label="A validar acesso"
-        hint={`A confirmar se ${access.module.label.toLowerCase()} esta disponivel neste evento.`}
-        timeoutHint="A validacao de acesso esta a demorar mais do que o normal. Podes tentar novamente sem sair desta pagina."
+        hint={`A confirmar se ${access.module.label.toLowerCase()} está disponível neste evento.`}
+        timeoutHint="A validação de acesso está a demorar mais do que o normal. Podes tentar novamente sem sair desta página."
         onAction={() => void access.refresh()}
       />
     );
@@ -43,7 +43,7 @@ export function EventModuleGate({
             title={`Erro ao abrir ${access.module.label}`}
             description={
               access.error?.message ??
-              "Nao foi possivel confirmar o estado do evento agora. Tenta novamente para recuperar esta area."
+              "Não foi possível confirmar o estado do evento agora. Tenta novamente para recuperar esta área."
             }
             actionLabel="Tentar novamente"
             onAction={() => void access.refresh()}
@@ -56,8 +56,8 @@ export function EventModuleGate({
   if (!access.isAllowed) {
     return (
       <EventModuleUnavailableState
-        title={`${access.module.label} indisponivel`}
-        description="Esta area nao esta aberta para ti na configuracao atual do evento ou na fase ativa."
+        title={`${access.module.label} indisponível`}
+        description="Esta área não está aberta para ti na configuração atual do evento ou na fase ativa."
         fallbackHref={access.fallbackHref}
         fallbackLabel={access.fallbackLabel}
       />
@@ -66,8 +66,8 @@ export function EventModuleGate({
 
   return (
     <SectionBoundary
-      title={`Erro nesta area: ${access.module.label}`}
-      description={`Esta area falhou ao renderizar, mas o resto da experiencia continua disponivel. Tenta abrir ${access.module.label.toLowerCase()} novamente.`}
+      title={`Erro nesta área: ${access.module.label}`}
+      description={`Esta área falhou ao renderizar, mas o resto da experiência continua disponível. Tenta abrir ${access.module.label.toLowerCase()} novamente.`}
       onRetry={() => void access.refresh()}
       resetKey={moduleKey}
     >

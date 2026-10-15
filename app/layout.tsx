@@ -42,14 +42,14 @@ export const metadata: Metadata = {
     shortcut: "/brand/icon.svg",
   },
   openGraph: {
-    title: "Canhoes do Ano",
-    description: "Premiando a comunidade com uma experiencia clara, moderna e memoravel.",
+    title: "Canhões do Ano",
+    description: "Premiando a comunidade com uma experiência clara, moderna e memorável.",
     images: ["/brand/hero.svg"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Canhoes do Ano",
-    description: "Premiando a comunidade com uma experiencia clara, moderna e memoravel.",
+    title: "Canhões do Ano",
+    description: "Premiando a comunidade com uma experiência clara, moderna e memorável.",
     images: ["/brand/hero.svg"],
   },
 };

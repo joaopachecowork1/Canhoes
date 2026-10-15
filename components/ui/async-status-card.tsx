@@ -36,7 +36,7 @@ export function AsyncStatusCard({
   hint,
   label,
   onAction,
-  timeoutHint = "Se isto demorar mais do que o normal, tenta atualizar esta area.",
+  timeoutHint = "Se isto demorar mais do que o normal, tenta atualizar esta área.",
   timeoutMs = 12000,
 }: Readonly<AsyncStatusCardProps>) {
   const [timedOut, setTimedOut] = useState(false);

@@ -281,7 +281,7 @@ export function HubPostComments({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="border-slate-800 text-slate-300 hover:bg-slate-800 hover:text-slate-100"
+               
                 onClick={() => onCommentDraftChange(postId, "")}
                 disabled={!commentDraft}
               >
@@ -290,7 +290,7 @@ export function HubPostComments({
               <Button
                 type="button"
                 size="sm"
-                className="bg-jungle-600 hover:bg-jungle-500 text-white"
+               
                 onClick={() => onAddComment(postId)}
                 disabled={!commentDraft.trim()}
               >

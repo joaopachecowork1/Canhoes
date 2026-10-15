@@ -14,14 +14,14 @@ export default function CanhoesNotFound() {
       <CardContent className="space-y-4 p-5 sm:p-6">
         <div className="space-y-1">
           <p className="font-[var(--font-mono)] text-[11px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.68)]">
-            Nao encontrado
+            Não encontrado
           </p>
-          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">Esta area nao existe</h1>
+          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">Esta área não existe</h1>
         </div>
 
         <ErrorAlert
-          title="Link indisponivel"
-          description="Este link ja nao existe, esta incompleto ou a area deixou de estar disponivel nesta edicao."
+          title="Link indisponível"
+          description="Este link já não existe, está incompleto ou a área deixou de estar disponível nesta edição."
         />
 
         <div className="flex flex-wrap gap-2">

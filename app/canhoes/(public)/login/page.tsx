@@ -21,13 +21,13 @@ const LeafRain = dynamic(() => import("@/components/animations/LeafRain"), {
 const authErrorMessages: Record<string, string> = {
   AccessDenied: "Esta conta ainda não foi convidada. Pede um convite a um admin e entra com o email do convite.",
   Callback: "O regresso da Google falhou. Tenta novamente em alguns segundos.",
-  Configuration: "O login Google nao esta configurado corretamente neste deploy.",
-  OAuthAccountNotLinked: "Esta conta ja existe com outro metodo de acesso.",
+  Configuration: "O login Google não está configurado corretamente neste deploy.",
+  OAuthAccountNotLinked: "Esta conta já existe com outro método de acesso.",
   OAuthCallback: "A Google autenticou, mas o callback do login falhou.",
-  OAuthCreateAccount: "Nao foi possivel criar a sessao depois da autenticacao Google.",
-  OAuthSignin: "Nao foi possivel iniciar o login Google.",
-  SessionRequired: "Esta pagina precisa de uma sessao valida. Faz login novamente.",
-  default: "Nao foi possivel concluir o login Google. Tenta novamente.",
+  OAuthCreateAccount: "Não foi possível criar a sessão depois da autenticação Google.",
+  OAuthSignin: "Não foi possível iniciar o login Google.",
+  SessionRequired: "Esta página precisa de uma sessão válida. Faz login novamente.",
+  default: "Não foi possível concluir o login Google. Tenta novamente.",
 };
 
 function getSafeCallbackUrl(value: string | null): string {
@@ -130,7 +130,7 @@ export default function CanhoesLoginPage() {
                 Ritual anual
               </p>
               <p className="body-small text-[var(--beige)]/78">
-                Um espaco privado para o feed, os premios, as votacoes e o
+                Um espaço privado para o feed, os prémios, as votações e o
                 arquivo do grupo.
               </p>
             </div>

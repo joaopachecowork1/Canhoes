@@ -129,7 +129,7 @@ export function CanhoesChrome({
     const eventName = eventOverview.event?.name?.trim();
     document.title = eventName
       ? `${pageContext.title} · ${eventName}`
-      : `${pageContext.title} · Canhoes`;
+      : `${pageContext.title} · Canhões`;
   }, [eventOverview.event?.name, pageContext.title]);
 
   return (
@@ -144,7 +144,7 @@ export function CanhoesChrome({
                   >
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1 space-y-2">
-                <CanhoesBrandMark compact subtitle="Premios da edicao" />
+                <CanhoesBrandMark compact subtitle="Prémios da edição" />
 
                 {!isEventHomePath ? (
                   <div className="min-w-0 space-y-1">

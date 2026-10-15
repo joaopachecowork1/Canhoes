@@ -12,12 +12,11 @@ import { ErrorAlert } from "@/components/ui/error-alert";
 import { getErrorMessage } from "@/lib/errors";
 import { Skeleton } from "@/components/ui/skeleton";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
-import { cn } from "@/lib/utils";
+import { cn, formatCount } from "@/lib/utils";
 import type { EventActiveContextDto, PublicCategoryResultDto } from "@/lib/api/types";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 function GalaLoadingState() {
   return (
@@ -81,12 +80,10 @@ function NomineeRankCard({
             {nominee.title}
           </span>
         </div>
-        <p className="body-small text-[var(--ink-secondary)]">{nominee.voteCount} votos</p>
+        <p className="body-small text-[var(--ink-secondary)]">{formatCount(nominee.voteCount, "voto", "votos")}</p>
       </div>
 
-      <Badge variant={isWinner ? "default" : "outline"}>
-        {isWinner ? "Winner" : "Top"}
-      </Badge>
+      {isWinner ? <Badge variant="default">Vencedor</Badge> : null}
     </div>
   );
 }
@@ -118,8 +115,8 @@ export function CanhoesGalaModule({ initialContext, initialResults }: {
       <CanhoesModuleHeader
         icon={Trophy}
         title="Gala"
-        description="Resultados finais por categoria, em formato legível em mobile."
-        badgeLabel={`Total votos: ${totalVotes}`}
+        description="Os três mais votados de cada categoria."
+        badgeLabel={formatCount(totalVotes, "voto", "votos")}
       />
 
       {isLoading ? <GalaLoadingState /> : null}
@@ -144,7 +141,7 @@ export function CanhoesGalaModule({ initialContext, initialResults }: {
               <CardHeader className="pb-2">
                 <CardTitle className="flex flex-wrap items-center justify-between gap-2">
                   <span>{categoryResult.categoryName}</span>
-                  <Badge variant="amber">{categoryResult.totalVotes} votos</Badge>
+                  <Badge variant="amber">{formatCount(categoryResult.totalVotes, "voto", "votos")}</Badge>
                 </CardTitle>
               </CardHeader>
 
@@ -159,8 +156,6 @@ export function CanhoesGalaModule({ initialContext, initialResults }: {
                   )}
                 </div>
 
-                <Separator />
-                <p className="body-small text-[var(--ink-secondary)]">Só mostra o Top 3, com imagem quando existir.</p>
               </CardContent>
             </Card>
           ))}

@@ -58,8 +58,8 @@ export function SecretSantaContent({
   }
 
   const statusMessage = hasDraw
-    ? "O sorteio existe, mas ainda nao ha atribuicao disponivel para o teu perfil."
-    : "Ainda nao existe sorteio para este evento.";
+    ? "O sorteio existe, mas ainda não há atribuição disponível para o teu perfil."
+    : "Ainda não existe sorteio para este evento.";
 
   return (
     <Card>

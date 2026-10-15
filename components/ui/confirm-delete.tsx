@@ -39,7 +39,7 @@ export function ConfirmDeleteAction({
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-white/5 hover:text-red-500"
+            className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-white/5 hover:text-[var(--color-danger)]"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -50,15 +50,15 @@ export function ConfirmDeleteAction({
           </Button>
         )}
       </AlertDialogTrigger>
-      <AlertDialogContent className="border border-white/10 bg-zinc-950 shadow-xl">
+      <AlertDialogContent className="border border-white/10 bg-[var(--bg-deep)] shadow-xl">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-zinc-100">{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-zinc-400">
+          <AlertDialogTitle className="text-[var(--text-primary)]">{title}</AlertDialogTitle>
+          <AlertDialogDescription className="text-[var(--text-muted)]">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="border-white/10 bg-transparent text-zinc-300 hover:bg-white/5 hover:text-white">
+          <AlertDialogCancel className="border-white/10 bg-transparent text-[var(--ink-secondary)] hover:bg-white/5 hover:text-white">
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction 
@@ -66,7 +66,7 @@ export function ConfirmDeleteAction({
               e.stopPropagation();
               onConfirm();
             }} 
-            className="bg-red-600 text-white hover:bg-red-700"
+            className="bg-[var(--color-danger)] text-white hover:bg-[var(--color-danger-hover)]"
           >
             Eliminar
           </AlertDialogAction>

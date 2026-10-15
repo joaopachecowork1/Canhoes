@@ -208,7 +208,7 @@ export function MediaCarousel({
                       Math.min(media.length - 1, previousIndex + 1)
                     );
                   }}
-                  aria-label="Proxima imagem"
+                  aria-label="Próxima imagem"
                   className="canhoes-tap absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.5)] p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition-all group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35"
                   disabled={currentIndex === media.length - 1}
                 >

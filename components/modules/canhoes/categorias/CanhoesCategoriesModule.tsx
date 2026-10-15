@@ -157,14 +157,14 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
                         </div>
 
                         <div className="space-y-2">
-                            <label htmlFor="category-kind-input" className="canhoes-field-label">Formato</label>
+                            <label htmlFor="category-kind-input" className="canhoes-field-label">Como se vota</label>
                             <Select value={categoryKind} onValueChange={setCategoryKind}>
                                 <SelectTrigger id="category-kind-input">
                                     <SelectValue placeholder="Selecione o formato" />
                                 </SelectTrigger>
                                 <SelectContent className="z-[100]">
-                                    <SelectItem value="0">Opções/Candidatos</SelectItem>
-                                    <SelectItem value="1">Stickers (Aberto)</SelectItem>
+                                    <SelectItem value="0">Vota-se nas nomeações</SelectItem>
+                                    <SelectItem value="1">Vota-se num membro</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

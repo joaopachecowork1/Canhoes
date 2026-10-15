@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Local PostgreSQL helpers. Works with Docker or Podman, on Linux, macOS and Windows.
 //
-//   node scripts/db.mjs up                             start PostgreSQL and wait until it accepts connections
+//   node scripts/db.mjs up                             start PostgreSQL, wait until it accepts connections and
+//                                                      create the <db>_test database for the integration tests
 //   node scripts/db.mjs down                           stop the compose stack (data stays in the volume)
 //   node scripts/db.mjs backup                         write a pg_dump to backups/
 //   node scripts/db.mjs restore <file>                 restore a pg_dump (drops existing objects first)
@@ -36,9 +37,19 @@ function run(command, args) {
   }
 }
 
+// Checked over TCP: on a new volume the image first runs a temporary server on the Unix socket only,
+// and a socket check would pass before the real server (the one published on 5433) is up.
 function isPostgresReady() {
-  const result = spawnSync(engine, ["exec", POSTGRES_CONTAINER, "pg_isready", "-U", dbUser, "-d", dbName], { stdio: "ignore" });
+  const result = spawnSync(engine, ["exec", POSTGRES_CONTAINER, "pg_isready", "-h", "127.0.0.1", "-U", dbUser, "-d", dbName], { stdio: "ignore" });
   return result.status === 0;
+}
+
+function ensureTestDatabase() {
+  const testDatabase = `${dbName}_test`;
+  const query = `SELECT 1 FROM pg_database WHERE datname = '${testDatabase}'`;
+  const result = spawnSync(engine, ["exec", POSTGRES_CONTAINER, "psql", "-h", "127.0.0.1", "-U", dbUser, "-d", dbName, "-tAc", query], { encoding: "utf8" });
+  if (result.stdout.trim() === "1") return;
+  run(engine, ["exec", POSTGRES_CONTAINER, "createdb", "-h", "127.0.0.1", "-U", dbUser, testDatabase]);
 }
 
 function timestamp() {
@@ -49,14 +60,15 @@ function timestamp() {
 
 async function up() {
   run(engine, ["compose", "up", "-d", "postgres"]);
-  for (let attempt = 0; attempt < 30; attempt++) {
+  for (let attempt = 0; attempt < 60; attempt++) {
     if (isPostgresReady()) {
-      console.log("PostgreSQL is ready on localhost:5433.");
+      ensureTestDatabase();
+      console.log(`PostgreSQL is ready on localhost:5433 (databases ${dbName} and ${dbName}_test).`);
       return;
     }
     await sleep(1000);
   }
-  throw new Error("PostgreSQL did not become ready within 30 seconds.");
+  throw new Error("PostgreSQL did not become ready within 60 seconds.");
 }
 
 function down() {
