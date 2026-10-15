@@ -135,15 +135,15 @@ function HubPostCardComponent({
           {parsedText ? (
             parsedText.title ? (
               <div className="space-y-1.5">
-                <p className="post-title text-zinc-100">{parsedText.title}</p>
+                <p className="post-title text-[var(--text-primary)]">{parsedText.title}</p>
                 {parsedText.body ? (
-                  <p className="post-body whitespace-pre-wrap break-words text-zinc-300">
+                  <p className="post-body whitespace-pre-wrap break-words text-[var(--ink-secondary)]">
                     {parsedText.body}
                   </p>
                 ) : null}
               </div>
             ) : (
-              <p className="body-base whitespace-pre-wrap break-words text-zinc-200 leading-[1.6]">
+              <p className="body-base whitespace-pre-wrap break-words text-[var(--text-primary)] leading-[1.6]">
                 {post.text}
               </p>
             )
@@ -178,7 +178,7 @@ function HubPostCardComponent({
                   "canhoes-tap flex h-9 w-9 items-center justify-center rounded-full transition-colors",
                   post.likedByMe
                     ? "bg-green-500/20 text-green-500 shadow-[0_0_0_1px_rgba(34,197,94,0.25)]"
-                    : "text-zinc-400 hover:bg-green-500/10 hover:text-green-400"
+                    : "text-[var(--text-muted)] hover:bg-green-500/10 hover:text-green-400"
                 )}
                 aria-label={post.likedByMe ? "Remover upvote" : "Upvote"}
               >
@@ -192,7 +192,7 @@ function HubPostCardComponent({
                     ? "text-green-500"
                     : post.downvotedByMe
                       ? "text-red-500"
-                      : "text-zinc-300"
+                      : "text-[var(--ink-secondary)]"
                 )}
               >
                 {displayScore}
@@ -205,7 +205,7 @@ function HubPostCardComponent({
                   "canhoes-tap flex h-9 w-9 items-center justify-center rounded-full transition-colors",
                   post.downvotedByMe
                     ? "bg-red-500/15 text-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]"
-                    : "text-zinc-400 hover:bg-red-500/10 hover:text-red-400"
+                    : "text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400"
                 )}
                 aria-label={post.downvotedByMe ? "Remover downvote" : "Downvote"}
               >

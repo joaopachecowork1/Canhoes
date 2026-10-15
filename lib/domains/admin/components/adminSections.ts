@@ -21,7 +21,7 @@ const ADMIN_SECTIONS = [
   {
     id: "dashboard",
     label: "Resumo",
-    description: "Leitura rapida da edicao, da fila e dos sinais operacionais.",
+    description: "Leitura rápida da edição, da fila e dos sinais operacionais.",
     icon: BarChart2,
     count: () => 0,
   },
@@ -35,14 +35,14 @@ const ADMIN_SECTIONS = [
   {
     id: "membros",
     label: "Membros",
-    description: "Amigo secreto e roster operacional desta edicao.",
+    description: "Amigo secreto e roster operacional desta edição.",
     icon: Users,
     count: (context: AdminSectionCountContext) => context.memberCount,
   },
   {
     id: "configuracoes",
     label: "Evento",
-    description: "Evento ativo, fase e visibilidade dos modulos.",
+    description: "Evento ativo, fase e visibilidade dos módulos.",
     icon: Settings2,
     count: (context: AdminSectionCountContext) => context.visibleModuleCount,
   },

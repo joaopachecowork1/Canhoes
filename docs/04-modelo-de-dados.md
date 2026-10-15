@@ -2,130 +2,48 @@
 
 A fonte de verdade é `prisma/schema.prisma`; as alterações entram por migrations em `prisma/migrations`. As tabelas e colunas têm nomes em PascalCase (`Users`, `EventId`) porque o esquema veio de um backend .NET; no código usam-se os nomes camelCase do Prisma.
 
-## Diagrama de classes
+## Diagramas de classes
 
-Setas a tracejado são ligações que só existem no código (IDs sem chave estrangeira). Losangos cheios são chaves estrangeiras reais com `onDelete: Cascade`; só o mural as tem.
+Há um diagrama por área, cada um com poucas classes. Foram feitos no [BESSER Web Modeling Editor](https://editor.besser-pearl.org); o JSON ao lado de cada imagem abre-se no editor para os alterar (ver [diagramas/README.md](diagramas/README.md)).
 
-```mermaid
-classDiagram
-  direction LR
+Como ler:
 
-  class User {
-    uuid id
-    string email
-    string externalId
-    string? displayName
-    string? passwordHash
-    bool isAdmin
-  }
-  class UserInvitation {
-    string email
-    string token
-    datetime expiresAtUtc
-    datetime? usedAtUtc
-    string? eventId
-  }
-  class Event {
-    string id
-    string name
-    bool isActive
-  }
-  class EventMember {
-    string role
-  }
-  class EventPhase {
-    string type
-    datetime startDateUtc
-    datetime endDateUtc
-    bool isActive
-  }
-  class CanhoesEventState {
-    bool nominationsVisible
-    bool resultsVisible
-    json moduleVisibilityJson
-    bool hasSecretSantaDraw
-    string? secretSantaEventCode
-    string phase
-  }
-  class AwardCategory {
-    string name
-    int kind
-    int sortOrder
-    bool isActive
-    string? voteQuestion
-  }
-  class Nominee {
-    string title
-    string submissionKind
-    string status
-    string? imageUrl
-  }
-  class Vote
-  class UserVote
-  class CategoryProposal {
-    string name
-    int kind
-    string status
-  }
-  class GalaMeasure {
-    string text
-    bool isActive
-  }
-  class MeasureProposal {
-    string text
-    string status
-  }
-  class WishlistItem {
-    string title
-    string? url
-    string? notes
-    string? imageUrl
-  }
-  class SecretSantaDraw {
-    string eventCode
-    bool isLocked
-  }
-  class SecretSantaAssignment {
-    uuid giverUserId
-    uuid receiverUserId
-  }
-  class HubPost {
-    string text
-    json mediaUrlsJson
-    bool isPinned
-    int? pinnedOrder
-  }
+- Uma linha simples é uma ligação que só existe no código: a tabela guarda o id, sem chave estrangeira.
+- Um losango cheio é uma chave estrangeira real com `onDelete: Cascade`; só o mural as tem.
+- Um atributo do tipo `User` é o id de uma pessoa (`userId`, `proposedByUserId`, …). Fica como atributo para os diagramas não se encherem de linhas para a mesma caixa.
+- `?` marca um campo opcional. As enumerações mostram os valores que o código aceita; na base de dados são strings ou inteiros (ver [Valores possíveis](#valores-possíveis)).
 
-  Event ..> EventMember : 1..*
-  User ..> EventMember : 1..*
-  User ..> UserInvitation : convida
-  Event ..> EventPhase : 1..4
-  Event ..> CanhoesEventState : 1..1
-  Event ..> AwardCategory : 0..*
-  AwardCategory ..> Nominee : 0..*
-  Nominee ..> Vote : 0..*
-  AwardCategory ..> Vote : 0..*
-  AwardCategory ..> UserVote : 0..*
-  User ..> UserVote : alvo
-  Event ..> CategoryProposal : 0..*
-  Event ..> GalaMeasure : 0..*
-  Event ..> MeasureProposal : 0..*
-  User ..> WishlistItem : 0..*
-  Event ..> WishlistItem : 0..*
-  CanhoesEventState ..> SecretSantaDraw : eventCode
-  SecretSantaDraw ..> SecretSantaAssignment : 1..*
-  Event ..> HubPost : 0..*
-  HubPost *-- HubPostComment
-  HubPost *-- HubPostReaction
-  HubPost *-- HubPostLike
-  HubPost *-- HubPostDownvote
-  HubPost *-- HubPostMedia
-  HubPost *-- HubPostPoll
-  HubPostPoll *-- HubPostPollOption
-  HubPostPoll *-- HubPostPollVote
-  HubPostComment *-- HubPostCommentReaction
-  HubPostComment ..> HubPostComment : replyTo
-```
+### Pessoas e eventos
+
+Quem entra, a que evento pertence e em que fase o evento está.
+
+![Pessoas e eventos](diagramas/classes/01-pessoas-e-eventos.png)
+
+### Categorias e votos
+
+Uma categoria tem nomeações (votos em momentos, `kind = 0`) ou votos diretos em pessoas (`kind = 1`).
+
+![Categorias e votos](diagramas/classes/02-categorias-e-votos.png)
+
+### Propostas e medidas
+
+O que os membros propõem na fase PROPOSALS e o admin aprova.
+
+![Propostas e medidas](diagramas/classes/03-propostas-e-medidas.png)
+
+### Amigo secreto e wishlist
+
+`SecretSantaDraw.eventCode` liga o sorteio ao evento através de `CanhoesEventState.secretSantaEventCode`.
+
+![Amigo secreto e wishlist](diagramas/classes/04-amigo-secreto.png)
+
+### Mural
+
+![Mural](diagramas/classes/05-mural.png)
+
+### Sondagens do mural
+
+![Sondagens do mural](diagramas/classes/06-sondagens.png)
 
 ## Tabelas
 

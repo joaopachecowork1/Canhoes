@@ -27,14 +27,14 @@ export default function GlobalError({
         <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-6 px-6 text-center">
           <div className="space-y-2">
             <p className="font-[var(--font-mono)] text-[11px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.68)]">
-              Erro critico
+              Erro crítico
             </p>
             <h1 className="text-2xl font-semibold text-[var(--bg-paper)]">
-              Algo correu mal a carregar a aplicacao
+              Algo correu mal a carregar a aplicação
             </h1>
             <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              O erro nao ficou isolado numa area especifica.
-              Tenta novamente ou recarrega a pagina para recuperar.
+              O erro não ficou isolado numa área específica.
+              Tenta novamente ou recarrega a página para recuperar.
             </p>
           </div>
 
@@ -46,7 +46,7 @@ export default function GlobalError({
               variant="outline"
               onClick={() => globalThis.location.reload()}
             >
-              Recarregar pagina
+              Recarregar página
             </Button>
             <Button
               variant="ghost"

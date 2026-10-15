@@ -1,0 +1,403 @@
+{
+  "id": "14563016-4cee-521a-9546-c755297a51f5",
+  "title": "Sondagens do mural",
+  "model": {
+    "version": "3.0.0",
+    "type": "ClassDiagram",
+    "size": {
+      "width": 851,
+      "height": 920
+    },
+    "interactive": {
+      "elements": {},
+      "relationships": {}
+    },
+    "elements": {
+      "6607d46e-0a5b-493b-b43d-7ce15bf9e623": {
+        "id": "6607d46e-0a5b-493b-b43d-7ce15bf9e623",
+        "name": "HubPost",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -202.83333333333331,
+          "y": -440,
+          "width": 160,
+          "height": 40
+        },
+        "attributes": [],
+        "methods": []
+      },
+      "60cf2925-51be-44ee-8b5d-13e3dfecad4b": {
+        "id": "60cf2925-51be-44ee-8b5d-13e3dfecad4b",
+        "name": "HubPostPoll",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -207.83333333333331,
+          "y": -310,
+          "width": 170,
+          "height": 70
+        },
+        "attributes": [
+          "4482f382-bc78-41dc-831b-f1b87bd054ff"
+        ],
+        "methods": []
+      },
+      "4482f382-bc78-41dc-831b-f1b87bd054ff": {
+        "id": "4482f382-bc78-41dc-831b-f1b87bd054ff",
+        "name": "question",
+        "type": "ClassAttribute",
+        "owner": "60cf2925-51be-44ee-8b5d-13e3dfecad4b",
+        "bounds": {
+          "x": -207.33333333333331,
+          "y": -269.5,
+          "width": 169,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "05f55711-13f9-4100-89e7-9255685ad9fc": {
+        "id": "05f55711-13f9-4100-89e7-9255685ad9fc",
+        "name": "HubPostPollOption",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -194.5,
+          "y": -150,
+          "width": 200,
+          "height": 100
+        },
+        "attributes": [
+          "5dd5d78d-4993-4cb5-bdd9-b0c422b90239",
+          "31a2f172-e2b4-4798-bebc-644ab7ada660"
+        ],
+        "methods": []
+      },
+      "5dd5d78d-4993-4cb5-bdd9-b0c422b90239": {
+        "id": "5dd5d78d-4993-4cb5-bdd9-b0c422b90239",
+        "name": "sortOrder",
+        "type": "ClassAttribute",
+        "owner": "05f55711-13f9-4100-89e7-9255685ad9fc",
+        "bounds": {
+          "x": -194,
+          "y": -109.5,
+          "width": 199,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "int",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "31a2f172-e2b4-4798-bebc-644ab7ada660": {
+        "id": "31a2f172-e2b4-4798-bebc-644ab7ada660",
+        "name": "text",
+        "type": "ClassAttribute",
+        "owner": "05f55711-13f9-4100-89e7-9255685ad9fc",
+        "bounds": {
+          "x": -194,
+          "y": -79.5,
+          "width": 199,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "c886c2bb-5e0e-4683-822a-0508fb001f61": {
+        "id": "c886c2bb-5e0e-4683-822a-0508fb001f61",
+        "name": "HubPostPollVote",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -214.5,
+          "y": 40,
+          "width": 180,
+          "height": 70
+        },
+        "attributes": [
+          "a7827bf1-c6f7-4a84-871a-d0514048e545"
+        ],
+        "methods": []
+      },
+      "a7827bf1-c6f7-4a84-871a-d0514048e545": {
+        "id": "a7827bf1-c6f7-4a84-871a-d0514048e545",
+        "name": "voter",
+        "type": "ClassAttribute",
+        "owner": "c886c2bb-5e0e-4683-822a-0508fb001f61",
+        "bounds": {
+          "x": -214,
+          "y": 80,
+          "width": 179,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "User",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "413e0242-8d33-4117-ac99-7d9ab8417261": {
+        "id": "413e0242-8d33-4117-ac99-7d9ab8417261",
+        "name": "User",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -405.5,
+          "y": -440,
+          "width": 160,
+          "height": 40
+        },
+        "attributes": [],
+        "methods": []
+      }
+    },
+    "relationships": {
+      "0ad2adf2-6182-4573-8c4f-10301d95fca2": {
+        "id": "0ad2adf2-6182-4573-8c4f-10301d95fca2",
+        "name": "HubPostPollOption_votes",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -94.5,
+          "y": -50,
+          "width": 0,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 90
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "05f55711-13f9-4100-89e7-9255685ad9fc",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -250,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "c886c2bb-5e0e-4683-822a-0508fb001f61",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -65,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "addede3d-d75c-4fd7-a806-fd322910d4a3": {
+        "id": "addede3d-d75c-4fd7-a806-fd322910d4a3",
+        "name": "HubPostPoll_options",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -94.5,
+          "y": -240,
+          "width": 0,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 90
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "05f55711-13f9-4100-89e7-9255685ad9fc",
+          "multiplicity": "2..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -250,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "60cf2925-51be-44ee-8b5d-13e3dfecad4b",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -140,
+            "y": -265,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "2fcd41f7-f7e2-429b-9acb-c823e6584980": {
+        "id": "2fcd41f7-f7e2-429b-9acb-c823e6584980",
+        "name": "HubPostPoll_votes",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -225.5,
+          "y": -240,
+          "width": 74.33333333333337,
+          "height": 280
+        },
+        "path": [
+          {
+            "x": 71,
+            "y": 280
+          },
+          {
+            "x": 71,
+            "y": 220
+          },
+          {
+            "x": 0,
+            "y": 220
+          },
+          {
+            "x": 0,
+            "y": 30
+          },
+          {
+            "x": 74.33333333333337,
+            "y": 30
+          },
+          {
+            "x": 74.33333333333337,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "c886c2bb-5e0e-4683-822a-0508fb001f61",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -65,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "60cf2925-51be-44ee-8b5d-13e3dfecad4b",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -300,
+            "y": -265,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "c453fe61-7e81-40d3-aee6-8210c9e88012": {
+        "id": "c453fe61-7e81-40d3-aee6-8210c9e88012",
+        "name": "HubPost_poll",
+        "type": "ClassComposition",
+        "owner": null,
+        "bounds": {
+          "x": -122.83333333333331,
+          "y": -400,
+          "width": 0,
+          "height": 90
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 90
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "source": {
+          "direction": "Up",
+          "element": "60cf2925-51be-44ee-8b5d-13e3dfecad4b",
+          "multiplicity": "0..1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -300,
+            "y": -265,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Down",
+          "element": "6607d46e-0a5b-493b-b43d-7ce15bf9e623",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -280,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      }
+    },
+    "assessments": {}
+  },
+  "lastUpdate": "2026-10-15T00:00:00.000Z"
+}

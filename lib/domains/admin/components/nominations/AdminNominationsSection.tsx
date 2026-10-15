@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import type { AdminNomineeDto, AwardCategoryDto } from "@/lib/api/types";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { adminRepo } from "@/lib/repositories/adminRepo";
-import { cn } from "@/lib/utils";
 import { formatDateTimeUtc } from "../dateUtils";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import { Badge } from "@/components/ui/badge";
@@ -43,6 +42,7 @@ import {
   AdminSelectableButton,
 } from "../adminContentUi";
 import { AdminDrawer } from "../layout/AdminDrawer";
+import { AdminStatusFilters } from "../layout/AdminStatusFilters";
 
 type NominationStatus = "pending" | "approved" | "rejected";
 type NominationListFilter = "all" | NominationStatus;
@@ -54,10 +54,12 @@ const NOMINATION_STATUS_LABELS: Record<NominationListFilter, string> = {
   rejected: "Rejeitadas",
 };
 
+const NOMINATION_FILTERS = ["all", "pending", "approved", "rejected"] as const;
+
 const NOMINATION_EMPTY_STATE_LABELS: Record<NominationStatus, string> = {
-  pending: "pendente",
-  approved: "aprovada",
-  rejected: "rejeitada",
+  pending: "pendentes",
+  approved: "aprovadas",
+  rejected: "rejeitadas",
 };
 
 const NOMINATION_BADGE_VARIANT_BY_STATUS: Record<
@@ -197,14 +199,14 @@ export function AdminNominationsSection({
       adminRepo.approveNomination(queryEventId, nomineeId),
     onSuccess: async (_data, nomineeId) => {
       updateCachedNomination(nomineeId, (nomination) => ({ ...nomination, status: "approved" }));
-      toast.success("Nomeacao aprovada.");
+      toast.success("Nomeação aprovada.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "nominations", "summary", "pending", queryEventId] }),
         queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "categories", queryEventId] }),
       ]);
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Nao foi possivel aprovar a nomeacao."));
+      toast.error(getErrorMessage(error, "Não foi possível aprovar a nomeação."));
     },
   });
 
@@ -215,14 +217,14 @@ export function AdminNominationsSection({
       setRejectingNominationId(null);
       removeNominationFromCache(nomineeId);
       setSelectedNominationId((current) => (current === nomineeId ? null : current));
-      toast.success("Nomeacao rejeitada.");
+      toast.success("Nomeação rejeitada.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "nominations", "summary", "pending", queryEventId] }),
         queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "categories", queryEventId] }),
       ]);
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Nao foi possivel rejeitar a nomeacao."));
+      toast.error(getErrorMessage(error, "Não foi possível rejeitar a nomeação."));
     },
   });
 
@@ -243,7 +245,7 @@ export function AdminNominationsSection({
       ]);
     },
     onError: (error) => {
-      toast.error(getErrorMessage(error, "Nao foi possivel mover a nomeacao."));
+      toast.error(getErrorMessage(error, "Não foi possível mover a nomeação."));
     },
   });
 
@@ -251,11 +253,11 @@ export function AdminNominationsSection({
     approveNomination.isPending || rejectNomination.isPending || setCategory.isPending;
 
   if (!eventId) {
-    return <AdminStateMessage>Falta uma edicao ativa para moderar nomeacoes.</AdminStateMessage>;
+    return <AdminStateMessage>Falta uma edição ativa para moderar nomeações.</AdminStateMessage>;
   }
 
   if (isLoading && nominations.length === 0) {
-    return <AdminStateMessage>A carregar nomeacoes...</AdminStateMessage>;
+    return <AdminStateMessage>A carregar nomeações...</AdminStateMessage>;
   }
 
   if (queryError) {
@@ -269,7 +271,7 @@ export function AdminNominationsSection({
           </Button>
         }
       >
-        Nao foi possivel carregar as nomeacoes.
+        Não foi possível carregar as nomeações.
       </AdminStateMessage>
     );
   }
@@ -287,42 +289,13 @@ export function AdminNominationsSection({
 
         <CardContent className="space-y-3">
           <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-start">
-            <div className="flex flex-wrap gap-2">
-              {(["all", "pending", "approved", "rejected"] as const).map((status) => {
-                const isActive = statusFilter === status;
-                const badgeCount =
-                  status === "all" ? nominations.length : statusCounts[status as NominationStatus];
-
-                return (
-                  <Button
-                    key={status}
-                    size="sm"
-                    variant="outline"
-                    className={cn(
-                      ADMIN_OUTLINE_BUTTON_CLASS,
-                      "min-h-10 rounded-full",
-                      isActive ? "border-[var(--border-neon)] bg-[rgba(122,173,58,0.12)]" : "",
-                      status === "pending" && statusCounts.pending > 0
-                        ? "text-[var(--neon-amber)]"
-                        : ""
-                    )}
-                    onClick={() => setStatusFilter(status)}
-                  >
-                    {NOMINATION_STATUS_LABELS[status]}
-                    <Badge
-                      className={cn(
-                        "ml-2",
-                        status === "pending" && statusCounts.pending > 0
-                          ? "animate-pulse bg-[rgba(255,184,0,0.12)] text-[var(--neon-amber)]"
-                          : ""
-                      )}
-                    >
-                      {badgeCount}
-                    </Badge>
-                  </Button>
-                );
-              })}
-            </div>
+            <AdminStatusFilters
+              active={statusFilter}
+              counts={{ all: nominations.length, ...statusCounts }}
+              labels={NOMINATION_STATUS_LABELS}
+              onChange={setStatusFilter}
+              options={NOMINATION_FILTERS}
+            />
 
             <div className="w-full">
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -349,11 +322,9 @@ export function AdminNominationsSection({
 
           {filteredNominations.length === 0 ? (
             <AdminStateMessage variant="panel">
-              Fila limpa - nenhuma nomeacao{" "}
               {statusFilter === "all"
-                ? "disponivel neste filtro"
-                : NOMINATION_EMPTY_STATE_LABELS[statusFilter]}
-                            .
+                ? "Sem nomeações neste filtro."
+                : `Sem nomeações ${NOMINATION_EMPTY_STATE_LABELS[statusFilter]}.`}
             </AdminStateMessage>
           ) : (
             <div
@@ -503,7 +474,7 @@ export function AdminNominationsSection({
           <AlertDialogHeader>
             <AlertDialogTitle>Tens a certeza?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acao remove a nomeacao da lista publica.
+              Esta ação remove a nomeação da lista pública.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -514,7 +485,7 @@ export function AdminNominationsSection({
                 rejectNomination.mutate(rejectingNominationId);
               }}
             >
-              Confirmar rejeicao
+              Confirmar rejeição
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,0 +1,1092 @@
+{
+  "id": "12fe7edd-c8af-5c98-9f9f-38f81be846dc",
+  "title": "Pessoas e eventos",
+  "model": {
+    "version": "3.0.0",
+    "type": "ClassDiagram",
+    "size": {
+      "width": 1580,
+      "height": 710
+    },
+    "interactive": {
+      "elements": {},
+      "relationships": {}
+    },
+    "elements": {
+      "62a6a449-4a42-40fd-9478-438693889f02": {
+        "id": "62a6a449-4a42-40fd-9478-438693889f02",
+        "name": "CanhoesEventState",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": 100,
+          "y": 135,
+          "width": 260,
+          "height": 160
+        },
+        "attributes": [
+          "46ff2a9a-962f-4554-a05c-a6492bcc53d0",
+          "96ecf73d-8465-4ee0-8318-55e599bbf20d",
+          "387276b1-d2c0-4825-85be-9d685cfb58b5",
+          "9736f856-5e37-422b-aa90-bf25f68268e1"
+        ],
+        "methods": []
+      },
+      "46ff2a9a-962f-4554-a05c-a6492bcc53d0": {
+        "id": "46ff2a9a-962f-4554-a05c-a6492bcc53d0",
+        "name": "hasSecretSantaDraw",
+        "type": "ClassAttribute",
+        "owner": "62a6a449-4a42-40fd-9478-438693889f02",
+        "bounds": {
+          "x": 100.5,
+          "y": 175.5,
+          "width": 259,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "96ecf73d-8465-4ee0-8318-55e599bbf20d": {
+        "id": "96ecf73d-8465-4ee0-8318-55e599bbf20d",
+        "name": "moduleVisibility",
+        "type": "ClassAttribute",
+        "owner": "62a6a449-4a42-40fd-9478-438693889f02",
+        "bounds": {
+          "x": 100.5,
+          "y": 205.5,
+          "width": 259,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "387276b1-d2c0-4825-85be-9d685cfb58b5": {
+        "id": "387276b1-d2c0-4825-85be-9d685cfb58b5",
+        "name": "nominationsVisible",
+        "type": "ClassAttribute",
+        "owner": "62a6a449-4a42-40fd-9478-438693889f02",
+        "bounds": {
+          "x": 100.5,
+          "y": 235.5,
+          "width": 259,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "9736f856-5e37-422b-aa90-bf25f68268e1": {
+        "id": "9736f856-5e37-422b-aa90-bf25f68268e1",
+        "name": "resultsVisible",
+        "type": "ClassAttribute",
+        "owner": "62a6a449-4a42-40fd-9478-438693889f02",
+        "bounds": {
+          "x": 100.5,
+          "y": 265.5,
+          "width": 259,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "bca9d52e-1155-4ab2-99b3-7375d3631c75": {
+        "id": "bca9d52e-1155-4ab2-99b3-7375d3631c75",
+        "name": "Event",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": 94,
+          "y": -85,
+          "width": 170,
+          "height": 100
+        },
+        "attributes": [
+          "a581c3ca-4473-4190-9092-184fb1fed7a9",
+          "74fc340a-08f3-4f31-8c9a-11a1833f27b9"
+        ],
+        "methods": []
+      },
+      "a581c3ca-4473-4190-9092-184fb1fed7a9": {
+        "id": "a581c3ca-4473-4190-9092-184fb1fed7a9",
+        "name": "isActive",
+        "type": "ClassAttribute",
+        "owner": "bca9d52e-1155-4ab2-99b3-7375d3631c75",
+        "bounds": {
+          "x": 94.5,
+          "y": -15,
+          "width": 169,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "74fc340a-08f3-4f31-8c9a-11a1833f27b9": {
+        "id": "74fc340a-08f3-4f31-8c9a-11a1833f27b9",
+        "name": "name",
+        "type": "ClassAttribute",
+        "owner": "bca9d52e-1155-4ab2-99b3-7375d3631c75",
+        "bounds": {
+          "x": 94.5,
+          "y": -45,
+          "width": 169,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "70353065-d2d3-4395-a4a5-89849da4fb9f": {
+        "id": "70353065-d2d3-4395-a4a5-89849da4fb9f",
+        "name": "EventMember",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -770,
+          "y": 135,
+          "width": 190,
+          "height": 70
+        },
+        "attributes": [
+          "82e27963-a636-417c-ba67-964141640777"
+        ],
+        "methods": []
+      },
+      "82e27963-a636-417c-ba67-964141640777": {
+        "id": "82e27963-a636-417c-ba67-964141640777",
+        "name": "role",
+        "type": "ClassAttribute",
+        "owner": "70353065-d2d3-4395-a4a5-89849da4fb9f",
+        "bounds": {
+          "x": -769.5,
+          "y": 175,
+          "width": 189,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "MemberRole",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "d5396f7e-386b-4d6f-a949-8efa42135f7b": {
+        "id": "d5396f7e-386b-4d6f-a949-8efa42135f7b",
+        "name": "EventPhase",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -210,
+          "y": 135,
+          "width": 250,
+          "height": 160
+        },
+        "attributes": [
+          "c4472f90-ab67-4407-9cdd-7e49e7143d26",
+          "6e2bc330-f8cf-4e1f-8f76-8e75f7ea6dc4",
+          "fe1f8d8f-b021-439f-8820-f9b720378081",
+          "89020c5d-ac71-4f4d-9e25-bae16e32bc94"
+        ],
+        "methods": []
+      },
+      "c4472f90-ab67-4407-9cdd-7e49e7143d26": {
+        "id": "c4472f90-ab67-4407-9cdd-7e49e7143d26",
+        "name": "endDateUtc",
+        "type": "ClassAttribute",
+        "owner": "d5396f7e-386b-4d6f-a949-8efa42135f7b",
+        "bounds": {
+          "x": -209.5,
+          "y": 235,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "datetime",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "6e2bc330-f8cf-4e1f-8f76-8e75f7ea6dc4": {
+        "id": "6e2bc330-f8cf-4e1f-8f76-8e75f7ea6dc4",
+        "name": "isActive",
+        "type": "ClassAttribute",
+        "owner": "d5396f7e-386b-4d6f-a949-8efa42135f7b",
+        "bounds": {
+          "x": -209.5,
+          "y": 265,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "fe1f8d8f-b021-439f-8820-f9b720378081": {
+        "id": "fe1f8d8f-b021-439f-8820-f9b720378081",
+        "name": "startDateUtc",
+        "type": "ClassAttribute",
+        "owner": "d5396f7e-386b-4d6f-a949-8efa42135f7b",
+        "bounds": {
+          "x": -209.5,
+          "y": 205,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "datetime",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "89020c5d-ac71-4f4d-9e25-bae16e32bc94": {
+        "id": "89020c5d-ac71-4f4d-9e25-bae16e32bc94",
+        "name": "type",
+        "type": "ClassAttribute",
+        "owner": "d5396f7e-386b-4d6f-a949-8efa42135f7b",
+        "bounds": {
+          "x": -209.5,
+          "y": 175,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "PhaseType",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "64c1fa62-e955-40f9-bcc0-8e461b296b0b": {
+        "id": "64c1fa62-e955-40f9-bcc0-8e461b296b0b",
+        "name": "MemberRole",
+        "type": "Enumeration",
+        "owner": null,
+        "bounds": {
+          "x": -770,
+          "y": -335,
+          "width": 160,
+          "height": 140
+        },
+        "attributes": [
+          "d5e6248b-dc34-46ef-b5d7-3d0d5822f55e",
+          "01454a85-c212-424a-b465-f664efd9b144",
+          "fbc2f386-ad60-449b-a9c4-b7e2a5ace5cc"
+        ],
+        "methods": []
+      },
+      "d5e6248b-dc34-46ef-b5d7-3d0d5822f55e": {
+        "id": "d5e6248b-dc34-46ef-b5d7-3d0d5822f55e",
+        "name": "admin",
+        "type": "ClassAttribute",
+        "owner": "64c1fa62-e955-40f9-bcc0-8e461b296b0b",
+        "bounds": {
+          "x": -769.5,
+          "y": -285,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "01454a85-c212-424a-b465-f664efd9b144": {
+        "id": "01454a85-c212-424a-b465-f664efd9b144",
+        "name": "member",
+        "type": "ClassAttribute",
+        "owner": "64c1fa62-e955-40f9-bcc0-8e461b296b0b",
+        "bounds": {
+          "x": -769.5,
+          "y": -255,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "fbc2f386-ad60-449b-a9c4-b7e2a5ace5cc": {
+        "id": "fbc2f386-ad60-449b-a9c4-b7e2a5ace5cc",
+        "name": "participant",
+        "type": "ClassAttribute",
+        "owner": "64c1fa62-e955-40f9-bcc0-8e461b296b0b",
+        "bounds": {
+          "x": -769.5,
+          "y": -225,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "33254834-5c97-4cd2-8553-0db777834b27": {
+        "id": "33254834-5c97-4cd2-8553-0db777834b27",
+        "name": "PhaseType",
+        "type": "Enumeration",
+        "owner": null,
+        "bounds": {
+          "x": -590,
+          "y": -335,
+          "width": 160,
+          "height": 170
+        },
+        "attributes": [
+          "bb236896-0c7c-4e41-86b1-0ff0ebffa825",
+          "337a9435-8e49-4dc6-8750-a9f6946968ea",
+          "f77af4b7-16a1-4aa2-bb8d-149626d40ee2",
+          "ee9cf4fc-d8c8-4d2c-a236-ecb9a500d972"
+        ],
+        "methods": []
+      },
+      "bb236896-0c7c-4e41-86b1-0ff0ebffa825": {
+        "id": "bb236896-0c7c-4e41-86b1-0ff0ebffa825",
+        "name": "DRAW",
+        "type": "ClassAttribute",
+        "owner": "33254834-5c97-4cd2-8553-0db777834b27",
+        "bounds": {
+          "x": -589.5,
+          "y": -285,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "337a9435-8e49-4dc6-8750-a9f6946968ea": {
+        "id": "337a9435-8e49-4dc6-8750-a9f6946968ea",
+        "name": "PROPOSALS",
+        "type": "ClassAttribute",
+        "owner": "33254834-5c97-4cd2-8553-0db777834b27",
+        "bounds": {
+          "x": -589.5,
+          "y": -255,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "f77af4b7-16a1-4aa2-bb8d-149626d40ee2": {
+        "id": "f77af4b7-16a1-4aa2-bb8d-149626d40ee2",
+        "name": "RESULTS",
+        "type": "ClassAttribute",
+        "owner": "33254834-5c97-4cd2-8553-0db777834b27",
+        "bounds": {
+          "x": -589.5,
+          "y": -195,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "ee9cf4fc-d8c8-4d2c-a236-ecb9a500d972": {
+        "id": "ee9cf4fc-d8c8-4d2c-a236-ecb9a500d972",
+        "name": "VOTING",
+        "type": "ClassAttribute",
+        "owner": "33254834-5c97-4cd2-8553-0db777834b27",
+        "bounds": {
+          "x": -589.5,
+          "y": -225,
+          "width": 159,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "26f5e755-26d4-465a-a512-cdaa257559ce": {
+        "id": "26f5e755-26d4-465a-a512-cdaa257559ce",
+        "name": "User",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -576.6666666666666,
+          "y": -145,
+          "width": 210,
+          "height": 160
+        },
+        "attributes": [
+          "1cdf4dda-a234-4a9b-abb8-23f2a282a762",
+          "b77cf57f-a4d4-49e2-96b9-fc4db584d959",
+          "116e1792-2865-4617-b92c-78a2ffdec9b5",
+          "61cc356d-1a9b-4243-b37f-3fffc10d8a72"
+        ],
+        "methods": []
+      },
+      "1cdf4dda-a234-4a9b-abb8-23f2a282a762": {
+        "id": "1cdf4dda-a234-4a9b-abb8-23f2a282a762",
+        "name": "displayName",
+        "type": "ClassAttribute",
+        "owner": "26f5e755-26d4-465a-a512-cdaa257559ce",
+        "bounds": {
+          "x": -576.1666666666666,
+          "y": -75,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "b77cf57f-a4d4-49e2-96b9-fc4db584d959": {
+        "id": "b77cf57f-a4d4-49e2-96b9-fc4db584d959",
+        "name": "email",
+        "type": "ClassAttribute",
+        "owner": "26f5e755-26d4-465a-a512-cdaa257559ce",
+        "bounds": {
+          "x": -576.1666666666666,
+          "y": -105,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "116e1792-2865-4617-b92c-78a2ffdec9b5": {
+        "id": "116e1792-2865-4617-b92c-78a2ffdec9b5",
+        "name": "isAdmin",
+        "type": "ClassAttribute",
+        "owner": "26f5e755-26d4-465a-a512-cdaa257559ce",
+        "bounds": {
+          "x": -576.1666666666666,
+          "y": -15,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "bool",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "61cc356d-1a9b-4243-b37f-3fffc10d8a72": {
+        "id": "61cc356d-1a9b-4243-b37f-3fffc10d8a72",
+        "name": "passwordHash",
+        "type": "ClassAttribute",
+        "owner": "26f5e755-26d4-465a-a512-cdaa257559ce",
+        "bounds": {
+          "x": -576.1666666666666,
+          "y": -45,
+          "width": 209,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "36374703-592f-476c-9d69-3e92e8996c32": {
+        "id": "36374703-592f-476c-9d69-3e92e8996c32",
+        "name": "UserInvitation",
+        "type": "Class",
+        "owner": null,
+        "bounds": {
+          "x": -520,
+          "y": 135,
+          "width": 250,
+          "height": 160
+        },
+        "attributes": [
+          "ea200308-c385-406d-bd25-fb5b56ca07b5",
+          "1feaa003-7657-4932-9ab5-cabcd361f097",
+          "e988dc79-9217-48a4-b49a-46ca8253cb80",
+          "4691d57c-07ba-4ee4-8a36-b992fc5fec35"
+        ],
+        "methods": []
+      },
+      "ea200308-c385-406d-bd25-fb5b56ca07b5": {
+        "id": "ea200308-c385-406d-bd25-fb5b56ca07b5",
+        "name": "email",
+        "type": "ClassAttribute",
+        "owner": "36374703-592f-476c-9d69-3e92e8996c32",
+        "bounds": {
+          "x": -519.5,
+          "y": 175,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "1feaa003-7657-4932-9ab5-cabcd361f097": {
+        "id": "1feaa003-7657-4932-9ab5-cabcd361f097",
+        "name": "expiresAtUtc",
+        "type": "ClassAttribute",
+        "owner": "36374703-592f-476c-9d69-3e92e8996c32",
+        "bounds": {
+          "x": -519.5,
+          "y": 235,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "datetime",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "e988dc79-9217-48a4-b49a-46ca8253cb80": {
+        "id": "e988dc79-9217-48a4-b49a-46ca8253cb80",
+        "name": "token",
+        "type": "ClassAttribute",
+        "owner": "36374703-592f-476c-9d69-3e92e8996c32",
+        "bounds": {
+          "x": -519.5,
+          "y": 205,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "4691d57c-07ba-4ee4-8a36-b992fc5fec35": {
+        "id": "4691d57c-07ba-4ee4-8a36-b992fc5fec35",
+        "name": "usedAtUtc",
+        "type": "ClassAttribute",
+        "owner": "36374703-592f-476c-9d69-3e92e8996c32",
+        "bounds": {
+          "x": -519.5,
+          "y": 265,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "datetime",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      }
+    },
+    "relationships": {
+      "c47137e5-fbae-4701-9cda-b8779c12654a": {
+        "id": "c47137e5-fbae-4701-9cda-b8779c12654a",
+        "name": "Event_invitations",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -353.33333333333337,
+          "y": 15,
+          "width": 515.3333333333334,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 515.3333333333334,
+            "y": 0
+          },
+          {
+            "x": 515.3333333333334,
+            "y": 70
+          },
+          {
+            "x": 0,
+            "y": 70
+          },
+          {
+            "x": 0,
+            "y": 120
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "bca9d52e-1155-4ab2-99b3-7375d3631c75",
+          "multiplicity": "0..1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": -200,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "36374703-592f-476c-9d69-3e92e8996c32",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -220,
+            "y": 100,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "2cb366e9-fa3c-48d7-8ef4-794a63b83ebf": {
+        "id": "2cb366e9-fa3c-48d7-8ef4-794a63b83ebf",
+        "name": "Event_members",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -643.3333333333334,
+          "y": 15,
+          "width": 771.3333333333334,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 771.3333333333334,
+            "y": 0
+          },
+          {
+            "x": 771.3333333333334,
+            "y": 50
+          },
+          {
+            "x": 0,
+            "y": 50
+          },
+          {
+            "x": 1.1368683772161603e-13,
+            "y": 120
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "bca9d52e-1155-4ab2-99b3-7375d3631c75",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -140,
+            "y": -250,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "70353065-d2d3-4395-a4a5-89849da4fb9f",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -265,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "ce6d5b79-39d3-45c8-91ab-9ba508fab90f": {
+        "id": "ce6d5b79-39d3-45c8-91ab-9ba508fab90f",
+        "name": "Event_phases",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -85,
+          "y": 15,
+          "width": 281,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 281,
+            "y": 0
+          },
+          {
+            "x": 281,
+            "y": 90
+          },
+          {
+            "x": 0,
+            "y": 90
+          },
+          {
+            "x": 0,
+            "y": 120
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "bca9d52e-1155-4ab2-99b3-7375d3631c75",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -300,
+            "y": -250,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "d5396f7e-386b-4d6f-a949-8efa42135f7b",
+          "multiplicity": "0..4",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -20,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "48785b1d-211e-4b63-b330-b389c8c2a87d": {
+        "id": "48785b1d-211e-4b63-b330-b389c8c2a87d",
+        "name": "Event_state",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": 230,
+          "y": 15,
+          "width": 0,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 120
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "bca9d52e-1155-4ab2-99b3-7375d3631c75",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -300,
+            "y": -250,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "62a6a449-4a42-40fd-9478-438693889f02",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": -220,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "b58325bd-4198-464a-be4d-047cdb98e86c": {
+        "id": "b58325bd-4198-464a-be4d-047cdb98e86c",
+        "name": "User_invitations",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -436.6666666666667,
+          "y": 15,
+          "width": 5.684341886080802e-14,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 5.684341886080802e-14,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": 120
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "26f5e755-26d4-465a-a512-cdaa257559ce",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": 180,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "36374703-592f-476c-9d69-3e92e8996c32",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -300,
+            "y": 180,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      },
+      "df394072-e2d2-4098-8b95-082d47e994e5": {
+        "id": "df394072-e2d2-4098-8b95-082d47e994e5",
+        "name": "User_memberships",
+        "type": "ClassBidirectional",
+        "owner": null,
+        "bounds": {
+          "x": -706.6666666666666,
+          "y": 15,
+          "width": 200,
+          "height": 120
+        },
+        "path": [
+          {
+            "x": 200,
+            "y": 0
+          },
+          {
+            "x": 200,
+            "y": 30
+          },
+          {
+            "x": 0,
+            "y": 30
+          },
+          {
+            "x": 0,
+            "y": 120
+          }
+        ],
+        "source": {
+          "direction": "Down",
+          "element": "26f5e755-26d4-465a-a512-cdaa257559ce",
+          "multiplicity": "1",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": -440,
+            "y": 180,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "target": {
+          "direction": "Up",
+          "element": "70353065-d2d3-4395-a4a5-89849da4fb9f",
+          "multiplicity": "0..*",
+          "role": "",
+          "navigable": true,
+          "bounds": {
+            "x": 0,
+            "y": -265,
+            "width": 0,
+            "height": 0
+          }
+        },
+        "isManuallyLayouted": true
+      }
+    },
+    "assessments": {}
+  },
+  "lastUpdate": "2026-10-15T00:00:00.000Z"
+}

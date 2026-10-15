@@ -23,7 +23,7 @@ export function AssignedWishlistPanel({
       <CardContent className="space-y-3">
         {assignedWishlistItems.length === 0 ? (
           <p className="body-small text-[var(--color-text-muted)]">
-            Ainda nao ha itens na wishlist. Diz ao teu amigo secreto para adicionar.
+            Ainda não há itens na wishlist. Diz ao teu amigo secreto para adicionar.
           </p>
         ) : (
           <VirtualizedList

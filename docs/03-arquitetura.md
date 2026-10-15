@@ -4,39 +4,7 @@
 
 Uma única aplicação Next.js 16 (App Router) serve as páginas e a API. Não há backend separado: os route handlers em `app/api` falam com o PostgreSQL através do Prisma.
 
-```mermaid
-flowchart TB
-  subgraph Browser
-    UI["Páginas e componentes<br/>app/canhoes, components/, lib/domains/*/components"]
-    RQ["TanStack Query<br/>hooks/, lib/domains/*/components/hooks"]
-    REPO["Repositórios de cliente<br/>lib/repositories/* via canhoesFetch"]
-  end
-
-  subgraph Servidor["Servidor Next.js"]
-    PROXY["proxy.ts<br/>redireciona quem não tem sessão"]
-    PAGES["Páginas de servidor<br/>app/canhoes/(app)/*/page.tsx"]
-    ROUTES["Route handlers<br/>app/api/v1/events/[eventId]/..."]
-    GUARDS["Guards e validação<br/>lib/api/guards.ts, lib/api/route.ts, lib/zod"]
-    SERVICES["Serviços de domínio<br/>lib/domains/*/services"]
-    RULES["Regras puras<br/>eventRules.ts, draw.ts, results.ts, adminRolePolicy.ts"]
-    AUTH["NextAuth<br/>lib/domains/auth/services/auth.ts"]
-    STORAGE["Uploads em disco<br/>lib/storage/localStorage.ts"]
-  end
-
-  DB[("PostgreSQL<br/>Prisma")]
-  DISK[("UPLOADS_DIR")]
-
-  UI --> RQ --> REPO -->|"fetch /api/..."| ROUTES
-  UI -.->|"navegação"| PROXY --> PAGES
-  PAGES -->|"canhoesServerFetch (HTTP para a própria API)"| ROUTES
-  ROUTES --> GUARDS --> AUTH
-  ROUTES --> SERVICES
-  GUARDS --> RULES
-  SERVICES --> RULES
-  SERVICES --> DB
-  AUTH --> DB
-  SERVICES --> STORAGE --> DISK
-```
+![Visão geral da arquitetura](diagramas/arquitetura.png)
 
 ## Camadas
 
@@ -93,22 +61,7 @@ O callback `jwt` relê o `User` da base de dados em cada pedido, por isso uma mu
 
 ## Autorização
 
-```mermaid
-flowchart LR
-  REQ["Pedido"] --> U{"Tem sessão?"}
-  U -- não --> E401["401 UNAUTHORIZED"]
-  U -- sim --> A{"isAdmin?"}
-  A -- sim --> OK["Executa"]
-  A -- não --> RA{"Rota de admin?"}
-  RA -- sim --> E403A["403 FORBIDDEN"]
-  RA -- não --> M{"Membro do evento?"}
-  M -- não --> E403M["403 NOT_A_MEMBER"]
-  M -- sim --> R{"A rota exige um módulo<br/>ou propostas abertas?"}
-  R -- não --> OK
-  R -- sim --> MOD{"Está aberto<br/>na fase atual?"}
-  MOD -- não --> E4xx["403 MODULE_DISABLED<br/>409 PROPOSALS_CLOSED"]
-  MOD -- sim --> OK
-```
+![Fluxo de autorização de um pedido](diagramas/autorizacao.png)
 
 Os guards (`lib/api/guards.ts`) aplicam este fluxo: `requireUser`, `requireAdmin`, `requireEventAccess`, `requireModule` e `requireProposalsOpen`. A matriz em `tests/integration/authorization.int.test.ts` descobre todas as rotas da API e verifica cada uma contra visitante, utilizador fora do evento, membro e admin.
 

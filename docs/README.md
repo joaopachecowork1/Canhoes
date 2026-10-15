@@ -1,6 +1,6 @@
 # Documentação dos Canhões do Ano
 
-Esta pasta descreve o negócio, os requisitos e a arquitetura da aplicação, num formato que se lê de cima a baixo por uma pessoa ou por um LLM. Os diagramas estão em [Mermaid](https://mermaid.js.org/), que o GitHub desenha diretamente.
+Esta pasta descreve o negócio, os requisitos e a arquitetura da aplicação, num formato que se lê de cima a baixo por uma pessoa ou por um LLM. Os diagramas são imagens com fundo branco, legíveis no GitHub e no VS Code em qualquer tema; as fontes (BESSER e Mermaid) e a forma de os alterar estão em [diagramas/README.md](diagramas/README.md).
 
 Cada regra cita o ficheiro onde vive no código e o teste que a garante, para que a documentação possa ser verificada e mantida ao lado do código.
 
@@ -11,7 +11,7 @@ Cada regra cita o ficheiro onde vive no código e o teste que a garante, para qu
 | [01-negocio.md](01-negocio.md) | O que é a app, quem a usa, o ciclo anual do evento e o glossário |
 | [02-requisitos.md](02-requisitos.md) | Requisitos funcionais, não funcionais e regras de negócio numeradas |
 | [03-arquitetura.md](03-arquitetura.md) | Camadas, pastas, padrão dos route handlers, autenticação e autorização |
-| [04-modelo-de-dados.md](04-modelo-de-dados.md) | Diagrama de classes, tabelas e valores possíveis de cada estado |
+| [04-modelo-de-dados.md](04-modelo-de-dados.md) | Diagramas de classes por área, tabelas e valores possíveis de cada estado |
 | [05-fluxos.md](05-fluxos.md) | Diagramas de sequência e de estados dos fluxos principais |
 | [06-api.md](06-api.md) | Todos os endpoints, o método, quem pode chamar e o serviço que executam |
 | [07-operacao.md](07-operacao.md) | Configuração, testes, CI, Docker e deploy |
@@ -23,7 +23,7 @@ Cada regra cita o ficheiro onde vive no código e o teste que a garante, para qu
 Para dar contexto completo a um LLM, junta os ficheiros por ordem numa só mensagem:
 
 ```bash
-cat docs/README.md docs/0*.md > canhoes-contexto.md
+cat docs/README.md docs/0*.md docs/diagramas/*.mmd > canhoes-contexto.md
 ```
 
 Junta também `prisma/schema.prisma` e `lib/domains/event/services/eventRules.ts` quando a pergunta for sobre dados ou permissões; são as duas fontes de verdade mais densas.
@@ -32,4 +32,5 @@ Junta também `prisma/schema.prisma` e `lib/domains/event/services/eventRules.ts
 
 - Uma alteração de comportamento atualiza o requisito ou a regra correspondente no mesmo PR.
 - Uma rota nova entra em [06-api.md](06-api.md) e na matriz de autorização (`tests/integration/authorization.int.test.ts`).
-- Uma alteração ao `prisma/schema.prisma` atualiza [04-modelo-de-dados.md](04-modelo-de-dados.md).
+- Uma alteração ao `prisma/schema.prisma` atualiza [04-modelo-de-dados.md](04-modelo-de-dados.md) e o diagrama de classes da área (BESSER).
+- Um diagrama alterado leva a fonte e a imagem no mesmo PR ([diagramas/README.md](diagramas/README.md)).

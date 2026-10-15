@@ -60,15 +60,15 @@ const PANEL_META: Record<
 > = {
   category: {
     description:
-      "Reve, corrige e fecha propostas de categoria sem sair da fila de revisao.",
+      "Revê, corrige e fecha propostas de categoria sem sair da fila de revisão.",
     emptyMessage: "Sem propostas de categoria neste estado.",
-    title: "Categorias em revisao",
+    title: "Categorias em revisão",
   },
   measure: {
     description:
-      "Fecha medidas propostas com o mesmo fluxo de aprovacao, rejeicao e reabertura.",
+      "Fecha medidas propostas com o mesmo fluxo de aprovação, rejeição e reabertura.",
     emptyMessage: "Sem medidas neste estado.",
-    title: "Medidas em revisao",
+    title: "Medidas em revisão",
   },
 };
 
@@ -82,7 +82,7 @@ function renderProposalPanelState(
   if (controlsDisabled) {
     return (
       <AdminStateMessage>
-        Falta uma edicao ativa para abrir a moderacao.
+        Falta uma edição ativa para abrir a moderação.
       </AdminStateMessage>
     );
   }
@@ -203,7 +203,7 @@ function ProposalReviewCard({ proposal }: Readonly<{ proposal: PendingProposalCa
         open={isOpen}
         onOpenChange={setIsOpen}
         title="Detalhes da Proposta"
-        description="Reve e fecha a proposta"
+        description="Revê e fecha a proposta"
       >
         <AdminReviewCard
           title={proposal.title}
@@ -322,7 +322,7 @@ export function PendingProposals({
           disabled: isBusy,
           icon: "description",
           id: `${proposal.id}-description`,
-          label: "Descricao",
+          label: "Descrição",
           multiline: true,
           onChange: (value) => setCategoryDraft(proposal, { description: value }),
           placeholder: "Contexto da proposta",
@@ -423,7 +423,7 @@ export function PendingProposals({
       buildCard
     ),
     setFilter,
-    subtitle: "Moderacao",
+    subtitle: "Moderação",
     title: PANEL_META[type].title,
     totalCount: items.length,
     type,
@@ -453,9 +453,9 @@ export function PendingProposals({
   return (
     <div className="space-y-4">
       <AdminSectionSummary
-        kicker="Fila de moderacao"
+        kicker="Fila de moderação"
         title="Propostas por fechar"
-        description="Fecha categorias e medidas com filtros claros, contexto legivel e acoes rapidas em mobile."
+        description="Categorias e medidas propostas pelo grupo à espera de decisão."
         items={[
           {
             label: "Categorias pendentes",
@@ -527,9 +527,9 @@ export function PendingProposals({
           <AlertDialogHeader>
             <AlertDialogTitle>Apagar proposta?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acao remove a proposta &ldquo;
+              Esta ação remove a proposta &ldquo;
               {deleteRequest?.title ?? ""}
-              &rdquo; permanentemente. Esta acao nao pode ser desfeita.
+              &rdquo; permanentemente. Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

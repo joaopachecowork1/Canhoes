@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { VirtualizedList } from "@/components/ui/virtualized-list";
+import { formatCount } from "@/lib/utils";
 
 function WishlistLoadingState() {
   return (
@@ -228,7 +229,7 @@ export function CanhoesWishlistModule({ initialContext, initialMembers, initialW
         icon={Gift}
         title="Wishlist"
         description="Toda a gente vê a wishlist de toda a gente. Só tu vês o teu amigo secreto."
-        badgeLabel={`${wishlistItems.length} itens`}
+        badgeLabel={formatCount(wishlistItems.length, "item", "itens")}
         badgeVariant="secondary"
       />
 
@@ -323,7 +324,7 @@ function WishlistMemberPanel({
           <span className="truncate">{member.displayName || member.email || member.id}</span>
           {isCurrentUser ? <Badge variant="outline">tu</Badge> : null}
           {member.isAdmin && !isCurrentUser ? <Badge variant="outline">admin</Badge> : null}
-          <span className="body-small ml-auto text-[var(--color-text-muted)]">{items.length} itens</span>
+          <span className="body-small ml-auto text-[var(--color-text-muted)]">{formatCount(items.length, "item", "itens")}</span>
         </CardTitle>
       </CardHeader>
 

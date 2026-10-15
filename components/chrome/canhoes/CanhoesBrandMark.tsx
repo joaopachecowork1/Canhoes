@@ -18,7 +18,7 @@ export function CanhoesBrandMark({
 
       <div className="min-w-0">
         <p className="truncate font-[var(--font-display)] text-[1.06rem] font-bold uppercase tracking-[0.03em] text-canhoes-gold">
-          Canhoes do Ano
+          Canhões do Ano
         </p>
         {compact ? null : (
           <p className="truncate font-[var(--font-mono)] text-[0.64rem] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.74)]">

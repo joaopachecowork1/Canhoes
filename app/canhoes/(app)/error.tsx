@@ -23,16 +23,16 @@ export default function CanhoesError({
       <CardContent className="space-y-4 p-5 sm:p-6">
         <div className="space-y-1">
           <p className="font-[var(--font-mono)] text-[11px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.68)]">
-            Recuperacao
+            Recuperação
           </p>
-          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">Esta area falhou</h1>
+          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">Esta área falhou</h1>
         </div>
 
         <ErrorAlert
-          title="Erro ao carregar esta secao"
+          title="Erro ao carregar esta secção"
           description={getErrorMessage(
             error,
-            "O erro ficou isolado nesta area. Tenta novamente para recuperar o conteudo ou volta ao evento."
+            "O erro ficou isolado nesta área. Tenta novamente para recuperar o conteúdo ou volta ao evento."
           )}
         />
 

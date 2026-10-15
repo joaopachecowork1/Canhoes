@@ -25,15 +25,15 @@ const CANHOES_MEMBER_MODULES: readonly CanhoesMemberModuleDefinition[] = [
     navLabel: "Mural",
     href: "/canhoes/feed",
     group: "core",
-    description: "Mural social da edicao com posts, imagens e sondagens rapidas do grupo.",
+    description: "Mural social da edição com posts, imagens e sondagens rápidas do grupo.",
   },
   {
     key: "nominees",
-    label: "Nomeacoes",
-    navLabel: "Nomeacoes",
+    label: "Nomeações",
+    navLabel: "Nomeações",
     href: "/canhoes/nomeacoes",
     group: "community",
-    description: "Area oficial para consultar nomeacoes aprovadas e o que ja entrou no ciclo.",
+    description: "Área oficial para consultar nomeações aprovadas e o que já entrou no ciclo.",
   },
   {
     key: "categories",
@@ -41,7 +41,7 @@ const CANHOES_MEMBER_MODULES: readonly CanhoesMemberModuleDefinition[] = [
     navLabel: "Categorias",
     href: "/canhoes/categorias",
     group: "core",
-    description: "Area oficial com categorias do premio e propostas abertas nesta fase.",
+    description: "Área oficial com categorias do prémio e propostas abertas nesta fase.",
   },
   {
     key: "secretSanta",
@@ -49,7 +49,7 @@ const CANHOES_MEMBER_MODULES: readonly CanhoesMemberModuleDefinition[] = [
     navLabel: "Amigo",
     href: "/canhoes/amigo-secreto",
     group: "community",
-    description: "Acesso ao Amigo Secreto, atribuicao individual e ritual desta fase.",
+    description: "Acesso ao Amigo Secreto, atribuição individual e ritual desta fase.",
   },
   {
     key: "wishlist",
@@ -57,15 +57,15 @@ const CANHOES_MEMBER_MODULES: readonly CanhoesMemberModuleDefinition[] = [
     navLabel: "Wishlist",
     href: "/canhoes/wishlist",
     group: "community",
-    description: "Pistas, desejos e referencias ligadas ao teu Amigo Secreto.",
+    description: "Pistas, desejos e referências ligadas ao teu Amigo Secreto.",
   },
   {
     key: "voting",
-    label: "Votacao",
+    label: "Votação",
     navLabel: "Boletim",
     href: "/canhoes/votacao",
     group: "core",
-    description: "Boletim oficial da edicao com voto validado e progresso por categoria.",
+    description: "Boletim oficial da edição com voto validado e progresso por categoria.",
   },
   {
     key: "stickers",
@@ -73,7 +73,7 @@ const CANHOES_MEMBER_MODULES: readonly CanhoesMemberModuleDefinition[] = [
     navLabel: "Stickers",
     href: "/canhoes/stickers",
     group: "community",
-    description: "Submissao e consulta de stickers aprovados nesta edicao.",
+    description: "Submissão e consulta de stickers aprovados nesta edição.",
   },
   {
     key: "measures",
@@ -89,7 +89,7 @@ const CANHOES_MEMBER_MODULES: readonly CanhoesMemberModuleDefinition[] = [
     navLabel: "Gala",
     href: "/canhoes/gala",
     group: "finale",
-    description: "Momento final da edicao com resultados e fecho do ritual.",
+    description: "Momento final da edição com resultados e fecho do ritual.",
   },
 ] as const;
 

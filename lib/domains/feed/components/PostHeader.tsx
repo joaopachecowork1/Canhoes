@@ -59,12 +59,12 @@ export function PostHeader({
 
         <div className="min-w-0 space-y-0.5">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-semibold text-zinc-100">
+            <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
               {authorName}
             </p>
             {isPinned ? <Badge variant="secondary">Fixado</Badge> : null}
           </div>
-          <p className="text-xs text-zinc-400" title={formatDateTime(createdAtUtc)}>
+          <p className="text-xs text-[var(--text-muted)]" title={formatDateTime(createdAtUtc)}>
             {relativeTime}
           </p>
         </div>

@@ -5,6 +5,7 @@ import type { EventWishlistItemDto } from "@/lib/api/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCount } from "@/lib/utils";
 
 export function SecretSantaAssignmentCard({
   assignedUserName,
@@ -34,7 +35,7 @@ export function SecretSantaAssignmentCard({
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold text-[var(--color-text-primary)]">{assignedUserName}</p>
               <p className="body-small text-[var(--color-text-muted)]">
-                {assignedWishlistItems.length} itens na wishlist atribuida
+                {formatCount(assignedWishlistItems.length, "item", "itens")} na wishlist atribuída
               </p>
             </div>
             <Badge variant="amber">shhh</Badge>

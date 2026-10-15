@@ -21,7 +21,7 @@ type AdminDashboardProps = {
 };
 
 const PENDING_BADGE_LABELS = [
-  { key: "nominees", suffix: "nomeacoes pendentes" },
+  { key: "nominees", suffix: "nomeações pendentes" },
   { key: "categories", suffix: "propostas de categoria" },
   { key: "measures", suffix: "medidas propostas" },
 ] as const;

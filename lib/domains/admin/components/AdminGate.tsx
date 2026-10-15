@@ -34,7 +34,7 @@ export function AdminGate({ children }: Readonly<{ children: ReactNode }>) {
     return (
       <AdminStateCard
         title="A preparar o admin"
-        description="A verificar a sessao e as permissoes administrativas deste evento."
+        description="A verificar a sessão e as permissões administrativas deste evento."
         action={
           <div className="mx-auto h-9 w-9 rounded-full border-4 border-[var(--color-moss)] border-t-transparent animate-spin" />
         }
@@ -45,7 +45,7 @@ export function AdminGate({ children }: Readonly<{ children: ReactNode }>) {
   if (!isLogged) {
     return (
       <AdminStateCard
-        title="Sessao necessaria"
+        title="Sessão necessária"
         description="Entra com a tua conta para abrir o centro de controlo do evento."
         action={
           <Button className="w-full sm:w-auto" onClick={loginGoogle}>
@@ -60,7 +60,7 @@ export function AdminGate({ children }: Readonly<{ children: ReactNode }>) {
     return (
       <AdminStateCard
         title="Acesso restrito"
-        description="Esta area continua visivel, mas so os admins confirmados conseguem moderar propostas, votos e fases do evento."
+        description="Esta área continua visível, mas só os admins confirmados conseguem moderar propostas, votos e fases do evento."
         action={
           <Button
             variant="outline"
