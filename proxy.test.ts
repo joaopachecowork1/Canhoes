@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { shouldRedirectUnauthenticated } from "./middleware";
+import { shouldRedirectUnauthenticated } from "./proxy";
 
 describe("shouldRedirectUnauthenticated", () => {
   it("requires a token for protected routes", () => {
@@ -8,7 +8,7 @@ describe("shouldRedirectUnauthenticated", () => {
     expect(shouldRedirectUnauthenticated("/canhoes/votacao", undefined)).toBe(true);
   });
 
-  it("allows any authenticated token without forcing admin from middleware", () => {
+  it("allows any authenticated token without forcing admin from the proxy", () => {
     expect(shouldRedirectUnauthenticated("/canhoes", { sub: "user-1" })).toBe(false);
     expect(shouldRedirectUnauthenticated("/canhoes/admin", { sub: "user-2", isAdmin: false })).toBe(false);
   });
