@@ -159,9 +159,9 @@ async function seedDemoData(eventId, seededAdmins, now) {
       
       // Create Nominees for this new category
       const nomineesData = [
-        { title: `O tombo do ${randomEl(allUsers).displayName}`, status: "Approved" },
-        { title: `A dança de ${randomEl(allUsers).displayName}`, status: "Approved" },
-        { title: `${randomEl(allUsers).displayName} a dormir no sofá`, status: "Approved" },
+        { title: `O tombo do ${randomEl(allUsers).displayName}`, status: "approved" },
+        { title: `A dança de ${randomEl(allUsers).displayName}`, status: "approved" },
+        { title: `${randomEl(allUsers).displayName} a dormir no sofá`, status: "approved" },
       ];
 
       for (const nom of nomineesData) {
@@ -170,7 +170,7 @@ async function seedDemoData(eventId, seededAdmins, now) {
             eventId,
             categoryId: catId,
             title: nom.title,
-            submissionKind: "Text",
+            submissionKind: "nominees",
             submittedByUserId: randomEl(allUsers).id,
             status: nom.status,
           }
