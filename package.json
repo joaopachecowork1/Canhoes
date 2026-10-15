@@ -70,6 +70,7 @@
   },
   "overrides": {
     "braces": "^3.0.3",
-    "micromatch": "^4.0.8"
+    "micromatch": "^4.0.8",
+    "deepmerge-ts": "^8.0.2"
   }
 }
