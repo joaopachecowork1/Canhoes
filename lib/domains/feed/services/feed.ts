@@ -8,6 +8,11 @@ import type {
   PagedResult,
 } from "@/lib/api/types";
 
+/*
+ * The feed ("mural"): posts with images and polls, comments with replies, reactions, likes,
+ * downvotes and pinned posts. Every action checks that the post belongs to the event in the URL.
+ */
+
 type PostRow = {
   id: string;
   eventId: string;

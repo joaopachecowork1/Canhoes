@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import type { EventSecretSantaOverviewDto, EventUserDto } from "@/lib/api/types";
 
+/* What a member sees of the Secret Santa: who they give a present to, once the admin revealed the draw. */
+
+/** The user's Secret Santa assignment and wishlist counts; empty until the admin reveals the draw. */
 export async function getOverview(
   eventId: string,
   userId: string

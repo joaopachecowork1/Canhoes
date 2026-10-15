@@ -9,6 +9,12 @@ import type {
 } from "@/lib/api/types";
 import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
 
+/*
+ * The admin's control panel for an event: the active phase, the module switches and the counters
+ * the dashboard shows. What members may do with these settings is decided in `eventRules.ts`.
+ */
+
+/** Phases, switches and counters of one event, as the admin dashboard shows them. Admins see every module. */
 async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   const [phases, state] = await Promise.all([
     prisma.eventPhase.findMany({ where: { eventId }, orderBy: { startDateUtc: "asc" } }),
@@ -60,6 +66,7 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   };
 }
 
+/** Saves the admin's switches (nominations, results, modules); fields left out keep their value. */
 export async function updateAdminState(
   eventId: string,
   data: { nominationsVisible?: boolean; resultsVisible?: boolean; moduleVisibility?: EventAdminModuleVisibilityDto }
@@ -84,6 +91,10 @@ export async function updateAdminState(
   return getAdminState(eventId);
 }
 
+/**
+ * Makes `phaseType` the event's only active phase. It only switches phases that already exist (see
+ * docs/08-lacunas.md). Nominations are visible exactly during PROPOSALS and results during RESULTS.
+ */
 export async function updateAdminPhase(eventId: string, phaseType: string): Promise<EventAdminStateDto> {
   const phases = await prisma.eventPhase.findMany({ where: { eventId } });
 
@@ -119,6 +130,7 @@ export async function updateAdminPhase(eventId: string, phaseType: string): Prom
   return getAdminState(eventId);
 }
 
+/** Makes this the one active event (the one members land on); every other event is deactivated. */
 export async function activateEvent(eventId: string): Promise<EventSummaryDto | null> {
   const target = await prisma.event.findUnique({ where: { id: eventId } });
   if (!target) return null;
@@ -131,6 +143,7 @@ export async function activateEvent(eventId: string): Promise<EventSummaryDto | 
   return toEventSummary({ ...target, isActive: true });
 }
 
+/** Merges module switches into the saved ones, so a partial update leaves the other modules as they were. */
 export async function updateEventModules(
   eventId: string,
   modules: Partial<EventAdminModuleVisibilityDto>
@@ -149,6 +162,7 @@ export async function updateEventModules(
   });
 }
 
+/** Totals for the admin list badges. `votesTotal` counts nominee votes only, not votes for people. */
 async function getAdminListCounts(eventId: string): Promise<AdminListCountsDto> {
   const [nominees, proposalsTotal, pendingProposals, measuresTotal, pendingMeasures, members, voteCategories] = await Promise.all([
     prisma.nominee.count({ where: { eventId } }),
@@ -180,6 +194,7 @@ async function getAdminListCounts(eventId: string): Promise<AdminListCountsDto> 
   };
 }
 
+/** Everything the admin panel needs on load: all events, this event's state and the list counters. */
 export async function getAdminBootstrap(eventId: string): Promise<EventAdminBootstrapDto> {
   const [events, state] = await Promise.all([
     prisma.event.findMany({ orderBy: [{ isActive: "desc" }, { name: "asc" }] }),

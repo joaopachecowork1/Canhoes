@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
+/* Finding or creating the database user behind a sign-in. */
+
 export type ResolvedUser = {
   id: string;
   email: string;
@@ -7,6 +9,10 @@ export type ResolvedUser = {
   isAdmin: boolean;
 };
 
+/**
+ * The user with this external id or email, created as a non-admin when there is none. The display
+ * name follows the latest sign-in.
+ */
 export async function resolveUser(
   externalId: string,
   email: string,
@@ -50,6 +56,7 @@ export async function resolveUser(
   };
 }
 
+/** The development login's user, made admin on the way (only reachable outside production). */
 export async function resolveDevelopmentAdmin(
   externalId: string,
   email: string,

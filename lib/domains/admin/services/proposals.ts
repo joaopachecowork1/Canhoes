@@ -6,6 +6,12 @@ import type {
 } from "@/lib/api/types";
 import { createCategory } from "./categories";
 
+/*
+ * Moderation of what members propose: new award categories and gala measures. Each proposal starts
+ * `pending`; the admin approves, rejects, edits or deletes it.
+ */
+
+/** Category proposals of the event, newest first, optionally filtered by status. */
 export async function getCategoryProposals(
   eventId: string,
   status?: string | null,
@@ -39,6 +45,10 @@ export async function getCategoryProposals(
   };
 }
 
+/**
+ * Edits a category proposal or changes its status. Approving it creates the award category with the
+ * proposal's (possibly edited) name, kind and description.
+ */
 export async function updateCategoryProposal(
   eventId: string,
   proposalId: string,
@@ -75,6 +85,7 @@ export async function updateCategoryProposal(
   };
 }
 
+/** Deletes a category proposal of this event; false when it does not exist here. */
 export async function deleteCategoryProposal(eventId: string, proposalId: string): Promise<boolean> {
   const proposal = await prisma.categoryProposal.findFirst({ where: { id: proposalId, eventId } });
   if (!proposal) return false;
@@ -84,6 +95,7 @@ export async function deleteCategoryProposal(eventId: string, proposalId: string
 
 // ─────────────── MEASURE PROPOSALS ───────────────
 
+/** Measure proposals of the event, newest first, optionally filtered by status. */
 export async function getMeasureProposals(
   eventId: string,
   status?: string | null,
@@ -115,6 +127,7 @@ export async function getMeasureProposals(
   };
 }
 
+/** Edits a measure proposal or changes its status. Approving it does not create the gala measure yet (docs/08-lacunas.md). */
 export async function updateMeasureProposal(
   eventId: string,
   proposalId: string,
@@ -140,6 +153,7 @@ export async function updateMeasureProposal(
   };
 }
 
+/** Deletes a measure proposal of this event; false when it does not exist here. */
 export async function deleteMeasureProposal(eventId: string, proposalId: string): Promise<boolean> {
   const proposal = await prisma.measureProposal.findFirst({ where: { id: proposalId, eventId } });
   if (!proposal) return false;

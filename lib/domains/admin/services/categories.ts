@@ -6,6 +6,11 @@ import type {
   PagedResult,
 } from "@/lib/api/types";
 
+/*
+ * Award categories. `kind` says what members vote for: 0 = an approved nomination of the category,
+ * 1 = a person of the event (`KindUserVote`).
+ */
+
 /** Active categories of an event, in display order (the member-facing list). */
 export async function getActiveCategories(
   eventId: string,
@@ -34,6 +39,7 @@ export async function getActiveCategories(
   };
 }
 
+/** Every category of the event, active or not, for the admin. */
 export async function getAdminCategories(eventId: string): Promise<AwardCategoryDto[]> {
   const categories = await prisma.awardCategory.findMany({
     where: { eventId },
@@ -51,6 +57,7 @@ export async function getAdminCategories(eventId: string): Promise<AwardCategory
   }));
 }
 
+/** Creates an active category; without `sortOrder` it goes to the end of the list. */
 export async function createCategory(
   eventId: string,
   data: { name: string; sortOrder?: number | null; kind: number; description?: string | null; voteQuestion?: string | null; voteRules?: string | null }
@@ -86,6 +93,7 @@ export async function createCategory(
   };
 }
 
+/** Updates the given fields of a category of this event; null when it does not exist here. */
 export async function updateCategory(
   eventId: string,
   categoryId: string,
@@ -120,6 +128,7 @@ export async function updateCategory(
   };
 }
 
+/** Deletes a category of this event; false when it does not exist here. */
 export async function deleteCategory(eventId: string, categoryId: string): Promise<boolean> {
   const existing = await prisma.awardCategory.findFirst({ where: { id: categoryId, eventId } });
   if (!existing) return false;

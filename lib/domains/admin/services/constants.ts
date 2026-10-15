@@ -1,5 +1,8 @@
 import type { EventPhaseDto, EventSummaryDto } from "@/lib/api/types";
 
+/* Constants and DTO mappers shared by the admin and event services. */
+
+/** `AwardCategory.kind` for categories where members vote for a person of the event; 0 votes for a nomination. */
 export const KindUserVote = 1;
 
 export function toPhaseDto(phase: { id: string; type: string; startDateUtc: Date; endDateUtc: Date; isActive: boolean }): EventPhaseDto {

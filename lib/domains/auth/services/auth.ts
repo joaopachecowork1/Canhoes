@@ -8,6 +8,12 @@ import { isDatabaseUserId } from "@/lib/domains/auth/services/userIdentity";
 import { resolveDevelopmentAdmin, resolveUser, type ResolvedUser } from "./authService";
 import { authorizeGoogleSignIn } from "./signInAccess";
 
+/*
+ * NextAuth configuration. Three ways in: Google (only for admins, members and invitees, see
+ * `signInAccess.ts`), email + password for accounts created from an invitation, and outside
+ * production a one-click development admin. Sessions are 24-hour JWTs.
+ */
+
 const developmentLoginEnabled = isDevelopmentAuthEnabled();
 
 export const authOptions: NextAuthOptions = {
@@ -94,6 +100,8 @@ export const authOptions: NextAuthOptions = {
         displayName: user.name ?? null,
       });
     },
+    // Runs on sign-in and on every request. It ties the token to the row in `Users` (creating it for a
+    // first Google sign-in) and re-reads `isAdmin`, so a role change applies without signing in again.
     async jwt({ token, user, account }) {
       if (account?.providerAccountId) {
         token.externalId = account.providerAccountId;
