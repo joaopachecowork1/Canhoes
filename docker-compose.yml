@@ -30,29 +30,13 @@ services:
     environment:
       # Inside the compose network the database is the "postgres" service.
       DATABASE_URL: "postgresql://${POSTGRES_USER:-canhoes}:${POSTGRES_PASSWORD:-canhoes_local}@postgres:5432/${POSTGRES_DB:-canhoes}?schema=public"
-      # Let NextAuth build URLs from the forwarded host (needed behind the ngrok tunnel).
+      # Let NextAuth build URLs from the forwarded host when opened through a proxy or tunnel.
       AUTH_TRUST_HOST: "true"
     volumes:
       - canhoes_uploads:/app/.data/uploads
     depends_on:
       postgres:
         condition: service_healthy
-
-  # Optional public URL: `docker compose --profile tunnel up` (needs NGROK_AUTHTOKEN).
-  tunnel:
-    image: docker.io/ngrok/ngrok:latest
-    container_name: canhoes-tunnel
-    profiles: ["tunnel"]
-    restart: always
-    environment:
-      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
-    command:
-      - "http"
-      - "--url=https://peloric-enola-browny.ngrok-free.dev"
-      - "--log=stdout"
-      - "web:3000"
-    depends_on:
-      - web
 
 volumes:
   canhoes_postgres_data:

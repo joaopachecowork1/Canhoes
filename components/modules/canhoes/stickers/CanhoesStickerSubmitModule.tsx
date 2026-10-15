@@ -200,7 +200,7 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
           <CanhoesModuleHeader
             icon={Cigarette}
             title="Arquivo de stickers"
-            description="O fluxo de upload agora segue a mesma lógica do feed: preview real, validação explícita e URLs de imagem normalizadas para funcionar em mobile, Vercel e backend remoto."
+            description="Escolhe a imagem do teu sticker do ano, confirma a pré-visualização e submete-a para aprovação."
             badgeLabel={
               phaseType ? `Fase: ${formatEventPhaseLabel(phaseType)}` : undefined
             }
