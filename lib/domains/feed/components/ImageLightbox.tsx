@@ -157,7 +157,7 @@ export function ImageLightbox({
           type="button"
           onClick={(e) => { e.stopPropagation(); setCurrentIndex((i) => i + 1); }}
           className="absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/10 bg-white/10 p-2 text-white shadow-lg motion-safe-smooth hover:bg-white/20"
-          aria-label="Proxima imagem"
+          aria-label="Próxima imagem"
         >
           <ChevronRight className="h-6 w-6" />
         </button>

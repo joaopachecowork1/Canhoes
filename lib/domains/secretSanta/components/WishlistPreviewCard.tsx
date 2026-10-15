@@ -18,7 +18,7 @@ export function WishlistPreviewCard({
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
           <Gift className="h-4 w-4 text-[var(--color-fire)]" />
-          A tua preparacao
+          A tua preparação
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -26,7 +26,7 @@ export function WishlistPreviewCard({
           <p className="canhoes-field-label">A tua wishlist</p>
           <p className="mt-2 text-2xl font-semibold text-[var(--color-text-primary)]">{myWishlistItemCount}</p>
           <p className="body-small mt-1 text-[var(--color-text-muted)]">
-            Quanto mais clara estiver, mais facil e manter o ritual equilibrado.
+            Quanto mais clara estiver, mais fácil é manter o ritual equilibrado.
           </p>
         </div>
         <Button className="w-full" asChild>

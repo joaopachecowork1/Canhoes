@@ -1,5 +1,7 @@
 "use client";
 
+import { formatCount } from "@/lib/utils";
+
 type Props = {
   kicker: string;
   title: string;
@@ -16,7 +18,7 @@ export function AdminCollapsibleSection({ kicker, title, count, children }: Read
             {kicker}
           </p>
           <p className="font-semibold text-[var(--ink-primary)]">{title}</p>
-          <p className="body-small text-[var(--ink-muted)]">{count} itens</p>
+          <p className="body-small text-[var(--ink-muted)]">{formatCount(count, "item", "itens")}</p>
         </div>
       </div>
       {children}

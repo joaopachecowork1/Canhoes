@@ -3,15 +3,15 @@ import { ApiError } from "@/lib/api/canhoesClient";
 import { logger } from "./logger";
 
 const DEFAULT_STATUS_MESSAGES: Partial<Record<number, string>> = {
-  400: "O pedido nao e valido.",
-  401: "A tua sessao expirou. Entra novamente para continuar.",
-  403: "Nao tens permissao para fazer esta acao.",
-  404: "O recurso pedido ja nao existe.",
-  409: "O estado mudou entretanto. Atualiza a pagina e tenta outra vez.",
-  422: "Os dados enviados nao sao validos.",
+  400: "O pedido não é válido.",
+  401: "A tua sessão expirou. Entra novamente para continuar.",
+  403: "Não tens permissão para fazer esta ação.",
+  404: "O recurso pedido já não existe.",
+  409: "O estado mudou entretanto. Atualiza a página e tenta outra vez.",
+  422: "Os dados enviados não são válidos.",
   500: "O servidor falhou a processar o pedido.",
-  502: "O backend nao respondeu a tempo.",
-  503: "O backend esta temporariamente indisponivel.",
+  502: "O backend não respondeu a tempo.",
+  503: "O backend está temporariamente indisponível.",
 };
 
 const CODE_MESSAGES: Record<string, string> = {
@@ -91,7 +91,7 @@ export function getErrorMessage(
 
   if (error instanceof Error) {
     if (/failed to fetch/i.test(error.message)) {
-      return `${fallback} Verifica a ligacao ao servidor.`;
+      return `${fallback} Verifica a ligação ao servidor.`;
     }
 
     const message = error.message.trim();

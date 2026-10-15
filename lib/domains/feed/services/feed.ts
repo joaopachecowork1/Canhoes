@@ -474,24 +474,17 @@ export async function votePoll(
   const option = await prisma.hubPostPollOption.findFirst({ where: { id: optionId, postId }, select: { id: true } });
   if (!option) throw notFound("Poll option not found.");
 
-  const existing = await prisma.hubPostPollVote.findFirst({
-    where: { postId, userId },
-  });
+  // Voting again for the same option removes the vote; any other option becomes the member's vote.
+  // Each step is one statement (the upsert is an INSERT ... ON CONFLICT), so overlapping taps can't
+  // trip over a row another request just deleted or created.
+  const removed = await prisma.hubPostPollVote.deleteMany({ where: { postId, userId, optionId } });
+  if (removed.count > 0) return;
 
-  if (existing) {
-    if (existing.optionId === optionId) {
-      await prisma.hubPostPollVote.delete({ where: { id: existing.id } });
-    } else {
-      await prisma.hubPostPollVote.update({
-        where: { id: existing.id },
-        data: { optionId },
-      });
-    }
-  } else {
-    await prisma.hubPostPollVote.create({
-      data: { postId, userId, optionId },
-    });
-  }
+  await prisma.hubPostPollVote.upsert({
+    where: { postId_userId: { postId, userId } },
+    create: { postId, userId, optionId },
+    update: { optionId },
+  });
 }
 
 export async function togglePin(

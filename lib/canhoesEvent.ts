@@ -8,7 +8,7 @@ export function getPhaseLabel(phaseType?: string | null) {
     case "PROPOSALS":
       return "Propostas";
     case "VOTING":
-      return "Votacao";
+      return "Votação";
     case "RESULTS":
       return "Resultados";
     default:

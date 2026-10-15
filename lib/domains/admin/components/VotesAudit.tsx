@@ -46,7 +46,7 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
   }, [votesQuery.data?.votes, filter]);
 
   if (!eventId) {
-    return <AdminStateMessage>Falta uma edicao ativa para consultar auditoria.</AdminStateMessage>;
+    return <AdminStateMessage>Falta uma edição ativa para consultar auditoria.</AdminStateMessage>;
   }
 
   if (votesQuery.isLoading) {
@@ -56,7 +56,7 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
   if (votesQuery.error) {
     return (
       <AdminStateMessage tone="error">
-        Nao foi possivel carregar a auditoria de votos.
+        Não foi possível carregar a auditoria de votos.
       </AdminStateMessage>
     );
   }
@@ -69,7 +69,7 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
             <p className="editorial-kicker">Auditoria</p>
             <CardTitle className="flex items-center gap-2">
               <History className="h-4 w-4" />
-              Historico de votos
+              Histórico de votos
             </CardTitle>
             <p className="text-sm text-[var(--ink-muted)]">
               Lista crua de todos os votos submetidos para garantir transparência operacional.
@@ -79,7 +79,7 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ink-muted)]" />
             <Input
-              placeholder="Filtrar por membro, categoria ou opcao..."
+              placeholder="Filtrar por membro, categoria ou opção..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="pl-9"

@@ -46,7 +46,7 @@ async function main() {
     update: {},
     create: {
       id: eventId,
-      name: "Canhoes Local",
+      name: "Canhões do Ano",
       isActive: true,
     },
   });

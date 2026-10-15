@@ -68,7 +68,7 @@ export function AdminMembersSection({
   });
 
   if (!eventId) {
-    return <AdminStateMessage>Falta uma edicao ativa para gerir amigos.</AdminStateMessage>;
+    return <AdminStateMessage>Falta uma edição ativa para gerir amigos.</AdminStateMessage>;
   }
 
   if (loading || membersQuery.isLoading || secretSantaQuery.isLoading) {
@@ -88,7 +88,7 @@ export function AdminMembersSection({
           </Button>
         }
       >
-        Nao foi possivel carregar os membros desta edicao.
+        Não foi possível carregar os membros desta edição.
       </AdminStateMessage>
     );
   }

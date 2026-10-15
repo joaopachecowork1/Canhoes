@@ -191,22 +191,14 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
 
   return (
     <div className="space-y-4">
-      <section className="page-hero px-4 py-4 sm:px-5 sm:py-5">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-[var(--color-title)]">
-            <Cigarette className="h-4 w-4 text-[var(--color-fire)]" />
-            <span className="editorial-kicker">Sticker do ano</span>
-          </div>
-          <CanhoesModuleHeader
-            icon={Cigarette}
-            title="Arquivo de stickers"
-            description="Escolhe a imagem do teu sticker do ano, confirma a pré-visualização e submete-a para aprovação."
-            badgeLabel={
-              phaseType ? `Fase: ${formatEventPhaseLabel(phaseType)}` : undefined
-            }
-          />
-        </div>
-      </section>
+      <CanhoesModuleHeader
+        icon={Cigarette}
+        title="Stickers"
+        description="Escolhe a imagem do teu sticker do ano, confirma a pré-visualização e submete-a para aprovação."
+        badgeLabel={
+          phaseType ? `Fase: ${formatEventPhaseLabel(phaseType)}` : undefined
+        }
+      />
 
       <Card>
         <CardHeader className="space-y-1">
@@ -265,8 +257,7 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
                 placeholder="Adicionar imagem (opcional)"
               />
               <p className="canhoes-helper-text">
-                Preview local antes do submit. O sticker fica pendente até um
-                admin aprovar.
+                O sticker fica pendente até um admin aprovar.
               </p>
             </div>
 
@@ -282,12 +273,7 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="canhoes-helper-text">
-              O upload usa o mesmo padrão de média do feed para evitar URLs
-              partidas depois de guardar.
-            </p>
-
+          <div className="flex sm:justify-end">
             <Button
               type="button"
               variant="default"

@@ -13,11 +13,6 @@ import { AssignedWishlistPanel } from "@/lib/domains/secretSanta/components/Assi
 import { SecretSantaContent } from "@/lib/domains/secretSanta/components/SecretSantaContent";
 import { WishlistPreviewCard } from "@/lib/domains/secretSanta/components/WishlistPreviewCard";
 
-function buildDefaultEventCode(eventId?: string | null) {
-  if (eventId) return eventId;
-  return `canhoes${new Date().getFullYear()}`;
-}
-
 export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOverview, initialWishlistData }: {
     initialContext?: EventActiveContextDto | null;
     initialSecretSantaOverview?: EventSecretSantaOverviewDto | null;
@@ -36,7 +31,7 @@ export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOve
   const wishlistLabel = overview?.modules.wishlist ? "Abrir wishlist" : "Voltar ao evento";
 
   const isBusy = isOverviewLoading || isLoading;
-  const badgeLabel = data?.overview.drawEventCode || buildDefaultEventCode(eventId);
+  const badgeLabel = data?.overview.hasDraw ? "Sorteio feito" : "Sorteio por fazer";
   const errorMessage = error ? getErrorMessage(error, "Erro ao carregar amigo secreto.") : null;
 
   return (
@@ -44,7 +39,7 @@ export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOve
       <CanhoesModuleHeader
         icon={Gift}
         title="Amigo Secreto"
-        description="O sorteio, a pessoa que te calhou e a wishlist certa vivem no mesmo fluxo."
+        description="Vê a quem te calhou oferecer e a wishlist dessa pessoa."
         badgeLabel={badgeLabel}
       />
 

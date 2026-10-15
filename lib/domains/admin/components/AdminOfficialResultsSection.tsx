@@ -7,7 +7,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import type { AdminCategoryResultDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import { useIsAdmin } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
+import { cn, formatCount } from "@/lib/utils";
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,7 @@ function ResultsNomineeBar({
           {Icon ? <Icon className={cn("h-4 w-4 shrink-0", iconClassName)} /> : null}
           <p className="truncate text-sm text-[var(--ink-primary)]">{nominee.title}</p>
         </div>
-        <span className="text-xs text-[var(--ink-secondary)]">{nominee.voteCount} votos ({percentage}%)</span>
+        <span className="text-xs text-[var(--ink-secondary)]">{formatCount(nominee.voteCount, "voto", "votos")} ({percentage}%)</span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-[var(--bg-paper-soft)]">
         <div className={cn("h-full", fillClass)} style={{ width: `${percentage}%` }} />
@@ -196,12 +196,12 @@ export function AdminOfficialResultsSection({
 
   if (!isAdmin) {
     return (
-      <AdminStateMessage tone="warning">Secao disponivel apenas para admins.</AdminStateMessage>
+      <AdminStateMessage tone="warning">Secção disponível apenas para admins.</AdminStateMessage>
     );
   }
 
   if (!eventId) {
-    return <AdminStateMessage>Falta uma edicao ativa para consultar resultados.</AdminStateMessage>;
+    return <AdminStateMessage>Falta uma edição ativa para consultar resultados.</AdminStateMessage>;
   }
 
   if (resultsQuery.isLoading) {
@@ -218,7 +218,7 @@ export function AdminOfficialResultsSection({
           </Button>
         }
       >
-        Nao foi possivel carregar os resultados oficiais.
+        Não foi possível carregar os resultados oficiais.
       </AdminStateMessage>
     );
   }
@@ -242,7 +242,7 @@ export function AdminOfficialResultsSection({
 
       {resultCategories.length === 0 ? (
         <AdminStateMessage variant="panel">
-          Ainda nao existem resultados oficiais para esta edicao.
+          Ainda não existem resultados oficiais para esta edição.
         </AdminStateMessage>
       ) : null}
 

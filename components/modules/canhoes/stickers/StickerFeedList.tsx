@@ -80,7 +80,7 @@ function StickerFeedCard({ sticker }: { sticker: NomineeDto }) {
 
 export function StickerFeedList({ stickers }: { stickers: NomineeDto[] }) {
   if (stickers.length === 0) {
-    return <EmptyState icon={Inbox} title="Sem stickers" description="Ainda nao ha stickers com imagem para mostrar." />;
+    return <EmptyState icon={Inbox} title="Sem stickers" description="Ainda não há stickers com imagem para mostrar." />;
   }
 
   if (stickers.length > 20) {

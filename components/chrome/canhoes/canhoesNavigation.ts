@@ -148,7 +148,7 @@ export const ADMIN_NAV_ITEM: CanhoesNavItem = {
 };
 
 export const MORE_NAV_ITEM: CanhoesNavItem = {
-  description: "Atalhos para areas sociais e oficiais que ficam fora do dock principal.",
+  description: "Atalhos para áreas sociais e oficiais que ficam fora do dock principal.",
   href: "/canhoes/menu",
   icon: Menu,
   id: "more",
@@ -169,7 +169,7 @@ const PAGE_CONTEXT_MAP: Record<string, Pick<CanhoesPageContext, "title" | "tone"
   home: { title: "Mural social", tone: "social", toneLabel: "Social" },
   feed: { title: "Mural social", tone: "social", toneLabel: "Social" },
   voting: { title: "Boletim oficial", tone: "official", toneLabel: "Oficial" },
-  nominees: { title: "Nomeacoes oficiais", tone: "official", toneLabel: "Oficial" },
+  nominees: { title: "Nomeações oficiais", tone: "official", toneLabel: "Oficial" },
   categories: { title: "Categorias oficiais", tone: "official", toneLabel: "Oficial" },
   admin: { title: "Admin operacional", tone: "admin", toneLabel: "Admin" },
 };

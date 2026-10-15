@@ -95,7 +95,7 @@ export function CanhoesMeasuresModule({ initialData, initialContext }: { initial
       <CanhoesModuleHeader
         icon={Flame}
         title="Medidas"
-        description="Junta regras e castigos para a gala sem partir o layout em mobile."
+        description="Regras e castigos para a gala, propostos pelo grupo."
         badgeLabel={
           phaseType ? `Fase: ${formatEventPhaseLabel(phaseType)}` : undefined
         }
