@@ -15,6 +15,10 @@ import { logger } from "@/lib/logger";
  *
  * Handlers throw an `HttpError` (lib/api/httpError) to stop with an error response; `apiRoute`
  * turns it into `{ code, message }` JSON. Anything else that is thrown becomes a logged 500.
+ *
+ * Every request is logged with its method, path, status and duration (see `logRequest`), and gets an
+ * `X-Request-Id` header. A 500 carries the same id in its body, so a failure a user reports can be
+ * found in the server log with `docker compose logs web | grep <id>`.
  */
 
 type RouteContext<Params> = { params: Promise<Params> };
@@ -23,15 +27,23 @@ export function apiRoute<Params = Record<string, never>>(
   handler: (request: NextRequest, params: Params) => Promise<Response>
 ) {
   return async (request: NextRequest, context: RouteContext<Params>) => {
+    const requestId = crypto.randomUUID().slice(0, 8);
+    const startedAt = Date.now();
+
+    let response: Response;
     try {
-      return await handler(request, await context.params);
+      response = await handler(request, await context.params);
     } catch (error) {
-      return toErrorResponse(error);
+      response = toErrorResponse(error, requestId);
     }
+
+    response.headers.set("X-Request-Id", requestId);
+    logRequest(request, response.status, { requestId, durationMs: Date.now() - startedAt });
+    return response;
   };
 }
 
-function toErrorResponse(error: unknown) {
+function toErrorResponse(error: unknown, requestId: string) {
   if (error instanceof HttpError) {
     const body = error.details === undefined
       ? { code: error.code, message: error.message }
@@ -39,11 +51,22 @@ function toErrorResponse(error: unknown) {
     return NextResponse.json(body, { status: error.status });
   }
 
-  logger.error("Unhandled API error", error);
+  logger.error("Unhandled API error", error, { requestId });
   return NextResponse.json(
-    { code: "UNHANDLED_SERVER_ERROR", message: "Unexpected server error." },
+    { code: "UNHANDLED_SERVER_ERROR", message: "Unexpected server error.", requestId },
     { status: 500 }
   );
+}
+
+/**
+ * Successful reads (feed pages, images) are `debug`, so the default `info` level shows only writes
+ * and failures; LOG_LEVEL=debug shows every request.
+ */
+function logRequest(request: NextRequest, status: number, context: { requestId: string; durationMs: number }) {
+  const message = `${request.method} ${request.nextUrl.pathname} ${status}`;
+  if (status >= 500) logger.error(message, undefined, context);
+  else if (status >= 400 || request.method !== "GET") logger.info(message, context);
+  else logger.debug(message, context);
 }
 
 export function json(body: unknown, status = 200) {

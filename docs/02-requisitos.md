@@ -103,7 +103,7 @@ As regras de fase vivem em funções puras em `lib/domains/event/services/eventR
 |---|---|---|
 | RNF-01 | **Segurança.** Toda a rota de API exige sessão, exceto login, registo, health, telemetria e ficheiros enviados. | Guards em cada route handler; matriz em `tests/integration/authorization.int.test.ts`, que descobre todas as rotas e falha se uma nova ficar sem cobertura |
 | RNF-02 | **Segurança.** Uploads só de JPEG, PNG, GIF e WebP até 10 MB, com nomes gerados no servidor e caminhos validados contra path traversal. | `lib/storage/localStorage.ts`; `localStorage.test.ts`, `ownership.int.test.ts` |
-| RNF-03 | **Segurança.** Votos e likes têm limite de pedidos por IP (5 e 20 por 10 s). | `lib/middleware/rateLimit.ts` |
+| RNF-03 | **Segurança.** Votos e likes têm limite de pedidos por IP (5 e 20 por 10 s). | `lib/api/rateLimit.ts` |
 | RNF-04 | **Segurança.** Cabeçalhos `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` e `Permissions-Policy` em todas as respostas. | `next.config.mjs`; varrimento OWASP ZAP na CI |
 | RNF-05 | **Segurança.** Passwords com bcrypt; sessões JWT de 24 h; o utilizador e o `isAdmin` são relidos da base de dados em cada pedido. | `auth.ts`, `invitations.ts` |
 | RNF-06 | **Usabilidade.** Mobile-first (375 px de base), alvos de toque de 44 px, texto de conteúdo de 16 px, bottom sheets em vez de modais. | Convenções em `CLAUDE.md` |
@@ -112,3 +112,4 @@ As regras de fase vivem em funções puras em `lib/domains/event/services/eventR
 | RNF-09 | **Operação.** Uma imagem Docker que aplica as migrations, faz o seed mínimo e responde em `/api/health` (503 sem base de dados). | `Dockerfile`, `scripts/docker-start.sh` |
 | RNF-10 | **Escala.** Um grupo de dezenas de pessoas numa só instância; o rate limit e os uploads em disco assumem uma única instância. | Ver [08-lacunas.md](08-lacunas.md) e [09-deploy.md](09-deploy.md) |
 | RNF-11 | **Operação.** Um merge para `main` chega à produção sem passos manuais, com backup da base de dados antes de cada deploy; um build falhado deixa a versão anterior a correr. | `scripts/update-server.sh`, `deploy/systemd/`; job "Home server deploy" da CI |
+| RNF-12 | **Diagnóstico.** Cada pedido à API fica no log numa linha, com método, caminho, estado, duração e um `requestId` que também vai na resposta; um erro 500 regista a stack com esse id. `LOG_LEVEL` controla o detalhe. | `lib/logger.ts`, `lib/api/route.ts`; testes em `lib/logger.test.ts` e `lib/api/route.test.ts` |

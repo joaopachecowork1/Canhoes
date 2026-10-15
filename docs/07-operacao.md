@@ -66,6 +66,48 @@ O arranque do contentor (`scripts/docker-start.sh`):
 
 A imagem tem um `HEALTHCHECK` em `/api/health`, que responde 503 quando a base de dados não responde.
 
+## Logs e debugging
+
+A app escreve tudo para o stdout do contentor através de `lib/logger.ts`, uma entrada por linha:
+
+```
+<hora UTC> <NÍVEL> <mensagem> {contexto em JSON}
+```
+
+| O que aparece | Nível |
+|---|---|
+| Pedidos que escrevem (POST, PUT, PATCH, DELETE) e qualquer resposta 4xx | `INFO` |
+| Leituras com sucesso (feed, imagens) | `DEBUG` |
+| Erros 500, com a mensagem, a stack e o `requestId` | `ERROR` |
+| Erros do browser em produção (via `/api/telemetry/log`), com o prefixo `Browser:` | `WARN` / `ERROR` |
+| Falhas do NextAuth, com o prefixo `NextAuth` (por exemplo `NextAuth OAUTH_CALLBACK_ERROR`) | `ERROR` |
+| Migrations e seed, no arranque do contentor | texto simples |
+
+`LOG_LEVEL` (`debug`, `info`, `warn`, `error`) define o nível mínimo; por omissão é `info` em produção e `debug` em desenvolvimento. Cada resposta da API tem um header `X-Request-Id`, e um erro 500 traz o mesmo `requestId` no corpo: é por ele que se encontra no log o erro que um utilizador viu.
+
+Comandos, em desenvolvimento (`docker-compose.yml`). Com Podman, troca `docker` por `podman`:
+
+```bash
+docker compose ps                                  # estado e health de cada contentor
+docker compose logs -f web                         # seguir os logs da app
+docker compose logs --since 1h web | grep ERROR    # só os erros da última hora
+docker compose logs web | grep a1b2c3d4            # tudo o que aconteceu num pedido
+docker compose logs postgres                       # logs da base de dados
+curl -s localhost:3000/api/health                  # app e base de dados a responder?
+docker compose exec postgres psql -U canhoes       # consola SQL
+```
+
+No servidor (`compose.server.yml`), os contentores chamam-se `canhoes-server-*`:
+
+```bash
+docker logs -f canhoes-server-web                  # app
+docker logs canhoes-server-tunnel                  # túnel do Cloudflare (erros 1033 e 502)
+journalctl --user -u canhoes-update -f             # cada deploy: backup, build, health
+curl -s 127.0.0.1:3100/api/health
+```
+
+Para ver mais detalhe temporariamente, põe `LOG_LEVEL=debug` no `.env` (ou `.env.server`) e recria o contentor (`docker compose up -d web`, ou `scripts/update-server.sh --force` no servidor).
+
 ## Deploy
 
 O site corre num PC (ou num servidor alugado) com `compose.server.yml`, publicado no domínio através de um Cloudflare Tunnel. Cada merge para `main` é instalado automaticamente por `scripts/update-server.sh`. O guia completo, do domínio aos backups, está em [09-deploy.md](09-deploy.md).

@@ -21,10 +21,10 @@ describe("POST /api/telemetry/log", () => {
     const response = await postTelemetry({ level: "error", message: "Boom", data: { error: "TypeError" } });
 
     expect(response.status).toBe(204);
-    expect(consoleError).toHaveBeenCalledWith(
-      "[TELEMETRY ERROR] Boom",
-      expect.objectContaining({ data: '{"error":"TypeError"}' })
-    );
+    expect(consoleError).toHaveBeenCalledOnce();
+    const line = String(consoleError.mock.calls[0][0]);
+    expect(line).toContain("ERROR Browser: Boom");
+    expect(line).toContain(JSON.stringify({ data: '{"error":"TypeError"}' }).slice(1, -1));
   });
 
   it("keeps a report on one log line", async () => {
@@ -32,7 +32,7 @@ describe("POST /api/telemetry/log", () => {
 
     await postTelemetry({ level: "info", message: "first\n[TELEMETRY ERROR] forged" });
 
-    expect(consoleLog).toHaveBeenCalledWith("[TELEMETRY INFO] first [TELEMETRY ERROR] forged", expect.anything());
+    expect(consoleLog.mock.calls[0][0]).toMatch(/ INFO Browser: first \[TELEMETRY ERROR\] forged$/);
   });
 
   it("rejects unknown levels and oversized messages", async () => {

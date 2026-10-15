@@ -1,7 +1,7 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
 import { apiRoute, json } from "@/lib/api/route";
 import { toggleLike } from "@/lib/domains/feed/services/feed";
-import { enforceRateLimit } from "@/lib/middleware/rateLimit";
+import { enforceRateLimit } from "@/lib/api/rateLimit";
 
 export const POST = apiRoute<{ eventId: string; postId: string }>(async (request, { eventId, postId }) => {
   enforceRateLimit(request, "standard");

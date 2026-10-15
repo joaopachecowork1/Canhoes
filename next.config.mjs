@@ -1,5 +1,3 @@
-import withBundleAnalyzer from '@next/bundle-analyzer';
-
 // Baseline hardening for every response; a CSP needs a nonce setup and is left for later.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -31,6 +29,4 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-})(nextConfig);
+export default nextConfig;

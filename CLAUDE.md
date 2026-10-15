@@ -45,7 +45,8 @@ Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit`, `npm test`,
 - **Schema:** alterações ao `prisma/schema.prisma` precisam de uma migration em `prisma/migrations` (`npx prisma migrate dev --name <nome>`). A imagem Docker aplica-as no arranque com `prisma migrate deploy` (`scripts/docker-start.sh`); uma base de dados antiga criada com `db push` é marcada como baseline uma única vez.
 - **Deploy:** `compose.server.yml` (PostgreSQL, app e Cloudflare Tunnel) num PC ou servidor; `scripts/update-server.sh` instala cada merge para `main` com backup antes. A CI testa-o no job "Home server deploy". Guia em `docs/09-deploy.md`.
 - **Uploads:** em disco, em `UPLOADS_DIR` (por defeito `.data/uploads`), servidos por `app/api/uploads/[...path]`; `/uploads/*` é reescrito para lá em `next.config.mjs`.
-- **Tailwind 4:** configurado em CSS (`@import "tailwindcss"` no `app/globals.css`, via `@tailwindcss/postcss`); o `tailwind.config.js` ainda é carregado com `@config`.
+- **Tailwind 4:** configurado só em CSS (`@import "tailwindcss"` e `@theme` no `app/globals.css`, via `@tailwindcss/postcss`); não há `tailwind.config.js`.
+- **Logs:** usa `logger` (`lib/logger.ts`), nunca `console.*` na app. No servidor cada entrada é uma linha `<hora> <NÍVEL> <mensagem> {contexto JSON}`; `LOG_LEVEL` filtra. `apiRoute` já regista cada pedido com um `requestId`.
 - **Design system:** tema escuro único (fundo verde-oliva quase preto, texto pergaminho, acentos musgo e amarelo). Os tokens vivem em `app/globals.css` (variáveis `--color-*`, `--bg-*`, `--text-*`, `--border-*`, `--shadow-*`). Usa-os; não metas cores hardcoded.
 
 ## Código

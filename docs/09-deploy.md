@@ -178,6 +178,6 @@ As duas stacks podem correr ao mesmo tempo:
 
 ## Alternativa sempre online
 
-Para o site não depender do PC, a mesma pasta corre sem alterações num servidor Linux alugado. Um Hetzner CX23 (2 vCPU, 4 GB) custa cerca de 4,49 € por mês. Repete os passos 3 a 6 nesse servidor com o mesmo `.env.server`, e restaura lá o último backup.
+Para o site não depender do PC, a mesma pasta corre sem alterações num servidor Linux alugado. Um Netcup VPS 500 (2 vCPU, 4 GB) custa 6,94 € por mês num contrato de 12 meses ([preço visto a 15/10/2026](https://trackvps.com/plans/netcup-vps-500)). O Hetzner CX23 subiu para 5,49 € em junho de 2026 e estava esgotado nessa data. Repete os passos 3 a 6 nesse servidor com o mesmo `.env.server`, e restaura lá o último backup.
 
 Antes de o ligar, para a stack do PC: `docker compose -p canhoes-server -f compose.server.yml --env-file .env.server down`. Dois conectores com o mesmo token repartem os pedidos entre as duas máquinas, cada uma com a sua base de dados.

@@ -121,7 +121,37 @@
 }
 
 @import "tailwindcss";
-@config "../tailwind.config.js";
+
+/* Extra Tailwind utilities: text-canhoes-gold, bg-jungle-600, shadow-neon, animate-fade-in, ... */
+@theme {
+  --color-canhoes-gold: #C8A46B;
+  --color-neon-green: #00FF88;
+  --color-jungle-500: #22c55e;
+  --color-jungle-600: #16a34a;
+
+  --shadow-neon: 0 0 12px rgba(234, 179, 8, 0.25);
+
+  --animate-fade-in: fade-in 0.18s ease-out;
+  --animate-slide-up: slide-up 0.2s ease-out;
+  --animate-stagger-in: stagger-in 0.25s ease-out both;
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: scale(0.96) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes stagger-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@utility bg-neon-glow {
+  background-image: linear-gradient(180deg, rgba(234, 179, 8, 0.18), rgba(234, 179, 8, 0.12));
+}
 
 @layer base {
   * { border-color: var(--border-subtle); }

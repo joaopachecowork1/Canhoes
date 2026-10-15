@@ -3,7 +3,7 @@
 import type { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/components/providers/AuthContext";
 
 /** Without `session`, the client fetches it; with one (from the server), the first render is already signed in. */
 export function AuthProviders({

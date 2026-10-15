@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 
 import { OPEN_COMPOSE_SHEET_EVENT } from "@/lib/canhoesEvent";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/providers/AuthContext";
 import { useEventOverview } from "@/hooks/useEventOverview";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { useAdminNavigation } from "@/hooks/useAdminNavigation";

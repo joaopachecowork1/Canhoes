@@ -46,6 +46,8 @@ Serve para o DBeaver, pgAdmin ou o `psql`. Sem instalar nada: `npm run db:studio
 
 ## Stack completa em contentores
 
+Corre a app e o PostgreSQL em contentores, como em produção:
+
 ```bash
 podman compose up -d --build --force-recreate       # app em http://localhost:3000, PostgreSQL em localhost:5433
 docker compose up -d --build                        # o mesmo com Docker
@@ -78,6 +80,28 @@ Numa base de dados que já existia antes das migrations Prisma, corre `npm run d
 ## Uploads
 
 Por omissão os ficheiros ficam em `.data/uploads`, fora do Git; `UPLOADS_DIR` muda o diretório. Os nomes são gerados no servidor, a escrita é atómica, os caminhos são validados e só são aceites JPEG, PNG, GIF e WebP até 10 MB.
+
+## Pastas
+
+| Pasta | O que tem |
+|---|---|
+| `app/` | Páginas (`app/canhoes`) e API (`app/api`) |
+| `components/` | Interface partilhada: `chrome` (navegação), `modules` (páginas de cada módulo), `providers` (sessão e TanStack Query) e `ui` (componentes base) |
+| `hooks/` | Hooks React usados por várias páginas |
+| `lib/` | Lógica: `domains/<área>` (componentes e serviços de cada área), `api` (cliente, guards, rotas, rate limit), `repositories`, `zod`, `storage` e `logger.ts` |
+| `prisma/` | Schema, migrations e seed |
+| `scripts/` | Base de dados local (`db.mjs`), arranque do contentor e deploy no servidor |
+| `tests/integration/` | Testes dos route handlers contra PostgreSQL |
+| `deploy/systemd/` | Timer que instala cada merge no servidor |
+| `docs/` | Negócio, requisitos, arquitetura e operação |
+| `public/` | Ícone e imagem de partilha |
+| `.github/`, `.zap/` | CI, Dependabot e as regras do scan de segurança |
+
+Tudo o resto que aparece na pasta é local e não vai para o Git. Para ver o que é, corre `git status --short --ignored`:
+
+- **Podes apagar sempre:** `node_modules/` (volta com `npm install`), `.next/` e `next-env.d.ts` (voltam com `npm run dev` ou `npm run build`), `coverage/` e `tsconfig.tsbuildinfo`.
+- **Não apagues:** `.env` e `.env.server` (as tuas configurações), `.data/` (imagens enviadas em desenvolvimento) e `backups/` (dumps da base de dados).
+- `.claude/`, `.agents/` e `skills/` são de ferramentas de IA locais.
 
 ## Qualidade
 

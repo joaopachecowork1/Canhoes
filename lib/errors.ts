@@ -101,6 +101,6 @@ export function getErrorMessage(
   return fallback;
 }
 
-export function logFrontendError(context: string, error: unknown, details?: unknown) {
+export function logFrontendError(context: string, error: unknown, details?: Record<string, unknown>) {
   logger.error(context, error, details);
 }

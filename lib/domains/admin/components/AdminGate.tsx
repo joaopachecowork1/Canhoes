@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/providers/AuthContext";
 import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { ADMIN_OUTLINE_BUTTON_CLASS } from "./adminContentUi";
 
