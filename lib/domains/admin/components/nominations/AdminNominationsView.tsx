@@ -1,12 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Trophy, User } from "lucide-react";
+import { Trophy } from "lucide-react";
 
 import type { AdminNomineeDto, AwardCategoryDto } from "@/lib/api/types";
-import { formatDateTimeUtc } from "../dateUtils";
-import { AdminDrawer } from "../layout/AdminDrawer";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -18,20 +15,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  ADMIN_CONTENT_CARD_CLASS,
-  AdminDetailPanel,
-  AdminSelectableButton,
-} from "../adminContentUi";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import messages from "@/messages/pt.json";
+
+import { ADMIN_CONTENT_CARD_CLASS, AdminSelectableButton } from "../adminContentUi";
+import { formatDateTimeUtc } from "../dateUtils";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
+import { NominationDrawer } from "./NominationDrawer";
 import { filterAndSortNominations, getCategoryName } from "./nominationRules";
+
+const copy = messages.admin.AdminNominationsView;
 
 type AdminNominationsViewProps = Readonly<{
   categories: AwardCategoryDto[];
@@ -41,6 +34,69 @@ type AdminNominationsViewProps = Readonly<{
   setNominationCategory: (variables: { nomineeId: string; categoryId: string }) => void;
   isMutationPending: boolean;
 }>;
+
+function CategoryFilter({ categories, onChange, value }: Readonly<{ categories: AwardCategoryDto[]; onChange: (value: string) => void; value: string }>) {
+  return (
+    <div className="lg:w-64">
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger>
+          <SelectValue placeholder={copy.filterPlaceholder} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{copy.allCategories}</SelectItem>
+          {categories.map((category) => (
+            <SelectItem key={category.id} value={category.id}>
+              {category.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function NominationList({
+  categories,
+  nominations,
+  onSelect,
+  selectedId,
+}: Readonly<{ categories: AwardCategoryDto[]; nominations: AdminNomineeDto[]; onSelect: (id: string) => void; selectedId: string | null }>) {
+  return (
+    <div className="max-h-[56svh] overflow-y-auto rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper-soft)] p-2">
+      <div className="space-y-2">
+        {nominations.map((nomination) => {
+          const isSelected = nomination.id === selectedId;
+          return (
+            <AdminSelectableButton key={nomination.id} type="button" onClick={() => onSelect(nomination.id)} selected={isSelected} aria-pressed={isSelected}>
+              <div className="min-w-0 space-y-1">
+                <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">{nomination.title}</p>
+                <p className="truncate text-xs text-[var(--ink-muted)]">{getCategoryName(nomination.categoryId, categories)}</p>
+                <p className="text-[11px] text-[var(--ink-muted)]">{formatDateTimeUtc(nomination.createdAtUtc)}</p>
+              </div>
+            </AdminSelectableButton>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function RejectNominationDialog({ isOpen, onCancel, onConfirm }: Readonly<{ isOpen: boolean; onCancel: () => void; onConfirm: () => void }>) {
+  return (
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{copy.rejectTitle}</AlertDialogTitle>
+          <AlertDialogDescription>{copy.rejectDescription}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{messages.common.cancel}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>{copy.rejectConfirm}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
 export function AdminNominationsView({
   categories,
@@ -54,186 +110,50 @@ export function AdminNominationsView({
   const [rejectingNominationId, setRejectingNominationId] = useState<string | null>(null);
   const [selectedNominationId, setSelectedNominationId] = useState<string | null>(null);
 
-  const filteredNominations = useMemo(
-    () => filterAndSortNominations(nominations, categoryFilter),
-    [categoryFilter, nominations]
-  );
-  const selectedNomination = filteredNominations.find(
-    (nomination) => nomination.id === selectedNominationId
-  );
+  const filteredNominations = useMemo(() => filterAndSortNominations(nominations, categoryFilter), [categoryFilter, nominations]);
+  const selectedNomination = filteredNominations.find((nomination) => nomination.id === selectedNominationId);
+
+  const handleConfirmReject = () => {
+    if (!rejectingNominationId) return;
+    rejectNomination(rejectingNominationId, {
+      onSuccess: () => {
+        setRejectingNominationId(null);
+        setSelectedNominationId(null);
+      },
+    });
+  };
 
   return (
     <div className="space-y-4">
       <Card className={ADMIN_CONTENT_CARD_CLASS}>
         <CardHeader className="space-y-2">
-          <p className="editorial-kicker">Moderação</p>
+          <p className="editorial-kicker">{messages.admin.PendingProposals.kicker}</p>
           <CardTitle className="flex items-center gap-2">
             <Trophy className="h-4 w-4" />
-            Nomeações
+            {copy.title}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="lg:w-64">
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filtrar categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">
-                  Todas as categorias
-                </SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
+          <CategoryFilter categories={categories} onChange={setCategoryFilter} value={categoryFilter} />
           {filteredNominations.length === 0 ? (
-            <AdminStateMessage variant="panel">
-              {categoryFilter === "all"
-                ? "Sem nomeações pendentes."
-                : "Sem nomeações pendentes nesta categoria."}
-            </AdminStateMessage>
+            <AdminStateMessage variant="panel">{categoryFilter === "all" ? copy.empty : copy.emptyInCategory}</AdminStateMessage>
           ) : (
-            <div
-              className="max-h-[56svh] overflow-y-auto rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper-soft)] p-2"
-            >
-              <div className="space-y-2">
-                {filteredNominations.map((nomination) => {
-                  const isSelected = nomination.id === selectedNominationId;
-                  return (
-                    <AdminSelectableButton
-                      key={nomination.id}
-                      type="button"
-                      onClick={() => setSelectedNominationId(nomination.id)}
-                      selected={isSelected}
-                      aria-pressed={isSelected}
-                    >
-                      <div className="min-w-0 space-y-1">
-                          <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">
-                            {nomination.title}
-                          </p>
-                          <p className="truncate text-xs text-[var(--ink-muted)]">
-                            {getCategoryName(nomination.categoryId, categories)}
-                          </p>
-                          <p className="text-[11px] text-[var(--ink-muted)]">
-                            {formatDateTimeUtc(nomination.createdAtUtc)}
-                          </p>
-                      </div>
-                    </AdminSelectableButton>
-                  );
-                })}
-              </div>
-            </div>
+            <NominationList categories={categories} nominations={filteredNominations} onSelect={setSelectedNominationId} selectedId={selectedNominationId} />
           )}
         </CardContent>
       </Card>
 
-      <AdminDrawer
-        open={Boolean(selectedNomination)}
-        onOpenChange={(open) => !open && setSelectedNominationId(null)}
-        title={selectedNomination?.title ?? ""}
-        description={
-          selectedNomination
-            ? `Categoria atual: ${getCategoryName(selectedNomination.categoryId, categories)}`
-            : undefined
-        }
-      >
-        {selectedNomination ? (
-          <>
-            <AdminDetailPanel>
-              <div className="space-y-1">
-                  <p className="font-[var(--font-mono)] text-xs text-[var(--ink-muted)]">
-                    {formatDateTimeUtc(selectedNomination.createdAtUtc)}
-                  </p>
-                  <p className="flex items-center gap-1.5 text-sm text-[var(--ink-primary)]">
-                    <User className="h-3.5 w-3.5" />
-                    Submetido por {selectedNomination.submittedByName}
-                  </p>
-              </div>
-            </AdminDetailPanel>
+      <NominationDrawer
+        categories={categories}
+        isMutationPending={isMutationPending}
+        nomination={selectedNomination}
+        onApprove={approveNomination}
+        onClose={() => setSelectedNominationId(null)}
+        onMove={setNominationCategory}
+        onReject={setRejectingNominationId}
+      />
 
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-[var(--ink-muted)]">Mover para categoria</p>
-              <Select
-                value={selectedNomination.categoryId ?? "none"}
-                onValueChange={(categoryId) =>
-                  setNominationCategory({ nomineeId: selectedNomination.id, categoryId })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Mover para categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">
-                    Sem categoria
-                  </SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2 sm:grid-cols-2">
-              <Button
-                type="button"
-                disabled={isMutationPending}
-                className="min-h-11 border-[var(--border-neon)] bg-[rgba(0,255,136,0.12)] text-[var(--neon-green)] hover:bg-[rgba(0,255,136,0.18)]"
-                onClick={() => approveNomination(selectedNomination.id)}
-                aria-label={`Aprovar nomeação "${selectedNomination.title || selectedNomination.id}"`}
-              >
-                Aprovar
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isMutationPending}
-                className="min-h-11 border-[var(--neon-red)] bg-[rgba(255,58,58,0.08)] text-[var(--neon-red)]"
-                onClick={() => setRejectingNominationId(selectedNomination.id)}
-                aria-label={`Rejeitar nomeação "${selectedNomination.title || selectedNomination.id}"`}
-              >
-                Rejeitar
-              </Button>
-            </div>
-          </>
-        ) : null}
-      </AdminDrawer>
-
-      <AlertDialog
-        open={Boolean(rejectingNominationId)}
-        onOpenChange={(open) => !open && setRejectingNominationId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tens a certeza?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação remove a nomeação da lista pública.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (!rejectingNominationId) return;
-                rejectNomination(rejectingNominationId, {
-                  onSuccess: () => {
-                    setRejectingNominationId(null);
-                    setSelectedNominationId(null);
-                  },
-                });
-              }}
-            >
-              Confirmar rejeição
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <RejectNominationDialog isOpen={Boolean(rejectingNominationId)} onCancel={() => setRejectingNominationId(null)} onConfirm={handleConfirmReject} />
     </div>
   );
 }

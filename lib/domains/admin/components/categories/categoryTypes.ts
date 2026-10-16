@@ -1,8 +1,14 @@
 import type {
+  AdminNomineeDto,
+  AdminVoteAuditRowDto,
   AwardCategoryDto,
   CreateAwardCategoryRequest,
   UpdateAwardCategoryRequest,
 } from "@/lib/api/types";
+import { formatMessage } from "@/lib/messages";
+import messages from "@/messages/pt.json";
+
+const copy = messages.admin.categoryRules;
 
 export const CATEGORY_KIND = {
   STICKER: 0,
@@ -12,8 +18,8 @@ export const CATEGORY_KIND = {
 type CategoryKind = (typeof CATEGORY_KIND)[keyof typeof CATEGORY_KIND];
 
 export const CATEGORY_KIND_LABELS: Record<number, string> = {
-  [CATEGORY_KIND.STICKER]: "Vota-se nas nomeações",
-  [CATEGORY_KIND.USER_VOTE]: "Vota-se num membro",
+  [CATEGORY_KIND.STICKER]: messages.categories.CategoryProposalForm.kindNominees,
+  [CATEGORY_KIND.USER_VOTE]: messages.categories.CategoryProposalForm.kindMember,
 };
 
 export const CATEGORY_KIND_FORM_LABELS = {
@@ -114,9 +120,9 @@ export function buildUpdateCategoryPayload(
   };
 }
 
-function formatKnownDependencyCount(label: string, count: number): string | null {
+function formatKnownDependencyCount(count: number, variants: Readonly<{ one: string; other: string }>): string | null {
   if (count === 0) return null;
-  return `${count} ${label}${count > 1 ? "s" : ""}`;
+  return formatMessage(count === 1 ? variants.one : variants.other, { count });
 }
 
 /**
@@ -132,13 +138,13 @@ export function buildCategoryUsage(
 
   if (dependencyCount > 0) {
     const dependencies = [
-      formatKnownDependencyCount("nomeação", nomineeCount),
-      formatKnownDependencyCount("voto", voteCount),
+      formatKnownDependencyCount(nomineeCount, { one: copy.nomineeOne, other: copy.nomineeOther }),
+      formatKnownDependencyCount(voteCount, { one: copy.voteOne, other: copy.voteOther }),
     ].filter((dependency): dependency is string => dependency !== null);
 
     return {
       canDelete: false,
-      deleteReason: `Apagamento bloqueado por ${dependencies.join(" e ")} já associados.`,
+      deleteReason: formatMessage(copy.deleteBlocked, { dependencies: dependencies.join(copy.and) }),
       nomineeCount,
       voteCount,
     };
@@ -147,8 +153,7 @@ export function buildCategoryUsage(
   if (category.kind === CATEGORY_KIND.USER_VOTE) {
     return {
       canDelete: false,
-      deleteReason:
-        "Categorias de voto oficial ficam protegidas aqui; a validação final de votos continua no backend.",
+      deleteReason: copy.userVoteProtected,
       nomineeCount,
       voteCount,
     };
@@ -160,4 +165,36 @@ export function buildCategoryUsage(
     nomineeCount,
     voteCount,
   };
+}
+
+/** Catalog order: sort order first, then name. */
+export function sortCategories(categories: AwardCategoryDto[]) {
+  return [...categories].sort(
+    (left, right) => (left.sortOrder ?? 0) - (right.sortOrder ?? 0) || left.name.localeCompare(right.name, "pt-PT")
+  );
+}
+
+function countByCategory(categoryIds: (string | null)[]) {
+  const counts = new Map<string, number>();
+  for (const categoryId of categoryIds) {
+    if (categoryId) counts.set(categoryId, (counts.get(categoryId) ?? 0) + 1);
+  }
+  return counts;
+}
+
+/** Nominees, votes and whether each category may be deleted. */
+export function buildCategoryUsageById(
+  categories: AwardCategoryDto[],
+  nominations: Pick<AdminNomineeDto, "categoryId">[],
+  votes: Pick<AdminVoteAuditRowDto, "categoryId">[]
+): Record<string, CategoryUsage> {
+  const nomineeCounts = countByCategory(nominations.map((nominee) => nominee.categoryId));
+  const voteCounts = countByCategory(votes.map((vote) => vote.categoryId));
+
+  return Object.fromEntries(
+    categories.map((category) => [
+      category.id,
+      buildCategoryUsage(category, nomineeCounts.get(category.id) ?? 0, voteCounts.get(category.id) ?? 0),
+    ])
+  );
 }

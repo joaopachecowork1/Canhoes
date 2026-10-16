@@ -6,7 +6,7 @@ import { ChevronRight } from "lucide-react";
 
 import type { EventAdminStateDto } from "@/lib/api/types";
 import { getPhaseLabel } from "@/lib/canhoesEvent";
-import { PHASE_TYPES } from "@/lib/domains/event/services/eventRules";
+import { PHASE_TYPES } from "@/lib/domains/event/rules/eventRules";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,11 @@ import {
   ADMIN_CONTENT_CARD_CLASS,
 } from "../adminContentUi";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
-import { useAdminControlCenter, type AdminModuleItem } from "../hooks/useAdminControlCenter";
+import { useAdminControlCenter, type AdminModuleItem } from "../../hooks/useAdminControlCenter";
+import { formatMessage } from "@/lib/messages";
+import messages from "@/messages/pt.json";
+
+const copy = messages.admin.AdminControlCenter;
 
 type AdminControlCenterProps = {
   eventId: string | null;
@@ -36,90 +40,105 @@ export function AdminControlCenter({ eventId, events, loading, onRefresh, state 
   const control = useAdminControlCenter(eventId, state, onRefresh);
 
   if (!state) {
-    return <AdminStateMessage variant="panel">Falta uma edição ativa para abrir os controlos.</AdminStateMessage>;
+    return <AdminStateMessage variant="panel">{copy.noEvent}</AdminStateMessage>;
   }
 
   return (
     <div className="space-y-3">
-      <Card className={ADMIN_CONTENT_CARD_CLASS}>
-        <CardContent className="space-y-4 p-4">
-          <Field label="Evento ativo">
-            <Select
-              value={eventId ?? ""}
-              onValueChange={control.handleActivateEvent}
-              disabled={control.savingKey === "event" || events.length === 0}
-            >
-              <SelectTrigger aria-label="Evento ativo" className="h-11">
-                <SelectValue placeholder="Escolher evento" />
-              </SelectTrigger>
-              <SelectContent>
-                {events.map((event) => (
-                  <SelectItem key={event.id} value={event.id}>
-                    {event.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <Field label="Fase">
-            <Select
-              value={state.activePhase?.type ?? ""}
-              onValueChange={control.handleUpdatePhase}
-              disabled={control.savingKey === "phase" || loading}
-            >
-              <SelectTrigger aria-label="Fase" className="h-11">
-                <SelectValue placeholder="Escolher fase" />
-              </SelectTrigger>
-              <SelectContent>
-                {PHASE_TYPES.map((phase) => (
-                  <SelectItem key={phase} value={phase}>
-                    {getPhaseLabel(phase)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          <div className="flex min-h-11 items-center justify-between gap-3">
-            <div className="min-w-0">
-              <Label htmlFor="proposals-open" className="text-base font-semibold">
-                Aceitar propostas
-              </Label>
-              <p className="text-sm text-[var(--color-text-muted)]">
-                Na fase de propostas, desliga para fechar categorias, nomeações, stickers e medidas.
-              </p>
-            </div>
-            <Switch
-              id="proposals-open"
-              variant="admin"
-              checked={state.nominationsVisible}
-              disabled={control.savingKey === "proposals"}
-              onCheckedChange={control.handleProposalsOpen}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className={ADMIN_CONTENT_CARD_CLASS}>
-        <CardContent className="space-y-1 p-2">
-          <div className="px-2 pb-1 pt-2">
-            <h2 className="text-base font-semibold">Áreas dos membros</h2>
-            <p className="text-sm text-[var(--color-text-muted)]">
-              Cada área abre na sua fase. Desliga uma para a esconder sempre.
-            </p>
-          </div>
-          {control.moduleItems.map((module) => (
-            <ModuleRow
-              key={module.key}
-              module={module}
-              isSaving={control.savingKey === module.key}
-              onToggle={(isEnabled) => control.handleModuleToggle(module, isEnabled)}
-            />
-          ))}
-        </CardContent>
-      </Card>
+      <EventSettingsCard control={control} eventId={eventId} events={events} loading={loading} state={state} />
+      <ModulesCard control={control} />
     </div>
+  );
+}
+
+type Control = ReturnType<typeof useAdminControlCenter>;
+
+function EventSettingsCard({
+  control,
+  eventId,
+  events,
+  loading,
+  state,
+}: Readonly<Omit<AdminControlCenterProps, "onRefresh" | "state"> & { control: Control; state: EventAdminStateDto }>) {
+  return (
+    <Card className={ADMIN_CONTENT_CARD_CLASS}>
+      <CardContent className="space-y-4 p-4">
+        <Field label={copy.activeEvent}>
+          <Select
+            value={eventId ?? ""}
+            onValueChange={control.handleActivateEvent}
+            disabled={control.savingKey === "event" || events.length === 0}
+          >
+            <SelectTrigger aria-label={copy.activeEvent} className="h-11">
+              <SelectValue placeholder={copy.chooseEvent} />
+            </SelectTrigger>
+            <SelectContent>
+              {events.map((event) => (
+                <SelectItem key={event.id} value={event.id}>
+                  {event.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <Field label={copy.phase}>
+          <Select
+            value={state.activePhase?.type ?? ""}
+            onValueChange={control.handleUpdatePhase}
+            disabled={control.savingKey === "phase" || loading}
+          >
+            <SelectTrigger aria-label={copy.phase} className="h-11">
+              <SelectValue placeholder={copy.choosePhase} />
+            </SelectTrigger>
+            <SelectContent>
+              {PHASE_TYPES.map((phase) => (
+                <SelectItem key={phase} value={phase}>
+                  {getPhaseLabel(phase)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </Field>
+
+        <div className="flex min-h-11 items-center justify-between gap-3">
+          <div className="min-w-0">
+            <Label htmlFor="proposals-open" className="text-base font-semibold">
+              {copy.acceptProposals}
+            </Label>
+            <p className="text-sm text-[var(--color-text-muted)]">{copy.acceptProposalsHint}</p>
+          </div>
+          <Switch
+            id="proposals-open"
+            variant="admin"
+            checked={state.nominationsVisible}
+            disabled={control.savingKey === "proposals"}
+            onCheckedChange={control.handleProposalsOpen}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ModulesCard({ control }: Readonly<{ control: Control }>) {
+  return (
+    <Card className={ADMIN_CONTENT_CARD_CLASS}>
+      <CardContent className="space-y-1 p-2">
+        <div className="px-2 pb-1 pt-2">
+          <h2 className="text-base font-semibold">{copy.areasTitle}</h2>
+          <p className="text-sm text-[var(--color-text-muted)]">{copy.areasHint}</p>
+        </div>
+        {control.moduleItems.map((module) => (
+          <ModuleRow
+            key={module.key}
+            module={module}
+            isSaving={control.savingKey === module.key}
+            onToggle={(isEnabled) => control.handleModuleToggle(module, isEnabled)}
+          />
+        ))}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -138,9 +157,9 @@ function ModuleRow({
   onToggle,
 }: Readonly<{ isSaving: boolean; module: AdminModuleItem; onToggle: (isEnabled: boolean) => void }>) {
   const Icon = module.icon;
-  let status = `Abre em: ${module.opensIn}`;
-  if (!module.isEnabled) status = "Desligada";
-  else if (module.isOpenNow) status = "Aberta agora";
+  let status = formatMessage(copy.opensIn, { phase: module.opensIn });
+  if (!module.isEnabled) status = copy.disabled;
+  else if (module.isOpenNow) status = copy.openNow;
 
   return (
     <div className="flex min-h-14 items-center gap-2 rounded-xl px-2">
@@ -163,7 +182,7 @@ function ModuleRow({
         <ChevronRight className="h-4 w-4 shrink-0 text-[var(--color-text-muted)]" aria-hidden />
       </Link>
       <Switch
-        aria-label={`${module.label} ligada`}
+        aria-label={formatMessage(copy.moduleSwitchLabel, { module: module.label })}
         variant="admin"
         checked={module.isEnabled}
         disabled={isSaving}

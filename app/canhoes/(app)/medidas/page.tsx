@@ -5,7 +5,7 @@ import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, GalaMeasureDto } from "@/lib/api/types";
 
 const CanhoesMeasuresModule = dynamic(
-  () => import("@/components/modules/canhoes/medidas/CanhoesMeasuresModule").then((m) => ({ default: m.CanhoesMeasuresModule })),
+  () => import("@/lib/domains/measures/components/CanhoesMeasuresModule").then((m) => ({ default: m.CanhoesMeasuresModule })),
   { loading: () => <FeedSkeleton /> }
 );
 

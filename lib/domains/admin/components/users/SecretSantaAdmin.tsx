@@ -1,17 +1,21 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import { Eye, Gift, Lock, RefreshCw, Shuffle, Users } from "lucide-react";
-import { useAdminMutation } from "../hooks/useAdminMutation";
+
 import type { EventAdminSecretSantaStateDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ADMIN_CONTENT_CARD_CLASS,
-  AdminDetailPanel,
-} from "../adminContentUi";
+import messages from "@/messages/pt.json";
+
+import { useAdminMutation } from "../../hooks/useAdminMutation";
+import { ADMIN_CONTENT_CARD_CLASS, AdminDetailPanel } from "../adminContentUi";
+
+const copy = messages.admin.SecretSantaAdmin;
+const MIN_MEMBERS_FOR_DRAW = 2;
 
 type SecretSantaAdminProps = {
   eventId: string;
@@ -19,41 +23,95 @@ type SecretSantaAdminProps = {
   onRefresh: () => Promise<void>;
 };
 
-export function SecretSantaAdmin({
-  eventId,
-  state,
-  onRefresh,
-}: Readonly<SecretSantaAdminProps>) {
+function StatPanel({ hint, icon: Icon, label, value }: Readonly<{ hint: string; icon: LucideIcon; label: string; value: number }>) {
+  return (
+    <AdminDetailPanel className="space-y-2">
+      <div className="flex items-center gap-2 text-[var(--ink-secondary)]">
+        <Icon className="h-4 w-4" />
+        <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
+      </div>
+      <p className="text-2xl font-bold text-[var(--ink-primary)]">{value}</p>
+      <p className="text-xs text-[var(--ink-muted)]">{hint}</p>
+    </AdminDetailPanel>
+  );
+}
+
+/** Whether the draw is still hidden from members (and can be repeated) or already revealed. */
+function DrawStatus({ isLocked }: Readonly<{ isLocked: boolean }>) {
+  return (
+    <div className="rounded-[var(--radius-lg-token)] border border-[rgba(var(--neon-green-rgb),0.15)] bg-[rgba(var(--neon-green-rgb),0.02)] p-4">
+      <div className="flex items-start gap-3">
+        <div className="rounded-full bg-[var(--neon-green)] p-1.5">
+          <Lock className="h-3 w-3 text-black" />
+        </div>
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-[var(--neon-green)]">{isLocked ? copy.revealed : copy.notRevealed}</p>
+          <p className="text-xs text-[var(--ink-muted)]">{isLocked ? copy.revealedHint : copy.notRevealedHint}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function useSecretSantaActions({ eventId, state, onRefresh }: Readonly<SecretSantaAdminProps>) {
   const drawMutation = useAdminMutation({
     mutationFn: (payload?: unknown) => adminRepo.drawSecretSanta(eventId, payload),
     onSuccess: onRefresh,
-    successMessage: "Sorteio realizado. Ainda ninguém o vê até o revelares.",
+    successMessage: copy.drawn,
   });
   const revealMutation = useAdminMutation({
     mutationFn: () => adminRepo.revealSecretSanta(eventId),
     onSuccess: onRefresh,
-    successMessage: "Sorteio revelado aos membros.",
+    successMessage: copy.revealedToast,
   });
 
-  const handleDraw = () => {
-    if (state.hasDraw && !confirm("Repetir o sorteio apaga as atribuições atuais. Continuar?")) {
-      return;
-    }
-    drawMutation.mutate({});
+  return {
+    isDrawing: drawMutation.isPending,
+    isBusy: drawMutation.isPending || revealMutation.isPending,
+    handleDraw: () => {
+      if (state.hasDraw && !confirm(copy.redrawConfirm)) return;
+      drawMutation.mutate({});
+    },
+    handleReveal: () => {
+      if (!confirm(copy.revealConfirm)) return;
+      revealMutation.mutate();
+    },
   };
+}
 
-  const handleReveal = () => {
-    if (!confirm("Depois de revelado, cada membro vê o seu amigo secreto e o sorteio já não pode ser repetido. Revelar?")) {
-      return;
-    }
-    revealMutation.mutate();
-  };
+function DrawActions({
+  actions,
+  canDraw,
+  canReveal,
+  hasDraw,
+  onRefresh,
+}: Readonly<{ actions: ReturnType<typeof useSecretSantaActions>; canDraw: boolean; canReveal: boolean; hasDraw: boolean; onRefresh: () => Promise<void> }>) {
+  const DrawIcon = actions.isDrawing ? RefreshCw : Shuffle;
 
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row">
+      <Button type="button" onClick={actions.handleDraw} disabled={!canDraw || actions.isBusy} className="min-h-12 flex-1 gap-2">
+        <DrawIcon className={cn("h-4 w-4", actions.isDrawing && "animate-spin")} />
+        {hasDraw ? copy.redraw : copy.draw}
+      </Button>
+      <Button type="button" variant="outline" onClick={actions.handleReveal} disabled={!canReveal || actions.isBusy} className="min-h-12 flex-1 gap-2">
+        <Eye className="h-4 w-4" />
+        {copy.reveal}
+      </Button>
+      <Button type="button" variant="outline" onClick={() => void onRefresh()} disabled={actions.isBusy} className="min-h-12 gap-2">
+        <RefreshCw className={cn("h-4 w-4", actions.isBusy && "animate-spin")} />
+        {copy.sync}
+      </Button>
+    </div>
+  );
+}
+
+export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
+  const { state, onRefresh } = props;
+  const actions = useSecretSantaActions(props);
   // A locked draw is a revealed one: members see it and it can no longer be repeated.
   const isLocked = state.isLocked;
-  const isBusy = drawMutation.isPending || revealMutation.isPending;
-  const canDraw = state.memberCount >= 2 && !isLocked;
-  const canReveal = state.hasDraw && !isLocked;
+  const canDraw = state.memberCount >= MIN_MEMBERS_FOR_DRAW && !isLocked;
 
   return (
     <div className="space-y-4">
@@ -61,118 +119,40 @@ export function SecretSantaAdmin({
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <p className="editorial-kicker">Logística</p>
+              <p className="editorial-kicker">{copy.kicker}</p>
               <CardTitle className="flex items-center gap-2">
                 <Gift className="h-4 w-4" />
-                Amigo Secreto
+                {messages.secretSanta.CanhoesSecretSantaModule.title}
               </CardTitle>
             </div>
             {isLocked ? (
               <Badge variant="outline" className="gap-1.5 border-[rgba(255,255,255,0.1)] py-1">
                 <Lock className="h-3 w-3" />
-                Sorteio revelado
+                {copy.revealed}
               </Badge>
             ) : null}
           </div>
-          <p className="text-sm text-[var(--ink-muted)]">
-            Gere as atribuições aleatórias para o Amigo Secreto deste evento.
-          </p>
+          <p className="text-sm text-[var(--ink-muted)]">{copy.description}</p>
         </CardHeader>
 
         <CardContent className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminDetailPanel className="space-y-2">
-              <div className="flex items-center gap-2 text-[var(--ink-secondary)]">
-                <Users className="h-4 w-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Membros</span>
-              </div>
-              <p className="text-2xl font-bold text-[var(--ink-primary)]">{state.memberCount}</p>
-              <p className="text-xs text-[var(--ink-muted)]">Participantes elegíveis no evento.</p>
-            </AdminDetailPanel>
-
-            <AdminDetailPanel className="space-y-2">
-              <div className="flex items-center gap-2 text-[var(--ink-secondary)]">
-                <Shuffle className="h-4 w-4" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Atribuições</span>
-              </div>
-              <p className="text-2xl font-bold text-[var(--ink-primary)]">{state.assignmentCount}</p>
-              <p className="text-xs text-[var(--ink-muted)]">
-                {state.hasDraw ? "Sorteio já realizado." : "Aguardando sorteio inicial."}
-              </p>
-            </AdminDetailPanel>
+            <StatPanel icon={Users} label={copy.membersLabel} value={state.memberCount} hint={copy.membersHint} />
+            <StatPanel
+              icon={Shuffle}
+              label={copy.assignmentsLabel}
+              value={state.assignmentCount}
+              hint={state.hasDraw ? copy.drawDone : copy.drawPending}
+            />
           </div>
 
           <div className="space-y-4">
-            {isLocked ? (
-              <AdminDetailPanel className="border-amber-500/20 bg-amber-500/5">
-                O sorteio já foi revelado aos membros e não pode ser repetido.
-              </AdminDetailPanel>
-            ) : null}
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                type="button"
-                onClick={handleDraw}
-                disabled={!canDraw || isBusy}
-                className="min-h-12 flex-1 gap-2"
-              >
-                {drawMutation.isPending ? (
-                  <RefreshCw className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Shuffle className="h-4 w-4" />
-                )}
-                {state.hasDraw ? "Repetir sorteio" : "Realizar sorteio"}
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleReveal}
-                disabled={!canReveal || isBusy}
-                className="min-h-12 flex-1 gap-2"
-              >
-                <Eye className="h-4 w-4" />
-                Revelar aos membros
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => void onRefresh()}
-                disabled={isBusy}
-                className="min-h-12 gap-2"
-              >
-                <RefreshCw className={cn("h-4 w-4", isBusy && "animate-spin")} />
-                Sincronizar estado
-              </Button>
-            </div>
-
-            {!canDraw && !isLocked ? (
-              <p className="text-center text-xs text-[var(--neon-amber)]">
-                São necessários pelo menos 2 membros para realizar o sorteio.
-              </p>
-            ) : null}
+            {isLocked ? <AdminDetailPanel className="border-amber-500/20 bg-amber-500/5">{copy.lockedNotice}</AdminDetailPanel> : null}
+            <DrawActions actions={actions} canDraw={canDraw} canReveal={state.hasDraw && !isLocked} hasDraw={state.hasDraw} onRefresh={onRefresh} />
+            {!canDraw && !isLocked ? <p className="text-center text-xs text-[var(--neon-amber)]">{copy.notEnoughMembers}</p> : null}
           </div>
 
-          {state.hasDraw ? (
-            <div className="rounded-[var(--radius-lg-token)] border border-[rgba(var(--neon-green-rgb),0.15)] bg-[rgba(var(--neon-green-rgb),0.02)] p-4">
-              <div className="flex items-start gap-3">
-                <div className="rounded-full bg-[var(--neon-green)] p-1.5">
-                  <Lock className="h-3 w-3 text-black" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-[var(--neon-green)]">
-                    {isLocked ? "Sorteio revelado" : "Sorteio por revelar"}
-                  </p>
-                  <p className="text-xs text-[var(--ink-muted)]">
-                    {isLocked
-                      ? "Cada membro já vê o seu amigo secreto na secção Amigo Secreto."
-                      : "As atribuições existem, mas os membros só as veem depois de revelares. Podes repetir o sorteio até lá."}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : null}
+          {state.hasDraw ? <DrawStatus isLocked={isLocked} /> : null}
         </CardContent>
       </Card>
     </div>

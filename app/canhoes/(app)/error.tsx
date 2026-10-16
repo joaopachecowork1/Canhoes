@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
+import messages from "@/messages/pt.json";
+
+const copy = messages.app.CanhoesError;
 
 export default function CanhoesError({
   error,
@@ -23,22 +26,22 @@ export default function CanhoesError({
       <CardContent className="space-y-4 p-5 sm:p-6">
         <div className="space-y-1">
           <p className="font-[var(--font-mono)] text-[11px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.68)]">
-            Recuperação
+            {copy.eyebrow}
           </p>
-          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">Esta área falhou</h1>
+          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">{copy.title}</h1>
         </div>
 
         <ErrorAlert
-          title="Erro ao carregar esta secção"
+          title={copy.alertTitle}
           description={getErrorMessage(
             error,
-            "O erro ficou isolado nesta área. Tenta novamente para recuperar o conteúdo ou volta ao evento."
+            copy.alertDescription
           )}
         />
 
         <div className="flex flex-wrap gap-2">
           <Button className="canhoes-tap canhoes-neon-border" onClick={() => reset()}>
-            Tentar novamente
+            {messages.common.retry}
           </Button>
           <Button
             className="canhoes-tap"
@@ -47,14 +50,14 @@ export default function CanhoesError({
             // eslint-disable-next-line @next/next/no-location-assign-relative-destination
             onClick={() => globalThis.location.assign("/canhoes")}
           >
-            Voltar ao evento
+            {messages.common.backToEvent}
           </Button>
           <Button
             className="canhoes-tap"
             variant="ghost"
             onClick={() => globalThis.location.reload()}
           >
-            Recarregar
+            {copy.reload}
           </Button>
         </div>
       </CardContent>

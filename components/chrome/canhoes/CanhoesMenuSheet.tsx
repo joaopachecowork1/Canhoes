@@ -5,9 +5,11 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { shellCopy } from "@/lib/canhoesCopy";
 
 import type { CanhoesNavItem } from "./canhoesNavigation";
+import messages from "@/messages/pt.json";
+
+const copy = messages.shell.CanhoesMenuSheet;
 
 /**
  * Bottom sheet with the open areas that do not fit in the dock. Opaque on purpose, so the page
@@ -36,13 +38,13 @@ export function CanhoesMenuSheet({
         className="max-h-[85svh] gap-0 overflow-y-auto border-[var(--border-subtle)] bg-[var(--bg-surface)] pb-[calc(1rem+env(safe-area-inset-bottom,0px))] text-[var(--text-primary)] sm:mx-auto sm:max-w-md"
       >
         <SheetHeader className="pb-3 pr-14">
-          <SheetTitle className="text-xl">{shellCopy.menu}</SheetTitle>
+          <SheetTitle className="text-xl">{messages.shell.common.menu}</SheetTitle>
           <SheetDescription className="text-sm text-[var(--color-text-muted)]">
-            {shellCopy.menuDescription}
+            {copy.menuDescription}
           </SheetDescription>
         </SheetHeader>
 
-        <nav aria-label="Outras áreas" className="flex flex-col px-2">
+        <nav aria-label={copy.otherAreasLabel} className="flex flex-col px-2">
           {items.map((item) => (
             <MenuLink
               key={item.id}
@@ -54,7 +56,7 @@ export function CanhoesMenuSheet({
 
           {items.length === 0 ? (
             <p className="px-3 py-4 text-base text-[var(--color-text-muted)]">
-              {shellCopy.noMoreAreas}
+              {copy.noMoreAreas}
             </p>
           ) : null}
 
@@ -62,10 +64,10 @@ export function CanhoesMenuSheet({
             <MenuLink
               item={{
                 id: "admin-areas",
-                label: shellCopy.allAreas,
+                label: copy.allAreas,
                 href: "/canhoes/admin/configuracoes",
                 icon: Shield,
-                description: shellCopy.allAreasDescription,
+                description: copy.allAreasDescription,
               }}
               isActive={false}
               onSelect={() => onOpenChange(false)}
@@ -83,7 +85,7 @@ export function CanhoesMenuSheet({
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--bg-paper)]">
               <LogOut className="h-5 w-5" aria-hidden />
             </span>
-            <span className="text-base font-semibold">{shellCopy.logout}</span>
+            <span className="text-base font-semibold">{copy.logout}</span>
           </button>
         </nav>
       </SheetContent>

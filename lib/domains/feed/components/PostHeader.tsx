@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
 import { formatDateTime, initials } from "./hubUtils";
 import { useRelativeTime } from "@/lib/postUtils";
+import messages from "@/messages/pt.json";
+
+const copy = messages.feed.PostHeader;
 
 const AVATAR_ACCENTS = [
   "var(--color-moss)",
@@ -24,25 +27,63 @@ function accentForName(name: string) {
   return AVATAR_ACCENTS[Math.abs(hash) % AVATAR_ACCENTS.length];
 }
 
-export function PostHeader({
-  authorName,
-  createdAtUtc,
-  isPinned,
-  isAdmin,
-  onAdminPin,
-  onAdminMoveUp,
-  onAdminMoveDown,
-  onAdminDelete,
-}: Readonly<{
-  authorName: string;
-  createdAtUtc: string;
+const ICON_BUTTON_CLASS =
+  "h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]";
+
+type PostAdminActionsProps = {
   isPinned?: boolean;
-  isAdmin?: boolean;
   onAdminPin?: () => void;
   onAdminMoveUp?: () => void;
   onAdminMoveDown?: () => void;
   onAdminDelete?: () => void;
-}>) {
+};
+
+/** Pin, reorder (pinned posts only) and delete buttons for admins. */
+function PostAdminActions({ isPinned, onAdminPin, onAdminMoveUp, onAdminMoveDown, onAdminDelete }: Readonly<PostAdminActionsProps>) {
+  return (
+    <div className="flex items-center gap-1">
+      {isPinned ? (
+        <>
+          <Button variant="ghost" size="sm" className={ICON_BUTTON_CLASS} onClick={onAdminMoveUp} aria-label={copy.moveUp}>
+            <ArrowUp className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="sm" className={ICON_BUTTON_CLASS} onClick={onAdminMoveDown} aria-label={copy.moveDown}>
+            <ArrowDown className="h-3.5 w-3.5" />
+          </Button>
+        </>
+      ) : null}
+      <Button variant="ghost" size="sm" className={ICON_BUTTON_CLASS} onClick={onAdminPin} aria-label={isPinned ? copy.unpin : copy.pin}>
+        <Pin className="h-3.5 w-3.5" />
+      </Button>
+      <ConfirmDeleteAction
+        onConfirm={onAdminDelete || (() => {})}
+        title={copy.deleteTitle}
+        description={copy.deleteDescription}
+        trigger={
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--danger)]"
+            aria-label={copy.deleteLabel}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
+export function PostHeader({
+  authorName,
+  createdAtUtc,
+  isAdmin,
+  ...adminActions
+}: Readonly<{
+  authorName: string;
+  createdAtUtc: string;
+  isAdmin?: boolean;
+} & PostAdminActionsProps>) {
   const accent = accentForName(authorName);
   const relativeTime = useRelativeTime(createdAtUtc);
 
@@ -59,10 +100,8 @@ export function PostHeader({
 
         <div className="min-w-0 space-y-0.5">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-semibold text-[var(--text-primary)]">
-              {authorName}
-            </p>
-            {isPinned ? <Badge variant="secondary">Fixado</Badge> : null}
+            <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{authorName}</p>
+            {adminActions.isPinned ? <Badge variant="secondary">{copy.pinned}</Badge> : null}
           </div>
           <p className="text-xs text-[var(--text-muted)]" title={formatDateTime(createdAtUtc)}>
             {relativeTime}
@@ -70,56 +109,7 @@ export function PostHeader({
         </div>
       </div>
 
-      {isAdmin ? (
-        <div className="flex items-center gap-1">
-          {isPinned ? (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
-                onClick={onAdminMoveUp}
-                aria-label="Subir post fixado"
-              >
-                <ArrowUp className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
-                onClick={onAdminMoveDown}
-                aria-label="Descer post fixado"
-              >
-                <ArrowDown className="h-3.5 w-3.5" />
-              </Button>
-            </>
-          ) : null}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
-            onClick={onAdminPin}
-            aria-label={isPinned ? "Desafixar post" : "Fixar post"}
-          >
-            <Pin className="h-3.5 w-3.5" />
-          </Button>
-          <ConfirmDeleteAction
-            onConfirm={onAdminDelete || (() => {})}
-            title="Eliminar Publicação?"
-            description="Esta publicação vai ser removida permanentemente do Mural Social. Esta ação não pode ser desfeita."
-            trigger={
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--danger)]"
-                aria-label="Eliminar post"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            }
-          />
-        </div>
-      ) : null}
+      {isAdmin ? <PostAdminActions {...adminActions} /> : null}
     </div>
   );
 }

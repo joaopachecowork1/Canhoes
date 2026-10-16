@@ -1,19 +1,24 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { MessageSquare, Trash2, Reply, X } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
-import { Textarea } from "@/components/ui/textarea";
-import { feedCopy } from "@/lib/canhoesCopy";
-import { COMMENTS_QUERY_KEY } from "./hooks/useHubFeedComments";
+import { formatMessage } from "@/lib/messages";
 import { feedRepo } from "@/lib/repositories/feedRepo";
+import messages from "@/messages/pt.json";
 
-import { formatDateTime, initials } from "./hubUtils";
-import { cn } from "@/lib/utils";
+import { COMMENTS_QUERY_KEY } from "../hooks/useHubFeedComments";
+import { CommentForm, getCommentInputId } from "./CommentForm";
+import { CommentThreadItem } from "./CommentThreadItem";
 import { buildCommentTree, flattenCommentTree } from "./hubPostCommentTree";
+
+const copy = messages.feed.HubPostComments;
+
+function getCommentCountLabel(count: number) {
+  if (count === 0) return copy.noComments;
+  return formatMessage(count === 1 ? copy.commentCountOne : copy.commentCountOther, { count });
+}
 
 type HubPostCommentsProps = {
   postId: string;
@@ -33,6 +38,46 @@ type HubPostCommentsProps = {
   setReplyingTo: (postId: string, commentId: string | null) => void;
 };
 
+/** Loads a post's comments while its thread is open, oldest first, nested under their parents. */
+function usePostComments(eventId: string, postId: string, isOpen: boolean) {
+  const { data: fetchedComments } = useQuery({
+    queryKey: [COMMENTS_QUERY_KEY, postId],
+    queryFn: () => feedRepo.getComments(eventId, postId),
+    enabled: isOpen,
+    staleTime: 30_000,
+    gcTime: 5 * 60 * 1000,
+  });
+
+  const loadedComments = (fetchedComments ?? []).filter(Boolean);
+  const sortedComments = [...loadedComments].sort((left, right) =>
+    String(left.createdAtUtc).localeCompare(String(right.createdAtUtc))
+  );
+
+  return { loadedComments, displayComments: flattenCommentTree(buildCommentTree(sortedComments)) };
+}
+
+function CommentsHeader({ commentCount, onClose }: Readonly<{ commentCount: number; onClose: () => void }>) {
+  return (
+    <div className="flex items-center justify-between gap-3 mb-4">
+      <div className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
+        <MessageSquare className="h-4 w-4 text-[var(--moss)]" />
+        <span className="font-medium">{getCommentCountLabel(commentCount)}</span>
+      </div>
+
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        className="h-8 rounded-full px-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/[0.06]"
+        onClick={onClose}
+        aria-label={messages.feed.HubPostCard.closeComments}
+      >
+        {messages.common.close}
+      </Button>
+    </div>
+  );
+}
+
 export function HubPostComments({
   postId,
   postAuthorName,
@@ -50,244 +95,57 @@ export function HubPostComments({
   onCommentDraftChange,
   setReplyingTo,
 }: Readonly<HubPostCommentsProps>) {
-
-  const { data: fetchedComments } = useQuery({
-    queryKey: [COMMENTS_QUERY_KEY, postId],
-    queryFn: () => feedRepo.getComments(eventId, postId),
-    enabled: openComments,
-    staleTime: 30_000,
-    gcTime: 5 * 60 * 1000,
-  });
-
-  const loadedComments = (fetchedComments ?? []).filter(Boolean);
-
-  const sortedComments =
-    loadedComments.length < 2
-      ? loadedComments
-      : [...loadedComments].sort((left, right) =>
-          String(left.createdAtUtc).localeCompare(String(right.createdAtUtc))
-        );
-
-  const displayComments = flattenCommentTree(buildCommentTree(sortedComments));
+  const { loadedComments, displayComments } = usePostComments(eventId, postId, openComments);
 
   if (!openComments) return null;
-  
+
   const replyingToComment = replyingToId
     ? loadedComments.find((comment) => comment.id === replyingToId)
     : null;
 
+  const handleReply = (commentId: string) => {
+    setReplyingTo(postId, commentId);
+    // Wait for the reply banner to render before moving focus to the box.
+    setTimeout(() => document.getElementById(getCommentInputId(postId))?.focus({ preventScroll: false }), 50);
+  };
+
   return (
-    <>
-      <section className="bg-[var(--bg-paper)] rounded-[1.25rem] p-4 sm:p-5 border border-[var(--border-paper)] shadow-md">
-        <div className="flex items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2 text-sm text-[var(--text-primary)]">
-            <MessageSquare className="h-4 w-4 text-[var(--moss)]" />
-            <span className="font-medium">
-              {commentCount > 0
-                ? `${commentCount} comentário${commentCount === 1 ? "" : "s"}`
-                : "Sem comentários ainda"}
-            </span>
+    <section className="bg-[var(--bg-paper)] rounded-[1.25rem] p-4 sm:p-5 border border-[var(--border-paper)] shadow-md">
+      <CommentsHeader commentCount={commentCount} onClose={() => onToggleComments(postId)} />
+
+      <div className="space-y-0 relative">
+        {displayComments.length === 0 ? (
+          <div className="rounded-xl px-4 py-6 text-center text-sm text-[var(--text-muted)] bg-[var(--bg-deep)] border border-white/[0.04]">
+            {copy.empty}
           </div>
-
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 rounded-full px-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/[0.06]"
-            onClick={() => onToggleComments(postId)}
-            aria-label="Fechar comentários"
-          >
-            Fechar
-          </Button>
-        </div>
-
-        <div className="space-y-0 relative">
-          {displayComments.length === 0 ? (
-            <div className="rounded-xl px-4 py-6 text-center text-sm text-[var(--text-muted)] bg-[var(--bg-deep)] border border-white/[0.04]">
-              {feedCopy.comments.empty}
-            </div>
-          ) : (
-              <div className="space-y-2">
-                {displayComments.map((comment) => {
-                const isOwnComment = Boolean(currentUserId) && comment.userId === currentUserId;
-                const marginLeft = comment.indentLevel * 32;
-
-                return (
-                  <article
-                    key={comment.id}
-                    style={{ paddingLeft: `${marginLeft + 12}px` }}
-                    className="group relative flex gap-3 pr-3 py-3 transition-colors hover:bg-white/[0.02]"
-                  >
-                    {/* Vertical Thread Line */}
-                    {comment.indentLevel > 0 && (
-                      <div 
-                        className="absolute top-0 bottom-0 w-px bg-[var(--border-subtle)]"
-                        style={{ left: `${marginLeft + 12 - 16}px` }}
-                      />
-                    )}
-                    {comment.indentLevel > 0 && (
-                      <div 
-                        className="absolute top-[28px] h-px bg-[var(--border-subtle)]"
-                        style={{ left: `${marginLeft + 12 - 16}px`, width: '16px' }}
-                      />
-                    )}
-
-                    <div className="relative flex flex-col items-center">
-                      <UserAvatar
-                        name={comment.userName}
-                        image={comment.userName === currentUserName ? currentUserImage : null}
-                        className="bg-[var(--bg-deep)]"
-                      />
-                      
-                      {/* Line connecting to children */}
-                      {comment.hasChildren && (
-                        <div className="absolute top-8 bottom-[-12px] w-px bg-[var(--border-subtle)]" />
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1 pt-0.5">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-sm font-semibold text-[var(--text-primary)]">
-                          {comment.userName}
-                        </span>
-                        {comment.userName === postAuthorName && (
-                          <Badge
-                            variant="outline"
-                            className="h-4 min-w-4 border-[var(--moss)]/30 bg-[var(--moss)]/10 px-1 text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--moss)]"
-                          >
-                            OP
-                          </Badge>
-                        )}
-                        <span className="text-xs text-[var(--text-muted)]">
-                          · {formatDateTime(comment.createdAtUtc)}
-                        </span>
-                      </div>
-
-                      <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--text-primary)]">
-                        {comment.text}
-                      </p>
-
-
-                      <div className="mt-2 flex items-center justify-between">
-                        <button
-                          type="button"
-                          className="canhoes-tap flex items-center gap-1.5 rounded px-2 py-1 -ml-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--moss)] hover:bg-[var(--moss)]/10"
-                          aria-label="Responder"
-                          onClick={() => {
-                            setReplyingTo(postId, comment.id);
-                            setTimeout(() => {
-                              const el = document.getElementById(`comment-input-${postId}`);
-                              if (el) {
-                                el.focus({ preventScroll: false });
-                              }
-                            }, 50);
-                          }}
-                        >
-                          <Reply className="h-3.5 w-3.5" />
-                          Responder
-                        </button>
-                      
-                        {isOwnComment && (
-                          <ConfirmDeleteAction
-                            onConfirm={() => onDeleteComment(postId, comment.id)}
-                            title="Apagar comentário?"
-                            description="Este comentário vai desaparecer do feed para todos os membros."
-                            trigger={
-                              <button
-                                type="button"
-                                className="canhoes-tap flex items-center gap-1.5 rounded px-2 py-1 -mr-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 opacity-0 group-hover:opacity-100 focus:opacity-100"
-                                aria-label="Apagar comentário"
-                              >
-                                <Trash2 className="h-3.5 w-3.5" />
-                                Apagar
-                              </button>
-                            }
-                          />
-                        )}
-                      </div>
-                    </div>
-                  </article>
-                );
-              })}
-              </div>
-          )}
-        </div>
-
-        {/* Comment form */}
-        <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-deep)]/50 rounded-b-[1.25rem] flex gap-3 p-4 -mx-4 sm:-mx-5 -mb-4 sm:-mb-5 mt-2">
-          <UserAvatar name={currentUserName} image={currentUserImage} className="mt-1 bg-[var(--bg-surface)]" />
-
-          <div className="min-w-0 flex-1 space-y-2">
-            {replyingToComment && (
-              <div className="flex items-center justify-between bg-[var(--moss)]/10 border border-[var(--moss)]/20 text-[var(--moss)] text-xs px-3 py-2 rounded-lg mb-2">
-                <span className="truncate">
-                  A responder a <span className="font-semibold">{replyingToComment.userName}</span>
-                </span>
-                <button 
-                  type="button" 
-                  onClick={() => setReplyingTo(postId, null)}
-                  className="text-[var(--moss)] hover:text-white p-1 rounded-full hover:bg-[var(--moss)]/20 transition-colors"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
-          
-            <Textarea
-              id={`comment-input-${postId}`}
-              value={commentDraft}
-              onChange={(event) => onCommentDraftChange(postId, event.target.value)}
-              placeholder={replyingToId ? "Escreve a tua resposta..." : feedCopy.comments.placeholder}
-              className="min-h-[72px] resize-none text-sm border-[var(--border-paper)] bg-[var(--bg-surface)] placeholder:text-[var(--text-muted)] rounded-xl"
-            />
-
-            <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-               
-                onClick={() => onCommentDraftChange(postId, "")}
-                disabled={!commentDraft}
-              >
-                Limpar
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-               
-                onClick={() => onAddComment(postId)}
-                disabled={!commentDraft.trim()}
-              >
-                {feedCopy.comments.submit}
-              </Button>
-            </div>
+        ) : (
+          <div className="space-y-2">
+            {displayComments.map((comment) => (
+              <CommentThreadItem
+                key={comment.id}
+                comment={comment}
+                avatarImage={comment.userName === currentUserName ? currentUserImage : null}
+                isOwnComment={Boolean(currentUserId) && comment.userId === currentUserId}
+                isPostAuthor={comment.userName === postAuthorName}
+                onDelete={() => onDeleteComment(postId, comment.id)}
+                onReply={() => handleReply(comment.id)}
+              />
+            ))}
           </div>
-        </div>
-      </section>
+        )}
+      </div>
 
-    </>
-  );
-}
-
-function UserAvatar({
-  name,
-  image,
-  className,
-}: Readonly<{ name: string; image?: string | null; className?: string }>) {
-  return (
-    <span
-      className={cn(
-        "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border-paper)] text-[10px] font-semibold text-[var(--text-muted)]",
-        className
-      )}
-    >
-      {image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={image} alt={name} className="size-full object-cover" />
-      ) : (
-        initials(name)
-      )}
-    </span>
+      <CommentForm
+        currentUserImage={currentUserImage}
+        currentUserName={currentUserName}
+        draft={commentDraft}
+        isReplying={Boolean(replyingToId)}
+        onCancelReply={() => setReplyingTo(postId, null)}
+        onDraftChange={(text) => onCommentDraftChange(postId, text)}
+        onSubmit={() => onAddComment(postId)}
+        postId={postId}
+        replyingToName={replyingToComment?.userName ?? null}
+      />
+    </section>
   );
 }

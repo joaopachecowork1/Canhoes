@@ -6,6 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCount } from "@/lib/utils";
+import messages from "@/messages/pt.json";
+
+const copy = messages.secretSanta.SecretSantaAssignmentCard;
 
 export function SecretSantaAssignmentCard({
   assignedUserName,
@@ -23,7 +26,7 @@ export function SecretSantaAssignmentCard({
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
           <User className="h-4 w-4 text-[var(--color-fire)]" />
-          O teu amigo secreto
+          {messages.secretSanta.common.yourSecretSanta}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -35,10 +38,11 @@ export function SecretSantaAssignmentCard({
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold text-[var(--color-text-primary)]">{assignedUserName}</p>
               <p className="body-small text-[var(--color-text-muted)]">
-                {formatCount(assignedWishlistItems.length, "item", "itens")} na wishlist atribuída
+                {formatCount(assignedWishlistItems.length, messages.common.item, messages.common.items)}
+                {copy.inAssignedWishlist}
               </p>
             </div>
-            <Badge variant="amber">shhh</Badge>
+            <Badge variant="amber">{copy.secretBadge}</Badge>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" asChild>

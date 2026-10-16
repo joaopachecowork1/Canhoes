@@ -20,3 +20,8 @@ export function formatDateTime(value?: string | Date | null) {
 }
 
 export { absMediaUrl };
+
+/** Every image of a post once, in order; old posts keep a single `mediaUrl`. */
+export function getPostMediaUrls(post: { mediaUrls: string[]; mediaUrl: string | null }) {
+  return [...new Set([...post.mediaUrls, post.mediaUrl])].filter((url): url is string => Boolean(url));
+}

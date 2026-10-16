@@ -63,7 +63,7 @@ Os requisitos descrevem o comportamento atual da aplicação. Cada um aponta par
 
 ## Regras de negócio
 
-As regras de fase vivem em funções puras em `lib/domains/event/services/eventRules.ts`. A UI (overview) e o servidor (guards em `lib/api/guards.ts`) usam as mesmas funções, por isso o que a UI mostra e o que o servidor aceita não podem divergir.
+As regras de fase vivem em funções puras em `lib/domains/event/rules/eventRules.ts`. A UI (overview) e o servidor (guards em `lib/api/guards.ts`) usam as mesmas funções, por isso o que a UI mostra e o que o servidor aceita não podem divergir.
 
 | ID | Regra | Código | Teste |
 |---|---|---|---|

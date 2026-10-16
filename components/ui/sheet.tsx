@@ -5,6 +5,7 @@ import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import messages from "@/messages/pt.json"
 
 function Sheet({ ...props }: Readonly<React.ComponentProps<typeof SheetPrimitive.Root>>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -61,7 +62,7 @@ function SheetContent({
         {children}
         <SheetClose className="absolute right-4 top-4 rounded-full border border-white/8 bg-white/[0.05] p-2 text-[var(--color-text-primary)] opacity-90 transition-[opacity,transform,background-color] hover:scale-[1.02] hover:bg-white/[0.08] hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-[var(--moss)] disabled:pointer-events-none">
           <XIcon className="size-4" />
-          <span className="sr-only">Fechar</span>
+          <span className="sr-only">{messages.common.close}</span>
         </SheetClose>
       </SheetPrimitive.Content>
     </SheetPortal>

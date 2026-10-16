@@ -1,57 +1,159 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 
-import { feedCopy } from "@/lib/canhoesCopy";
+import { formatMessage } from "@/lib/messages";
 import { cn } from "@/lib/utils";
+import messages from "@/messages/pt.json";
 
+import { useCarouselGesture } from "../hooks/useCarouselGesture";
 import { absMediaUrl } from "./hubUtils";
 
-function useCarouselGesture(totalSlides: number) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
-  const isDragging = useRef(false);
+const copy = messages.feed.MediaCarousel;
+const IMAGE_SIZES = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px";
+const MAX_HEIGHT_BY_ASPECT = { portrait: "max-h-[32rem]", video: "max-h-[28rem]", square: "max-h-[24rem]" } as const;
+const ARROW_CLASS =
+  "canhoes-tap absolute top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.5)] p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition-all group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35";
 
-  const handleTouchStart = (event: TouchEvent) => {
-    touchStartX.current = event.touches[0].clientX;
-    touchStartY.current = event.touches[0].clientY;
-    isDragging.current = false;
-  };
+function MediaFallback() {
+  return (
+    <div className="flex min-h-48 w-full flex-col items-center justify-center gap-2 bg-[var(--bg-deep)] px-4 text-center">
+      <ImageOff className="h-5 w-5 text-[var(--text-muted)]" />
+      <p className="text-sm font-medium text-[var(--text-muted)]">{copy.unavailable}</p>
+      <p className="max-w-[18rem] text-xs text-[var(--text-muted)]/70">{copy.unavailableDetail}</p>
+    </div>
+  );
+}
 
-  const handleTouchMove = (event: TouchEvent) => {
-    const deltaX = Math.abs(event.touches[0].clientX - touchStartX.current);
-    const deltaY = Math.abs(event.touches[0].clientY - touchStartY.current);
+function CarouselImage({
+  alt,
+  isEager,
+  isFailed,
+  isPriority,
+  onClick,
+  onError,
+  url,
+}: Readonly<{ alt: string; isEager: boolean; isFailed: boolean; isPriority: boolean; onClick: () => void; onError: () => void; url: string }>) {
+  if (isFailed) return <MediaFallback />;
 
-    if (deltaX > deltaY && deltaX > 10) {
-      isDragging.current = true;
-    }
-  };
+  return (
+    <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+      <Image
+        src={absMediaUrl(url)}
+        alt={alt}
+        fill
+        priority={isPriority}
+        loading={isEager ? "eager" : "lazy"}
+        decoding="async"
+        sizes={IMAGE_SIZES}
+        className="cursor-pointer object-contain transition-opacity hover:opacity-90"
+        onError={onError}
+        onClick={onClick}
+      />
+    </div>
+  );
+}
 
-  const handleTouchEnd = (event: TouchEvent) => {
-    if (!isDragging.current) return;
+function CarouselControls({
+  currentIndex,
+  onNext,
+  onPrevious,
+  total,
+}: Readonly<{ currentIndex: number; onNext: () => void; onPrevious: () => void; total: number }>) {
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onPrevious();
+        }}
+        aria-label={copy.previous}
+        className={cn(ARROW_CLASS, "left-2")}
+        disabled={currentIndex === 0}
+      >
+        <ChevronLeft className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={(event) => {
+          event.stopPropagation();
+          onNext();
+        }}
+        aria-label={copy.next}
+        className={cn(ARROW_CLASS, "right-2")}
+        disabled={currentIndex === total - 1}
+      >
+        <ChevronRight className="h-4 w-4" />
+      </button>
+      <span
+        className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {`${currentIndex + 1} / ${total}`}
+      </span>
+    </>
+  );
+}
 
-    const deltaX = event.changedTouches[0].clientX - touchStartX.current;
-    const threshold = 50;
+function CarouselDots({ currentIndex, media, onSelect }: Readonly<{ currentIndex: number; media: string[]; onSelect: (index: number) => void }>) {
+  return (
+    <div className="mt-1.5 flex items-center justify-center gap-1.5">
+      {media.map((url, index) => (
+        <button
+          key={`dot-${url}-${index}`}
+          type="button"
+          aria-label={formatMessage(copy.goTo, { number: index + 1 })}
+          className={cn(
+            "canhoes-tap h-1.5 rounded-full transition-all",
+            index === currentIndex ? "w-6 bg-[var(--moss-glow)]" : "w-2 bg-[var(--text-muted)]/30 hover:bg-[var(--text-muted)]/50"
+          )}
+          onClick={() => onSelect(index)}
+        />
+      ))}
+    </div>
+  );
+}
 
-    if (deltaX < -threshold && currentIndex < totalSlides - 1) {
-      setCurrentIndex((previousIndex) => previousIndex + 1);
-    } else if (deltaX > threshold && currentIndex > 0) {
-      setCurrentIndex((previousIndex) => previousIndex - 1);
-    }
-
-    isDragging.current = false;
-  };
-
-  return {
-    currentIndex,
-    handleTouchEnd,
-    handleTouchMove,
-    handleTouchStart,
-    setCurrentIndex,
-  };
+function CarouselTrack({
+  currentIndex,
+  failedMedia,
+  isPriority,
+  media,
+  onError,
+  onImageClick,
+}: Readonly<{
+  currentIndex: number;
+  failedMedia: Record<string, boolean>;
+  isPriority: boolean;
+  media: string[];
+  onError: (url: string) => void;
+  onImageClick?: (index: number) => void;
+}>) {
+  return (
+    <div
+      className="flex h-full w-full transition-transform duration-300"
+      style={{ transform: `translateX(-${currentIndex * 100}%)`, willChange: "transform" }}
+    >
+      {media.map((url, index) => (
+        <div key={url} aria-hidden={index !== currentIndex} className="flex min-w-full items-center justify-center overflow-hidden">
+          <CarouselImage
+            url={url}
+            alt={formatMessage(copy.slideAlt, { number: index + 1, total: media.length })}
+            isFailed={Boolean(failedMedia[url])}
+            isPriority={isPriority && index === 0}
+            // The neighbours load early so a swipe never shows an empty slide.
+            isEager={(isPriority && index === 0) || Math.abs(index - currentIndex) === 1}
+            onError={() => onError(url)}
+            onClick={() => onImageClick?.(index)}
+          />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export type MediaCarouselProps = {
@@ -63,6 +165,7 @@ export type MediaCarouselProps = {
   isPriority?: boolean;
 };
 
+/** Images of a post: one image as is, several as a swipeable strip with arrows and dots. */
 export function MediaCarousel({
   urls,
   className,
@@ -71,39 +174,30 @@ export function MediaCarousel({
   authorName,
   isPriority = false,
 }: Readonly<MediaCarouselProps>) {
-  const media = (urls ?? []).filter(Boolean);
+  const media = urls.filter(Boolean);
   const [failedMedia, setFailedMedia] = useState<Record<string, boolean>>({});
-  const { currentIndex, setCurrentIndex, handleTouchEnd, handleTouchMove, handleTouchStart } =
-    useCarouselGesture(media.length);
+  const { currentIndex, setCurrentIndex, handleTouchEnd, handleTouchMove, handleTouchStart } = useCarouselGesture(media.length);
+  const lastIndex = Math.max(media.length - 1, 0);
+  const showPrevious = useCallback(() => setCurrentIndex((index) => Math.max(0, index - 1)), [setCurrentIndex]);
+  const showNext = useCallback(() => setCurrentIndex((index) => Math.min(lastIndex, index + 1)), [lastIndex, setCurrentIndex]);
 
   useEffect(() => {
-    setCurrentIndex((previousIndex) =>
-      Math.min(previousIndex, Math.max(media.length - 1, 0))
-    );
-  }, [media.length, setCurrentIndex]);
+    setCurrentIndex((previousIndex) => Math.min(previousIndex, lastIndex));
+  }, [lastIndex, setCurrentIndex]);
 
   const markAsFailed = useCallback((url: string) => {
-    setFailedMedia((previousState) =>
-      previousState[url] ? previousState : { ...previousState, [url]: true }
-    );
+    setFailedMedia((previousState) => (previousState[url] ? previousState : { ...previousState, [url]: true }));
   }, []);
 
-  const handleClick = useCallback((index: number) => {
-    onImageClick?.(index);
-  }, [onImageClick]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      setCurrentIndex((prev) => Math.max(0, prev - 1));
-    } else if (e.key === "ArrowRight") {
-      setCurrentIndex((prev) => Math.min(media.length - 1, prev + 1));
-    }
-  }, [media.length, setCurrentIndex]);
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "ArrowLeft") showPrevious();
+    else if (event.key === "ArrowRight") showNext();
+  };
 
   if (media.length === 0) return null;
 
-  const maxH = aspect === "portrait" ? "max-h-[32rem]" : aspect === "video" ? "max-h-[28rem]" : "max-h-[24rem]";
-  const currentImageUrl = media[currentIndex] ?? media[0];
+  const isSingle = media.length === 1;
+  const singleAlt = authorName ? formatMessage(copy.authorImageAlt, { name: authorName }) : copy.postMediaAlt;
 
   return (
     <div className={cn("w-full", className)}>
@@ -111,153 +205,47 @@ export function MediaCarousel({
         <div
           className="group relative overflow-hidden"
           role="region"
-          aria-roledescription="carousel"
-          aria-label="Galeria de imagens do post"
+          aria-roledescription={copy.roleDescription}
+          aria-label={copy.galleryLabel}
           onKeyDown={handleKeyDown}
           tabIndex={0}
         >
           <div
-            className={cn(
-              "relative flex cursor-pointer items-center justify-center overflow-hidden",
-              maxH
-            )}
+            className={cn("relative flex cursor-pointer items-center justify-center overflow-hidden", MAX_HEIGHT_BY_ASPECT[aspect])}
             style={{ touchAction: "pan-y" }}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            {media.length === 1 ? (
-              failedMedia[currentImageUrl] ? (
-                <MediaFallback />
-              ) : (
-                <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
-                  <Image
-                    src={absMediaUrl(currentImageUrl)}
-                    alt={authorName ? `Imagem de ${authorName}` : "Media do post"}
-                    fill
-                    priority={isPriority}
-                    loading={isPriority ? "eager" : "lazy"}
-                    decoding="async"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
-                    className="cursor-pointer object-contain transition-opacity hover:opacity-90"
-                    onError={() => markAsFailed(currentImageUrl)}
-                    onClick={() => handleClick(0)}
-                  />
-                </div>
-              )
+            {isSingle ? (
+              <CarouselImage
+                url={media[0]}
+                alt={singleAlt}
+                isFailed={Boolean(failedMedia[media[0]])}
+                isPriority={isPriority}
+                isEager={isPriority}
+                onError={() => markAsFailed(media[0])}
+                onClick={() => onImageClick?.(0)}
+              />
             ) : (
-              <div
-                className="flex h-full w-full transition-transform duration-300"
-                style={{
-                  transform: `translateX(-${currentIndex * 100}%)`,
-                  willChange: "transform",
-                }}
-              >
-                {media.map((url, index) => {
-                  const isAdjacent = Math.abs(index - currentIndex) === 1;
-                  return (
-                  <div
-                    key={url}
-                    aria-hidden={index !== currentIndex}
-                    className="flex min-w-full items-center justify-center overflow-hidden"
-                  >
-                    {failedMedia[url] ? (
-                      <MediaFallback />
-                    ) : (
-                      <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
-                        <Image
-                          src={absMediaUrl(url)}
-                          alt={`Imagem ${index + 1} de ${media.length}`}
-                          fill
-                          priority={isPriority && index === 0}
-                          loading={ (isPriority && index === 0) || isAdjacent ? "eager" : "lazy"}
-                          decoding="async"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
-                          className="cursor-pointer object-contain transition-opacity hover:opacity-90"
-                          onError={() => markAsFailed(url)}
-                          onClick={() => handleClick(index)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  );
-                })}
-              </div>
+              <CarouselTrack
+                currentIndex={currentIndex}
+                failedMedia={failedMedia}
+                isPriority={isPriority}
+                media={media}
+                onError={markAsFailed}
+                onImageClick={onImageClick}
+              />
             )}
 
-            {media.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentIndex((previousIndex) => Math.max(0, previousIndex - 1));
-                  }}
-                  aria-label="Imagem anterior"
-                  className="canhoes-tap absolute left-2 top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.5)] p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition-all group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35"
-                  disabled={currentIndex === 0}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentIndex((previousIndex) =>
-                      Math.min(media.length - 1, previousIndex + 1)
-                    );
-                  }}
-                  aria-label="Próxima imagem"
-                  className="canhoes-tap absolute right-2 top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.5)] p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition-all group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35"
-                  disabled={currentIndex === media.length - 1}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </>
-            )}
-
-            {media.length > 1 && (
-              <span
-                className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                {currentIndex + 1} / {media.length}
-              </span>
+            {isSingle ? null : (
+              <CarouselControls currentIndex={currentIndex} total={media.length} onPrevious={showPrevious} onNext={showNext} />
             )}
           </div>
         </div>
       </div>
 
-      {media.length > 1 && (
-        <div className="mt-1.5 flex items-center justify-center gap-1.5">
-          {media.map((url, index) => (
-            <button
-              key={`dot-${url}-${index}`}
-              type="button"
-              aria-label={`Ir para imagem ${index + 1}`}
-              className={cn(
-                "canhoes-tap h-1.5 rounded-full transition-all",
-                index === currentIndex
-                  ? "w-6 bg-[var(--moss-glow)]"
-                  : "w-2 bg-[var(--text-muted)]/30 hover:bg-[var(--text-muted)]/50"
-              )}
-              onClick={() => setCurrentIndex(index)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function MediaFallback() {
-  return (
-    <div className="flex min-h-48 w-full flex-col items-center justify-center gap-2 bg-[var(--bg-deep)] px-4 text-center">
-      <ImageOff className="h-5 w-5 text-[var(--text-muted)]" />
-      <p className="text-sm font-medium text-[var(--text-muted)]">{feedCopy.media.unavailable}</p>
-      <p className="max-w-[18rem] text-xs text-[var(--text-muted)]/70">{feedCopy.media.detail}</p>
+      {isSingle ? null : <CarouselDots currentIndex={currentIndex} media={media} onSelect={setCurrentIndex} />}
     </div>
   );
 }

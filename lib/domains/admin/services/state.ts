@@ -7,7 +7,7 @@ import type {
   AdminListCountsDto,
   EventAdminBootstrapDto,
 } from "@/lib/api/types";
-import { resolveMemberModules, type PhaseType } from "@/lib/domains/event/services/eventRules";
+import { resolveMemberModules, type PhaseType } from "@/lib/domains/event/rules/eventRules";
 import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
 
 /*

@@ -44,19 +44,7 @@ const BADGE_ACTIVE_CLASS =
 const BADGE_IDLE_CLASS =
   "border border-[rgba(95,123,56,0.24)] bg-[rgba(95,123,56,0.12)] text-[var(--color-text-muted)]";
 
-/**
- * Unified pill-style tab component.
- * Supports both button clicks (onSelect) and link navigation (item.href).
- * Used across Admin, Content Tabs, and Segment Tabs.
- */
-export function PillTabs({
-  activeId,
-  className,
-  items,
-  onSelect,
-  size = "sm",
-  stretch = false,
-}: Readonly<PillTabsProps>) {
+function useScrollActiveIntoView(activeId: string) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -71,14 +59,87 @@ export function PillTabs({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const scrollLeft = activeElement.offsetLeft - scroller.offsetWidth / 2 + activeElement.offsetWidth / 2;
-    
+
     scroller.scrollTo({
       left: scrollLeft,
       behavior: prefersReducedMotion ? "auto" : "smooth",
     });
   }, [activeId]);
 
-  const itemSizeClass = size === "sm" ? "min-h-10 text-xs" : "min-h-11 text-[13px]";
+  return scrollRef;
+}
+
+function PillTabContent({ isActive, item, stretch }: Readonly<{ isActive: boolean; item: PillTabItem; stretch: boolean }>) {
+  const Icon = item.icon;
+  return (
+    <>
+      {Icon ? <Icon className={cn("h-4 w-4 shrink-0", stretch && "max-[419px]:hidden")} /> : null}
+      <span className="truncate">{item.label}</span>
+      {item.badge == null ? null : (
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none transition-colors",
+            isActive ? BADGE_ACTIVE_CLASS : BADGE_IDLE_CLASS
+          )}
+        >
+          {item.badge}
+        </span>
+      )}
+    </>
+  );
+}
+
+function PillTab({
+  isActive,
+  item,
+  onSelect,
+  size,
+  stretch,
+}: Readonly<{ isActive: boolean; item: PillTabItem; onSelect?: (id: string) => void; size: "sm" | "md"; stretch: boolean }>) {
+  const className = cn(
+    ITEM_BASE_CLASS,
+    size === "sm" ? "min-h-10 text-xs" : "min-h-11 text-[13px]",
+    stretch && "w-full justify-center px-2",
+    isActive ? ITEM_ACTIVE_CLASS : ITEM_IDLE_CLASS
+  );
+  const dataActive = isActive ? "true" : undefined;
+  const content = <PillTabContent isActive={isActive} item={item} stretch={stretch} />;
+
+  if (item.href) {
+    return (
+      <Link
+        href={item.href}
+        aria-current={isActive ? "page" : undefined}
+        onClick={() => onSelect?.(item.id)}
+        data-active={dataActive}
+        className={className}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={() => onSelect?.(item.id)} aria-pressed={isActive} data-active={dataActive} className={className}>
+      {content}
+    </button>
+  );
+}
+
+/**
+ * Unified pill-style tab component.
+ * Supports both button clicks (onSelect) and link navigation (item.href).
+ * Used across Admin, Content Tabs, and Segment Tabs.
+ */
+export function PillTabs({
+  activeId,
+  className,
+  items,
+  onSelect,
+  size = "sm",
+  stretch = false,
+}: Readonly<PillTabsProps>) {
+  const scrollRef = useScrollActiveIntoView(activeId);
 
   return (
     <div className={cn(CONTAINER_CLASS, className)}>
@@ -87,64 +148,16 @@ export function PillTabs({
           className={cn(stretch ? "grid min-w-0 gap-1" : "flex min-w-max gap-1.5")}
           style={stretch ? { gridTemplateColumns: `repeat(${items.length}, minmax(0, 1fr))` } : undefined}
         >
-          {items.map((item) => {
-            const isActive = item.id === activeId;
-            const Icon = item.icon;
-
-            const content = (
-              <>
-                {Icon ? <Icon className={cn("h-4 w-4 shrink-0", stretch && "max-[419px]:hidden")} /> : null}
-                <span className="truncate">{item.label}</span>
-                {item.badge != null ? (
-                  <span
-                    className={cn(
-                      "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none transition-colors",
-                      isActive ? BADGE_ACTIVE_CLASS : BADGE_IDLE_CLASS
-                    )}
-                  >
-                    {item.badge}
-                  </span>
-                ) : null}
-              </>
-            );
-
-            const sharedProps = {
-              "data-active": isActive ? "true" : undefined,
-              className: cn(
-                ITEM_BASE_CLASS,
-                itemSizeClass,
-                stretch && "w-full justify-center px-2",
-                isActive ? ITEM_ACTIVE_CLASS : ITEM_IDLE_CLASS
-              ),
-            } as const;
-
-            if (item.href) {
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  aria-current={isActive ? "page" : undefined}
-                  onClick={() => onSelect?.(item.id)}
-                  data-active={sharedProps["data-active"]}
-                  className={sharedProps.className}
-                >
-                  {content}
-                </Link>
-              );
-            }
-
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => onSelect?.(item.id)}
-                aria-pressed={isActive}
-                {...sharedProps}
-              >
-                {content}
-              </button>
-            );
-          })}
+          {items.map((item) => (
+            <PillTab
+              key={item.id}
+              isActive={item.id === activeId}
+              item={item}
+              onSelect={onSelect}
+              size={size}
+              stretch={stretch}
+            />
+          ))}
         </div>
       </div>
     </div>

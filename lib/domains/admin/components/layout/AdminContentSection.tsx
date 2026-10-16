@@ -13,12 +13,15 @@ import { AdminOfficialResultsSection } from "../AdminOfficialResultsSection";
 import { CategoriesAdmin } from "../categories/CategoriesAdmin";
 import { PendingProposals } from "../categories/PendingProposals";
 import { VotesAudit } from "../VotesAudit";
+import messages from "@/messages/pt.json";
 
-type ContentView = "queue" | "categorias" | "resultados";
+const copy = messages.admin.AdminContentSection;
 
-const DEFAULT_VIEW: ContentView = "queue";
+type ContentViewId = "queue" | "categorias" | "resultados";
 
-function isContentView(value: string | null): value is ContentView {
+const DEFAULT_VIEW: ContentViewId = "queue";
+
+function isContentView(value: string | null): value is ContentViewId {
   return value === "queue" || value === "categorias" || value === "resultados";
 }
 
@@ -33,6 +36,45 @@ type AdminContentSectionProps = {
   pendingNominationCount: number;
   onUpdate: () => Promise<void>;
 };
+
+function ContentView({
+  activeView,
+  categoryProposals,
+  eventId,
+  loading,
+  measureProposals,
+  memberCount,
+  onUpdate,
+}: Readonly<
+  { activeView: ContentViewId } & Pick<
+    AdminContentSectionProps,
+    "categoryProposals" | "eventId" | "loading" | "measureProposals" | "memberCount" | "onUpdate"
+  >
+>) {
+  if (activeView === "categorias") return <CategoriesAdmin eventId={eventId} onUpdate={onUpdate} />;
+
+  if (activeView === "resultados") {
+    return (
+      <div className="space-y-6">
+        <AdminOfficialResultsSection eventId={eventId} memberCount={memberCount} />
+        <VotesAudit eventId={eventId} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <AdminNominationsSection eventId={eventId} loading={loading} />
+      <PendingProposals
+        categoryProposals={categoryProposals}
+        eventId={eventId}
+        loading={loading}
+        measureProposals={measureProposals}
+        onUpdate={onUpdate}
+      />
+    </div>
+  );
+}
 
 export function AdminContentSection({
   categoryProposals,
@@ -54,9 +96,9 @@ export function AdminContentSection({
 
   const queueCount = pendingNominationCount + categoryProposals.length + measureProposals.length;
   const tabs = [
-    { id: "queue", label: "Fila", icon: Gavel, count: queueCount },
-    { id: "categorias", label: "Categorias", icon: FolderTree, count: categoriesCount },
-    { id: "resultados", label: "Resultados", icon: BarChart2, count: officialResultsCount },
+    { id: "queue", label: copy.queueTab, icon: Gavel, count: queueCount },
+    { id: "categorias", label: copy.categoriesTab, icon: FolderTree, count: categoriesCount },
+    { id: "resultados", label: copy.resultsTab, icon: BarChart2, count: officialResultsCount },
   ].map(({ count, ...tab }) => ({ ...tab, badge: count > 0 ? count : undefined }));
 
   const handleSelectView = (nextView: string) => {
@@ -73,29 +115,6 @@ export function AdminContentSection({
     router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
   };
 
-  const content =
-    activeView === "categorias" ? (
-      <CategoriesAdmin eventId={eventId} onUpdate={onUpdate} />
-    ) : activeView === "resultados" ? (
-      <div className="space-y-6">
-        <AdminOfficialResultsSection eventId={eventId} memberCount={memberCount} />
-
-        <VotesAudit eventId={eventId} />
-      </div>
-    ) : (
-      <div className="space-y-6">
-        <AdminNominationsSection eventId={eventId} loading={loading} />
-
-        <PendingProposals
-          categoryProposals={categoryProposals}
-          eventId={eventId}
-          loading={loading}
-          measureProposals={measureProposals}
-          onUpdate={onUpdate}
-        />
-      </div>
-    );
-
   return (
     <div className="space-y-4">
       <PillTabs
@@ -106,7 +125,15 @@ export function AdminContentSection({
         className="text-[var(--color-text-primary)]"
       />
 
-      {content}
+      <ContentView
+        activeView={activeView}
+        categoryProposals={categoryProposals}
+        eventId={eventId}
+        loading={loading}
+        measureProposals={measureProposals}
+        memberCount={memberCount}
+        onUpdate={onUpdate}
+      />
     </div>
   );
 }

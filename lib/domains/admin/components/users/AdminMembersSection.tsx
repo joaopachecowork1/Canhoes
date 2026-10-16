@@ -1,18 +1,20 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-
+import type { PublicUserDto } from "@/lib/api/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { logFrontendError } from "@/lib/errors";
-import { adminRepo } from "@/lib/repositories/adminRepo";
-import { useAuth } from "@/components/providers/AuthContext";
+import { formatCount } from "@/lib/utils";
+import messages from "@/messages/pt.json";
 
+import { useAdminMembers } from "../../hooks/useAdminMembers";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
-import { SecretSantaAdmin } from "./SecretSantaAdmin";
 import { AdminInviteUser } from "./AdminInviteUser";
 import { AdminMembersList } from "./AdminMembersList";
+import { SecretSantaAdmin } from "./SecretSantaAdmin";
+
+const copy = messages.admin.AdminMembersSection;
+const CARD_CLASS = "border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]";
 
 type AdminMembersSectionProps = {
   eventId: string | null;
@@ -20,108 +22,52 @@ type AdminMembersSectionProps = {
   onUpdate: () => Promise<void>;
 };
 
-export function AdminMembersSection({
-  eventId,
-  loading,
-  onUpdate,
-}: Readonly<AdminMembersSectionProps>) {
-  const queryClient = useQueryClient();
-  const { user, refreshProfile } = useAuth();
-  const membersQuery = useQuery({
-    enabled: !!eventId,
-    queryFn: () => adminRepo.getMembersPaged(eventId!, 0, 50),
-    queryKey: ["canhoes", "admin", "members", eventId, 0, 50],
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60 * 2,
-    select: (page) => page.items,
-  });
+function MembersRoster({
+  isPendingRoleChange,
+  members,
+  onToggleRole,
+}: Readonly<{ isPendingRoleChange: boolean; members: PublicUserDto[]; onToggleRole: (member: { id: string; isAdmin: boolean }) => void }>) {
+  return (
+    <Card className={CARD_CLASS}>
+      <CardHeader className="space-y-1">
+        <p className="editorial-kicker">{copy.kicker}</p>
+        <CardTitle>{formatCount(members.length, copy.member, copy.members)}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {members.length === 0 ? (
+          <AdminStateMessage>{copy.empty}</AdminStateMessage>
+        ) : (
+          <AdminMembersList members={members} onToggleRole={onToggleRole} isPendingRoleChange={isPendingRoleChange} />
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
-  const secretSantaQuery = useQuery({
-    enabled: !!eventId,
-    queryFn: () => adminRepo.getSecretSantaState(eventId!),
-    queryKey: ["canhoes", "admin", "secret-santa-state", eventId],
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60 * 2,
-  });
+export function AdminMembersSection({ eventId, loading, onUpdate }: Readonly<AdminMembersSectionProps>) {
+  const admin = useAdminMembers(eventId);
 
-  const members = membersQuery.data ?? [];
-  const roleMutation = useMutation({
-    mutationFn: async (member: { id: string; isAdmin: boolean }) => {
-      const isSelfDemotion = member.id === user?.id && member.isAdmin;
-      if (isSelfDemotion && !window.confirm("Ao remover o teu acesso admin sairás desta área. Continuar?")) {
-        return null;
-      }
-      return adminRepo.setMemberAdmin(eventId!, member.id, {
-        isAdmin: !member.isAdmin,
-        confirmSelfDemotion: isSelfDemotion,
-      });
-    },
-    onSuccess: async (result) => {
-      if (!result) return;
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "members", eventId] }),
-        refreshProfile(),
-      ]);
-      toast.success("Permissões atualizadas.");
-    },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "Não foi possível atualizar o admin."),
-  });
+  if (!eventId) return <AdminStateMessage>{copy.noEvent}</AdminStateMessage>;
+  if (loading || admin.isLoading) return <AdminStateMessage>{copy.loading}</AdminStateMessage>;
 
-  if (!eventId) {
-    return <AdminStateMessage>Falta uma edição ativa para gerir amigos.</AdminStateMessage>;
-  }
-
-  if (loading || membersQuery.isLoading || secretSantaQuery.isLoading) {
-    return <AdminStateMessage>A carregar membros...</AdminStateMessage>;
-  }
-
-  const queryError = membersQuery.error ?? secretSantaQuery.error;
-
-  if (queryError) {
-    logFrontendError("AdminMembersSection.query", queryError, { eventId });
+  if (admin.queryError) {
+    logFrontendError("AdminMembersSection.query", admin.queryError, { eventId });
     return (
-      <AdminStateMessage
-        tone="error"
-        action={
-          <Button onClick={() => void Promise.all([membersQuery.refetch(), secretSantaQuery.refetch()])}>
-            Tentar novamente
-          </Button>
-        }
-      >
-        Não foi possível carregar os membros desta edição.
+      <AdminStateMessage tone="error" action={<Button onClick={() => void admin.refetchAll()}>{messages.common.retry}</Button>}>
+        {copy.loadError}
       </AdminStateMessage>
     );
   }
 
   return (
     <div className="space-y-4">
-      {secretSantaQuery.data && (
-        <SecretSantaAdmin
-          eventId={eventId}
-          state={secretSantaQuery.data}
-          onRefresh={onUpdate}
-        />
-      )}
-
+      {admin.secretSantaState ? <SecretSantaAdmin eventId={eventId} state={admin.secretSantaState} onRefresh={onUpdate} /> : null}
       <AdminInviteUser eventId={eventId} />
-
-      <Card className="border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
-        <CardHeader className="space-y-1">
-          <p className="editorial-kicker">Roster</p>
-          <CardTitle>{members.length} {members.length === 1 ? "membro" : "membros"}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {members.length === 0 ? (
-            <AdminStateMessage>Nenhum membro nesta edição.</AdminStateMessage>
-          ) : (
-            <AdminMembersList
-              members={members}
-              onToggleRole={(member) => roleMutation.mutate(member)}
-              isPendingRoleChange={roleMutation.isPending}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <MembersRoster
+        members={admin.members}
+        onToggleRole={(member) => admin.roleMutation.mutate(member)}
+        isPendingRoleChange={admin.roleMutation.isPending}
+      />
     </div>
   );
 }

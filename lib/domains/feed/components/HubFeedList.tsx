@@ -4,11 +4,11 @@ import { memo } from "react";
 import { ScrollText } from "lucide-react";
 
 import { EmptyState } from "@/components/ui/empty-state";
-import { feedCopy } from "@/lib/canhoesCopy";
 import type { EventFeedPostFullDto } from "@/lib/api/types";
 
 import { FeedLoadMore } from "./FeedLoadMore";
 import { HubPostCard } from "./HubPostCard";
+import messages from "@/messages/pt.json";
 
 type HubFeedListProps = {
   posts: EventFeedPostFullDto[];
@@ -152,8 +152,8 @@ export const HubFeedList = memo(function HubFeedList({
           <EmptyState
             className="py-10"
             icon={ScrollText}
-            title={feedCopy.empty.title}
-            description={feedCopy.empty.description}
+            title={messages.feed.HubFeedList.emptyTitle}
+            description={messages.feed.HubFeedList.emptyDescription}
             tone="social"
           />
         )}

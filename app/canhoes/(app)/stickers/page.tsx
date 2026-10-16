@@ -1,5 +1,5 @@
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
-import { CanhoesStickerSubmitModule } from "@/components/modules/canhoes/stickers/CanhoesStickerSubmitModule";
+import { CanhoesStickerSubmitModule } from "@/lib/domains/stickers/components/CanhoesStickerSubmitModule";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, AwardCategoryDto, NomineeDto, PagedResult } from "@/lib/api/types";
 

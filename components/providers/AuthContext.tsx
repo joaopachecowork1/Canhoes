@@ -30,33 +30,48 @@ function currentCallbackUrl() {
   return requested?.startsWith("/canhoes") ? requested : "/canhoes";
 }
 
-export function AuthProvider({
-  isDevLoginAvailable,
-  children,
-}: Readonly<{ isDevLoginAvailable: boolean; children: React.ReactNode }>) {
-  const { data: session, status, update: updateSession } = useSession();
-  const isLoggedIn = status === "authenticated";
-  const autoLoginAttempted = useRef(false);
-  const [autoLoginPending, setAutoLoginPending] = useState(false);
-  const [autoLoginFailed, setAutoLoginFailed] = useState(false);
+const SKIP_DEV_AUTO_LOGIN_KEY = "skipDevAutoLogin";
 
-  const isDevAuthBypass = session?.authMode === "development";
+// These only call NextAuth, so they are module functions: stable without useCallback.
+function loginGoogle() {
+  void signIn("google", { callbackUrl: currentCallbackUrl() });
+}
+
+function loginDevelopment() {
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem(SKIP_DEV_AUTO_LOGIN_KEY);
+  }
+  void signIn("development", { callbackUrl: currentCallbackUrl() });
+}
+
+function logout() {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem(SKIP_DEV_AUTO_LOGIN_KEY, "true");
+  }
+  void signOut({ callbackUrl: "/canhoes/login", redirect: true });
+}
+
+/** Outside production, signs in once with the development provider unless the user logged out. */
+function useDevAutoLogin({
+  isDevLoginAvailable,
+  status,
+  updateSession,
+}: Readonly<{ isDevLoginAvailable: boolean; status: string; updateSession: () => Promise<unknown> }>) {
+  const autoLoginAttempted = useRef(false);
+  const [isPending, setIsPending] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
 
   useEffect(() => {
-    const shouldSkipAutoLogin = typeof window !== "undefined" && sessionStorage.getItem("skipDevAutoLogin") === "true";
-    
-    if (
-      status !== "unauthenticated"
-      || !isDevLoginAvailable
-      || autoLoginAttempted.current
-      || shouldSkipAutoLogin
-    ) {
+    const shouldSkipAutoLogin =
+      typeof window !== "undefined" && sessionStorage.getItem(SKIP_DEV_AUTO_LOGIN_KEY) === "true";
+
+    if (status !== "unauthenticated" || !isDevLoginAvailable || autoLoginAttempted.current || shouldSkipAutoLogin) {
       return;
     }
 
     autoLoginAttempted.current = true;
-    setAutoLoginPending(true);
-    setAutoLoginFailed(false);
+    setIsPending(true);
+    setHasFailed(false);
 
     void signIn("development", {
       callbackUrl: currentCallbackUrl(),
@@ -66,9 +81,22 @@ export function AuthProvider({
         if (!result?.ok) throw new Error(result?.error ?? "Development login failed.");
         await updateSession();
       })
-      .catch(() => setAutoLoginFailed(true))
-      .finally(() => setAutoLoginPending(false));
+      .catch(() => setHasFailed(true))
+      .finally(() => setIsPending(false));
   }, [isDevLoginAvailable, status, updateSession]);
+
+  return { isPending, hasFailed };
+}
+
+export function AuthProvider({
+  isDevLoginAvailable,
+  children,
+}: Readonly<{ isDevLoginAvailable: boolean; children: React.ReactNode }>) {
+  const { data: session, status, update: updateSession } = useSession();
+  const isLoggedIn = status === "authenticated";
+  const autoLogin = useDevAutoLogin({ isDevLoginAvailable, status, updateSession });
+
+  const isDevAuthBypass = session?.authMode === "development";
 
   // The NextAuth `jwt` callback re-reads the user from the database, so the session is the profile.
   const sessionUser = isLoggedIn ? session?.user : undefined;
@@ -83,32 +111,14 @@ export function AuthProvider({
     };
   }, [sessionUser]);
 
-  const loginGoogle = useCallback(() => {
-    void signIn("google", { callbackUrl: currentCallbackUrl() });
-  }, []);
-
-  const loginDevelopment = useCallback(() => {
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("skipDevAutoLogin");
-    }
-    void signIn("development", { callbackUrl: currentCallbackUrl() });
-  }, []);
-
-  const logout = useCallback(() => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("skipDevAutoLogin", "true");
-    }
-    void signOut({ callbackUrl: "/canhoes/login", redirect: true });
-  }, []);
-
   /** Re-runs the `jwt` callback, which re-reads `isAdmin` and the name from the database. */
   const refreshProfile = useCallback(async () => {
     await updateSession();
   }, [updateSession]);
 
   const isLoading = status === "loading"
-    || autoLoginPending
-    || (status === "unauthenticated" && isDevLoginAvailable && !autoLoginFailed);
+    || autoLogin.isPending
+    || (status === "unauthenticated" && isDevLoginAvailable && !autoLogin.hasFailed);
 
   const value = useMemo<AuthContextType>(
     () => ({
@@ -122,17 +132,7 @@ export function AuthProvider({
       logout,
       refreshProfile,
     }),
-    [
-      user,
-      isLoggedIn,
-      isDevAuthBypass,
-      isDevLoginAvailable,
-      isLoading,
-      loginGoogle,
-      loginDevelopment,
-      logout,
-      refreshProfile,
-    ]
+    [user, isLoggedIn, isDevAuthBypass, isDevLoginAvailable, isLoading, refreshProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

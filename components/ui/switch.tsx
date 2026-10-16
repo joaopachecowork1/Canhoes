@@ -14,8 +14,6 @@ function Switch({
   size?: "sm" | "default"
   variant?: "default" | "admin"
 }) {
-  const isAdmin = variant === "admin"
-
   return (
     <SwitchPrimitive.Root
       data-slot="switch"
@@ -23,9 +21,7 @@ function Switch({
       data-variant={variant}
       className={cn(
         "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-paper)] disabled:cursor-not-allowed disabled:opacity-50",
-        isAdmin 
-          ? "data-[state=checked]:bg-[var(--moss)] data-[state=unchecked]:bg-[var(--bg-surface)]" 
-          : "data-[state=checked]:bg-[var(--moss)] data-[state=unchecked]:bg-[var(--bg-surface)]",
+        "data-[state=checked]:bg-[var(--moss)] data-[state=unchecked]:bg-[var(--bg-surface)]",
         className
       )}
       {...props}

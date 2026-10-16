@@ -10,7 +10,47 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { formatCount } from "@/lib/utils";
 import { CategoryNominationCard, NominationsLoadingState } from "./NominationsView";
-import { useNominationsModule } from "./useNominationsModule";
+import { useNominationsModule } from "../hooks/useNominationsModule";
+import messages from "@/messages/pt.json";
+
+const copy = messages.voting.CanhoesNominationsModule;
+
+type Nominations = ReturnType<typeof useNominationsModule>;
+
+function NominationsBoard({ nominations }: Readonly<{ nominations: Nominations }>) {
+  const { selectedCategory, myStatus } = nominations;
+
+  return (
+    <div className="space-y-4">
+      <CanhoesModuleHeader
+        icon={Trophy}
+        title={copy.title}
+        description={copy.description}
+        badgeLabel={formatCount(nominations.categories.length, copy.categoryOne, copy.categoryOther)}
+      />
+      <CompactSegmentTabs
+        activeId={selectedCategory?.id ?? ""}
+        items={nominations.categories.map((category) => ({
+          id: category.id,
+          label: category.name,
+          badge: myStatus?.hasNomination && myStatus.nomineeId === category.id ? copy.sentBadge : undefined,
+        }))}
+        onSelect={nominations.setSelectedCategoryId}
+      />
+      {selectedCategory ? (
+        <CategoryNominationCard
+          category={selectedCategory}
+          eventId={nominations.queryEventId}
+          isPhaseOpen={nominations.isPhaseOpen}
+          myStatus={myStatus?.nomineeId === selectedCategory.id ? myStatus : undefined}
+          approvedNominees={nominations.approvedNominees.filter((nominee) => nominee.categoryId === selectedCategory.id)}
+          onNominationSubmitted={nominations.updateNominationCaches}
+          queryClient={nominations.queryClient}
+        />
+      ) : null}
+    </div>
+  );
+}
 
 /**
  * Coordinates the nomination module states; remote state and submission behavior
@@ -24,12 +64,11 @@ export function CanhoesNominationsModule({
   initialContext?: EventActiveContextDto | null;
 }) {
   const nominations = useNominationsModule(initialCategories, initialContext);
-  const isInitialLoading = nominations.isLoading && nominations.categories.length === 0;
 
-  if (isInitialLoading) {
+  if (nominations.isLoading && nominations.categories.length === 0) {
     return (
       <div className="space-y-3">
-        <CanhoesModuleHeader icon={Trophy} title="Nomeações oficiais" description="Área oficial para propor um nome por categoria durante a fase de propostas." />
+        <CanhoesModuleHeader icon={Trophy} title={copy.title} description={copy.loadingDescription} />
         <NominationsLoadingState />
       </div>
     );
@@ -38,9 +77,9 @@ export function CanhoesNominationsModule({
   if (!nominations.eventId || nominations.error) {
     return (
       <ErrorAlert
-        title="Erro ao carregar nomeações oficiais"
-        description={getErrorMessage(nominations.error, "Não foi possível carregar a área oficial de nomeações.")}
-        actionLabel="Tentar novamente"
+        title={copy.loadErrorTitle}
+        description={getErrorMessage(nominations.error, copy.loadError)}
+        actionLabel={messages.common.retry}
         tone="official"
         onAction={nominations.refreshQueries}
       />
@@ -48,36 +87,12 @@ export function CanhoesNominationsModule({
   }
 
   if (nominations.categories.length === 0) {
-    return <EmptyState className="py-8" icon={Trophy} title="Sem categorias oficiais abertas" description="A área oficial de nomeações fica disponível quando existirem categorias ativas." tone="official" />;
+    return <EmptyState className="py-8" icon={Trophy} title={copy.noCategoriesTitle} description={copy.noCategoriesDescription} tone="official" />;
   }
 
   if (!nominations.isPhaseOpen) {
-    return <EmptyState className="py-10 opacity-90" icon={Lock} title="Nomeações oficiais fechadas" description="Esta área oficial volta a abrir na fase de propostas." tone="official" />;
+    return <EmptyState className="py-10 opacity-90" icon={Lock} title={copy.closedTitle} description={copy.closedDescription} tone="official" />;
   }
 
-  return (
-    <div className="space-y-4">
-      <CanhoesModuleHeader icon={Trophy} title="Nomeações oficiais" description="Cada membro pode submeter uma nomeação oficial por categoria." badgeLabel={formatCount(nominations.categories.length, "categoria", "categorias")} />
-      <CompactSegmentTabs
-        activeId={nominations.selectedCategory?.id ?? ""}
-        items={nominations.categories.map((category) => ({
-          id: category.id,
-          label: category.name,
-          badge: nominations.myStatus?.hasNomination && nominations.myStatus.nomineeId === category.id ? "Enviado" : undefined,
-        }))}
-        onSelect={nominations.setSelectedCategoryId}
-      />
-      {nominations.selectedCategory ? (
-        <CategoryNominationCard
-          category={nominations.selectedCategory}
-          eventId={nominations.queryEventId}
-          isPhaseOpen={nominations.isPhaseOpen}
-          myStatus={nominations.myStatus?.nomineeId === nominations.selectedCategory.id ? nominations.myStatus : undefined}
-          approvedNominees={nominations.approvedNominees.filter((nominee) => nominee.categoryId === nominations.selectedCategory?.id)}
-          onNominationSubmitted={nominations.updateNominationCaches}
-          queryClient={nominations.queryClient}
-        />
-      ) : null}
-    </div>
-  );
+  return <NominationsBoard nominations={nominations} />;
 }

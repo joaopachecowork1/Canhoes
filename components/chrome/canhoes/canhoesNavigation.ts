@@ -3,7 +3,9 @@ import { Menu, ScrollText, Shield } from "lucide-react";
 
 import type { EventModulesDto } from "@/lib/api/types";
 import { CANHOES_MODULES } from "@/lib/modules";
-import { shellCopy } from "@/lib/canhoesCopy";
+import messages from "@/messages/pt.json";
+
+const copy = messages.shell.canhoesNavigation;
 
 /*
  * What the shell links to. The dock has Mural, the first two open areas, Post and, on the right,
@@ -19,7 +21,7 @@ export type CanhoesNavItem = {
   description?: string;
 };
 
-type CanhoesPageTone = "admin" | "event" | "official" | "social";
+export type CanhoesPageTone = "admin" | "event" | "official" | "social";
 
 export type CanhoesPageContext = {
   title: string;
@@ -30,35 +32,30 @@ export type CanhoesPageContext = {
 
 export const HOME_NAV_ITEM: CanhoesNavItem = {
   id: "home",
-  label: "Mural",
+  label: copy.homeLabel,
   href: "/canhoes",
   icon: ScrollText,
-  description: "Publicações e sondagens do grupo.",
+  description: copy.homeDescription,
 };
 
 export const ADMIN_NAV_ITEM: CanhoesNavItem = {
   id: "admin",
-  label: "Admin",
+  label: copy.adminLabel,
   href: "/canhoes/admin",
   icon: Shield,
-  description: "Fases, propostas, membros e todas as áreas do evento.",
+  description: copy.adminDescription,
 };
 
 export const MENU_NAV_ITEM: CanhoesNavItem = {
   id: "menu",
-  label: shellCopy.menu,
+  label: messages.shell.common.menu,
   href: "#menu",
   icon: Menu,
 };
 
 const DOCK_AREA_COUNT = 2;
 
-const TONE_LABELS: Record<CanhoesPageTone, string> = {
-  admin: "Admin",
-  event: "Evento",
-  official: "Oficial",
-  social: "Social",
-};
+const TONE_LABELS: Record<CanhoesPageTone, string> = copy.toneLabels;
 
 const OFFICIAL_AREAS = new Set(["voting", "nominees", "categories", "gala"]);
 
@@ -101,7 +98,7 @@ export function getPageContext(pathname: string | null): CanhoesPageContext {
     : undefined;
 
   if (!page) {
-    return { title: "Mural", description: HOME_NAV_ITEM.description, tone: "social", toneLabel: TONE_LABELS.social };
+    return { title: HOME_NAV_ITEM.label, description: HOME_NAV_ITEM.description, tone: "social", toneLabel: TONE_LABELS.social };
   }
 
   let tone: CanhoesPageTone = "event";

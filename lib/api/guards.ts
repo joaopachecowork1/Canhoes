@@ -4,7 +4,7 @@ import type { AdminModuleKey } from "@/lib/api/types";
 import { HttpError, unauthorized } from "@/lib/api/httpError";
 import { authOptions } from "@/lib/domains/auth/services/auth";
 import { getEventRulesState, isEventMember } from "@/lib/domains/event/services/event";
-import { canSubmitProposals, resolveMemberModules } from "@/lib/domains/event/services/eventRules";
+import { canSubmitProposals, resolveMemberModules } from "@/lib/domains/event/rules/eventRules";
 
 export type SessionUser = { id: string; isAdmin: boolean };
 

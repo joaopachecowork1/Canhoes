@@ -1,5 +1,5 @@
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
-import { CanhoesSecretSantaModule } from "@/components/modules/canhoes/CanhoesSecretSantaModule";
+import { CanhoesSecretSantaModule } from "@/lib/domains/secretSanta/components/CanhoesSecretSantaModule";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 

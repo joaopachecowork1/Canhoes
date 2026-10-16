@@ -4,6 +4,9 @@ import { Loader2, Sparkles } from "lucide-react";
 
 import type { EventOverviewDto, EventSummaryDto } from "@/lib/api/types";
 import { getPhaseLabel } from "@/lib/canhoesEvent";
+import messages from "@/messages/pt.json";
+
+const copy = messages.shell.CanhoesPhaseHud;
 
 /** Pill in the header with the event name and its active phase. */
 export function CanhoesPhaseHud({
@@ -20,7 +23,7 @@ export function CanhoesPhaseHud({
       <div className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--bg-paper)] px-2.5 py-1 text-[var(--text-muted)]">
         <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--moss)]" />
         <span className="text-xs font-medium">
-          A abrir
+          {copy.loading}
         </span>
       </div>
     );

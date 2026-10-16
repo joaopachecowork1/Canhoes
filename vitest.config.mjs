@@ -19,7 +19,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text-summary", "lcov"],
-      include: ["app/**", "components/**", "hooks/**", "lib/**"],
+      include: ["app/**", "components/**", "lib/**"],
       exclude: ["**/*.test.{ts,tsx}"],
     },
     projects: [
@@ -29,6 +29,16 @@ export default defineConfig({
           name: "unit",
           include: ["**/*.test.ts"],
           exclude: [...configDefaults.exclude, ".next/**", "**/*.int.test.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "component",
+          environment: "jsdom",
+          include: ["**/*.test.tsx"],
+          exclude: [...configDefaults.exclude, ".next/**"],
+          setupFiles: ["tests/component/setup.ts"],
         },
       },
       {

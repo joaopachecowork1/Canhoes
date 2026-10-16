@@ -5,8 +5,10 @@ import {
   CATEGORY_KIND,
   buildCategoryForm,
   buildCategoryUsage,
+  buildCategoryUsageById,
   buildCreateCategoryPayload,
   buildInitialCategoryForm,
+  sortCategories,
 } from "./categoryTypes";
 
 const category: AwardCategoryDto = {
@@ -73,5 +75,31 @@ describe("category types", () => {
       voteQuestion: "Quem?",
       voteRules: "Uma escolha",
     });
+  });
+});
+
+describe("category usage", () => {
+  const sticker: AwardCategoryDto = { ...category, id: "sticker", kind: CATEGORY_KIND.STICKER };
+
+  it("blocks deleting a category that already has nominees or votes", () => {
+    const usage = buildCategoryUsage(sticker, 2, 1);
+    expect(usage.canDelete).toBe(false);
+    expect(usage.deleteReason).toBe("Apagamento bloqueado por 2 nomeações e 1 voto já associados.");
+  });
+
+  it("counts nominees and votes per category", () => {
+    const usageById = buildCategoryUsageById(
+      [sticker],
+      [{ categoryId: "sticker" }, { categoryId: null }],
+      [{ categoryId: "sticker" }]
+    );
+    expect(usageById.sticker).toMatchObject({ nomineeCount: 1, voteCount: 1, canDelete: false });
+  });
+
+  it("orders by sort order, then name", () => {
+    const first = { ...sticker, id: "b", name: "B", sortOrder: 1 };
+    const second = { ...sticker, id: "a", name: "A", sortOrder: 2 };
+    const third = { ...sticker, id: "c", name: "C", sortOrder: 2 };
+    expect(sortCategories([third, second, first]).map((entry) => entry.id)).toEqual(["b", "a", "c"]);
   });
 });

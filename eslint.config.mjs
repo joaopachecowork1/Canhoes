@@ -20,20 +20,47 @@ const crossFeatureZones = FEATURES.flatMap((feature) =>
 
 const CLIENT_CODE = [
   "./components/**",
-  "./hooks/**",
   "./lib/domains/*/components/**",
   "./lib/domains/*/hooks/**",
   "./lib/repositories/**",
 ];
 
-// shortcut: the new rules are "warn" while the frontend refactor is in progress; turn each to
-// "error" once its warnings reach zero.
-const sonarRecommendedAsWarnings = Object.fromEntries(
-  Object.entries(sonarjs.configs.recommended.rules).map(([rule, setting]) => [
-    rule,
-    setting === "off" || setting === 0 ? setting : "warn",
-  ]),
-);
+/** Size, complexity and Sonar smells, at one severity. */
+function qualityRules(severity) {
+  return {
+    ...Object.fromEntries(
+      Object.entries(sonarjs.configs.recommended.rules).map(([rule, setting]) => [
+        rule,
+        setting === "off" || setting === 0 ? setting : severity,
+      ]),
+    ),
+    "sonarjs/cognitive-complexity": [severity, 15],
+    // Duplicates `@typescript-eslint/no-unused-vars`; TODOs are tracked in Sonar anyway.
+    "sonarjs/no-unused-vars": "off",
+    "sonarjs/todo-tag": "off",
+
+    "max-lines": [severity, { max: 250, skipBlankLines: true, skipComments: true }],
+    "max-lines-per-function": [severity, { max: 80, skipBlankLines: true, skipComments: true }],
+    complexity: [severity, 10],
+    "max-depth": [severity, 3],
+    // Repositories and errors take (eventId, id, payload, …) positionally, like their URLs.
+    "max-params": [severity, 4],
+  };
+}
+
+// shortcut: server code (services, route handlers, scripts) was not refactored with the frontend,
+// so its quality rules only warn; turn them to "error" once a server refactor clears them.
+const SERVER_CODE = [
+  "app/api/**",
+  "lib/domains/*/services/**",
+  "lib/api/guards.ts",
+  "lib/api/route.ts",
+  "lib/api/rateLimit.ts",
+  "lib/storage/**",
+  "prisma/**",
+  "scripts/**",
+  "tests/integration/**",
+];
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -48,25 +75,15 @@ const eslintConfig = defineConfig([
       "react-hooks/refs": "off",
       "react-hooks/incompatible-library": "off",
 
-      ...sonarRecommendedAsWarnings,
-      "sonarjs/cognitive-complexity": ["warn", 15],
-      // Duplicates `@typescript-eslint/no-unused-vars` and TODOs are tracked in Sonar anyway.
-      "sonarjs/no-unused-vars": "off",
-      "sonarjs/todo-tag": "off",
-
-      "max-lines": ["warn", { max: 250, skipBlankLines: true, skipComments: true }],
-      "max-lines-per-function": ["warn", { max: 80, skipBlankLines: true, skipComments: true }],
-      complexity: ["warn", 10],
-      "max-depth": ["warn", 3],
-      "max-params": ["warn", 3],
+      ...qualityRules("error"),
 
       "import/no-restricted-paths": [
-        "warn",
+        "error",
         {
           zones: [
             {
               target: "./components/ui/**",
-              from: ["./lib/domains/**", "./components/chrome/**", "./components/modules/**"],
+              from: ["./lib/domains/**", "./components/chrome/**"],
               message: "components/ui só tem primitivas; não conhece domínios nem o shell.",
             },
             {
@@ -89,8 +106,17 @@ const eslintConfig = defineConfig([
     // Visible UI text lives in messages/pt.json.
     files: ["app/canhoes/**/*.tsx", "components/**/*.tsx", "lib/domains/**/*.tsx"],
     rules: {
-      "react/jsx-no-literals": ["warn", { allowedStrings: ["·", "—", "–", "/", "×", "•", "…", "%", "+", "-", ":", "(", ")"] }],
+      "react/jsx-no-literals": ["error", { allowedStrings: ["·", "—", "–", "/", "×", "•", "…", "%", "+", "-", ":", "(", ")"] }],
     },
+  },
+  {
+    files: SERVER_CODE,
+    rules: qualityRules("warn"),
+  },
+  {
+    // Declarations only: one DTO per API response; splitting it by size alone would not help.
+    files: ["lib/api/types.ts"],
+    rules: { "max-lines": "off" },
   },
   {
     files: ["**/*.test.ts", "**/*.test.tsx", "tests/**"],

@@ -1,6 +1,6 @@
 
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
-import { CanhoesGalaModule } from "@/components/modules/canhoes/gala/CanhoesGalaModule";
+import { CanhoesGalaModule } from "@/lib/domains/gala/components/CanhoesGalaModule";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, PublicCategoryResultDto } from "@/lib/api/types";
 

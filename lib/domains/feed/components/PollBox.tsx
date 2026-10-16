@@ -4,6 +4,9 @@ import { CheckCircle2 } from "lucide-react";
 
 import type { EventFeedPollDto } from "@/lib/api/types";
 import { cn, formatCount } from "@/lib/utils";
+import messages from "@/messages/pt.json";
+
+const copy = messages.feed.PollBox;
 
 export function PollBox({
   poll,
@@ -18,7 +21,7 @@ export function PollBox({
     <section className="border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] p-4 sm:p-5">
       <div className="space-y-4">
         <div className="space-y-1">
-          <p className="editorial-kicker text-[var(--text-muted)]">Sondagem</p>
+          <p className="editorial-kicker text-[var(--text-muted)]">{copy.kicker}</p>
           <h3 className="heading-3 text-[var(--text-primary)]">
             {poll.question}
           </h3>
@@ -36,7 +39,7 @@ export function PollBox({
                 type="button"
                 onClick={() => onVote(option.id)}
                 aria-pressed={isActive}
-                aria-label={`${option.text}: ${formatCount(option.voteCount, "voto", "votos")}, ${percentage}%`}
+                aria-label={`${option.text}: ${formatCount(option.voteCount, messages.common.vote, messages.common.votes)}, ${percentage}%`}
                 className={cn(
                   "relative min-h-11 w-full overflow-hidden rounded-[var(--radius-md-token)] border px-4 py-3 text-left transition-colors duration-200 ease-out",
                   isActive
@@ -79,8 +82,8 @@ export function PollBox({
         </div>
 
         <p className="body-small text-[var(--text-muted)]">
-          {formatCount(totalVotes, "voto registado", "votos registados")}. Podes trocar o teu voto enquanto a
-          sondagem estiver ativa.
+          {formatCount(totalVotes, copy.voteRecorded, copy.votesRecorded)}
+          {copy.changeVoteHint}
         </p>
       </div>
     </section>

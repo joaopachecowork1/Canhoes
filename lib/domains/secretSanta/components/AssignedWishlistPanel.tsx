@@ -3,6 +3,10 @@ import { Gift, Link as LinkIcon } from "lucide-react";
 import type { EventWishlistItemDto } from "@/lib/api/types";
 import { CanhoesMediaThumb } from "@/lib/domains/event/components/CanhoesMediaThumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatMessage } from "@/lib/messages";
+import messages from "@/messages/pt.json";
+
+const copy = messages.secretSanta.AssignedWishlistPanel;
 
 export function AssignedWishlistPanel({
   assignedWishlistItems,
@@ -16,13 +20,13 @@ export function AssignedWishlistPanel({
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
           <Gift className="h-4 w-4 text-[var(--color-fire)]" />
-          Wishlist de {assignedUserName}
+          {formatMessage(copy.title, { name: assignedUserName })}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {assignedWishlistItems.length === 0 ? (
           <p className="body-small text-[var(--color-text-muted)]">
-            Ainda não há itens na wishlist. Diz ao teu amigo secreto para adicionar.
+            {copy.empty}
           </p>
         ) : (
           <div className="space-y-2">
@@ -37,7 +41,7 @@ export function AssignedWishlistPanel({
                   {wishlistItem.url ? (
                     <a href={wishlistItem.url} target="_blank" rel="noreferrer" className="canhoes-link inline-flex items-center gap-1 text-sm">
                       <LinkIcon className="h-3.5 w-3.5" />
-                      Ver produto
+                      {copy.viewProduct}
                     </a>
                   ) : null}
                 </div>

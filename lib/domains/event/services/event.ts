@@ -9,7 +9,7 @@ import {
   canSubmitProposals,
   resolveMemberModules,
   type EventRulesState,
-} from "@/lib/domains/event/services/eventRules";
+} from "@/lib/domains/event/rules/eventRules";
 
 /** The inputs of `eventRules` for one event, read from its phases and `CanhoesEventState`. */
 export async function getEventRulesState(eventId: string): Promise<EventRulesState> {

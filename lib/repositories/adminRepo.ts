@@ -49,7 +49,7 @@ export const adminRepo = {
     
   getNominationsPaged: (eventId: string, skip = 0, take = 50, status?: string) =>
     canhoesFetch<T.AdminNomineesPagedDto>(
-      `/v1/events/${eventId}/admin/nominations/paged?skip=${skip}&take=${take}${status ? `&status=${encodeURIComponent(status)}` : ""}`
+      `/v1/events/${eventId}/admin/nominations/paged?${new URLSearchParams({ skip: String(skip), take: String(take), ...(status ? { status } : {}) })}`
     ),
     
   approveNomination: (eventId: string, nomineeId: string) =>

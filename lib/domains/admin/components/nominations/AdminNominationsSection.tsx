@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { logFrontendError } from "@/lib/errors";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import { AdminNominationsView } from "./AdminNominationsView";
-import { useAdminNominations } from "./useAdminNominations";
+import { useAdminNominations } from "../../hooks/useAdminNominations";
+import messages from "@/messages/pt.json";
+
+const copy = messages.admin.AdminNominationsSection;
 
 export function AdminNominationsSection({
   eventId,
@@ -17,11 +20,11 @@ export function AdminNominationsSection({
   const nominations = useAdminNominations(eventId);
 
   if (!eventId) {
-    return <AdminStateMessage>Falta uma edição ativa para moderar nomeações.</AdminStateMessage>;
+    return <AdminStateMessage>{copy.noEvent}</AdminStateMessage>;
   }
 
   if (loading || (nominations.isLoading && nominations.nominations.length === 0)) {
-    return <AdminStateMessage>A carregar nomeações...</AdminStateMessage>;
+    return <AdminStateMessage>{copy.loading}</AdminStateMessage>;
   }
 
   if (nominations.error) {
@@ -31,11 +34,11 @@ export function AdminNominationsSection({
         tone="error"
         action={
           <Button onClick={() => void nominations.refresh()}>
-            Tentar novamente
+            {messages.common.retry}
           </Button>
         }
       >
-        Não foi possível carregar as nomeações.
+        {copy.loadError}
       </AdminStateMessage>
     );
   }

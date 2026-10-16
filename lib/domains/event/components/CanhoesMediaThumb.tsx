@@ -25,7 +25,8 @@ export function CanhoesMediaThumb({
   normalizeSrc = true,
   src,
 }: Readonly<CanhoesMediaThumbProps>) {
-  const resolvedSrc = src ? (normalizeSrc ? absMediaUrl(src) : src) : null;
+  let resolvedSrc: string | null = null;
+  if (src) resolvedSrc = normalizeSrc ? absMediaUrl(src) : src;
 
   return (
     <div

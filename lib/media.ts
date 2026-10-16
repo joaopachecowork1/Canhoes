@@ -8,6 +8,19 @@ function toUploadsProxyPath(pathname: string) {
     : `/api${pathname}`;
 }
 
+/** Our own upload links go through the proxy; any other address is kept as it is. */
+function fromAbsoluteUrl(url: string) {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.pathname.startsWith("/uploads/")) {
+      return `${toUploadsProxyPath(parsedUrl.pathname)}${parsedUrl.search}${parsedUrl.hash}`;
+    }
+  } catch {
+    return url;
+  }
+  return url;
+}
+
 export function absMediaUrl(path: string | null | undefined) {
   if (!path) return "";
 
@@ -19,20 +32,8 @@ export function absMediaUrl(path: string | null | undefined) {
     return toUploadsProxyPath(normalizedPath.slice(uploadsIndex));
   }
 
-  if (
-    normalizedPath.startsWith("http://") ||
-    normalizedPath.startsWith("https://")
-  ) {
-    try {
-      const parsedUrl = new URL(normalizedPath);
-      if (parsedUrl.pathname.startsWith("/uploads/")) {
-        return `${toUploadsProxyPath(parsedUrl.pathname)}${parsedUrl.search}${parsedUrl.hash}`;
-      }
-    } catch {
-      return normalizedPath;
-    }
-
-    return normalizedPath;
+  if (normalizedPath.startsWith("http://") || normalizedPath.startsWith("https://")) {
+    return fromAbsoluteUrl(normalizedPath);
   }
 
   if (normalizedPath.startsWith("uploads/")) {

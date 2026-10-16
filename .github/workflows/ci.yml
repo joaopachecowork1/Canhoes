@@ -106,10 +106,14 @@ jobs:
       - run: npm run db:seed
       - run: npm run test:integration
       - name: Whole stack in containers
+        # The app and its database. The `https` (Caddy, needs local certificates) and `tunnel`
+        # (needs a Cloudflare token) services only make sense on the home PC, so they are not
+        # started; compose still reads the tunnel's .env.server, hence the empty one.
         run: |
-          $CONTAINER_ENGINE compose up -d --build
+          touch .env.server
+          $CONTAINER_ENGINE compose up -d --build postgres web
           for attempt in $(seq 1 90); do
-            if curl -fsS http://localhost:3000/api/health; then exit 0; fi
+            if curl -fsS http://localhost:3100/api/health; then exit 0; fi
             sleep 2
           done
           exit 1

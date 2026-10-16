@@ -1,5 +1,5 @@
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
-import { CanhoesCategoriesModule } from "@/components/modules/canhoes/categorias/CanhoesCategoriesModule";
+import { CanhoesCategoriesModule } from "@/lib/domains/categories/components/CanhoesCategoriesModule";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, AwardCategoryDto, PagedResult } from "@/lib/api/types";
 

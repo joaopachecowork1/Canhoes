@@ -5,22 +5,31 @@ import { useSession } from "next-auth/react";
 import { ScrollText } from "lucide-react";
 
 import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
-import { useHubFeed } from "@/lib/domains/feed/components/hooks/useHubFeed";
-import { useEventOverview } from "@/hooks/useEventOverview";
+import { useHubFeed } from "@/lib/domains/feed/hooks/useHubFeed";
+import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { useAuth, useIsAdmin } from "@/components/providers/AuthContext";
-import { feedCopy } from "@/lib/canhoesCopy";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { HubFeedList } from "./HubFeedList";
-import { useFeedInfiniteScroll } from "./useFeedInfiniteScroll";
-import type { FeedInfiniteData } from "./hooks/feedInfiniteData";
+import { useFeedInfiniteScroll } from "../hooks/useFeedInfiniteScroll";
+import type { FeedInfiniteData } from "../hooks/feedInfiniteData";
+import messages from "@/messages/pt.json";
+import type { EventActiveContextDto } from "@/lib/api/types";
+
+const copy = messages.feed.HubFeedModule;
+
+type SessionUser = { name?: string | null; email?: string | null; image?: string | null } | undefined;
+
+function getSessionUserName(user: SessionUser) {
+  return user?.name?.trim() || user?.email?.trim() || copy.currentUserFallback;
+}
 
 export function HubFeedModule({
   initialData,
   initialContext,
 }: Readonly<{
   initialData?: FeedInfiniteData;
-  initialContext?: import("@/lib/api/types").EventActiveContextDto | null;
+  initialContext?: EventActiveContextDto | null;
 }>) {
   const state = useHubFeedModuleState(initialData, initialContext);
 
@@ -97,14 +106,14 @@ function HubFeedModuleView({
 
   return (
     <div className="zone-feed mx-auto w-full max-w-2xl space-y-4 px-1 sm:px-0">
-      <CanhoesModuleHeader icon={ScrollText} title={feedCopy.hero.title} description={feedCopy.hero.description} />
-      {errorMessage ? <ErrorAlert title="Erro ao carregar o mural" description={errorMessage} actionLabel="Tentar novamente" tone="social" onAction={handleRetry} /> : null}
+      <CanhoesModuleHeader icon={ScrollText} title={copy.title} description={copy.description} />
+      {errorMessage ? <ErrorAlert title={copy.loadError} description={errorMessage} actionLabel={messages.common.retry} tone="social" onAction={handleRetry} /> : null}
       {feedList}
     </div>
   );
 }
 
-function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: import("@/lib/api/types").EventActiveContextDto | null) {
+function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: EventActiveContextDto | null) {
   const { data: session } = useSession();
   const { user } = useAuth();
   const currentUserId = user?.id ?? null;
@@ -113,7 +122,7 @@ function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: 
   const eventId = activeEvent?.id ?? null;
   const feed = useHubFeed(eventId, currentUserId, initialData);
   const sentinelRef = useFeedInfiniteScroll({ enabled: feed.hasMore, isFetchingNextPage: feed.isFetchingNextPage, onLoadMore: feed.loadMore });
-  const currentUserName = session?.user?.name?.trim() || session?.user?.email?.trim() || "Tu";
+  const currentUserName = getSessionUserName(session?.user);
   const currentUserImage = session?.user?.image ?? null;
 
   return {

@@ -3,6 +3,15 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 
+type EmptyStateTone = "admin" | "official" | "shell" | "social";
+
+const TONE_PANEL_CLASS: Record<EmptyStateTone, string> = {
+  admin: "canhoes-bits-panel--admin",
+  official: "canhoes-bits-panel--official",
+  shell: "canhoes-bits-panel--shell",
+  social: "canhoes-bits-panel--social",
+};
+
 /**
  * Empty state with icon, title, optional description and action.
  */
@@ -18,17 +27,14 @@ export function EmptyState({
   className?: string;
   description?: string;
   icon?: LucideIcon;
-  tone?: "admin" | "official" | "shell" | "social";
+  tone?: EmptyStateTone;
   title: string;
 }) {
   return (
     <div
       className={cn(
         "border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] relative flex flex-col items-center justify-center gap-4 px-6 py-10 text-center",
-        tone === "social" && "canhoes-bits-panel--social",
-        tone === "official" && "canhoes-bits-panel--official",
-        tone === "admin" && "canhoes-bits-panel--admin",
-        tone === "shell" && "canhoes-bits-panel--shell",
+        TONE_PANEL_CLASS[tone],
         className
       )}
     >
@@ -41,24 +47,8 @@ export function EmptyState({
       ) : null}
 
       <div className="space-y-2">
-        <p
-          className={cn(
-            "text-sm font-semibold",
-            "text-[var(--color-text-primary)]"
-          )}
-        >
-          {title}
-        </p>
-        {description ? (
-          <p
-            className={cn(
-              "text-sm",
-              "text-[var(--color-text-muted)]"
-            )}
-          >
-            {description}
-          </p>
-        ) : null}
+        <p className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</p>
+        {description ? <p className="text-sm text-[var(--color-text-muted)]">{description}</p> : null}
       </div>
 
       {(description || action) ? <CanhoesDecorativeDivider tone="moss" className="max-w-40" /> : null}

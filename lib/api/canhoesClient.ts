@@ -1,5 +1,7 @@
 "use client";
 
+import messages from "@/messages/pt.json";
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -28,6 +30,31 @@ async function readBody(response: Response) {
   try { return JSON.parse(text) as unknown; } catch { return text; }
 }
 
+const REQUEST_TIMEOUT_MS = 10_000;
+
+function buildHeaders(requestInit: RequestInit) {
+  const headers = new Headers(requestInit.headers);
+  if (!headers.has("Content-Type") && !(requestInit.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json");
+  }
+  return headers;
+}
+
+const isAuthStatus = (status: number) => status === 401 || status === 403;
+
+function readErrorMessage(body: unknown, response: Response) {
+  if (typeof body === "object" && body && "message" in body) return String(body.message);
+  return response.statusText || "Request failed";
+}
+
+/** An aborted request means our timeout fired; anything else is rethrown as is. */
+function toTimeoutError(error: unknown) {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return new ApiError(messages.common.requestTimeout, 408);
+  }
+  return error;
+}
+
 /**
  * Calls `/api/<path>` and returns the parsed JSON. Errors throw `ApiError`, except 401 and 403,
  * which return null unless `throwOnUnauthorized` is set.
@@ -44,15 +71,11 @@ export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {
 
   const request = (async () => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10_000);
-    const headers = new Headers(requestInit.headers);
-    if (!headers.has("Content-Type") && !(requestInit.body instanceof FormData)) {
-      headers.set("Content-Type", "application/json");
-    }
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
       const response = await fetch(`/api/${normalized}`, {
         ...requestInit,
-        headers,
+        headers: buildHeaders(requestInit),
         credentials: "include",
         cache: "no-store",
         signal: controller.signal,
@@ -60,18 +83,10 @@ export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {
       const body = await readBody(response);
       if (response.ok) return body as T;
 
-      const message = typeof body === "object" && body && "message" in body
-        ? String((body as { message: unknown }).message)
-        : response.statusText || "Request failed";
-      if ((response.status === 401 || response.status === 403) && !canhoes?.throwOnUnauthorized) {
-        return null as T;
-      }
-      throw new ApiError(message, response.status, body);
+      if (isAuthStatus(response.status) && !canhoes?.throwOnUnauthorized) return null as T;
+      throw new ApiError(readErrorMessage(body, response), response.status, body);
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") {
-        throw new ApiError("O pedido demorou demasiado. Tenta novamente.", 408);
-      }
-      throw error;
+      throw toTimeoutError(error);
     } finally {
       clearTimeout(timeout);
       if (key) pendingGets.delete(key);

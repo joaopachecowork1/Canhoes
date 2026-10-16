@@ -1,17 +1,19 @@
+import messages from "@/messages/pt.json";
+
 export const OPEN_COMPOSE_SHEET_EVENT = "canhoes:openCompose";
 
 // --- Phase helpers ---
 export function getPhaseLabel(phaseType?: string | null) {
   switch (phaseType) {
     case "DRAW":
-      return "Sorteio";
+      return messages.phases.DRAW;
     case "PROPOSALS":
-      return "Propostas";
+      return messages.phases.PROPOSALS;
     case "VOTING":
-      return "Votação";
+      return messages.phases.VOTING;
     case "RESULTS":
-      return "Resultados";
+      return messages.phases.RESULTS;
     default:
-      return "Sem fase";
+      return messages.phases.none;
   }
 }

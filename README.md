@@ -226,10 +226,16 @@ Tudo o resto que aparece na pasta é local e não vai para o Git. Para ver o que
 npm run lint
 npx tsc --noEmit
 npm test
+npm run test:component     # componentes e hooks em jsdom
 npm run test:integration   # precisa de PostgreSQL com uma base de dados canhoes_test
 npm run knip
 npm run build
 ```
+
+`npm run test:coverage` corre os testes unitários e de componentes com cobertura (`coverage/lcov.info`).
+O CI envia-a ao [SonarQube Cloud](https://sonarcloud.io/project/overview?id=joaopachecowork1_Canhoes),
+que mostra code smells, duplicação e cobertura em cada push e PR. As regras de arquitetura, tamanho
+e textos estão em `docs/03-arquitetura.md`.
 
 Os testes de integração chamam os route handlers contra uma base de dados real, que é limpa antes de cada teste; por isso só correm numa base de dados cujo nome acaba em `_test` (`TEST_DATABASE_URL`, por omissão `canhoes_test` em localhost:5433). O `npm run db:up` cria-a.
 

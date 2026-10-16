@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/api/guards";
 import { apiRoute, json, readJson } from "@/lib/api/route";
 import { updateAdminPhase } from "@/lib/domains/admin/services/state";
-import { PHASE_TYPES } from "@/lib/domains/event/services/eventRules";
+import { PHASE_TYPES } from "@/lib/domains/event/rules/eventRules";
 
 const phaseSchema = z.object({
   phaseType: z.enum(PHASE_TYPES, { error: "PhaseType must be DRAW, PROPOSALS, VOTING or RESULTS." }),

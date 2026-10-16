@@ -5,8 +5,11 @@ import type { CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
 
 import { ADMIN_CONTENT_CARD_CLASS } from "../adminContentUi";
-import { useProposalModeration, type ProposalKind } from "../hooks/useProposalModeration";
+import { useProposalModeration, type ProposalKind } from "../../hooks/useProposalModeration";
 import { ProposalReviewItem, type ProposalRow } from "./ProposalReviewItem";
+import messages from "@/messages/pt.json";
+
+const copy = messages.admin.PendingProposals;
 
 type PendingProposalsProps = {
   eventId: string | null;
@@ -16,22 +19,11 @@ type PendingProposalsProps = {
   onUpdate: () => Promise<void>;
 };
 
-const PANEL_META: Record<ProposalKind, { title: string; description: string; emptyMessage: string }> = {
-  category: {
-    title: "Categorias em revisão",
-    description: "Revê, corrige e fecha propostas de categoria sem sair da fila de revisão.",
-    emptyMessage: "Sem propostas de categoria pendentes.",
-  },
-  measure: {
-    title: "Medidas em revisão",
-    description: "Fecha medidas propostas com o mesmo fluxo de aprovação e rejeição.",
-    emptyMessage: "Sem medidas pendentes.",
-  },
-};
+const PANEL_META: Record<ProposalKind, { title: string; description: string; emptyMessage: string }> = copy.panels;
 
 export function PendingProposals({ eventId, ...props }: Readonly<PendingProposalsProps>) {
   if (!eventId) {
-    return <AdminStateMessage>Falta uma edição ativa para abrir a moderação.</AdminStateMessage>;
+    return <AdminStateMessage>{copy.noEvent}</AdminStateMessage>;
   }
   return <ProposalQueue eventId={eventId} {...props} />;
 }
@@ -71,7 +63,7 @@ function ProposalQueue({
       {panels.map(({ kind, rows }) => (
         <Card key={kind} className={ADMIN_CONTENT_CARD_CLASS}>
           <CardHeader className="space-y-2">
-            <p className="editorial-kicker">Moderação</p>
+            <p className="editorial-kicker">{copy.kicker}</p>
             <CardTitle>{`${PANEL_META[kind].title} (${rows.length})`}</CardTitle>
             <p className="body-small max-w-[64ch] text-[var(--color-text-muted)]">
               {PANEL_META[kind].description}
@@ -80,7 +72,7 @@ function ProposalQueue({
           <CardContent className="space-y-3">
             {rows.length === 0 ? (
               <AdminStateMessage variant="panel">
-                {loading ? "A carregar propostas..." : PANEL_META[kind].emptyMessage}
+                {loading ? copy.loading : PANEL_META[kind].emptyMessage}
               </AdminStateMessage>
             ) : (
               <div className="rounded-md border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)]">

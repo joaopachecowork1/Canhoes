@@ -26,7 +26,7 @@ Para dar contexto completo a um LLM, junta os ficheiros por ordem numa só mensa
 cat docs/README.md docs/0*.md docs/diagramas/*.mmd > canhoes-contexto.md
 ```
 
-Junta também `prisma/schema.prisma` e `lib/domains/event/services/eventRules.ts` quando a pergunta for sobre dados ou permissões; são as duas fontes de verdade mais densas.
+Junta também `prisma/schema.prisma` e `lib/domains/event/rules/eventRules.ts` quando a pergunta for sobre dados ou permissões; são as duas fontes de verdade mais densas.
 
 ## Manter a documentação
 

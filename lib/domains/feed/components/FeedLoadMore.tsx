@@ -1,5 +1,10 @@
 "use client";
 
+import { formatMessage } from "@/lib/messages";
+import messages from "@/messages/pt.json";
+
+const copy = messages.feed.FeedLoadMore;
+
 type FeedLoadMoreProps = {
   hasMore: boolean;
   isFetchingNextPage: boolean;
@@ -23,7 +28,7 @@ export function FeedLoadMore({
         {isFetchingNextPage ? (
           <div className="border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] flex flex-col items-center gap-3 px-4 py-3">
             <div className="skeleton-shimmer h-6 w-6 rounded-full" />
-            <span className="text-xs text-[var(--text-muted)]">A carregar mais posts...</span>
+            <span className="text-xs text-[var(--text-muted)]">{copy.loading}</span>
           </div>
         ) : (
           <div className="h-10 w-10 rounded-full border-2 border-dashed border-[var(--border-subtle)] motion-safe-smooth animate-pulse" />
@@ -38,9 +43,9 @@ export function FeedLoadMore({
             type="button"
             onClick={onLoadMore}
             className="border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] px-6 py-2 text-xs font-medium text-[var(--text-muted)] hover:border-[var(--border-moss)] hover:text-[var(--text-primary)] active:scale-95 transition-transform"
-            aria-label="Carregar mais posts manualmente"
+            aria-label={copy.loadMoreLabel}
           >
-            Carregar mais ({Math.max(remainingCount, 0)} restantes)
+            {formatMessage(copy.loadMore, { count: Math.max(remainingCount, 0) })}
           </button>
         </div>
       ) : null}

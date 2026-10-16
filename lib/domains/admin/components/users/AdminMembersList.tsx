@@ -1,6 +1,8 @@
 "use client";
 
 import type { PublicUserDto } from "@/lib/api/types";
+import { formatMessage } from "@/lib/messages";
+import messages from "@/messages/pt.json";
 import { Switch } from "@/components/ui/switch";
 
 /** The event's members, one per row, with a switch that makes them admin. */
@@ -21,9 +23,9 @@ export function AdminMembersList({
             <p className="truncate text-base font-semibold">{member.displayName || member.email}</p>
             <p className="truncate text-sm text-[var(--color-text-muted)]">{member.email}</p>
           </div>
-          <span className="text-sm text-[var(--color-text-muted)]">Admin</span>
+          <span className="text-sm text-[var(--color-text-muted)]">{messages.shell.canhoesNavigation.adminLabel}</span>
           <Switch
-            aria-label={`Admin: ${member.displayName || member.email}`}
+            aria-label={formatMessage(messages.admin.AdminMembersSection.adminSwitchLabel, { name: member.displayName || member.email })}
             checked={member.isAdmin}
             disabled={isPendingRoleChange}
             onCheckedChange={() => onToggleRole(member)}

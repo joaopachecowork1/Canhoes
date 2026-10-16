@@ -11,101 +11,93 @@ Uma única aplicação Next.js 16 (App Router) serve as páginas e a API. Não h
 | Camada | Onde | Responsabilidade |
 |---|---|---|
 | Páginas | `app/canhoes/(app)`, `app/canhoes/(public)` | Rotas da UI. `(public)` tem o login e o registo; `(app)` precisa de sessão. |
-| Componentes | `components/`, `lib/domains/*/components` | UI. `components/ui` são primitivas (shadcn/Radix); `components/chrome` é o layout (navegação, header, compose). |
-| Estado de cliente | `hooks/`, `lib/domains/*/components/hooks` | TanStack Query. Depois de uma escrita invalida as queries em vez de copiar estado. |
+| Componentes | `components/`, `lib/domains/*/components` | UI. `components/ui` são primitivas (shadcn/Radix); `components/chrome` é o layout (header, barra de baixo, menu). |
+| Estado de cliente | `lib/domains/*/hooks` | TanStack Query. Depois de uma escrita invalida as queries em vez de copiar estado. |
+| Textos | `messages/pt.json` | Todo o texto visível, por funcionalidade e componente (ver abaixo). |
 | Repositórios de cliente | `lib/repositories/*` | Uma função por endpoint, sobre `canhoesFetch` (`lib/api/canhoesClient.ts`). |
 | Route handlers | `app/api/**/route.ts` | Finos e todos iguais: guard, validação, uma chamada ao serviço. |
 | Guards e validação | `lib/api/guards.ts`, `lib/api/route.ts`, `lib/zod/*` | Quem pode chamar; o que o corpo tem de conter. |
 | Serviços | `lib/domains/<domínio>/services` | Lógica de negócio e acesso à base de dados com Prisma. |
-| Regras puras | `eventRules.ts`, `draw.ts`, `results.ts`, `adminRolePolicy.ts`, `signInAccess.ts` (`decideSignIn`) | Decisões sem I/O, testadas com testes unitários. |
+| Regras puras | `lib/domains/*/rules`, `draw.ts`, `results.ts`, `adminRolePolicy.ts`, `signInAccess.ts` (`decideSignIn`) | Decisões sem I/O, testadas com testes unitários. As de `rules/` também correm no cliente. |
 | Tipos partilhados | `lib/api/types.ts` | DTOs que o servidor devolve e o cliente consome. |
 
-### Organização de uma área de frontend
+### Organização de uma funcionalidade
 
-Uma área de UI deve manter a composição visual separada do estado e das
-transformações de dados:
+Cada funcionalidade (`admin`, `auth`, `categories`, `event`, `feed`, `gala`, `measures`,
+`secretSanta`, `stickers`, `voting`, `wishlist`) tem uma pasta em `lib/domains/<funcionalidade>/`
+com as mesmas subpastas:
 
 ```text
-<area>/
-  <Area>Page.tsx              composição da vista e estados de alto nível
-  <Area>List.tsx              apresentação de coleções
-  <Area>EditorDrawer.tsx      formulário/drawer de criação ou edição
-  <area>Types.ts              tipos, constantes e transformações puras
-  <area>Types.test.ts         regras puras e casos limite
-hooks/
-  use<Area>.ts                queries, mutações e coordenação do estado
+lib/domains/<funcionalidade>/
+  components/   UI. <Funcionalidade>Module.tsx é a entrada que a página monta.
+  hooks/        use<Recurso>.ts: queries, mutações e estado de ecrã.
+  rules/        funções puras (sem I/O, sem React) com testes; podem correr no cliente.
+  services/     Prisma, só no servidor.
 ```
 
-Não é obrigatório criar todos estes ficheiros. A divisão deve seguir
-responsabilidades e ciclos de mudança: componentes pequenos podem permanecer
-juntos, mas um componente de composição não deve conter regras de serialização,
-acesso à API ou decisões de domínio.
+As páginas em `app/canhoes/**/page.tsx` só buscam os dados iniciais e montam o módulo.
+
+Quem pode importar o quê (`import/no-restricted-paths` no `eslint.config.mjs`, falha o lint):
+
+- `components/ui` não conhece domínios nem o shell.
+- Uma funcionalidade não importa a UI (`components/`, `hooks/`) de outra; pode usar `event`, que
+  é a partilhada (gate, header de módulo, overview), e o `rules/` de qualquer outra.
+- Código de cliente nunca importa `services/`. Para além do lint, `lib/prisma.ts` importa
+  `server-only`, e o build falha se o Prisma chegar a um bundle de cliente.
+- `lib/` não importa `app/`.
+
+Tamanho e complexidade (falham o lint fora do código de servidor): ficheiros até 250 linhas,
+funções até 80, complexidade ciclomática até 10, cognitiva até 15 (`eslint-plugin-sonarjs`),
+aninhamento até 3 e até 4 parâmetros. Quando um componente passa os limites, parte-se assim:
+
+- o **módulo** compõe a página e escolhe entre carregar, erro, vazio e conteúdo;
+- os **hooks** fazem I/O e guardam o estado;
+- as **funções puras** (updaters de cache, validação, ordenação) vão para `rules/` ou para um
+  `.ts` junto do hook, com teste unitário;
+- os **componentes de apresentação** só recebem props e callbacks `on<Ação>`.
 
 Convenções:
 
-- Componentes exportados têm nomes que descrevem o papel visual
-  (`CategoryEditorDrawer`, não `CategoryEditorSheet` quando o componente é um
-  drawer).
-- Hooks coordenam I/O e estado; regras sem I/O ficam em funções exportadas e
-  testáveis.
+- Componentes exportados têm nomes que descrevem o papel visual (`CategoryEditorDrawer`).
 - Constantes de domínio substituem números mágicos e labels duplicadas.
-- Comentários explicam intenção, limitações externas ou decisões não óbvias;
-  não descrevem JSX autoexplicativo.
-- Depois de uma mutação, a invalidação usa exatamente o prefixo da query que
-  foi carregada.
-- Erros são registados numa transição de estado ou num handler, nunca como
-  efeito colateral de cada render.
+- Estado derivado em vez de `useEffect` a sincronizar estado (ex.: a categoria selecionada é a
+  escolhida, se ainda existir, ou a primeira).
+- Comentários explicam intenção, limitações externas ou decisões não óbvias.
+- Depois de uma mutação, a invalidação usa exatamente o prefixo da query que foi carregada.
+- Erros são registados numa transição de estado ou num handler, nunca a cada render.
 
-## Navegação
+### Textos
 
-O registo das áreas está em `lib/modules.ts` (`CANHOES_MODULES`): nome, rota, ícone, descrição e fase em que abre. Tudo o que mostra áreas lê dali:
-
-- `components/chrome/canhoes/canhoesNavigation.ts` divide as áreas abertas (`overview.modules`) entre a barra de baixo (as duas primeiras, por ordem do registo) e o menu (`CanhoesMenuSheet`).
-- `EventModuleGate` mostra uma página só se a área estiver aberta, ou se o utilizador for admin.
-- Admin › Evento (`AdminControlCenter`) lista todas as áreas com o interruptor de cada uma e um link, por isso o admin chega às fechadas sem as ter no menu.
-
-`overview.modules` é calculado por `resolveMemberModules` e é igual para admins e membros. Uma área nova entra no registo, em `resolveMemberModules` e numa pasta em `app/canhoes/(app)`.
-
-## Domínios
-
-| Domínio | Pasta | Conteúdo |
-|---|---|---|
-| auth | `lib/domains/auth` | NextAuth, quem pode entrar, convites, login de desenvolvimento |
-| event | `lib/domains/event` | Overview do evento e as regras de fase e módulo |
-| admin | `lib/domains/admin` | Painel e serviços de gestão: fases, módulos, categorias, moderação, membros, sorteio |
-| members | `lib/domains/members` | Membros, wishlist, nomeações, medidas |
-| voting | `lib/domains/voting` | Boletim, votos, propostas de categoria, resultados |
-| secretSanta | `lib/domains/secretSanta` | Algoritmo do sorteio e o que cada membro vê |
-| feed | `lib/domains/feed` | Mural: posts, imagens, sondagens, comentários, reações |
-
-## Anatomia de um route handler
-
-Todos os handlers seguem o mesmo padrão (`lib/api/route.ts`):
+Todo o texto visível (labels, placeholders, `aria-label`, toasts, estados vazios e de erro) vive
+em `messages/pt.json`, por funcionalidade e depois por componente: `feed.HubPostCard.closeComments`
+é usado em `HubPostCard`. Para encontrar o componente de um texto do ecrã, procura o texto no JSON;
+o caminho da chave diz onde está.
 
 ```ts
-export const POST = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
-  const user = await requireUser();                              // 401 sem sessão
-  await requireModule(eventId, user, "voting");                  // 403 se não for membro ou o módulo estiver fechado
-  const vote = await readJson(request, CreateEventVoteSchema);   // 400 se o corpo for inválido
-  return json(await castVote(eventId, user.id, vote.categoryId, vote.selectionId));
-});
+import messages from "@/messages/pt.json";
+import { formatMessage } from "@/lib/messages";
+
+const copy = messages.feed.HubPostCard;
+formatMessage(copy.commentCount, { count }); // "{count} comentários"
 ```
 
-Para parar com um erro, o código lança um `HttpError` (`lib/api/httpError.ts`); `apiRoute` converte-o em `{ code, message }` com o status certo. Erros de domínio que o cliente sabe tratar (`VoteError`, `SecretSantaDrawError`, `InvitationError`, `AdminRoleChangeError`) estendem `HttpError`. Qualquer outro erro vira um 500 com log.
+O import do JSON é tipado (`resolveJsonModule`), por isso uma chave errada falha no `tsc`.
+Os placeholders seguem o formato ICU (`{nome}`), o mesmo do `next-intl`, se um dia houver outra
+língua. Texto partilhado vai para `common.*`. `react/jsx-no-literals` impede texto escrito
+diretamente no JSX.
 
-## Autenticação
+### Testes
 
-NextAuth v4 com sessões JWT de 24 horas e três providers:
-
-| Provider | Quando | Notas |
+| Tipo | Ficheiros | Comando |
 |---|---|---|
-| `google` | Sempre que `GOOGLE_CLIENT_ID` está definido | O callback `signIn` só deixa entrar quem `decideSignIn` autoriza (RF-02) |
-| `credentials` | Contas criadas por convite | Email + password com bcrypt |
-| `development` | Só com `NODE_ENV !== "production"` e `DEV_AUTH_BYPASS_ENABLED=true` | Entra como admin de desenvolvimento |
+| Unitários (lógica pura) | `**/*.test.ts` | `npm test` |
+| Componentes e hooks (jsdom + Testing Library) | `**/*.test.tsx` | `npm run test:component` |
+| Integração (route handlers + PostgreSQL) | `tests/integration/**/*.int.test.ts` | `npm run test:integration` |
 
-O callback `jwt` relê o `User` da base de dados em cada pedido, por isso uma mudança de `isAdmin` vale no pedido seguinte, sem novo login. O id guardado na sessão é sempre o id da tabela `Users`.
-
-## Autorização
+Os testes de componentes testam o que o utilizador vê e faz (texto, papéis, cliques), não a
+implementação. Os repositórios mockam-se com `vi.mock("@/lib/repositories/<repo>")`;
+`tests/component/renderWithProviders.tsx` dá um `QueryClient` novo por teste e
+`tests/component/eventContext.ts` cria um evento ativo.
 
 ![Fluxo de autorização de um pedido](diagramas/autorizacao.png)
 
@@ -120,17 +112,17 @@ app/
   canhoes/(app)/       páginas autenticadas, uma pasta por módulo
 components/
   ui/                  primitivas (shadcn/Radix)
-  chrome/              layout: navegação, header, compose
-  modules/             ecrãs de alguns módulos (categorias, gala, medidas, stickers, wishlist)
+  chrome/              layout: header, barra de baixo, menu
+  providers/           sessão, React Query, toasts
 lib/
   api/                 cliente HTTP, guards, apiRoute, tipos
-  domains/<domínio>/   services/ (servidor) e components/ (UI) por domínio
+  domains/<funcionalidade>/   components/, hooks/, rules/ e services/
   repositories/        chamadas à API a partir do cliente
   storage/             uploads em disco
   zod/                 schemas de validação
+messages/pt.json       todos os textos da UI
 prisma/                schema, migrations e seed
+tests/component/       setup e helpers dos testes de componentes
 tests/integration/     testes contra PostgreSQL real
 docs/                  esta documentação
 ```
-
-A Fase 2 do plano de refatoração junta UI, hooks e serviços de cada funcionalidade em `features/<nome>/`; até lá, o mesmo domínio vive em `components/`, `lib/domains/` e `hooks/`.

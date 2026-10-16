@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { SecretSantaAssignmentCard } from "./SecretSantaAssignmentCard";
 import { SecretSantaLoadingState } from "./SecretSantaLoadingState";
+import messages from "@/messages/pt.json";
+
+const copy = messages.secretSanta.SecretSantaContent;
 
 export function SecretSantaContent({
   assignedUserName,
@@ -36,9 +39,9 @@ export function SecretSantaContent({
       <Card>
         <CardContent className="py-6">
           <ErrorAlert
-            title="Erro ao carregar o amigo secreto"
+            title={copy.loadErrorTitle}
             description={errorMessage}
-            actionLabel="Tentar novamente"
+            actionLabel={messages.common.retry}
             onAction={onRetry}
           />
         </CardContent>
@@ -57,16 +60,14 @@ export function SecretSantaContent({
     );
   }
 
-  const statusMessage = hasDraw
-    ? "O sorteio existe, mas ainda não há atribuição disponível para o teu perfil."
-    : "Ainda não existe sorteio para este evento.";
+  const statusMessage = hasDraw ? copy.drawWithoutAssignment : copy.noDraw;
 
   return (
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
           <User className="h-4 w-4 text-[var(--color-fire)]" />
-          O teu amigo secreto
+          {messages.secretSanta.common.yourSecretSanta}
         </CardTitle>
       </CardHeader>
       <CardContent>

@@ -18,6 +18,23 @@ type CanhoesFeatureCardProps = {
   variant?: "default" | "official";
 };
 
+const VARIANT_CLASSES = {
+  default: {
+    card: "border-[var(--border-paper)] bg-[var(--bg-paper)] text-[var(--ink-primary)]",
+    header: "pb-2",
+    title: "text-[var(--ink-primary)]",
+    icon: "text-[var(--bark)]",
+    description: "text-[var(--ink-secondary)]",
+  },
+  official: {
+    card: "canhoes-bits-panel canhoes-bits-panel--official",
+    header: "space-y-1 pb-3",
+    title: "text-[var(--text-primary)]",
+    icon: "text-[var(--neon-green)]",
+    description: "text-[var(--text-muted)]",
+  },
+} as const;
+
 /**
  * Card base para funcionalidades dos módulos.
  * Unifica o estilo visual de "official voting", "nominations", etc.
@@ -40,28 +57,19 @@ export function CanhoesFeatureCard({
   title,
   variant = "default",
 }: Readonly<CanhoesFeatureCardProps>) {
+  const variantClasses = VARIANT_CLASSES[variant];
+
   return (
-    <Card
-      className={cn(
-        "rounded-2xl transition-colors",
-        className,
-        variant === "default" && "border-[var(--border-paper)] bg-[var(--bg-paper)] text-[var(--ink-primary)]",
-        variant === "official" && "canhoes-bits-panel canhoes-bits-panel--official"
-      )}
-    >
-      <CardHeader className={cn("pb-2", variant === "official" && "space-y-1 pb-3")}>
+    <Card className={cn("rounded-2xl transition-colors", className, variantClasses.card)}>
+      <CardHeader className={cn("pb-2", variantClasses.header)}>
         <div className="flex items-center justify-between gap-2">
-          <CardTitle className={cn("flex items-center gap-2", variant === "default" && "text-[var(--ink-primary)]", variant === "official" && "text-[var(--text-primary)]")}>
-            {Icon && <Icon className={cn("h-4 w-4", variant === "default" ? "text-[var(--bark)]" : "text-[var(--neon-green)]")} />}
+          <CardTitle className={cn("flex items-center gap-2", variantClasses.title)}>
+            {Icon ? <Icon className={cn("h-4 w-4", variantClasses.icon)} /> : null}
             {title}
           </CardTitle>
           {headerAction}
         </div>
-        {description ? (
-          <p className={cn("text-sm", variant === "default" ? "text-[var(--ink-secondary)]" : "text-[var(--text-muted)]")}>
-            {description}
-          </p>
-        ) : null}
+        {description ? <p className={cn("text-sm", variantClasses.description)}>{description}</p> : null}
       </CardHeader>
 
       <CardContent className="space-y-3">

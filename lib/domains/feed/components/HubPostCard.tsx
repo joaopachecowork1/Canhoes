@@ -2,17 +2,23 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { ArrowBigUp, ArrowBigDown, MessageSquare } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
 import { BlurFade } from "@/components/animations/BlurFade";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import type { EventFeedPostFullDto } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
-import { parsePostText } from "@/lib/postUtils";
-
-import { PostHeader } from "./PostHeader";
-import { ImageLightbox } from "./ImageLightbox";
+import { formatMessage } from "@/lib/messages";
 import { HEART_REACTION } from "@/lib/reactions";
+import messages from "@/messages/pt.json";
+
+import { getPostMediaUrls } from "./hubUtils";
+import { ImageLightbox } from "./ImageLightbox";
+import { PostHeader } from "./PostHeader";
+import { PostText } from "./PostText";
+import { PostVoteBar } from "./PostVoteBar";
+
+const copy = messages.feed.HubPostCard;
 
 const LazyHubPostComments = dynamic(
   () => import("./HubPostComments").then((module) => ({ default: module.HubPostComments })),
@@ -62,31 +68,44 @@ interface HubPostCardProps {
   setReplyingTo: (postId: string, commentId: string | null) => void;
 }
 
-function HubPostCardComponent({
-  post,
-  index,
-  eventId,
-  isAdmin,
-  openComments,
-  commentDraft,
-  replyingToId,
-  currentUserId,
-  currentUserName,
-  currentUserImage,
-  onToggleReaction,
-  onToggleDownvote,
-  onToggleComments,
-  onVotePoll,
-  onAddComment,
-  onDeleteComment,
-  onCommentDraftChange,
-  onAdminPin,
-  onAdminMovePinned,
-  onAdminDelete,
-  setReplyingTo,
-}: Readonly<HubPostCardProps>) {
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
+type PostCommentsSectionProps = Pick<
+  HubPostCardProps,
+  | "commentDraft"
+  | "currentUserId"
+  | "currentUserImage"
+  | "currentUserName"
+  | "eventId"
+  | "onAddComment"
+  | "onCommentDraftChange"
+  | "onDeleteComment"
+  | "onToggleComments"
+  | "openComments"
+  | "post"
+  | "replyingToId"
+  | "setReplyingTo"
+>;
+
+function CommentToggleButton({ count, isOpen, onToggle }: Readonly<{ count: number; isOpen: boolean; onToggle: () => void }>) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        "canhoes-tap flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+        isOpen
+          ? "bg-[rgba(79,99,54,0.12)] text-[var(--moss)]"
+          : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]"
+      )}
+      onClick={onToggle}
+      aria-label={isOpen ? copy.closeComments : formatMessage(copy.commentCount, { count })}
+    >
+      <MessageSquare className="h-4 w-4" />
+      <span className="tabular-nums">{count}</span>
+    </button>
+  );
+}
+
+/** The collapsible thread under a post; it scrolls into view when opened. */
+function PostCommentsSection({ post, openComments, ...commentProps }: Readonly<PostCommentsSectionProps>) {
   const commentsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -95,17 +114,53 @@ function HubPostCardComponent({
     }
   }, [openComments]);
 
-  const resolvedMediaUrls = [...new Set([...(post.mediaUrls ?? []), post.mediaUrl].filter(Boolean))] as string[];
+  return (
+    <div
+      ref={commentsRef}
+      className={cn(
+        "grid w-full transition-all duration-200 ease-out",
+        openComments ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 mt-0"
+      )}
+    >
+      <div className="overflow-hidden">
+        <LazyHubPostComments
+          postId={post.id}
+          postAuthorName={post.authorName}
+          commentCount={post.commentCount}
+          openComments={openComments}
+          {...commentProps}
+        />
+      </div>
+    </div>
+  );
+}
 
-  const hasMedia = resolvedMediaUrls.length > 0;
-  const parsedText = post.text?.trim() ? parsePostText(post.text) : null;
-  const displayScore = (post.likeCount ?? 0) - (post.downvoteCount ?? 0);
-  const commentCount = post.commentCount ?? 0;
+function useLightbox() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [index, setIndex] = useState(0);
 
-  const handleImageClick = (imageIndex: number) => {
-    setLightboxIndex(imageIndex);
-    setLightboxOpen(true);
+  const handleOpen = (imageIndex: number) => {
+    setIndex(imageIndex);
+    setIsOpen(true);
   };
+
+  return { isOpen, index, handleOpen, handleClose: () => setIsOpen(false) };
+}
+
+function HubPostCardComponent({
+  post,
+  index,
+  isAdmin,
+  onToggleReaction,
+  onToggleDownvote,
+  onVotePoll,
+  onAdminPin,
+  onAdminMovePinned,
+  onAdminDelete,
+  ...commentProps
+}: Readonly<HubPostCardProps>) {
+  const lightbox = useLightbox();
+  const resolvedMediaUrls = getPostMediaUrls(post);
 
   const handleUpvote = useCallback(() => {
     onToggleReaction(post.id, HEART_REACTION);
@@ -132,139 +187,43 @@ function HubPostCardComponent({
         </CardHeader>
 
         <CardContent className="space-y-3 px-4 pb-2 pt-2 sm:px-5">
-          {parsedText ? (
-            parsedText.title ? (
-              <div className="space-y-1.5">
-                <p className="post-title text-[var(--text-primary)]">{parsedText.title}</p>
-                {parsedText.body ? (
-                  <p className="post-body whitespace-pre-wrap break-words text-[var(--ink-secondary)]">
-                    {parsedText.body}
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <p className="body-base whitespace-pre-wrap break-words text-[var(--text-primary)] leading-[1.6]">
-                {post.text}
-              </p>
-            )
-          ) : null}
-
-          {hasMedia ? (
+          <PostText text={post.text} />
+          {resolvedMediaUrls.length > 0 ? (
             <LazyMediaCarousel
               urls={resolvedMediaUrls}
               aspect="video"
-              onImageClick={handleImageClick}
+              onImageClick={lightbox.handleOpen}
               authorName={post.authorName}
               isPriority={index < 2}
             />
           ) : null}
-
-          {post.poll ? (
-            <LazyPollBox
-              poll={post.poll}
-              onVote={(optionId) => onVotePoll(post.id, optionId)}
-            />
-          ) : null}
+          {post.poll ? <LazyPollBox poll={post.poll} onVote={(optionId) => onVotePoll(post.id, optionId)} /> : null}
         </CardContent>
 
         <CardFooter className="flex flex-col items-stretch gap-2 bg-transparent px-4 py-3 sm:px-5">
           <div className="flex flex-row items-center justify-between w-full">
-            {/* Voting Bar */}
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={handleUpvote}
-                className={cn(
-                  "canhoes-tap flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-                  post.likedByMe
-                    ? "bg-green-500/20 text-green-500 shadow-[0_0_0_1px_rgba(34,197,94,0.25)]"
-                    : "text-[var(--text-muted)] hover:bg-green-500/10 hover:text-green-400"
-                )}
-                aria-label={post.likedByMe ? "Remover upvote" : "Upvote"}
-              >
-                <ArrowBigUp className={cn("h-5 w-5 transition-all", post.likedByMe && "fill-green-500 text-green-500")} />
-              </button>
-
-              <span
-                className={cn(
-                  "min-w-[2rem] text-center font-mono text-sm font-bold tabular-nums",
-                  post.likedByMe
-                    ? "text-green-500"
-                    : post.downvotedByMe
-                      ? "text-red-500"
-                      : "text-[var(--ink-secondary)]"
-                )}
-              >
-                {displayScore}
-              </span>
-
-              <button
-                type="button"
-                onClick={handleDownvote}
-                className={cn(
-                  "canhoes-tap flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-                  post.downvotedByMe
-                    ? "bg-red-500/15 text-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]"
-                    : "text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400"
-                )}
-                aria-label={post.downvotedByMe ? "Remover downvote" : "Downvote"}
-              >
-                <ArrowBigDown className={cn("h-5 w-5 transition-all", post.downvotedByMe && "fill-red-500 text-red-500")} />
-              </button>
-            </div>
-
-            {/* Comment Toggle */}
-            <button
-              type="button"
-              className={cn(
-                "canhoes-tap flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                openComments
-                  ? "bg-[rgba(79,99,54,0.12)] text-[var(--moss)]"
-                  : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]"
-              )}
-              onClick={() => onToggleComments(post.id)}
-              aria-label={openComments ? "Fechar comentários" : `${commentCount} comentários`}
-            >
-              <MessageSquare className="h-4 w-4" />
-              <span className="tabular-nums">{commentCount}</span>
-            </button>
+            <PostVoteBar
+              isUpvoted={post.likedByMe}
+              isDownvoted={post.downvotedByMe}
+              onUpvote={handleUpvote}
+              onDownvote={handleDownvote}
+              score={post.likeCount - post.downvoteCount}
+            />
+            <CommentToggleButton
+              count={post.commentCount}
+              isOpen={commentProps.openComments}
+              onToggle={() => commentProps.onToggleComments(post.id)}
+            />
           </div>
-
-          {/* Comments Section */}
-          <div
-            ref={commentsRef}
-            className={`grid w-full transition-all duration-200 ease-out ${
-              openComments ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 mt-0"
-            }`}
-          >
-            <div className="overflow-hidden">
-              <LazyHubPostComments
-                postId={post.id}
-                postAuthorName={post.authorName}
-                eventId={eventId}
-                commentCount={commentCount}
-                openComments={openComments}
-                commentDraft={commentDraft}
-                replyingToId={replyingToId}
-                currentUserId={currentUserId}
-                currentUserName={currentUserName}
-                currentUserImage={currentUserImage}
-                onToggleComments={onToggleComments}
-                onAddComment={onAddComment}
-                onDeleteComment={onDeleteComment}
-                onCommentDraftChange={onCommentDraftChange}
-                setReplyingTo={setReplyingTo}
-              />
-            </div>
-          </div>
+          <PostCommentsSection post={post} {...commentProps} />
         </CardFooter>
       </Card>
 
       <ImageLightbox
         images={resolvedMediaUrls}
-        initialIndex={lightboxIndex}
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
+        initialIndex={lightbox.index}
+        open={lightbox.isOpen}
+        onClose={lightbox.handleClose}
         authorName={post.authorName}
         createdAtUtc={post.createdAtUtc}
       />

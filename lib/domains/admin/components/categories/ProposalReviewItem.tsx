@@ -9,17 +9,22 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminDrawer } from "@/lib/domains/admin/components/layout/AdminDrawer";
 
-import type { ProposalDraft, ProposalKind, useProposalModeration } from "../hooks/useProposalModeration";
+import { formatMessage } from "@/lib/messages";
+import messages from "@/messages/pt.json";
+
+import type { ProposalDraft, ProposalKind, useProposalModeration } from "../../hooks/useProposalModeration";
+
+const copy = messages.admin.ProposalReviewItem;
 
 type ProposalField = { key: string; label: string; multiline?: boolean; placeholder?: string };
 
 /** The first field of each kind is required. */
 const PROPOSAL_FIELDS: Record<ProposalKind, ProposalField[]> = {
   category: [
-    { key: "name", label: "Nome da categoria" },
-    { key: "description", label: "Descrição", multiline: true, placeholder: "Contexto da proposta" },
+    { key: "name", label: copy.categoryNameLabel },
+    { key: "description", label: copy.descriptionLabel, multiline: true, placeholder: copy.descriptionPlaceholder },
   ],
-  measure: [{ key: "text", label: "Texto da medida", placeholder: "Texto da proposta" }],
+  measure: [{ key: "text", label: copy.measureTextLabel, placeholder: copy.measureTextPlaceholder }],
 };
 
 export type ProposalRow = {
@@ -29,19 +34,53 @@ export type ProposalRow = {
   draft: ProposalDraft;
 };
 
+type Moderation = ReturnType<typeof useProposalModeration>;
+
+function ProposalActions({
+  isDisabled,
+  isBusy,
+  onDelete,
+  onSave,
+  title,
+}: Readonly<{ isDisabled: boolean; isBusy: boolean; onDelete: () => void; onSave: (status?: "approved" | "rejected") => void; title: string }>) {
+  return (
+    <div className="flex flex-col gap-2 border-t border-[var(--border-subtle)] pt-3 sm:flex-row sm:flex-wrap sm:justify-end">
+      <Button variant="outline" disabled={isDisabled} onClick={() => onSave()}>
+        {copy.save}
+      </Button>
+      <Button disabled={isDisabled} onClick={() => onSave("approved")}>
+        {copy.approve}
+      </Button>
+      <Button variant="destructive" disabled={isDisabled} onClick={() => onSave("rejected")}>
+        {copy.reject}
+      </Button>
+      <ConfirmDeleteAction
+        title={copy.deleteTitle}
+        description={formatMessage(copy.deleteDescription, { title })}
+        onConfirm={onDelete}
+        trigger={
+          <Button variant="outline" disabled={isBusy} className="gap-2">
+            <Trash2 className="h-4 w-4" />
+            {copy.delete}
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
 export function ProposalReviewItem({
   kind,
   moderation,
   proposal,
 }: Readonly<{
   kind: ProposalKind;
-  moderation: ReturnType<typeof useProposalModeration>;
+  moderation: Moderation;
   proposal: ProposalRow;
 }>) {
   const [isOpen, setIsOpen] = useState(false);
   const [draft, setDraft] = useState(proposal.draft);
   const fields = PROPOSAL_FIELDS[kind];
-  const isDisabled = moderation.isBusy || !draft[fields[0].key].trim();
   const createdAt = new Date(proposal.createdAtUtc).toLocaleString("pt-PT");
 
   const handleSave = (status?: "approved" | "rejected") => {
@@ -60,12 +99,7 @@ export function ProposalReviewItem({
         <span className="text-xs text-[var(--ink-muted)]">{createdAt}</span>
       </button>
 
-      <AdminDrawer
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        title="Detalhes da proposta"
-        description={`Recebida a ${createdAt}`}
-      >
+      <AdminDrawer open={isOpen} onOpenChange={setIsOpen} title={copy.drawerTitle} description={formatMessage(copy.receivedAt, { date: createdAt })}>
         {fields.map((field) => {
           const id = `${proposal.id}-${field.key}`;
           const Control = field.multiline ? Textarea : Input;
@@ -85,31 +119,16 @@ export function ProposalReviewItem({
           );
         })}
 
-        <div className="flex flex-col gap-2 border-t border-[var(--border-subtle)] pt-3 sm:flex-row sm:flex-wrap sm:justify-end">
-          <Button variant="outline" disabled={isDisabled} onClick={() => handleSave()}>
-            Guardar
-          </Button>
-          <Button disabled={isDisabled} onClick={() => handleSave("approved")}>
-            Aprovar
-          </Button>
-          <Button variant="destructive" disabled={isDisabled} onClick={() => handleSave("rejected")}>
-            Rejeitar
-          </Button>
-          <ConfirmDeleteAction
-            title="Apagar proposta?"
-            description={`Esta ação remove a proposta “${proposal.title}” permanentemente.`}
-            onConfirm={() => {
-              moderation.handleDelete(kind, proposal.id);
-              setIsOpen(false);
-            }}
-            trigger={
-              <Button variant="outline" disabled={moderation.isBusy} className="gap-2">
-                <Trash2 className="h-4 w-4" />
-                Apagar proposta
-              </Button>
-            }
-          />
-        </div>
+        <ProposalActions
+          isBusy={moderation.isBusy}
+          isDisabled={moderation.isBusy || !draft[fields[0].key].trim()}
+          onSave={handleSave}
+          onDelete={() => {
+            moderation.handleDelete(kind, proposal.id);
+            setIsOpen(false);
+          }}
+          title={proposal.title}
+        />
       </AdminDrawer>
     </>
   );

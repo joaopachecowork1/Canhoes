@@ -3,11 +3,11 @@
 import { Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { shellCopy } from "@/lib/canhoesCopy";
 
 import { Dock, type DockItem } from "@/components/ui/dock-two";
 
 import { MENU_NAV_ITEM, type CanhoesNavItem } from "./canhoesNavigation";
+import messages from "@/messages/pt.json";
 
 export type CanhoesBottomTabEntry = {
   item: CanhoesNavItem;
@@ -32,7 +32,7 @@ export function CanhoesBottomTabs({
   showCompose = true,
 }: Readonly<CanhoesBottomTabsProps>) {
   const composeItem: DockItem = {
-    ariaLabel: shellCopy.createPost,
+    ariaLabel: messages.shell.CanhoesBottomTabs.createPost,
     ariaPressed: isComposeOpen,
     buttonClassName: cn(
       "border-[rgba(255,255,255,0.12)] bg-[var(--bg-paper)] text-[var(--color-text-primary)]",
@@ -54,7 +54,7 @@ export function CanhoesBottomTabs({
 
   return (
     <nav
-      aria-label="Navegação principal do evento"
+      aria-label={messages.shell.CanhoesBottomTabs.navLabel}
       className="fixed inset-x-0 bottom-0 z-50"
     >
       <div className="mx-auto max-w-[calc(var(--page-max-width)+10rem)] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:px-3">

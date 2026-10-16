@@ -19,13 +19,14 @@ npm run dev            # http://localhost:3000/canhoes (login de dev automático
 npm run lint
 npx tsc --noEmit
 npm test               # vitest, testes unitários de lógica pura
+npm run test:component # componentes e hooks (jsdom + Testing Library)
 npm run test:integration  # route handlers contra PostgreSQL real (base de dados canhoes_test, ver tests/integration)
 npm run knip           # exports, ficheiros e dependências mortos
 npm run build
 docker compose up -d --build   # stack completa; com Podman: podman compose up -d --build --force-recreate
 ```
 
-Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run test:integration` e `npm run knip` (o CI corre todos).
+Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run test:component`, `npm run test:integration` e `npm run knip` (o CI corre todos).
 
 ## Prioridades
 
@@ -38,10 +39,12 @@ Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit`, `npm test`,
 
 ## Arquitetura — o que não é óbvio
 
+- **Funcionalidades:** cada uma em `lib/domains/<nome>/{components,hooks,rules,services}`; a página em `app/canhoes` só monta o `<Nome>Module`. Uma funcionalidade não importa a UI de outra (exceto `event`), o cliente nunca importa `services/` e o lint impõe limites de tamanho e complexidade. Detalhes em `docs/03-arquitetura.md`.
+- **Textos:** todo o texto da UI em `messages/pt.json`, por funcionalidade e componente (`messages.feed.HubPostCard.*`); variáveis com `formatMessage` (`lib/messages.ts`). Nada de strings no JSX.
 - **Camadas:** UI (`components/`, `lib/domains/*/components`) → repositórios de cliente (`lib/repositories/*`, via `canhoesFetch` em `lib/api/canhoesClient.ts`, que chama `/api/...`) → route handlers (`app/api/v1/events/[eventId]/…`) → serviços de servidor com Prisma (`lib/domains/*/services`). Tipos partilhados em `lib/api/types.ts`; validação de input com Zod em `lib/zod/`.
 - **Estado no cliente:** TanStack Query. Depois de uma escrita, invalida as queries em vez de copiar estado à mão.
 - **Route handlers:** finos e todos iguais — `apiRoute` + `requireUser`/`requireAdmin`/`requireEventAccess`/`requireModule`/`requireProposalsOpen` (`lib/api/guards.ts`) + `readJson(schema)`/`readPaging` (`lib/api/route.ts`) + uma chamada ao serviço. Para parar com um erro, lança um `HttpError` (`lib/api/httpError.ts`); erros de domínio que o cliente pode tratar estendem-no. O resto vira um 500 com log.
-- **Auth:** NextAuth com Google, credenciais (email + password com bcrypt, para contas criadas por convite em `/api/admin/invites` → `/canhoes/register`) e, só fora de produção, o provider `development` (`DEV_AUTH_BYPASS_ENABLED=true`). O callback `jwt` relê o `User` da BD em cada pedido; o admin é só `User.isAdmin`. Google só deixa entrar admins, membros e quem tem um convite aberto para esse email (`signInAccess.ts`). `requireEventAccess` exige ser membro do evento; `requireModule` e `requireProposalsOpen` aplicam no servidor as mesmas regras de fase que o overview mostra na UI (`lib/domains/event/services/eventRules.ts`). Admins passam sempre. Toda a rota nova fica coberta pela matriz de autorização em `tests/integration/authorization.int.test.ts`.
+- **Auth:** NextAuth com Google, credenciais (email + password com bcrypt, para contas criadas por convite em `/api/admin/invites` → `/canhoes/register`) e, só fora de produção, o provider `development` (`DEV_AUTH_BYPASS_ENABLED=true`). O callback `jwt` relê o `User` da BD em cada pedido; o admin é só `User.isAdmin`. Google só deixa entrar admins, membros e quem tem um convite aberto para esse email (`signInAccess.ts`). `requireEventAccess` exige ser membro do evento; `requireModule` e `requireProposalsOpen` aplicam no servidor as mesmas regras de fase que o overview mostra na UI (`lib/domains/event/rules/eventRules.ts`). Admins passam sempre. Toda a rota nova fica coberta pela matriz de autorização em `tests/integration/authorization.int.test.ts`.
 - **Áreas (módulos):** o registo está em `lib/modules.ts`; a fase em que cada uma abre em `resolveMemberModules` (`eventRules.ts`). A navegação mostra só as áreas abertas, a admins e membros; o admin chega às fechadas em Admin › Evento.
 - **Schema:** alterações ao `prisma/schema.prisma` precisam de uma migration em `prisma/migrations` (`npx prisma migrate dev --name <nome>`). A imagem Docker aplica-as no arranque com `prisma migrate deploy` (`scripts/docker-start.sh`); uma base de dados antiga criada com `db push` é marcada como baseline uma única vez.
 - **Deploy:** `compose.server.yml` (PostgreSQL, app e Cloudflare Tunnel) num PC ou servidor; `scripts/update-server.sh` instala cada merge para `main` com backup antes. A CI testa-o no job "Home server deploy". Guia em `docs/09-deploy.md`.

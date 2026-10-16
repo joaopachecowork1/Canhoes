@@ -1,7 +1,7 @@
 import { HttpError } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
 import { KindUserVote } from "@/lib/domains/admin/services/constants";
-import { isVotingOpen } from "@/lib/domains/event/services/eventRules";
+import { isVotingOpen } from "@/lib/domains/event/rules/eventRules";
 import type {
   EventVotingBoardDto,
   EventVotingCategoryDto,

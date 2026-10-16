@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
+import messages from "@/messages/pt.json";
+
+const copy = messages.app.CanhoesNotFound;
 
 export default function CanhoesNotFound() {
   const router = useRouter();
@@ -14,26 +17,26 @@ export default function CanhoesNotFound() {
       <CardContent className="space-y-4 p-5 sm:p-6">
         <div className="space-y-1">
           <p className="font-[var(--font-mono)] text-[11px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.68)]">
-            Não encontrado
+            {copy.eyebrow}
           </p>
-          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">Esta área não existe</h1>
+          <h1 className="text-xl font-semibold text-[var(--bg-paper)]">{copy.title}</h1>
         </div>
 
         <ErrorAlert
-          title="Link indisponível"
-          description="Este link já não existe, está incompleto ou a área deixou de estar disponível nesta edição."
+          title={copy.alertTitle}
+          description={copy.alertDescription}
         />
 
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={() => router.push("/canhoes")}>
-            Voltar ao evento
+            {messages.common.backToEvent}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => globalThis.history.back()}
           >
-            Voltar atras
+            {copy.goBack}
           </Button>
         </div>
       </CardContent>
