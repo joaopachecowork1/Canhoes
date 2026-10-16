@@ -10,10 +10,18 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve("."),
+      // The real module throws outside React Server Components; tests run in plain Node.
+      "server-only": path.resolve("node_modules/server-only/empty.js"),
     },
   },
   test: {
     environment: "node",
+    coverage: {
+      provider: "v8",
+      reporter: ["text-summary", "lcov"],
+      include: ["app/**", "components/**", "hooks/**", "lib/**"],
+      exclude: ["**/*.test.{ts,tsx}"],
+    },
     projects: [
       {
         extends: true,
