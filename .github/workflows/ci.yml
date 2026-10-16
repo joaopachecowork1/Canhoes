@@ -23,6 +23,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+        with:
+          # SonarQube needs the full history to tell new code from old.
+          fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -30,12 +33,16 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npx tsc --noEmit
-      - run: npm test
+      - run: npm run test:coverage
       - run: npm run knip
       - name: Shell scripts
         run: shellcheck scripts/*.sh
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+      - name: SonarQube Cloud
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   integration:
     name: Integration and authorization tests (PostgreSQL)
