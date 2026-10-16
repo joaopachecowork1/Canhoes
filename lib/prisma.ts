@@ -1,3 +1,5 @@
+// Any client bundle that reaches Prisma (directly or through a service) fails the build.
+import "server-only";
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
