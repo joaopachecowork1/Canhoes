@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
 
 /**
- * Who may sign in with Google. The portal is private: admins, people who already belong to an
- * event or were invited before, and people holding an open invitation (accepted on this sign-in).
- * Everyone else is turned away, even with a valid Google account.
+ * Who may sign in with Google. Public onboarding can be enabled temporarily with
+ * AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN=true; otherwise the portal remains invitation-only.
  */
 export type SignInFacts = {
   isAdmin: boolean;
@@ -20,7 +19,11 @@ export function decideSignIn(facts: SignInFacts): SignInDecision {
   return "deny";
 }
 
-/** Applies `decideSignIn` to a Google account; accepting an invitation creates the user and their membership. */
+function isPublicGoogleSignInEnabled() {
+  return process.env.AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN?.trim().toLowerCase() === "true";
+}
+
+/** Applies the access policy and creates a membership for a first public Google sign-in. */
 export async function authorizeGoogleSignIn(input: { email: string; externalId: string; displayName: string | null }) {
   const email = input.email.trim().toLowerCase();
   const now = new Date();
@@ -40,19 +43,27 @@ export async function authorizeGoogleSignIn(input: { email: string; externalId: 
     wasInvited: Boolean(invitation?.usedAtUtc),
     hasOpenInvitation: Boolean(invitation && !invitation.usedAtUtc && invitation.expiresAtUtc > now),
   });
-  if (decision !== "accept-invitation" || !invitation) return decision !== "deny";
+  if (decision === "deny" && !isPublicGoogleSignInEnabled()) return false;
+  if (decision !== "accept-invitation" && decision !== "deny") return true;
 
   await prisma.$transaction(async (tx) => {
-    await tx.userInvitation.update({ where: { id: invitation.id }, data: { usedAtUtc: now } });
+    if (invitation && decision === "accept-invitation") {
+      await tx.userInvitation.update({ where: { id: invitation.id }, data: { usedAtUtc: now } });
+    }
     const invitedUser = user ?? await tx.user.create({
       data: { email, externalId: input.externalId, displayName: input.displayName ?? email, isAdmin: false },
       select: { id: true, isAdmin: true },
     });
-    if (invitation.eventId) {
+    const eventId = invitation?.eventId ?? (await tx.event.findFirst({
+      where: { isActive: true },
+      orderBy: { createdAtUtc: "asc" },
+      select: { id: true },
+    }))?.id;
+    if (eventId) {
       await tx.eventMember.upsert({
-        where: { eventId_userId: { eventId: invitation.eventId, userId: invitedUser.id } },
+        where: { eventId_userId: { eventId, userId: invitedUser.id } },
         update: {},
-        create: { eventId: invitation.eventId, userId: invitedUser.id, role: "participant", joinedAtUtc: now },
+        create: { eventId, userId: invitedUser.id, role: "participant", joinedAtUtc: now },
       });
     }
   });

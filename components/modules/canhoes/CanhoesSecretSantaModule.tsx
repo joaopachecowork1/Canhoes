@@ -40,7 +40,7 @@ export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOve
       <CanhoesModuleHeader
         icon={Gift}
         title="Amigo Secreto"
-        description="Vê a quem te calhou oferecer e a wishlist dessa pessoa."
+        description="Descobre a quem ofereces e escolhe um presente com ajuda da wishlist."
         badgeLabel={badgeLabel}
       />
 

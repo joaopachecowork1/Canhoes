@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { shellCopy } from "@/lib/canhoesCopy";
 
 import { Dock, type DockItem } from "@/components/ui/dock-two";
 
@@ -31,7 +32,7 @@ export function CanhoesBottomTabs({
   showCompose = true,
 }: Readonly<CanhoesBottomTabsProps>) {
   const composeItem: DockItem = {
-    ariaLabel: "Criar post",
+    ariaLabel: shellCopy.createPost,
     ariaPressed: isComposeOpen,
     buttonClassName: cn(
       "border-[rgba(255,255,255,0.12)] bg-[var(--bg-paper)] text-[var(--color-text-primary)]",
@@ -41,7 +42,7 @@ export function CanhoesBottomTabs({
     icon: Plus,
     iconClassName: cn("h-5 w-5", isComposeOpen && "text-[var(--moss)]"),
     isActive: isComposeOpen,
-    label: "Post",
+    label: "Publicar",
     onClick: onCompose,
   };
 

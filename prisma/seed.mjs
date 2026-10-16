@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -25,6 +26,11 @@ async function main() {
 
   // 1. Ensure Admins
   const seededAdmins = [];
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+  if (adminPassword && adminPassword.length < 8) {
+    throw new Error("ADMIN_PASSWORD must contain at least 8 characters.");
+  }
+
   for (const email of adminEmails()) {
     const user = await prisma.user.upsert({
       where: { email },
@@ -36,6 +42,12 @@ async function main() {
         isAdmin: true,
       },
     });
+    if (adminPassword && !user.passwordHash) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash: await bcrypt.hash(adminPassword, 10) },
+      });
+    }
     seededAdmins.push(user);
   }
 

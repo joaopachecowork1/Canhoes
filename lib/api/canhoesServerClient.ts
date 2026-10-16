@@ -20,9 +20,7 @@ export async function canhoesServerFetch<T>(path: string): Promise<T | null> {
         "Content-Type": "application/json",
         Cookie: cookieHeader,
       },
-      next: {
-        revalidate: 60, // Cache for 1 minute on server
-      },
+      cache: "no-store",
     });
 
     if (!res.ok) {

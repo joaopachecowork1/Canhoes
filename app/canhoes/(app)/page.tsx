@@ -4,6 +4,7 @@ import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, EventFeedPostFullDto, PagedResult } from "@/lib/api/types";
 import { toFeedPage } from "@/lib/domains/feed/components/hooks/feedInfiniteData";
+import { CanhoesHomeDashboard } from "@/components/chrome/canhoes/CanhoesHomeDashboard";
 
 const HubFeedModule = dynamic(
   () => import("@/lib/domains/feed/components/HubFeedModule").then((module) => ({ default: module.HubFeedModule })),
@@ -24,7 +25,10 @@ export default async function CanhoesPage() {
 
   return (
     <EventModuleGate moduleKey="feed">
-      <HubFeedModule initialData={initialData} initialContext={activeContext ?? undefined} />
+      <div className="mx-auto w-full max-w-2xl space-y-6">
+        <CanhoesHomeDashboard context={activeContext} />
+        <HubFeedModule initialData={initialData} initialContext={activeContext ?? undefined} />
+      </div>
     </EventModuleGate>
   );
 }

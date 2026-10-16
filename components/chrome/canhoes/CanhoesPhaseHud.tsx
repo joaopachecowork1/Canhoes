@@ -17,9 +17,9 @@ export function CanhoesPhaseHud({
 }>) {
   if (isLoading) {
     return (
-      <div className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.08)] px-3 py-1 text-[rgba(255,255,255,0.72)]">
+      <div className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--bg-paper)] px-2.5 py-1 text-[var(--text-muted)]">
         <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--moss)]" />
-        <span className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.12em]">
+        <span className="text-xs font-medium">
           A abrir
         </span>
       </div>
@@ -31,9 +31,9 @@ export function CanhoesPhaseHud({
   const phaseLabel = getPhaseLabel(overview.activePhase?.type);
 
   return (
-    <div className="inline-flex min-h-8 items-center gap-2 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.08)] px-3 py-1">
-      <Sparkles className="h-3.5 w-3.5 text-[var(--moss)]" />
-      <span className="font-[var(--font-mono)] text-[10px] uppercase tracking-[0.12em] text-[rgba(255,255,255,0.8)]">
+    <div className="inline-flex min-h-8 items-center gap-2 rounded-lg bg-[var(--bg-paper)] px-2.5 py-1">
+      <Sparkles className="h-3.5 w-3.5 text-[var(--moss-glow)]" />
+      <span className="text-xs text-[var(--text-muted)]">
         {event.name}
       </span>
       <span className="text-xs font-semibold text-[var(--color-text-primary)]">

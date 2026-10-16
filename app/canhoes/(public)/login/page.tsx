@@ -4,19 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 
-import dynamic from "next/dynamic";
 import { CanhoesBrandMark } from "@/components/chrome/canhoes/CanhoesBrandMark";
-import { CanhoesHeroEmblem } from "@/components/chrome/canhoes/CanhoesHeroEmblem";
-import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
+import { CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/providers/AuthContext";
 import { signIn } from "next-auth/react";
-
-const LeafRain = dynamic(() => import("@/components/animations/LeafRain"), {
-  ssr: false, // Particles don't need SSR
-});
 
 const authErrorMessages: Record<string, string> = {
   AccessDenied: "Esta conta ainda não foi convidada. Pede um convite a um admin e entra com o email do convite.",
@@ -101,14 +95,10 @@ export default function CanhoesLoginPage() {
   };
 
   return (
-    <div className="relative isolate min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,var(--bg-deep)_0%,var(--bg-void)_100%)]">
-      <CanhoesGlowBackdrop tone="shell" className="opacity-90" />
-
-      <LeafRain />
-
-      <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-10">
+    <div className="relative isolate min-h-[100svh] bg-[var(--bg-void)]">
+      <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-8">
         <section
-          className="canhoes-bits-panel canhoes-bits-panel--shell editorial-shell w-full max-w-md rounded-[var(--radius-xl-token)] border p-6 text-[var(--text-primary)] shadow-[var(--shadow-modal)] backdrop-blur-xl sm:p-8"
+          className="w-full max-w-md rounded-[var(--radius-lg-token)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6 text-[var(--text-primary)] shadow-[var(--shadow-card)] sm:p-8"
           style={{
             opacity: isVisible ? 1 : 0,
             transform: isVisible ? "translateY(0)" : "translateY(24px)",
@@ -118,38 +108,13 @@ export default function CanhoesLoginPage() {
 
 
           <div className="space-y-6">
-            <div className="flex items-center justify-center">
-              <CanhoesHeroEmblem />
-            </div>
-
             <div className="space-y-3 text-center">
               <div className="flex justify-center">
                 <CanhoesBrandMark compact />
               </div>
-              <p className="editorial-kicker text-[var(--beige)]">
-                Ritual anual
+              <p className="body-small text-[var(--text-muted)]">
+                O espaço do grupo para partilhar, votar e preparar o amigo secreto.
               </p>
-              <p className="body-small text-[var(--beige)]/78">
-                Um espaço privado para o feed, os prémios, as votações e o
-                arquivo do grupo.
-              </p>
-            </div>
-
-            <CanhoesDecorativeDivider tone="moss" />
-
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="canhoes-shell-chip rounded-[var(--radius-md-token)] px-3 py-2">
-                <p className="editorial-kicker text-[10px]">Mural</p>
-                <p className="text-xs font-medium text-[var(--bg-paper)]">Social</p>
-              </div>
-              <div className="canhoes-shell-chip rounded-[var(--radius-md-token)] px-3 py-2">
-                <p className="editorial-kicker text-[10px]">Boletim</p>
-                <p className="text-xs font-medium text-[var(--bg-paper)]">Oficial</p>
-              </div>
-              <div className="canhoes-shell-chip rounded-[var(--radius-md-token)] px-3 py-2">
-                <p className="editorial-kicker text-[10px]">Arquivo</p>
-                <p className="text-xs font-medium text-[var(--bg-paper)]">Privado</p>
-              </div>
             </div>
 
             <div className="space-y-3">
@@ -228,8 +193,8 @@ export default function CanhoesLoginPage() {
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-[var(--border-subtle)]" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[var(--bg-paper)] px-2 text-[var(--ink-muted)]">
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-[var(--bg-surface)] px-2 text-[var(--ink-muted)]">
                     Ou
                   </span>
                 </div>
@@ -245,8 +210,8 @@ export default function CanhoesLoginPage() {
                   ? "A entrar..."
                   : "Continuar com Google"}
               </Button>
-              <p className="text-center text-xs text-[var(--beige)]/72">
-                Acesso reservado aos membros do evento. O login Google continua ativo.
+              <p className="text-center text-xs text-[var(--text-muted)]">
+                Entra com a tua conta Google ou com as credenciais do convite.
               </p>
             </div>
           </div>

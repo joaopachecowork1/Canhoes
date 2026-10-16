@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronRight, Shield } from "lucide-react";
+import { ChevronRight, LogOut, Shield } from "lucide-react";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { shellCopy } from "@/lib/canhoesCopy";
 
 import type { CanhoesNavItem } from "./canhoesNavigation";
 
@@ -16,12 +17,14 @@ import type { CanhoesNavItem } from "./canhoesNavigation";
 export function CanhoesMenuSheet({
   isAdmin,
   items,
+  onLogout,
   onOpenChange,
   open,
   pathname,
 }: Readonly<{
   isAdmin: boolean;
   items: readonly CanhoesNavItem[];
+  onLogout: () => void;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   pathname: string | null;
@@ -33,9 +36,9 @@ export function CanhoesMenuSheet({
         className="max-h-[85svh] gap-0 overflow-y-auto border-[var(--border-subtle)] bg-[var(--bg-surface)] pb-[calc(1rem+env(safe-area-inset-bottom,0px))] text-[var(--text-primary)] sm:mx-auto sm:max-w-md"
       >
         <SheetHeader className="pb-3 pr-14">
-          <SheetTitle className="text-lg">Menu</SheetTitle>
+          <SheetTitle className="text-xl">{shellCopy.menu}</SheetTitle>
           <SheetDescription className="text-sm text-[var(--color-text-muted)]">
-            Áreas abertas nesta fase.
+            {shellCopy.menuDescription}
           </SheetDescription>
         </SheetHeader>
 
@@ -51,7 +54,7 @@ export function CanhoesMenuSheet({
 
           {items.length === 0 ? (
             <p className="px-3 py-4 text-base text-[var(--color-text-muted)]">
-              Não há mais áreas abertas nesta fase.
+              {shellCopy.noMoreAreas}
             </p>
           ) : null}
 
@@ -59,15 +62,29 @@ export function CanhoesMenuSheet({
             <MenuLink
               item={{
                 id: "admin-areas",
-                label: "Todas as áreas",
+                label: shellCopy.allAreas,
                 href: "/canhoes/admin/configuracoes",
                 icon: Shield,
-                description: "As fechadas nesta fase estão no Admin.",
+                description: shellCopy.allAreasDescription,
               }}
               isActive={false}
               onSelect={() => onOpenChange(false)}
             />
           ) : null}
+
+          <button
+            type="button"
+            onClick={() => {
+              onOpenChange(false);
+              onLogout();
+            }}
+            className="mt-2 flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 text-left text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]"
+          >
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--bg-paper)]">
+              <LogOut className="h-5 w-5" aria-hidden />
+            </span>
+            <span className="text-base font-semibold">{shellCopy.logout}</span>
+          </button>
         </nav>
       </SheetContent>
     </Sheet>

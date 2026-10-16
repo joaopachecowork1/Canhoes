@@ -120,7 +120,7 @@ export const HubFeedList = memo(function HubFeedList({
     <div className="animate-fade-in flex flex-col">
 
                 {posts.length > 0 ? (
-            <div>
+            <div className="space-y-3">
               {posts.map((post, index) => (
                 <HubFeedListItem
                   key={post.id}

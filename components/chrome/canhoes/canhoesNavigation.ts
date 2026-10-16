@@ -3,6 +3,7 @@ import { Menu, ScrollText, Shield } from "lucide-react";
 
 import type { EventModulesDto } from "@/lib/api/types";
 import { CANHOES_MODULES } from "@/lib/modules";
+import { shellCopy } from "@/lib/canhoesCopy";
 
 /*
  * What the shell links to. The dock has Mural, the first two open areas, Post and, on the right,
@@ -32,7 +33,7 @@ export const HOME_NAV_ITEM: CanhoesNavItem = {
   label: "Mural",
   href: "/canhoes",
   icon: ScrollText,
-  description: "Posts, fotos e sondagens do grupo.",
+  description: "Publicações e sondagens do grupo.",
 };
 
 export const ADMIN_NAV_ITEM: CanhoesNavItem = {
@@ -45,7 +46,7 @@ export const ADMIN_NAV_ITEM: CanhoesNavItem = {
 
 export const MENU_NAV_ITEM: CanhoesNavItem = {
   id: "menu",
-  label: "Menu",
+  label: shellCopy.menu,
   href: "#menu",
   icon: Menu,
 };

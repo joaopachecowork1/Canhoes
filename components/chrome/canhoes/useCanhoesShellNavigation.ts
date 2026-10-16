@@ -10,6 +10,7 @@ import {
   HOME_NAV_ITEM,
   MENU_NAV_ITEM,
 } from "./canhoesNavigation";
+import { shellCopy } from "@/lib/canhoesCopy";
 
 function isHomePath(pathname: string | null) {
   return pathname === "/canhoes" || pathname === "/canhoes/";
@@ -22,7 +23,7 @@ function isPathActive(pathname: string | null, href: string) {
 }
 
 function resolveUserLabel(user?: { email?: string | null; name?: string | null } | null) {
-  return user?.name?.trim() || user?.email || "Membro";
+  return user?.name?.trim() || user?.email || shellCopy.memberFallback;
 }
 
 /** Builds the dock, the menu sheet and the header text for the current page and user. */

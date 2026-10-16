@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { LogOut, Menu } from "lucide-react";
+import { Menu, Shield } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 import { OPEN_COMPOSE_SHEET_EVENT } from "@/lib/canhoesEvent";
@@ -12,6 +13,7 @@ import { useAdminStatus } from "@/hooks/useAdminStatus";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { shellCopy } from "@/lib/canhoesCopy";
 
 import { CanhoesBottomTabs } from "./CanhoesBottomTabs";
 import { CanhoesBrandMark } from "./CanhoesBrandMark";
@@ -38,7 +40,7 @@ export function CanhoesChrome({
 }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isLogged, logout, user } = useAuth();
+  const { logout, user } = useAuth();
 
   const eventOverview = useEventOverview();
   const { isAdmin } = useAdminStatus();
@@ -108,14 +110,12 @@ export function CanhoesChrome({
         data-theme="canhoes"
         className="bg-circuit relative isolate flex min-h-[100svh] flex-col overflow-x-clip bg-[var(--bg-void)] text-[var(--text-primary)]"
       >
-      <header className="sticky top-0 z-40 border-b border-[var(--border-paper)] bg-[rgba(10,14,8,0.92)] backdrop-blur-[6px] supports-[backdrop-filter]:bg-[rgba(10,14,8,0.88)]">
-        <div className="mx-auto w-full max-w-[72rem] px-4 pb-2 pt-[env(safe-area-inset-top,0px)] sm:px-6 lg:px-8">
-                  <div
-                    className="rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.12)] bg-[rgba(18,24,12,0.94)] px-3 py-3 text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] sm:px-4 sm:py-3.5"
-                  >
+      <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[rgba(16,19,13,0.94)] backdrop-blur-md">
+        <div className="mx-auto w-full max-w-[72rem] px-4 pb-3 pt-[env(safe-area-inset-top,0px)] sm:px-6 lg:px-8">
+          <div className="px-0.5 pt-1 text-[var(--text-primary)]">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1 space-y-2">
-                <CanhoesBrandMark compact subtitle="Prémios da edição" />
+                <CanhoesBrandMark compact subtitle={shellCopy.eventSubtitle} />
 
                 {!isEventHomePath ? (
                   <div className="min-w-0 space-y-1">
@@ -123,7 +123,7 @@ export function CanhoesChrome({
                       <Badge
                         variant="outline"
                         className={cn(
-                          "shrink-0 border-transparent px-2 py-0.5 text-[10px] uppercase tracking-[0.14em]",
+                          "shrink-0 border-transparent px-2 py-0.5 text-[10px] font-medium",
                           pageContext.tone === "social" &&
                             "bg-[rgba(118,98,166,0.14)] text-[var(--accent-purple-soft)]",
                           pageContext.tone === "official" &&
@@ -151,38 +151,32 @@ export function CanhoesChrome({
               </div>
 
               <div className="flex items-center gap-1.5">
-                {isLogged ? (
+                {isAdmin ? (
+                  <Link
+                    href="/canhoes/admin"
+                    className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]"
+                  >
+                    <Shield className="h-4 w-4" aria-hidden />
+                    <span className="hidden sm:inline">Admin</span>
+                  </Link>
+                ) : (
                   <Button
+                    type="button"
                     variant="ghost"
                     size="icon"
-                    className="min-h-10 h-10 w-10 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-canhoes-gold hover:bg-[rgba(255,255,255,0.1)]"
-                    onClick={(event) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      logout();
-                    }}
-                    aria-label="Terminar sessão"
+                    className="min-h-10 h-10 w-10 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface)]"
+                    onClick={() => setIsMenuOpen(true)}
+                    aria-expanded={isMenuOpen}
+                    aria-label="Abrir mais opções"
                   >
-                    <LogOut className="h-4 w-4" />
+                    <Menu className="h-4 w-4" />
                   </Button>
-                ) : null}
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="min-h-10 h-10 w-10 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.05)] text-canhoes-gold hover:bg-[rgba(255,255,255,0.1)]"
-                  onClick={() => setIsMenuOpen(true)}
-                  aria-expanded={isMenuOpen}
-                  aria-label="Abrir menu"
-                >
-                  <Menu className="h-4 w-4" />
-                </Button>
+                )}
               </div>
             </div>
 
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <div className="inline-flex min-h-8 items-center gap-2 rounded-full border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.06)] px-3 py-1">
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="inline-flex min-h-8 items-center gap-2 rounded-lg bg-[var(--bg-paper)] px-2.5 py-1">
                 <p className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
                   {userLabel}
                 </p>
@@ -197,12 +191,6 @@ export function CanhoesChrome({
           </div>
         </div>
       </header>
-
-      <div className="relative z-30 flex items-center gap-0 px-4" aria-hidden="true">
-        <div className="h-px flex-1 bg-canhoes-gold/25" />
-        <span className="px-2 text-[10px] text-canhoes-gold/60 select-none">✦</span>
-        <div className="h-px flex-1 bg-canhoes-gold/25" />
-      </div>
 
       <main className="relative z-10 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
         <div className={cn("mx-auto w-full px-4 sm:px-6 lg:px-8", isEventHomePath ? "max-w-[72rem]" : "max-w-[60rem]")}>
@@ -229,6 +217,7 @@ export function CanhoesChrome({
       <CanhoesMenuSheet
         isAdmin={isAdmin}
         items={menuItems}
+        onLogout={logout}
         onOpenChange={setIsMenuOpen}
         open={isMenuOpen}
         pathname={pathname}

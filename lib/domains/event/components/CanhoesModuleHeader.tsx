@@ -25,10 +25,12 @@ export function CanhoesModuleHeader({
   title,
 }: Readonly<CanhoesModuleHeaderProps>) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-      <div className="space-y-1">
-        <h1 className="canhoes-section-title flex items-center gap-2">
-          <Icon className="h-4 w-4 text-[var(--color-fire)]" />
+    <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="space-y-1.5">
+        <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-[var(--text-primary)] normal-case">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--moss)]/15 text-[var(--moss-glow)]">
+            <Icon className="h-4 w-4" />
+          </span>
           {title}
         </h1>
         <p className="body-small text-[var(--color-text-muted)]">{description}</p>

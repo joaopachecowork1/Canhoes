@@ -10,9 +10,9 @@ import { resolveDevelopmentAdmin, resolveUser, type ResolvedUser } from "./authS
 import { authorizeGoogleSignIn } from "./signInAccess";
 
 /*
- * NextAuth configuration. Three ways in: Google (only for admins, members and invitees, see
- * `signInAccess.ts`), email + password for accounts created from an invitation, and outside
- * production a one-click development admin. Sessions are 24-hour JWTs.
+ * NextAuth configuration. Google access follows the onboarding policy in `signInAccess.ts`,
+ * email + password is for accounts created from an invitation, and outside production there is
+ * a one-click development admin. Sessions are 24-hour JWTs.
  */
 
 const developmentLoginEnabled = isDevelopmentAuthEnabled();

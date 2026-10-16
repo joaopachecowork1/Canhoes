@@ -117,8 +117,8 @@ function HubPostCardComponent({
 
   return (
     <BlurFade delay={index * 50}>
-      <Card className="border-x-0 border-t-0 border-b border-[var(--border-subtle)] bg-transparent shadow-none rounded-none text-[var(--color-text-primary)]">
-        <CardHeader className="px-4 py-4 pb-2">
+      <Card className="overflow-hidden rounded-[var(--radius-lg-token)] border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[var(--shadow-card)] text-[var(--color-text-primary)]">
+        <CardHeader className="px-4 py-4 pb-2 sm:px-5">
           <PostHeader
             authorName={post.authorName}
             createdAtUtc={post.createdAtUtc}
@@ -131,7 +131,7 @@ function HubPostCardComponent({
           />
         </CardHeader>
 
-        <CardContent className="px-4 pt-2 pb-1 space-y-3">
+        <CardContent className="space-y-3 px-4 pb-2 pt-2 sm:px-5">
           {parsedText ? (
             parsedText.title ? (
               <div className="space-y-1.5">
@@ -167,7 +167,7 @@ function HubPostCardComponent({
           ) : null}
         </CardContent>
 
-        <CardFooter className="px-4 py-3 bg-transparent flex flex-col items-stretch gap-2">
+        <CardFooter className="flex flex-col items-stretch gap-2 bg-transparent px-4 py-3 sm:px-5">
           <div className="flex flex-row items-center justify-between w-full">
             {/* Voting Bar */}
             <div className="flex items-center gap-1.5">

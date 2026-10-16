@@ -1,8 +1,20 @@
+export const shellCopy = {
+  eventSubtitle: "Prémios da edição",
+  menu: "Mais",
+  menuDescription: "Áreas e ferramentas do evento.",
+  createPost: "Criar publicação",
+  logout: "Terminar sessão",
+  memberFallback: "Membro",
+  noMoreAreas: "Não há mais áreas abertas nesta fase.",
+  allAreas: "Todas as áreas",
+  allAreasDescription: "As áreas fechadas estão disponíveis no Admin.",
+} as const;
+
 /** Longer feed UI texts. Short labels live next to their component. */
 export const feedCopy = {
   hero: {
-    title: "Mural social da edição",
-    description: "Publicações, imagens e sondagens rápidas para manter o grupo alinhado sem misturar o boletim oficial.",
+    title: "Mural",
+    description: "O que está a acontecer nesta edição.",
   },
   empty: {
     title: "O mural social ainda não tem registos publicados",

@@ -96,7 +96,7 @@ function HubFeedModuleView({
   );
 
   return (
-    <div className="zone-feed mx-auto w-full max-w-3xl space-y-3 px-3 sm:px-0">
+    <div className="zone-feed mx-auto w-full max-w-2xl space-y-4 px-1 sm:px-0">
       <CanhoesModuleHeader icon={ScrollText} title={feedCopy.hero.title} description={feedCopy.hero.description} />
       {errorMessage ? <ErrorAlert title="Erro ao carregar o mural" description={errorMessage} actionLabel="Tentar novamente" tone="social" onAction={handleRetry} /> : null}
       {feedList}

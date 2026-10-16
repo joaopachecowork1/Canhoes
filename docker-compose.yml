@@ -24,7 +24,8 @@ services:
     container_name: canhoes-web
     restart: always
     ports:
-      - "3000:3000"
+      # Tailscale Funnel terminates public HTTPS and forwards to this local port.
+      - "127.0.0.1:3100:3000"
     env_file:
       - .env
     environment:
@@ -32,12 +33,40 @@ services:
       DATABASE_URL: "postgresql://${POSTGRES_USER:-canhoes}:${POSTGRES_PASSWORD:-canhoes_local}@postgres:5432/${POSTGRES_DB:-canhoes}?schema=public"
       # Let NextAuth build URLs from the forwarded host when opened through a proxy or tunnel.
       AUTH_TRUST_HOST: "true"
+      # Public origin for NextAuth redirects; comes from --env-file (.env.server), else .env.
+      NEXTAUTH_URL: "${NEXTAUTH_URL}"
     volumes:
       - canhoes_uploads:/app/.data/uploads
     depends_on:
       postgres:
         condition: service_healthy
 
+  https:
+    image: docker.io/library/caddy:2-alpine
+    container_name: canhoes-https
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certificates:/etc/caddy/certificates:ro
+      - canhoes_caddy_data:/data
+      - canhoes_caddy_config:/config
+    depends_on:
+      - web
+
+  tunnel:
+    image: docker.io/cloudflare/cloudflared:latest
+    container_name: canhoes-server-tunnel
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "run", "--token", "${CLOUDFLARE_TUNNEL_TOKEN:-}"]
+    env_file:
+      - .env.server
+    depends_on:
+      - web
+
 volumes:
   canhoes_postgres_data:
   canhoes_uploads:
+  canhoes_caddy_data:
+  canhoes_caddy_config:
