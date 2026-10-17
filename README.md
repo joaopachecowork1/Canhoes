@@ -232,7 +232,7 @@ npm run knip
 npm run build
 ```
 
-`npm run test:coverage` corre os testes unitários e de componentes com cobertura (`coverage/lcov.info`).
+`npm run test:coverage` corre os três tipos de teste com cobertura (`coverage/lcov.info`) e precisa do PostgreSQL de testes. Falha se a cobertura descer abaixo dos mínimos em `vitest.config.mjs`.
 O CI envia-a ao [SonarQube Cloud](https://sonarcloud.io/project/overview?id=joaopachecowork1_Canhoes),
 que mostra code smells, duplicação e cobertura em cada push e PR. As regras de arquitetura, tamanho
 e textos estão em `docs/03-arquitetura.md`.

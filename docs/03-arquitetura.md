@@ -94,6 +94,8 @@ diretamente no JSX.
 | Componentes e hooks (jsdom + Testing Library) | `**/*.test.tsx` | `npm run test:component` |
 | Integração (route handlers + PostgreSQL) | `tests/integration/**/*.int.test.ts` | `npm run test:integration` |
 
+`npm run test:coverage` junta os três numa só medição (o job de integração do CI corre-o e envia-o ao SonarQube). Os mínimos em `vitest.config.mjs` só sobem: depois de cada lote de testes, acerta-os logo abaixo dos números novos, até 90% de linhas e de branches.
+
 Os testes de componentes testam o que o utilizador vê e faz (texto, papéis, cliques), não a
 implementação. Os repositórios mockam-se com `vi.mock("@/lib/repositories/<repo>")`;
 `tests/component/renderWithProviders.tsx` dá um `QueryClient` novo por teste e

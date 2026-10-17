@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run --project unit",
     "test:component": "vitest run --project component",
-    "test:coverage": "vitest run --project unit --project component --coverage",
+    "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run --project integration",
     "knip": "knip",
     "docs:diagrams": "node scripts/render-diagrams.mjs",
