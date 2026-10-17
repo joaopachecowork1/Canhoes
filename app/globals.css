@@ -13,7 +13,6 @@
   --color-text-secondary: #d5d9c9;
   --color-text-muted: #aeb8a0;
   --color-danger: #e05a3a;
-  --color-success: #4caf50;
   --canhoes-moss: #4F6336;
   --moss: var(--canhoes-moss);
   --moss-light: rgba(79, 99, 54, 0.92);
@@ -47,8 +46,6 @@
   --accent-purple-soft: #b8a8c8;
   --accent-purple-deep: #5c4a6e;
   --glow-green-sm: 0 0 4px #EAB308, 0 0 10px rgba(234, 179, 8, 0.16);
-  --glow-purple-sm: 0 0 6px rgba(177, 140, 255, 0.28), 0 0 16px rgba(177, 140, 255, 0.14);
-  --success: var(--color-success);
   --danger: var(--color-danger);
   --fire: #ff6b35;
   --border-subtle: var(--color-border);
@@ -122,30 +119,18 @@
 
 @import "tailwindcss";
 
-/* Extra Tailwind utilities: text-canhoes-gold, bg-jungle-600, shadow-neon, animate-fade-in, ... */
+/* Extra Tailwind utilities: text-canhoes-gold, text-neon-green, shadow-neon, animate-fade-in. */
 @theme {
   --color-canhoes-gold: #C8A46B;
   --color-neon-green: #00FF88;
-  --color-jungle-500: #22c55e;
-  --color-jungle-600: #16a34a;
 
   --shadow-neon: 0 0 12px rgba(234, 179, 8, 0.25);
 
   --animate-fade-in: fade-in 0.18s ease-out;
-  --animate-slide-up: slide-up 0.2s ease-out;
-  --animate-stagger-in: stagger-in 0.25s ease-out both;
 
   @keyframes fade-in {
     from { opacity: 0; transform: scale(0.96) translateY(4px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-  @keyframes slide-up {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes stagger-in {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
   }
 }
 

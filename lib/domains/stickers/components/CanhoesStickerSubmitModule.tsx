@@ -22,7 +22,7 @@ const copy = messages.stickers.CanhoesStickerSubmitModule;
 function StickerSubmitLoadingState() {
   return (
     <div className="space-y-4">
-      <div className="page-hero px-4 py-4 sm:px-5 sm:py-5">
+      <div className="px-4 py-4 sm:px-5 sm:py-5">
         <div className="space-y-2">
           <Skeleton className="h-4 w-24 rounded" />
           <Skeleton className="h-6 w-48 rounded" />
@@ -68,7 +68,7 @@ function StickerGallery({ isReady, stickers }: Readonly<{ isReady: boolean; stic
     <section className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <p className="editorial-kicker">{copy.galleryKicker}</p>
+          <p>{copy.galleryKicker}</p>
           <h2 className="heading-3 text-[var(--color-text-primary)]">{copy.galleryTitle}</h2>
         </div>
         <Badge variant="secondary">{stickers.length}</Badge>
@@ -107,7 +107,7 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
 
       <Card>
         <CardHeader className="space-y-1">
-          <p className="editorial-kicker">{copy.formKicker}</p>
+          <p>{copy.formKicker}</p>
           <CardTitle>{copy.formTitle}</CardTitle>
         </CardHeader>
 

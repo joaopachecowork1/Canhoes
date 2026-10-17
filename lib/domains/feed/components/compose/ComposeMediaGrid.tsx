@@ -58,7 +58,7 @@ export function ComposeMediaGrid({
                 type="button"
                 onClick={() => onMove(index, -1)}
                 disabled={index === 0}
-                className="canhoes-tap flex h-7 w-7 items-center justify-center rounded-md bg-[rgba(26,31,20,0.8)] text-[var(--color-text-primary)] disabled:opacity-40"
+                className="flex h-7 w-7 items-center justify-center rounded-md bg-[rgba(26,31,20,0.8)] text-[var(--color-text-primary)] disabled:opacity-40"
                 aria-label={composeCopy.moveLeft}
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -68,7 +68,7 @@ export function ComposeMediaGrid({
                 type="button"
                 onClick={() => onMove(index, 1)}
                 disabled={index === files.length - 1}
-                className="canhoes-tap flex h-7 w-7 items-center justify-center rounded-md bg-[rgba(26,31,20,0.8)] text-[var(--color-text-primary)] disabled:opacity-40"
+                className="flex h-7 w-7 items-center justify-center rounded-md bg-[rgba(26,31,20,0.8)] text-[var(--color-text-primary)] disabled:opacity-40"
                 aria-label={composeCopy.moveRight}
               >
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -78,7 +78,7 @@ export function ComposeMediaGrid({
             <button
               type="button"
               onClick={() => onRemove(index)}
-              className="canhoes-tap absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(26,31,20,0.8)] text-[var(--color-text-primary)] opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+              className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-[rgba(26,31,20,0.8)] text-[var(--color-text-primary)] opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
               aria-label={composeCopy.removeImage}
             >
               <X className="h-3.5 w-3.5" />

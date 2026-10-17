@@ -1,15 +1,14 @@
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 
 type EmptyStateTone = "admin" | "official" | "shell" | "social";
 
 const TONE_PANEL_CLASS: Record<EmptyStateTone, string> = {
-  admin: "canhoes-bits-panel--admin",
-  official: "canhoes-bits-panel--official",
-  shell: "canhoes-bits-panel--shell",
-  social: "canhoes-bits-panel--social",
+  admin: "",
+  official: "",
+  shell: "",
+  social: "",
 };
 
 /**
@@ -38,8 +37,6 @@ export function EmptyState({
         className
       )}
     >
-      {tone === "shell" || tone === "social" ? <CanhoesGlowBackdrop tone={tone} /> : null}
-
       {Icon ? (
         <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/8 bg-white/[0.05] text-[var(--moss)] shadow-none">
           <Icon className="h-6 w-6" />
@@ -50,8 +47,6 @@ export function EmptyState({
         <p className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</p>
         {description ? <p className="text-sm text-[var(--color-text-muted)]">{description}</p> : null}
       </div>
-
-      {(description || action) ? <CanhoesDecorativeDivider tone="moss" className="max-w-40" /> : null}
 
       {action ? <div className="w-full max-w-xs">{action}</div> : null}
     </div>

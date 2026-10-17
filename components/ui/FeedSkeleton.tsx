@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 
 interface FeedSkeletonProps {
   count?: number;
@@ -23,10 +22,9 @@ interface FeedPostSkeletonProps {
 function FeedPostSkeleton({ index }: FeedPostSkeletonProps) {
   return (
     <div
-      className="canhoes-bits-panel canhoes-bits-panel--social editorial-shell overflow-hidden rounded-[var(--radius-lg-token)] blurfade-in"
+      className="overflow-hidden rounded-[var(--radius-lg-token)] blurfade-in"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-      <CanhoesGlowBackdrop tone="social" />
 
       <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
         <div className="flex items-center gap-3">
@@ -49,7 +47,6 @@ function FeedPostSkeleton({ index }: FeedPostSkeletonProps) {
       </div>
 
       <div className="px-4 pb-4 sm:px-5">
-        <CanhoesDecorativeDivider tone="purple" />
         <div className="mt-4 flex flex-wrap gap-2">
           {Array.from({ length: 4 }).map((_, actionIndex) => (
             <Skeleton

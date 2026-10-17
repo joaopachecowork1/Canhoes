@@ -5,7 +5,6 @@ import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CanhoesDecorativeDivider } from "@/components/ui/canhoes-bits";
 
 type CanhoesFeatureCardProps = {
   children: ReactNode;
@@ -27,7 +26,7 @@ const VARIANT_CLASSES = {
     description: "text-[var(--ink-secondary)]",
   },
   official: {
-    card: "canhoes-bits-panel canhoes-bits-panel--official",
+    card: "",
     header: "space-y-1 pb-3",
     title: "text-[var(--text-primary)]",
     icon: "text-[var(--neon-green)]",
@@ -73,7 +72,6 @@ export function CanhoesFeatureCard({
       </CardHeader>
 
       <CardContent className="space-y-3">
-        <CanhoesDecorativeDivider tone="moss" />
         {children}
       </CardContent>
 

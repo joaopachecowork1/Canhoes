@@ -30,7 +30,7 @@ function MembersRoster({
   return (
     <Card className={CARD_CLASS}>
       <CardHeader className="space-y-1">
-        <p className="editorial-kicker">{copy.kicker}</p>
+        <p>{copy.kicker}</p>
         <CardTitle>{formatCount(members.length, copy.member, copy.members)}</CardTitle>
       </CardHeader>
       <CardContent>

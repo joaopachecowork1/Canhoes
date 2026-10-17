@@ -105,7 +105,7 @@ function HubFeedModuleView({
   );
 
   return (
-    <div className="zone-feed mx-auto w-full max-w-2xl space-y-4 px-1 sm:px-0">
+    <div className="mx-auto w-full max-w-2xl space-y-4 px-1 sm:px-0">
       <CanhoesModuleHeader icon={ScrollText} title={copy.title} description={copy.description} />
       {errorMessage ? <ErrorAlert title={copy.loadError} description={errorMessage} actionLabel={messages.common.retry} tone="social" onAction={handleRetry} /> : null}
       {feedList}

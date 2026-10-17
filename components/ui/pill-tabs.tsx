@@ -27,10 +27,10 @@ const CONTAINER_CLASS =
   "overflow-hidden rounded-xl border border-white/6 bg-[var(--bg-paper-soft)] px-1.5 py-1.5";
 
 const SCROLL_CLASS =
-  "-mx-1 overflow-x-auto px-1 scrollbar-none snap-x snap-mandatory";
+  "-mx-1 overflow-x-auto px-1 snap-x snap-mandatory";
 
 const ITEM_BASE_CLASS =
-  "canhoes-tap inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 font-semibold transition-all duration-200 ease-out active:scale-[0.97] snap-start";
+  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 font-semibold transition-all duration-200 ease-out active:scale-[0.97] snap-start";
 
 const ITEM_ACTIVE_CLASS =
   "border-white/10 bg-white/[0.08] text-[var(--color-text-primary)] shadow-sm";

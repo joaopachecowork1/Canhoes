@@ -90,7 +90,7 @@ function CommentToggleButton({ count, isOpen, onToggle }: Readonly<{ count: numb
     <button
       type="button"
       className={cn(
-        "canhoes-tap flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+        "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
         isOpen
           ? "bg-[rgba(79,99,54,0.12)] text-[var(--moss)]"
           : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]"

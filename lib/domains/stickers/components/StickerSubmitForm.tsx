@@ -27,7 +27,7 @@ export function StickerSubmitForm({
     <>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="space-y-2">
-          <span id="sticker-category-label" className="canhoes-field-label">{copy.categoryLabel}</span>
+          <span id="sticker-category-label">{copy.categoryLabel}</span>
           <Select value={submission.categoryId} onValueChange={submission.setCategoryId} aria-labelledby="sticker-category-label">
             <SelectTrigger>
               <SelectValue placeholder={copy.categoryPlaceholder} />
@@ -43,7 +43,7 @@ export function StickerSubmitForm({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="sticker-title-input" className="canhoes-field-label">{copy.titleLabel}</label>
+          <label htmlFor="sticker-title-input">{copy.titleLabel}</label>
           <Input
             id="sticker-title-input"
             value={submission.title}
@@ -55,7 +55,7 @@ export function StickerSubmitForm({
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div className="space-y-3">
-          <p className="canhoes-field-label">{copy.imageLabel}</p>
+          <p>{copy.imageLabel}</p>
           <CanhoesFileTrigger
             className="gap-3 rounded-[var(--radius-md-token)] border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[var(--shadow-panel)]"
             fileName={submission.file?.name}
@@ -63,7 +63,7 @@ export function StickerSubmitForm({
             onChange={submission.handleFileChange}
             placeholder={messages.wishlist.WishlistForm.imagePlaceholder}
           />
-          <p className="canhoes-helper-text">{copy.pendingHint}</p>
+          <p>{copy.pendingHint}</p>
         </div>
 
         <div className="rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 shadow-[var(--shadow-panel)]">

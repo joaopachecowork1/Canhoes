@@ -46,7 +46,7 @@ function ResultsHeader({ refreshedAt }: Readonly<{ refreshedAt: string | null }>
   return (
     <Card className={ADMIN_CONTENT_CARD_CLASS}>
       <CardHeader className="space-y-1">
-        <p className="editorial-kicker">{copy.kicker}</p>
+        <p>{copy.kicker}</p>
         <CardTitle className="flex items-center gap-2">
           <BarChart2 className="h-4 w-4" />
           {copy.title}

@@ -71,7 +71,7 @@ export function SecretSantaContent({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="canhoes-list-item p-4">
+        <div className="p-4">
           <p className="body-small text-[var(--color-text-muted)]">{statusMessage}</p>
         </div>
       </CardContent>

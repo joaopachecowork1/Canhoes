@@ -71,7 +71,7 @@ function StickerFeedCard({ sticker }: { sticker: NomineeDto }) {
 
       <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-paper-soft)]">
         <div className="flex items-center gap-4">
-            <button type="button" className="canhoes-tap flex items-center gap-1.5 text-[var(--ink-secondary)] hover:text-[var(--color-danger)] transition-colors group">
+            <button type="button" className="flex items-center gap-1.5 text-[var(--ink-secondary)] hover:text-[var(--color-danger)] transition-colors group">
                 <Heart className="h-5 w-5 group-active:scale-90 transition-transform" />
                 <span className="text-xs font-medium">{copy.like}</span>
             </button>

@@ -31,7 +31,7 @@ export function AssignedWishlistPanel({
         ) : (
           <div className="space-y-2">
             {assignedWishlistItems.map((wishlistItem) => (
-              <div key={wishlistItem.id} className="canhoes-list-item flex gap-3 p-3">
+              <div key={wishlistItem.id} className="flex gap-3 p-3">
                 <CanhoesMediaThumb alt={wishlistItem.title} src={wishlistItem.imageUrl} />
                 <div className="min-w-0 flex-1 space-y-1">
                   <p className="truncate font-semibold text-[var(--color-text-primary)]">{wishlistItem.title}</p>
@@ -39,7 +39,7 @@ export function AssignedWishlistPanel({
                     <p className="body-small line-clamp-2 text-[var(--color-text-muted)]">{wishlistItem.notes}</p>
                   ) : null}
                   {wishlistItem.url ? (
-                    <a href={wishlistItem.url} target="_blank" rel="noreferrer" className="canhoes-link inline-flex items-center gap-1 text-sm">
+                    <a href={wishlistItem.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm">
                       <LinkIcon className="h-3.5 w-3.5" />
                       {copy.viewProduct}
                     </a>

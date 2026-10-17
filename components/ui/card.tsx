@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
  */
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="card" className={cn("border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] text-[var(--color-text-primary)] motion-safe-smooth", className)} {...props} />
+    <div data-slot="card" className={cn("border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] text-[var(--color-text-primary)]", className)} {...props} />
   );
 }
 
@@ -39,15 +39,6 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Contentor lateral para ações dentro do CardHeader.
- */
-function CardAction({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div data-slot="card-action" className={cn("col-start-2 row-span-2 row-start-1 self-start justify-self-end", className)} {...props} />
-  );
-}
-
-/**
  * Conteúdo principal do Card com padding responsivo.
  */
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
@@ -70,7 +61,6 @@ export {
   CardHeader,
   CardFooter,
   CardTitle,
-  CardAction,
   CardDescription,
   CardContent,
 };

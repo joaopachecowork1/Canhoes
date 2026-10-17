@@ -119,7 +119,7 @@ export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <p className="editorial-kicker">{copy.kicker}</p>
+              <p>{copy.kicker}</p>
               <CardTitle className="flex items-center gap-2">
                 <Gift className="h-4 w-4" />
                 {messages.secretSanta.CanhoesSecretSantaModule.title}

@@ -145,7 +145,7 @@ function VoteOptionButton({
       disabled={isDisabled}
       onClick={onClick}
       className={cn(
-        "canhoes-list-item w-full text-left px-3 py-2 flex items-center justify-between gap-3 border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-none",
+        "w-full text-left px-3 py-2 flex items-center justify-between gap-3 border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-none",
         isSelected && "border-[rgba(95,123,56,0.28)] bg-[rgba(95,123,56,0.08)]"
       )}
     >

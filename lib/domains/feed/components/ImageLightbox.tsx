@@ -11,7 +11,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.feed.ImageLightbox;
 const SWIPE_THRESHOLD_PX = 50;
-const ROUND_BUTTON_CLASS = "rounded-full border border-white/10 bg-white/10 p-2 text-white motion-safe-smooth hover:bg-white/20";
+const ROUND_BUTTON_CLASS = "rounded-full border border-white/10 bg-white/10 p-2 text-white hover:bg-white/20";
 const ARROW_CLASS = cn("absolute top-1/2 z-10 -translate-y-1/2 shadow-lg", ROUND_BUTTON_CLASS);
 
 type ImageLightboxProps = {

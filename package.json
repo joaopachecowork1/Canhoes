@@ -6,13 +6,11 @@
     "dev": "next dev --experimental-https -p 3000",
     "postinstall": "prisma generate",
     "build": "next build",
-    "start": "next start",
     "lint": "eslint",
     "test": "vitest run --project unit",
     "test:component": "vitest run --project component",
     "test:coverage": "vitest run --project unit --project component --coverage",
     "test:integration": "vitest run --project integration",
-    "test:watch": "vitest",
     "knip": "knip",
     "docs:diagrams": "node scripts/render-diagrams.mjs",
     "db:up": "node scripts/db.mjs up",
@@ -69,8 +67,6 @@
     "seed": "node prisma/seed.mjs"
   },
   "overrides": {
-    "braces": "^3.0.3",
-    "micromatch": "^4.0.8",
     "deepmerge-ts": "^8.0.2"
   }
 }

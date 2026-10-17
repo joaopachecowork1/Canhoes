@@ -50,7 +50,7 @@ export function WishlistMemberPanel({
         ) : (
           <div className="space-y-2">
             {items.map((wishlistItem) => (
-              <div key={wishlistItem.id} className="canhoes-list-item flex gap-3 p-2.5">
+              <div key={wishlistItem.id} className="flex gap-3 p-2.5">
                 <CanhoesMediaThumb alt={wishlistItem.title} src={wishlistItem.imageUrl} />
 
                 <div className="min-w-0 flex-1">
@@ -65,7 +65,7 @@ export function WishlistMemberPanel({
                       href={wishlistItem.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="canhoes-link mt-1.5 inline-flex items-center gap-1 text-xs"
+                      className="mt-1.5 inline-flex items-center gap-1 text-xs"
                     >
                       <LinkIcon className="h-3.5 w-3.5" />
                       {copy.openLink}
@@ -87,7 +87,7 @@ export function WishlistMemberPanel({
                         <button
                           type="button"
                           disabled={deletingItemId === wishlistItem.id}
-                          className="canhoes-tap rounded-full border border-transparent p-2 text-[var(--color-text-muted)] hover:border-[var(--color-danger)]/30 hover:text-[var(--color-danger)] disabled:opacity-50"
+                          className="rounded-full border border-transparent p-2 text-[var(--color-text-muted)] hover:border-[var(--color-danger)]/30 hover:text-[var(--color-danger)] disabled:opacity-50"
                           aria-label={copy.deleteLabel}
                         >
                           <Trash2 className="h-4 w-4" />

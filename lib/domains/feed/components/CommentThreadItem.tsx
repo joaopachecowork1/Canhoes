@@ -72,7 +72,7 @@ export function CommentThreadItem({
         <div className="mt-2 flex items-center justify-between">
           <button
             type="button"
-            className="canhoes-tap flex items-center gap-1.5 rounded px-2 py-1 -ml-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--moss)] hover:bg-[var(--moss)]/10"
+            className="flex items-center gap-1.5 rounded px-2 py-1 -ml-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--moss)] hover:bg-[var(--moss)]/10"
             aria-label={copy.reply}
             onClick={onReply}
           >
@@ -88,7 +88,7 @@ export function CommentThreadItem({
               trigger={
                 <button
                   type="button"
-                  className="canhoes-tap flex items-center gap-1.5 rounded px-2 py-1 -mr-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                  className="flex items-center gap-1.5 rounded px-2 py-1 -mr-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 opacity-0 group-hover:opacity-100 focus:opacity-100"
                   aria-label={copy.deleteLabel}
                 >
                   <Trash2 className="h-3.5 w-3.5" />

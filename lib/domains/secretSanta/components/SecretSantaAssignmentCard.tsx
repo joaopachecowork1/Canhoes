@@ -30,7 +30,7 @@ export function SecretSantaAssignmentCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="canhoes-list-item space-y-3 p-4">
+        <div className="space-y-3 p-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--moss),var(--neon-cyan))] text-[var(--color-text-primary)] shadow-[var(--glow-green-sm)]">
               <User className="h-5 w-5" />

@@ -60,7 +60,7 @@ export function ComposePollEditor({
               <button
                 type="button"
                 onClick={() => onRemoveOption(index)}
-                className="canhoes-tap flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-beige-dark)]/25 bg-transparent text-[var(--color-danger)]"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-beige-dark)]/25 bg-transparent text-[var(--color-danger)]"
                 aria-label={`${composeCopy.removeOption} ${index + 1}`}
                 disabled={disabled}
               >
@@ -74,7 +74,7 @@ export function ComposePollEditor({
           <button
             type="button"
             onClick={onAddOption}
-            className="canhoes-tap inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[var(--color-brown)]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[var(--color-brown)]"
             disabled={disabled}
           >
             <PlusCircle className="h-4 w-4" />

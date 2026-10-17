@@ -1,6 +1,5 @@
 import { AlertTriangle } from "lucide-react";
 
-import { CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 
 /** Red panel at the top of the login and register forms. */
 export function AuthErrorPanel({
@@ -10,10 +9,9 @@ export function AuthErrorPanel({
 }: Readonly<{ detail?: string; message: string; title: string }>) {
   return (
     <div
-      className="canhoes-bits-panel canhoes-bits-panel--danger rounded-lg border px-3 py-3 text-sm text-[rgba(255,228,228,0.94)]"
+      className="rounded-lg border px-3 py-3 text-sm text-[rgba(255,228,228,0.94)]"
       role="alert"
     >
-      <CanhoesGlowBackdrop tone="danger" />
       <div className="flex items-start gap-2">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="space-y-1">

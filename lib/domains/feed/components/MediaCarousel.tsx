@@ -15,7 +15,7 @@ const copy = messages.feed.MediaCarousel;
 const IMAGE_SIZES = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px";
 const MAX_HEIGHT_BY_ASPECT = { portrait: "max-h-[32rem]", video: "max-h-[28rem]", square: "max-h-[24rem]" } as const;
 const ARROW_CLASS =
-  "canhoes-tap absolute top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.5)] p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition-all group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35";
+  "absolute top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.5)] p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition-all group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35";
 
 function MediaFallback() {
   return (
@@ -108,7 +108,7 @@ function CarouselDots({ currentIndex, media, onSelect }: Readonly<{ currentIndex
           type="button"
           aria-label={formatMessage(copy.goTo, { number: index + 1 })}
           className={cn(
-            "canhoes-tap h-1.5 rounded-full transition-all",
+            "h-1.5 rounded-full transition-all",
             index === currentIndex ? "w-6 bg-[var(--moss-glow)]" : "w-2 bg-[var(--text-muted)]/30 hover:bg-[var(--text-muted)]/50"
           )}
           onClick={() => onSelect(index)}

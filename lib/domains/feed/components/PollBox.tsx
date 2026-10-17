@@ -21,7 +21,7 @@ export function PollBox({
     <section className="border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] p-4 sm:p-5">
       <div className="space-y-4">
         <div className="space-y-1">
-          <p className="editorial-kicker text-[var(--text-muted)]">{copy.kicker}</p>
+          <p className="text-[var(--text-muted)]">{copy.kicker}</p>
           <h3 className="heading-3 text-[var(--text-primary)]">
             {poll.question}
           </h3>

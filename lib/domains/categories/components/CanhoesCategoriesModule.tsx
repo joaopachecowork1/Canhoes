@@ -12,7 +12,6 @@ import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { getPhaseLabel } from "@/lib/canhoesEvent";
-import { CanhoesDecorativeDivider } from "@/components/ui/canhoes-bits";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -85,7 +84,6 @@ function CategoryList({
               <CategoryRow key={category.id} category={category} index={index} />
             ))}
           </div>
-          <CanhoesDecorativeDivider tone="moss" />
         </>
       ) : null}
     </>

@@ -7,7 +7,6 @@ import { CheckCircle2 } from "lucide-react";
 
 import { CanhoesBrandMark } from "@/components/chrome/canhoes/CanhoesBrandMark";
 import { CanhoesHeroEmblem } from "@/components/chrome/canhoes/CanhoesHeroEmblem";
-import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,10 +48,9 @@ function RegisterHeading() {
         <div className="flex justify-center">
           <CanhoesBrandMark compact />
         </div>
-        <p className="editorial-kicker text-[var(--beige)]">{copy.kicker}</p>
+        <p className="text-[var(--beige)]">{copy.kicker}</p>
         <p className="body-small text-[var(--beige)]/78">{copy.intro}</p>
       </div>
-      <CanhoesDecorativeDivider tone="moss" />
     </>
   );
 }
@@ -151,10 +149,9 @@ function RegisterForm() {
 export function CanhoesRegisterModule() {
   return (
     <div className="relative isolate min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,var(--bg-deep)_0%,var(--bg-void)_100%)]">
-      <CanhoesGlowBackdrop tone="shell" className="opacity-90" />
 
       <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-10">
-        <section className="canhoes-bits-panel canhoes-bits-panel--shell editorial-shell w-full max-w-md rounded-[var(--radius-xl-token)] border p-6 text-[var(--text-primary)] shadow-[var(--shadow-modal)] backdrop-blur-xl sm:p-8">
+        <section className="w-full max-w-md rounded-[var(--radius-xl-token)] border p-6 text-[var(--text-primary)] shadow-[var(--shadow-modal)] backdrop-blur-xl sm:p-8">
           <Suspense fallback={<div className="text-center text-white">{messages.common.loading}</div>}>
             <RegisterForm />
           </Suspense>

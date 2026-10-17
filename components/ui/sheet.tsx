@@ -11,12 +11,6 @@ function Sheet({ ...props }: Readonly<React.ComponentProps<typeof SheetPrimitive
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
 }
 
-function SheetTrigger({
-  ...props
-}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {
-  return <SheetPrimitive.Trigger data-slot="sheet-trigger" {...props} />
-}
-
 function SheetClose({
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Close>) {
@@ -56,7 +50,7 @@ function SheetContent({
       <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
-        className={cn("fixed z-[90] flex flex-col gap-4 border shadow-[var(--shadow-modal)] transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:animate-in data-[state=open]:duration-300", side === "right" && "inset-y-0 right-0 h-full w-[85vw] border-l border-white/8 bg-[var(--bg-surface)] text-[var(--color-text-primary)] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm", side === "left" && "inset-y-0 left-0 h-full w-[85vw] border-r border-white/8 bg-[var(--bg-surface)] text-[var(--color-text-primary)] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm", side === "top" && "inset-x-0 top-0 h-auto border-b border-white/8 bg-[var(--bg-surface)] text-[var(--color-text-primary)] data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top", side === "bottom" && "canhoes-sheet inset-x-0 bottom-0 h-auto rounded-t-[1.75rem] border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom", className)}
+        className={cn("fixed z-[90] flex flex-col gap-4 border shadow-[var(--shadow-modal)] transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:animate-in data-[state=open]:duration-300", side === "right" && "inset-y-0 right-0 h-full w-[85vw] border-l border-white/8 bg-[var(--bg-surface)] text-[var(--color-text-primary)] data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm", side === "left" && "inset-y-0 left-0 h-full w-[85vw] border-r border-white/8 bg-[var(--bg-surface)] text-[var(--color-text-primary)] data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm", side === "top" && "inset-x-0 top-0 h-auto border-b border-white/8 bg-[var(--bg-surface)] text-[var(--color-text-primary)] data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top", side === "bottom" && "inset-x-0 bottom-0 h-auto rounded-t-[1.75rem] border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom", className)}
         {...props}
       >
         {children}
@@ -74,16 +68,6 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="sheet-header"
       className={cn("flex flex-col gap-1.5 px-4 pt-5", className)}
-      {...props}
-    />
-  )
-}
-
-function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 px-4 pb-4", className)}
       {...props}
     />
   )
@@ -117,11 +101,8 @@ function SheetDescription({
 
 export {
   Sheet,
-  SheetTrigger,
-  SheetClose,
   SheetContent,
   SheetHeader,
-  SheetFooter,
   SheetTitle,
   SheetDescription,
 }

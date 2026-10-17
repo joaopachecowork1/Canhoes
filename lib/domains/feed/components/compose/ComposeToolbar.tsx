@@ -12,7 +12,7 @@ const copy = messages.feed.compose;
 
 const IDLE_TOOL_CLASS = "border-[rgba(255,255,255,0.18)] bg-[rgba(18,23,12,0.72)] text-[var(--ink-primary)]";
 const TOOL_CLASS =
-  "canhoes-tap flex h-11 w-11 items-center justify-center rounded-xl border disabled:cursor-not-allowed disabled:opacity-50";
+  "flex h-11 w-11 items-center justify-center rounded-xl border disabled:cursor-not-allowed disabled:opacity-50";
 
 /** The bottom bar of the compose sheet: add images, toggle the poll, publish. */
 export function ComposeToolbar({

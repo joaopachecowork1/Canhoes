@@ -19,7 +19,7 @@ const badgeVariants = cva("inline-flex min-h-7 items-center justify-center round
     },
 })
 
-export interface BadgeProps
+interface BadgeProps
     extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof badgeVariants> { }
 
@@ -36,4 +36,4 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
 )
 Badge.displayName = "Badge"
 
-export { Badge, badgeVariants }
+export { Badge }

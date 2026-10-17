@@ -3,7 +3,6 @@ import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import messages from "@/messages/pt.json";
 
-import { CanhoesDecorativeDivider, CanhoesGlowBackdrop } from "@/components/ui/canhoes-bits";
 import { Button } from "@/components/ui/button";
 
 type ErrorAlertTone = "danger" | "official" | "social";
@@ -16,8 +15,6 @@ type ErrorAlertProps = {
   tone?: ErrorAlertTone;
   title?: string;
 };
-
-const DIVIDER_TONE = { danger: "amber", official: "moss", social: "purple" } as const;
 
 const TONE_CLASSES: Record<ErrorAlertTone, { border: string; icon: string; title: string; body: string; action: string }> = {
   danger: {
@@ -75,7 +72,6 @@ export function ErrorAlert({
         className
       )}
     >
-      <CanhoesGlowBackdrop tone={tone} />
       <AlertCircle className={toneClasses.icon} />
       <div className={cn("col-start-2 line-clamp-1 min-h-4 font-semibold tracking-tight", toneClasses.title)}>
         {title}
@@ -88,18 +84,15 @@ export function ErrorAlert({
       >
         <p>{description}</p>
         {actionLabel && onAction ? (
-          <>
-            <CanhoesDecorativeDivider tone={DIVIDER_TONE[tone]} className="max-w-44" />
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={onAction}
-              className={cn("border bg-transparent backdrop-blur-sm", toneClasses.action)}
-            >
-              {actionLabel}
-            </Button>
-          </>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={onAction}
+            className={cn("border bg-transparent backdrop-blur-sm", toneClasses.action)}
+          >
+            {actionLabel}
+          </Button>
         ) : null}
       </div>
     </div>

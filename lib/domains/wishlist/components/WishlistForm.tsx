@@ -35,7 +35,7 @@ export function WishlistForm({
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
-            <label htmlFor="wishlist-title-input" className="canhoes-field-label">{copy.titleLabel}</label>
+            <label htmlFor="wishlist-title-input">{copy.titleLabel}</label>
             <Input
               id="wishlist-title-input"
               value={formState.title}
@@ -45,7 +45,7 @@ export function WishlistForm({
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="wishlist-url-input" className="canhoes-field-label">{copy.urlLabel}</label>
+            <label htmlFor="wishlist-url-input">{copy.urlLabel}</label>
             <Input
               id="wishlist-url-input"
               value={formState.url}
@@ -56,7 +56,7 @@ export function WishlistForm({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="wishlist-notes-input" className="canhoes-field-label">{copy.notesLabel}</label>
+          <label htmlFor="wishlist-notes-input">{copy.notesLabel}</label>
           <Textarea
             id="wishlist-notes-input"
             value={formState.notes}

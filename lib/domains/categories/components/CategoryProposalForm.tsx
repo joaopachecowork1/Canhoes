@@ -69,12 +69,12 @@ export function CategoryProposalForm({ canPropose, eventId }: Readonly<{ canProp
       <CardContent className="space-y-4">
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
           <div className="space-y-2">
-            <label htmlFor="category-name-input" className="canhoes-field-label">{copy.nameLabel}</label>
+            <label htmlFor="category-name-input">{copy.nameLabel}</label>
             <Input id="category-name-input" value={name} onChange={(event) => setName(event.target.value)} placeholder={copy.namePlaceholder} />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="category-kind-input" className="canhoes-field-label">{copy.kindLabel}</label>
+            <label htmlFor="category-kind-input">{copy.kindLabel}</label>
             <Select value={kind} onValueChange={setKind}>
               <SelectTrigger id="category-kind-input">
                 <SelectValue placeholder={copy.kindPlaceholder} />
@@ -87,7 +87,7 @@ export function CategoryProposalForm({ canPropose, eventId }: Readonly<{ canProp
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label htmlFor="category-desc-input" className="canhoes-field-label">{copy.descriptionLabel}</label>
+            <label htmlFor="category-desc-input">{copy.descriptionLabel}</label>
             <Textarea
               id="category-desc-input"
               value={description}
@@ -98,7 +98,7 @@ export function CategoryProposalForm({ canPropose, eventId }: Readonly<{ canProp
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="canhoes-helper-text">{copy.reviewHint}</p>
+          <p>{copy.reviewHint}</p>
           <Button disabled={!canSubmit || isSubmitting} onClick={() => void handleSubmit()}>
             {getSubmitLabel(isSubmitting, canPropose)}
           </Button>

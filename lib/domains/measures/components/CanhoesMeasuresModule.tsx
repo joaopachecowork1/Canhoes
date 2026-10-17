@@ -28,7 +28,7 @@ function MeasuresLoadingState() {
   return (
     <div className="space-y-2">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="canhoes-list-item space-y-2 p-2.5">
+        <div key={index} className="space-y-2 p-2.5">
           <Skeleton className="h-4 w-4/5 rounded" />
           <Skeleton className="h-3 w-28 rounded" />
         </div>
@@ -77,7 +77,7 @@ function MeasureProposalForm({ eventId, isProposalPhase }: Readonly<{ eventId: s
 
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="measure-text-input" className="canhoes-field-label">{copy.textLabel}</label>
+          <label htmlFor="measure-text-input">{copy.textLabel}</label>
           <Textarea
             id="measure-text-input"
             value={proposalText}
@@ -87,7 +87,7 @@ function MeasureProposalForm({ eventId, isProposalPhase }: Readonly<{ eventId: s
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="canhoes-helper-text">{copy.pendingHint}</p>
+          <p>{copy.pendingHint}</p>
           <Button disabled={!canSubmitProposal || isSubmitting} onClick={() => void handleProposalSubmit()} aria-label={copy.submitLabel}>
             {getSubmitLabel(isSubmitting, isProposalPhase)}
           </Button>
@@ -118,7 +118,7 @@ function MeasureList({
       {measures.length > 0 ? (
         <div className="space-y-2">
           {measures.map((measure) => (
-            <div key={measure.id} className="canhoes-list-item space-y-1 p-2.5">
+            <div key={measure.id} className="space-y-1 p-2.5">
               <p className="text-sm font-semibold text-[var(--color-text-primary)]">{measure.text}</p>
               <p className="text-xs text-[var(--color-text-muted)]">{new Date(measure.createdAtUtc).toLocaleString()}</p>
             </div>

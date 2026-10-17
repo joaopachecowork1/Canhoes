@@ -27,7 +27,7 @@ export function PostVoteBar({
         type="button"
         onClick={onUpvote}
         className={cn(
-          "canhoes-tap flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+          "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
           isUpvoted
             ? "bg-green-500/20 text-green-500 shadow-[0_0_0_1px_rgba(34,197,94,0.25)]"
             : "text-[var(--text-muted)] hover:bg-green-500/10 hover:text-green-400"
@@ -45,7 +45,7 @@ export function PostVoteBar({
         type="button"
         onClick={onDownvote}
         className={cn(
-          "canhoes-tap flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+          "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
           isDownvoted
             ? "bg-red-500/15 text-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]"
             : "text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400"

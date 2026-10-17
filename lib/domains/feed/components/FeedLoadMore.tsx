@@ -31,7 +31,7 @@ export function FeedLoadMore({
             <span className="text-xs text-[var(--text-muted)]">{copy.loading}</span>
           </div>
         ) : (
-          <div className="h-10 w-10 rounded-full border-2 border-dashed border-[var(--border-subtle)] motion-safe-smooth animate-pulse" />
+          <div className="h-10 w-10 rounded-full border-2 border-dashed border-[var(--border-subtle)] animate-pulse" />
         )}
       </div>
 

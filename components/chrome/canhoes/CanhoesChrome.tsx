@@ -77,7 +77,7 @@ export function CanhoesChrome({
   return (
     <div
       data-theme="canhoes"
-      className="bg-circuit relative isolate flex min-h-[100svh] flex-col overflow-x-clip bg-[var(--bg-void)] text-[var(--text-primary)]"
+      className="relative isolate flex min-h-[100svh] flex-col overflow-x-clip bg-[var(--bg-void)] text-[var(--text-primary)]"
     >
       <CanhoesHeader
         event={eventOverview.event}

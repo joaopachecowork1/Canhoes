@@ -11,8 +11,8 @@ export function PostText({ text }: Readonly<{ text: string }>) {
 
   return (
     <div className="space-y-1.5">
-      <p className="post-title text-[var(--text-primary)]">{title}</p>
-      {body ? <p className="post-body whitespace-pre-wrap break-words text-[var(--ink-secondary)]">{body}</p> : null}
+      <p className="text-[var(--text-primary)]">{title}</p>
+      {body ? <p className="whitespace-pre-wrap break-words text-[var(--ink-secondary)]">{body}</p> : null}
     </div>
   );
 }

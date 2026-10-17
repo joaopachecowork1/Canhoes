@@ -16,7 +16,7 @@ export function AdminRouteTabs({ activeId }: Readonly<{ activeId: AdminSectionId
       activeId={activeId}
       size="sm"
       stretch
-      className="canhoes-bits-panel canhoes-bits-panel--admin text-[var(--color-text-primary)]"
+      className="text-[var(--color-text-primary)]"
     />
   );
 }

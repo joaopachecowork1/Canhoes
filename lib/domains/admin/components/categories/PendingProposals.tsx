@@ -63,7 +63,7 @@ function ProposalQueue({
       {panels.map(({ kind, rows }) => (
         <Card key={kind} className={ADMIN_CONTENT_CARD_CLASS}>
           <CardHeader className="space-y-2">
-            <p className="editorial-kicker">{copy.kicker}</p>
+            <p>{copy.kicker}</p>
             <CardTitle>{`${PANEL_META[kind].title} (${rows.length})`}</CardTitle>
             <p className="body-small max-w-[64ch] text-[var(--color-text-muted)]">
               {PANEL_META[kind].description}

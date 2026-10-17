@@ -40,11 +40,11 @@ export default function CanhoesError({
         />
 
         <div className="flex flex-wrap gap-2">
-          <Button className="canhoes-tap canhoes-neon-border" onClick={() => reset()}>
+          <Button onClick={() => reset()}>
             {messages.common.retry}
           </Button>
           <Button
-            className="canhoes-tap"
+           
             variant="outline"
             // A full reload discards the client state that crashed.
             // eslint-disable-next-line @next/next/no-location-assign-relative-destination
@@ -53,7 +53,7 @@ export default function CanhoesError({
             {messages.common.backToEvent}
           </Button>
           <Button
-            className="canhoes-tap"
+           
             variant="ghost"
             onClick={() => globalThis.location.reload()}
           >

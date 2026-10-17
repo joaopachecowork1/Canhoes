@@ -105,7 +105,7 @@ export function ProposalReviewItem({
           const Control = field.multiline ? Textarea : Input;
           return (
             <div key={field.key} className="space-y-2">
-              <label htmlFor={id} className="editorial-kicker">
+              <label htmlFor={id}>
                 {field.label}
               </label>
               <Control
