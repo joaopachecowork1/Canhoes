@@ -12,7 +12,7 @@ import messages from "@/messages/pt.json";
 const PAGE_SIZE = 15;
 
 /** The event's feed as an infinite query (15 posts per page), seeded with the server's first page. */
-export function useHubFeed(eventId: string | null, _currentUserId: string | null, initialData?: FeedInfiniteData) {
+export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteData) {
   const queryClient = useQueryClient();
 
   const postsInfiniteQuery = useInfiniteQuery({

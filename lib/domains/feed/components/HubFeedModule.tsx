@@ -120,7 +120,7 @@ function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: 
   const isAdmin = useIsAdmin();
   const { event: activeEvent } = useEventOverview(initialContext);
   const eventId = activeEvent?.id ?? null;
-  const feed = useHubFeed(eventId, currentUserId, initialData);
+  const feed = useHubFeed(eventId, initialData);
   const sentinelRef = useFeedInfiniteScroll({ enabled: feed.hasMore, isFetchingNextPage: feed.isFetchingNextPage, onLoadMore: feed.loadMore });
   const currentUserName = getSessionUserName(session?.user);
   const currentUserImage = session?.user?.image ?? null;
