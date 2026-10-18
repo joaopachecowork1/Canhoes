@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 
@@ -177,13 +177,9 @@ export function MediaCarousel({
   const media = urls.filter(Boolean);
   const [failedMedia, setFailedMedia] = useState<Record<string, boolean>>({});
   const { currentIndex, setCurrentIndex, handleTouchEnd, handleTouchMove, handleTouchStart } = useCarouselGesture(media.length);
-  const lastIndex = Math.max(media.length - 1, 0);
-  const showPrevious = useCallback(() => setCurrentIndex((index) => Math.max(0, index - 1)), [setCurrentIndex]);
-  const showNext = useCallback(() => setCurrentIndex((index) => Math.min(lastIndex, index + 1)), [lastIndex, setCurrentIndex]);
-
-  useEffect(() => {
-    setCurrentIndex((previousIndex) => Math.min(previousIndex, lastIndex));
-  }, [lastIndex, setCurrentIndex]);
+  // The gesture hook keeps the index inside the strip.
+  const showPrevious = useCallback(() => setCurrentIndex((index) => index - 1), [setCurrentIndex]);
+  const showNext = useCallback(() => setCurrentIndex((index) => index + 1), [setCurrentIndex]);
 
   const markAsFailed = useCallback((url: string) => {
     setFailedMedia((previousState) => (previousState[url] ? previousState : { ...previousState, [url]: true }));

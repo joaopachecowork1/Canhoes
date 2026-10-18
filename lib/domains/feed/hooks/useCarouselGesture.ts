@@ -1,13 +1,26 @@
 "use client";
 
-import { useRef, useState, type TouchEvent } from "react";
+import { useCallback, useRef, useState, type SetStateAction, type TouchEvent } from "react";
 
 const SWIPE_THRESHOLD_PX = 50;
 const DRAG_START_PX = 10;
 
-/** Current slide plus touch handlers: a mostly horizontal swipe past 50px changes slide. */
+/**
+ * Current slide plus touch handlers: a mostly horizontal swipe past 50px changes slide. The slide
+ * stays inside `totalSlides`, also when slides are removed, without syncing state in an effect.
+ */
 export function useCarouselGesture(totalSlides: number) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const lastIndex = Math.max(totalSlides - 1, 0);
+  const [storedIndex, setStoredIndex] = useState(0);
+  const currentIndex = Math.min(storedIndex, lastIndex);
+  const setCurrentIndex = useCallback(
+    (update: SetStateAction<number>) =>
+      setStoredIndex((previous) => {
+        const next = typeof update === "function" ? update(Math.min(previous, lastIndex)) : update;
+        return Math.min(Math.max(next, 0), lastIndex);
+      }),
+    [lastIndex]
+  );
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const isDragging = useRef(false);

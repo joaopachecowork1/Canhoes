@@ -44,7 +44,7 @@ const cases: [string, () => Promise<unknown>, string, string, unknown?][] = [
 
   ["awardsRepo.getCategories", () => awardsRepo.getCategories("e1"), "GET", "/v1/events/e1/categories?skip=0&take=50"],
   ["awardsRepo.getApprovedNominees", () => awardsRepo.getApprovedNominees("e1"), "GET", "/v1/events/e1/nominations/approved"],
-  ["awardsRepo.getMyNominationStatus", () => awardsRepo.getMyNominationStatus("e1"), "GET", "/v1/events/e1/nominations/my-status"],
+  ["awardsRepo.getMyNominations", () => awardsRepo.getMyNominations("e1"), "GET", "/v1/events/e1/nominations/my-status"],
   ["awardsRepo.createNomination", () => awardsRepo.createNomination("e1", { categoryId: "c1", title: "Ana" }), "POST", "/v1/events/e1/nominations", { categoryId: "c1", title: "Ana" }],
   ["awardsRepo.uploadNomineeImage", () => awardsRepo.uploadNomineeImage("e1", "n1", image), "POST", "/v1/events/e1/nominations/n1/upload"],
   ["awardsRepo.getVotingBoard", () => awardsRepo.getVotingBoard("e1"), "GET", "/v1/events/e1/voting"],

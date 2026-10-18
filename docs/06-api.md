@@ -35,7 +35,7 @@ Legenda da coluna "Quem":
 | POST | `proposals` | membro + propostas | `createProposal` |
 | POST | `nominations` | membro + propostas | `createNomination` |
 | GET | `nominations/approved` | membro | `getApprovedNominees` |
-| GET | `nominations/my-status` | membro | `getMyNominationStatus` |
+| GET | `nominations/my-status` | membro | `getMyNominations`: as minhas nomeações, a mais recente por categoria |
 | POST | `nominations/[nomineeId]/upload` | membro (dono ou admin) | `replaceNomineeImage` |
 | GET | `measures` | membro | `getMeasures` |
 | POST | `measures` | membro + propostas | `createMeasureProposal` |

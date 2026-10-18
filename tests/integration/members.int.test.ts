@@ -17,7 +17,7 @@ import { POST as uploadFeedImages } from "@/app/api/v1/events/[eventId]/feed/upl
 import { POST as uploadWishlistImage } from "@/app/api/v1/events/[eventId]/wishlist/[itemId]/image/route";
 import { DELETE as deleteWishlistItem } from "@/app/api/v1/events/[eventId]/wishlist/[itemId]/route";
 import { GET as getWishlist, POST as addWishlistItem } from "@/app/api/v1/events/[eventId]/wishlist/route";
-import type { EventActiveContextDto, EventOverviewDto, EventWishlistItemDto, NomineeDto, PublicUserDto } from "@/lib/api/types";
+import type { EventActiveContextDto, EventOverviewDto, EventWishlistItemDto, MyNominationDto, NomineeDto, PublicUserDto } from "@/lib/api/types";
 import { prisma } from "@/lib/prisma";
 
 import { addMember, callRoute, createEvent, createMember, createUser, signInAs } from "./helpers";
@@ -77,21 +77,36 @@ describe("nominations", () => {
     const category = await prisma.awardCategory.create({ data: { eventId: event.id, name: "Momento", sortOrder: 1, kind: 0, isActive: true } });
     signInAs(ana);
 
-    expect((await callRoute(getMyStatus, { eventId: event.id })).body).toMatchObject({ hasNomination: false });
+    expect((await callRoute(getMyStatus, { eventId: event.id })).body).toEqual([]);
 
     const created = (await callRoute(nominate, { eventId: event.id }, { method: "POST", body: { categoryId: category.id, title: " O jantar " } })).body as NomineeDto;
     expect(created).toMatchObject({ title: "O jantar", status: "pending", categoryId: category.id });
-    expect((await callRoute(getMyStatus, { eventId: event.id })).body).toEqual({
-      hasNomination: true,
-      categoryId: category.id,
-      status: "pending",
-      nomineeId: created.id,
-      nomineeTitle: "O jantar",
-    });
+    expect((await callRoute(getMyStatus, { eventId: event.id })).body).toEqual([
+      { categoryId: category.id, status: "pending", nomineeId: created.id, nomineeTitle: "O jantar" },
+    ]);
     expect((await callRoute(getApproved, { eventId: event.id })).body).toEqual([]);
 
     await prisma.nominee.update({ where: { id: created.id }, data: { status: "approved" } });
     expect(((await callRoute(getApproved, { eventId: event.id })).body as NomineeDto[]).map((nominee) => nominee.id)).toEqual([created.id]);
+  });
+
+  it("reports one nomination per category, newest first, and leaves stickers out", async () => {
+    const event = await createEvent({ phase: "PROPOSALS" });
+    signInAs(await createMember(event.id, "Ana"));
+    const [moment, photo] = await Promise.all(
+      ["Momento", "Foto"].map((name, index) => prisma.awardCategory.create({ data: { eventId: event.id, name, sortOrder: index, kind: 0, isActive: true } }))
+    );
+
+    await callRoute(nominate, { eventId: event.id }, { method: "POST", body: { categoryId: moment.id, title: "O jantar" } });
+    await callRoute(nominate, { eventId: event.id }, { method: "POST", body: { categoryId: photo.id, title: "A praia" } });
+    await callRoute(nominate, { eventId: event.id }, { method: "POST", body: { title: "Sticker", kind: "stickers" } });
+
+    const mine = (await callRoute(getMyStatus, { eventId: event.id })).body as MyNominationDto[];
+    const byTitle = [...mine].sort((left, right) => left.nomineeTitle.localeCompare(right.nomineeTitle));
+    expect(byTitle.map(({ categoryId, nomineeTitle, status }) => [categoryId, nomineeTitle, status])).toEqual([
+      [photo.id, "A praia", "pending"],
+      [moment.id, "O jantar", "pending"],
+    ]);
   });
 
   it("stores stickers apart from nominations", async () => {

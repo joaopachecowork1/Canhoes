@@ -5,7 +5,7 @@ import type {
   PublicUserDto,
   GalaMeasureDto,
   MeasureProposalDto,
-  MyNominationStatusDto,
+  MyNominationDto,
   NomineeDto,
   EventWishlistItemDto,
   PagedResult,
@@ -109,27 +109,20 @@ export async function createMeasureProposal(
   };
 }
 
-/** The user's most recent nomination in the event and its status, for the nominations page. */
-export async function getMyNominationStatus(
-  eventId: string,
-  userId: string
-): Promise<MyNominationStatusDto> {
-  const nominee = await prisma.nominee.findFirst({
-    where: { eventId, submittedByUserId: userId },
+/** The user's nominations in the event, the newest per category (stickers are not nominations). */
+export async function getMyNominations(eventId: string, userId: string): Promise<MyNominationDto[]> {
+  const nominees = await prisma.nominee.findMany({
+    where: { eventId, submittedByUserId: userId, submissionKind: "nominees" },
     orderBy: { createdAtUtc: "desc" },
+    distinct: ["categoryId"],
   });
 
-  if (!nominee) {
-    return { hasNomination: false, categoryId: null, status: null, nomineeId: null, nomineeTitle: null };
-  }
-
-  return {
-    hasNomination: true,
+  return nominees.map((nominee) => ({
     categoryId: nominee.categoryId,
     status: ProposalStatusSchema.parse(nominee.status),
     nomineeId: nominee.id,
     nomineeTitle: nominee.title,
-  };
+  }));
 }
 
 /** Approved nominations of the event, newest first. */

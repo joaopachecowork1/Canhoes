@@ -2,13 +2,17 @@
 
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import type { AwardCategoryDto, EventActiveContextDto, MyNominationStatusDto, NomineeDto } from "@/lib/api/types";
+import type { AwardCategoryDto, EventActiveContextDto, MyNominationDto, NomineeDto } from "@/lib/api/types";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { useCategorySelection } from "./useCategorySelection";
 
 const EMPTY_CATEGORIES: AwardCategoryDto[] = [];
 const EMPTY_NOMINEES: NomineeDto[] = [];
+const EMPTY_MY_NOMINATIONS: MyNominationDto[] = [];
+
+/** Query key of the user's own nominations, shared with the optimistic update in `useSubmitNomination`. */
+export const myNominationsKey = (eventId: string) => ["nominations", eventId, "my-status"];
 
 const QUERY_OPTIONS = { placeholderData: keepPreviousData, staleTime: 1000 * 60 * 5, refetchOnWindowFocus: false } as const;
 
@@ -28,11 +32,11 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
     initialData: initialCategories,
   });
 
-  const myStatusQuery = useQuery<MyNominationStatusDto>({
+  const myNominationsQuery = useQuery({
     ...QUERY_OPTIONS,
-    queryKey: ["nominations", queryEventId, "my-status"],
+    queryKey: myNominationsKey(queryEventId),
     enabled,
-    queryFn: () => awardsRepo.getMyNominationStatus(queryEventId),
+    queryFn: () => awardsRepo.getMyNominations(queryEventId),
   });
 
   const approvedQuery = useQuery({
@@ -42,10 +46,10 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
     queryFn: () => awardsRepo.getApprovedNominees(queryEventId),
   });
 
-  const queries = [categoriesQuery, myStatusQuery, approvedQuery];
+  const queries = [categoriesQuery, myNominationsQuery, approvedQuery];
   return {
     categories: categoriesQuery.data ?? EMPTY_CATEGORIES,
-    myStatus: myStatusQuery.data ?? null,
+    myNominations: myNominationsQuery.data ?? EMPTY_MY_NOMINATIONS,
     approvedNominees: approvedQuery.data ?? EMPTY_NOMINEES,
     isLoading: queries.some((query) => query.isLoading),
     error: queries.find((query) => query.error)?.error ?? null,
@@ -66,13 +70,7 @@ export function useNominationsModule(initialCategories?: AwardCategoryDto[], ini
   const { setSelectedId: setSelectedCategoryId, selectedItem: selectedCategory } =
     useCategorySelection(categories, (category) => category.id);
 
-  const updateNominationCaches = () => {
-    queryClient.setQueryData<MyNominationStatusDto | null>(["nominations", queryEventId, "my-status"], (current) =>
-      current && selectedCategory ? { ...current, hasNomination: true, categoryId: selectedCategory.id } : current
-    );
-    queryClient.setQueryData<NomineeDto[]>(["nominations", queryEventId, "approved"], (current) => current ?? []);
-    return Promise.resolve();
-  };
+  const refreshMyNominations = () => queryClient.invalidateQueries({ queryKey: myNominationsKey(queryEventId) });
 
   return {
     ...remote,
@@ -84,6 +82,6 @@ export function useNominationsModule(initialCategories?: AwardCategoryDto[], ini
     selectedCategory,
     setSelectedCategoryId,
     queryClient,
-    updateNominationCaches,
+    refreshMyNominations,
   };
 }

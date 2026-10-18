@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import type { MyNominationStatusDto, NomineeDto } from "@/lib/api/types";
+import type { MyNominationDto, NomineeDto } from "@/lib/api/types";
 import { apiRoute, recordRequests } from "@/tests/component/api";
 import { makeEventContext } from "@/tests/component/eventContext";
 import { category, nominee, paged } from "@/tests/component/fixtures";
@@ -14,11 +14,10 @@ import { CanhoesNominationsModule } from "./CanhoesNominationsModule";
 
 const NOMINATIONS = "events/event-1/nominations";
 const categories = [category(), category({ id: "cat-2", name: "Melhor Foto" })];
-const noNomination: MyNominationStatusDto = { hasNomination: false, categoryId: null, status: null, nomineeId: null, nomineeTitle: null };
 
-function serveNominations({ myStatus = noNomination, approved = [] }: { myStatus?: MyNominationStatusDto; approved?: NomineeDto[] } = {}) {
+function serveNominations({ mine = [], approved = [] }: { mine?: MyNominationDto[]; approved?: NomineeDto[] } = {}) {
   server.use(
-    apiRoute("get", `${NOMINATIONS}/my-status`, myStatus),
+    apiRoute("get", `${NOMINATIONS}/my-status`, mine),
     apiRoute("get", `${NOMINATIONS}/approved`, approved),
     apiRoute("get", "events/event-1/categories", paged(categories))
   );
@@ -46,25 +45,35 @@ describe("CanhoesNominationsModule", () => {
     expect(screen.getByText("Praia")).toBeInTheDocument();
   });
 
-  it("shows the nomination you already sent, as the server returns it", async () => {
+  it("shows the nominations you already sent, one per category", async () => {
     serveNominations({
-      myStatus: { hasNomination: true, categoryId: "cat-1", status: "pending", nomineeId: "nominee-9", nomineeTitle: "Rui" },
+      mine: [
+        { categoryId: "cat-1", status: "pending", nomineeId: "nominee-9", nomineeTitle: "Rui" },
+        { categoryId: "cat-2", status: "approved", nomineeId: "nominee-7", nomineeTitle: "A praia" },
+      ],
     });
     renderNominations();
 
     expect(await screen.findByText("Aguarda aprovação")).toBeInTheDocument();
-    expect(within(screen.getByRole("button", { name: /Canhão do Ano/ })).getByText("Enviado")).toBeInTheDocument();
+    expect(screen.getByText("Rui")).toBeInTheDocument();
+    for (const tab of [/Canhão do Ano/, /Melhor Foto/]) {
+      expect(within(screen.getByRole("button", { name: tab })).getByText("Enviado")).toBeInTheDocument();
+    }
     expect(screen.queryByPlaceholderText("Ex.: Nome da pessoa ou item")).not.toBeInTheDocument();
   });
 
   it("sends a nomination and shows it as pending", async () => {
     serveNominations();
     const recorder = recordRequests();
+    // Like the server: once sent, the nomination is part of the user's list.
     server.use(
       http.post(`*/api/v1/${NOMINATIONS}`, async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json(nominee({ id: "nominee-new", title: "Rui", status: "pending" }));
-      })
+      }),
+      http.get(`*/api/v1/${NOMINATIONS}/my-status`, () =>
+        HttpResponse.json(recorder.requests.length > 0 ? [{ categoryId: "cat-1", status: "pending", nomineeId: "nominee-new", nomineeTitle: "Rui" }] : [])
+      )
     );
     renderNominations();
 

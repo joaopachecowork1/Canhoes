@@ -158,12 +158,13 @@ export type NomineeDto = {
   createdAtUtc: string;
 };
 
-export type MyNominationStatusDto = {
-  hasNomination: boolean;
+/** One of the user's own nominations, as the nominations page shows it (one per category). */
+export type MyNominationDto = {
   categoryId: string | null;
-  status: ProposalStatus | null;
+  status: ProposalStatus;
+  /** Null while the nomination is still being sent. */
   nomineeId: string | null;
-  nomineeTitle: string | null;
+  nomineeTitle: string;
 };
 
 export type AdminNomineeDto = {

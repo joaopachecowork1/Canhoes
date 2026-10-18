@@ -8,8 +8,8 @@ export const awardsRepo = {
   getApprovedNominees: (eventId: string) =>
     canhoesFetch<T.NomineeDto[]>(`/v1/events/${eventId}/nominations/approved`),
     
-  getMyNominationStatus: (eventId: string) =>
-    canhoesFetch<T.MyNominationStatusDto>(`/v1/events/${eventId}/nominations/my-status`),
+  getMyNominations: (eventId: string) =>
+    canhoesFetch<T.MyNominationDto[]>(`/v1/events/${eventId}/nominations/my-status`),
     
   createNomination: (eventId: string, payload: { categoryId: string | null; title: string; kind?: string }) =>
     canhoesFetch<T.NomineeDto>(`/v1/events/${eventId}/nominations`, {

@@ -18,7 +18,8 @@ const copy = messages.voting.CanhoesNominationsModule;
 type Nominations = ReturnType<typeof useNominationsModule>;
 
 function NominationsBoard({ nominations }: Readonly<{ nominations: Nominations }>) {
-  const { selectedCategory, myStatus } = nominations;
+  const { selectedCategory, myNominations } = nominations;
+  const hasSent = (categoryId: string) => myNominations.some((mine) => mine.categoryId === categoryId);
 
   return (
     <div className="space-y-4">
@@ -33,7 +34,7 @@ function NominationsBoard({ nominations }: Readonly<{ nominations: Nominations }
         items={nominations.categories.map((category) => ({
           id: category.id,
           label: category.name,
-          badge: myStatus?.hasNomination && myStatus.categoryId === category.id ? copy.sentBadge : undefined,
+          badge: hasSent(category.id) ? copy.sentBadge : undefined,
         }))}
         onSelect={nominations.setSelectedCategoryId}
       />
@@ -42,9 +43,9 @@ function NominationsBoard({ nominations }: Readonly<{ nominations: Nominations }
           category={selectedCategory}
           eventId={nominations.queryEventId}
           isPhaseOpen={nominations.isPhaseOpen}
-          myStatus={myStatus?.categoryId === selectedCategory.id ? myStatus : undefined}
+          myNomination={myNominations.find((mine) => mine.categoryId === selectedCategory.id)}
           approvedNominees={nominations.approvedNominees.filter((nominee) => nominee.categoryId === selectedCategory.id)}
-          onNominationSubmitted={nominations.updateNominationCaches}
+          onNominationSubmitted={nominations.refreshMyNominations}
           queryClient={nominations.queryClient}
         />
       ) : null}

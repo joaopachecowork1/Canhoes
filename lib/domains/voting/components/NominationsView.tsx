@@ -3,7 +3,7 @@
 import { CheckCircle2, Clock } from "lucide-react";
 import type { QueryClient } from "@tanstack/react-query";
 
-import type { AwardCategoryDto, MyNominationStatusDto, NomineeDto } from "@/lib/api/types";
+import type { AwardCategoryDto, MyNominationDto, NomineeDto } from "@/lib/api/types";
 import { CanhoesFeatureCard } from "@/lib/domains/event/components/CanhoesFeatureCard";
 import { CanhoesFileTrigger } from "@/lib/domains/event/components/CanhoesFileTrigger";
 import { Badge } from "@/components/ui/badge";
@@ -41,7 +41,7 @@ export function NominationsLoadingState() {
 type CategoryNominationCardProps = Readonly<{
   category: AwardCategoryDto;
   eventId: string;
-  myStatus: MyNominationStatusDto | undefined;
+  myNomination: MyNominationDto | undefined;
   approvedNominees: NomineeDto[];
   isPhaseOpen: boolean;
   onNominationSubmitted: () => Promise<void>;
@@ -96,19 +96,19 @@ function NominationForm({ isPhaseOpen, nomination }: Readonly<{ isPhaseOpen: boo
 export function CategoryNominationCard({
   category,
   eventId,
-  myStatus,
+  myNomination,
   approvedNominees,
   isPhaseOpen,
   onNominationSubmitted,
   queryClient,
 }: CategoryNominationCardProps) {
   const nomination = useSubmitNomination({ categoryId: category.id, eventId, onNominationSubmitted, queryClient });
-  const hasSubmittedNomination = Boolean(myStatus?.status || nomination.pendingLabel);
+  const hasSubmittedNomination = Boolean(myNomination || nomination.pendingLabel);
 
   return (
     <CanhoesFeatureCard title={category.name} description={category.description ?? undefined} variant="official">
       {hasSubmittedNomination ? (
-        <PendingNomination label={nomination.pendingLabel} />
+        <PendingNomination label={nomination.pendingLabel ?? myNomination?.nomineeTitle ?? null} />
       ) : (
         <NominationForm isPhaseOpen={isPhaseOpen} nomination={nomination} />
       )}
