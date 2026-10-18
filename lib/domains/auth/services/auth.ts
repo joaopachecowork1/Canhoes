@@ -1,4 +1,5 @@
-import type { NextAuthOptions } from "next-auth";
+import type { Account, NextAuthOptions } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
@@ -16,6 +17,35 @@ import { authorizeGoogleSignIn } from "./signInAccess";
  */
 
 const developmentLoginEnabled = isDevelopmentAuthEnabled();
+
+type AuthMode = NonNullable<JWT["authMode"]>;
+
+const AUTH_MODES: Record<string, AuthMode> = { google: "google", development: "development", credentials: "credentials" };
+
+/**
+ * On sign-in, notes the provider on the token. Credentials and development logins already carry
+ * the database user's id; a Google login is matched to (or creates) its user in `findTokenUser`.
+ */
+function recordSignIn(token: JWT, account: Account, userId: string | undefined) {
+  token.externalId = account.providerAccountId;
+  const authMode = AUTH_MODES[account.provider];
+  if (!authMode) return;
+  token.authMode = authMode;
+  token.dbUserId = authMode === "google" ? undefined : (userId ?? token.dbUserId);
+}
+
+/** The token's database user: by id once known, else found or created from the email (first Google sign-in). */
+async function findTokenUser(token: JWT): Promise<ResolvedUser | null> {
+  if (isDatabaseUserId(token.dbUserId)) {
+    const user = await prisma.user.findUnique({
+      where: { id: token.dbUserId },
+      select: { id: true, email: true, displayName: true, isAdmin: true },
+    });
+    if (user) return user;
+  }
+  if (!token.email) return null;
+  return resolveUser(String(token.externalId ?? token.sub ?? token.email), token.email, token.name ?? null);
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -111,56 +141,22 @@ export const authOptions: NextAuthOptions = {
     // Runs on sign-in and on every request. It ties the token to the row in `Users` (creating it for a
     // first Google sign-in) and re-reads `isAdmin`, so a role change applies without signing in again.
     async jwt({ token, user, account }) {
-      if (account?.providerAccountId) {
-        token.externalId = account.providerAccountId;
-      }
+      if (account) recordSignIn(token, account, user?.id);
 
-      if (user?.id && account?.provider === "development") {
-        token.dbUserId = user.id;
-      }
-      
-      if (user?.id && account?.provider === "credentials") {
-        token.dbUserId = user.id;
-      }
-
-      if (account?.provider === "google") {
-        token.dbUserId = undefined;
-      }
-
-      if (account?.provider === "development") token.authMode = "development";
-      if (account?.provider === "google") token.authMode = "google";
-      if (account?.provider === "credentials") token.authMode = "credentials";
-
-      let dbUser: ResolvedUser | null = isDatabaseUserId(token.dbUserId)
-        ? await prisma.user.findUnique({
-            where: { id: token.dbUserId },
-            select: { id: true, email: true, displayName: true, isAdmin: true },
-          })
-        : null;
-
-      if (!dbUser && token.email) {
-        const externalId = String(token.externalId ?? token.sub ?? token.email);
-        dbUser = await resolveUser(externalId, token.email, token.name ?? null);
-        token.dbUserId = dbUser.id;
-      }
-
+      const dbUser = await findTokenUser(token);
       token.isAdmin = Boolean(dbUser?.isAdmin);
       if (dbUser) {
+        token.dbUserId = dbUser.id;
         token.sub = dbUser.id;
         token.email = dbUser.email;
         token.name = dbUser.displayName ?? token.name;
       }
-
       return token;
     },
     async session({ session, token }) {
       session.user.isAdmin = Boolean(token.isAdmin);
       session.user.id = String(token.dbUserId ?? token.sub ?? "");
-      
-      if (token.authMode === "development") session.authMode = "development";
-      else if (token.authMode === "credentials") session.authMode = "credentials";
-      else session.authMode = "google";
-
+      session.authMode = token.authMode ?? "google";
       return session;
     },
   },

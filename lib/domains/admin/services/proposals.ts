@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { ProposalStatusSchema } from "@/lib/zod/common";
 import type {
   PagedResult,
   CategoryProposalDto,
@@ -42,7 +43,7 @@ export async function getCategoryProposals(
       name: p.name,
       kind: p.kind,
       description: p.description,
-      status: p.status as "pending" | "approved" | "rejected",
+      status: ProposalStatusSchema.parse(p.status),
       createdAtUtc: p.createdAtUtc.toISOString(),
     })),
     total, skip, take,
@@ -85,7 +86,7 @@ export async function updateCategoryProposal(
     name: updated.name,
     kind: updated.kind,
     description: updated.description,
-    status: updated.status as "pending" | "approved" | "rejected",
+    status: ProposalStatusSchema.parse(updated.status),
     createdAtUtc: updated.createdAtUtc.toISOString(),
   };
 }
@@ -124,7 +125,7 @@ export async function getMeasureProposals(
     items: items.map((p) => ({
       id: p.id,
       text: p.text,
-      status: p.status as "pending" | "approved" | "rejected",
+      status: ProposalStatusSchema.parse(p.status),
       createdAtUtc: p.createdAtUtc.toISOString(),
     })),
     total, skip, take,
@@ -156,7 +157,7 @@ export async function updateMeasureProposal(
   return {
     id: updated.id,
     text: updated.text,
-    status: updated.status as "pending" | "approved" | "rejected",
+    status: ProposalStatusSchema.parse(updated.status),
     createdAtUtc: updated.createdAtUtc.toISOString(),
   };
 }

@@ -1,6 +1,7 @@
 import type { Nominee } from "@/lib/generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
+import { ProposalStatusSchema } from "@/lib/zod/common";
 import type {
   AdminNomineeDto,
   AdminNomineesPagedDto,
@@ -20,7 +21,7 @@ function toAdminNomineeDto(nominee: Nominee, submitter: Submitter): AdminNominee
     categoryId: nominee.categoryId,
     title: nominee.title,
     imageUrl: nominee.imageUrl,
-    status: nominee.status as AdminNomineeDto["status"],
+    status: ProposalStatusSchema.parse(nominee.status),
     createdAtUtc: nominee.createdAtUtc.toISOString(),
     submittedByName: submitter?.displayName ?? submitter?.email ?? "Unknown",
   };

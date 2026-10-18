@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { ProposalStatusSchema } from "@/lib/zod/common";
 import { deleteUpload, saveUpload } from "@/lib/storage/localStorage";
 import type {
   PublicUserDto,
@@ -14,6 +15,33 @@ import type {
  * What members do outside the feed and the voting: see who is in the event, keep a wishlist, nominate
  * candidates and stickers, and propose gala measures. Route guards decide who may call each one.
  */
+
+type NomineeRow = { id: string; categoryId: string | null; title: string; imageUrl: string | null; status: string; createdAtUtc: Date };
+type WishlistItemRow = { id: string; userId: string; eventId: string; title: string; url: string | null; notes: string | null; imageUrl: string | null; updatedAtUtc: Date };
+
+function toNomineeDto(nominee: NomineeRow): NomineeDto {
+  return {
+    id: nominee.id,
+    categoryId: nominee.categoryId,
+    title: nominee.title,
+    imageUrl: nominee.imageUrl,
+    status: ProposalStatusSchema.parse(nominee.status),
+    createdAtUtc: nominee.createdAtUtc.toISOString(),
+  };
+}
+
+function toWishlistItemDto(item: WishlistItemRow): EventWishlistItemDto {
+  return {
+    id: item.id,
+    userId: item.userId,
+    eventId: item.eventId,
+    title: item.title,
+    url: item.url,
+    notes: item.notes,
+    imageUrl: item.imageUrl,
+    updatedAtUtc: item.updatedAtUtc.toISOString(),
+  };
+}
 
 /** Members of the event, admins first and then by name. `isAdmin` here is the event role, not the account flag. */
 export async function getMembers(eventId: string): Promise<PublicUserDto[]> {
@@ -76,7 +104,7 @@ export async function createMeasureProposal(
   return {
     id: proposal.id,
     text: proposal.text,
-    status: proposal.status as "pending" | "approved" | "rejected",
+    status: ProposalStatusSchema.parse(proposal.status),
     createdAtUtc: proposal.createdAtUtc.toISOString(),
   };
 }
@@ -98,7 +126,7 @@ export async function getMyNominationStatus(
   return {
     hasNomination: true,
     categoryId: nominee.categoryId,
-    status: nominee.status as "pending" | "approved" | "rejected",
+    status: ProposalStatusSchema.parse(nominee.status),
     nomineeId: nominee.id,
     nomineeTitle: nominee.title,
   };
@@ -111,14 +139,7 @@ export async function getApprovedNominees(eventId: string): Promise<NomineeDto[]
     orderBy: { createdAtUtc: "desc" },
   });
 
-  return nominees.map((n) => ({
-    id: n.id,
-    categoryId: n.categoryId,
-    title: n.title,
-    imageUrl: n.imageUrl,
-    status: n.status as "pending" | "approved" | "rejected",
-    createdAtUtc: n.createdAtUtc.toISOString(),
-  }));
+  return nominees.map(toNomineeDto);
 }
 
 /** Records a nomination (or a sticker, with `kind: "stickers"`) as `pending`, for the admin to moderate. */
@@ -139,14 +160,7 @@ export async function createNomination(
     },
   });
 
-  return {
-    id: nominee.id,
-    categoryId: nominee.categoryId,
-    title: nominee.title,
-    imageUrl: nominee.imageUrl,
-    status: nominee.status as "pending" | "approved" | "rejected",
-    createdAtUtc: nominee.createdAtUtc.toISOString(),
-  };
+  return toNomineeDto(nominee);
 }
 
 /** Stores a new image for a nominee its submitter (or an admin) owns; the previous upload is removed. */
@@ -166,14 +180,7 @@ export async function replaceNomineeImage(
   });
   if (nominee.imageUrl) await deleteUpload(nominee.imageUrl);
 
-  return {
-    id: updated.id,
-    categoryId: updated.categoryId,
-    title: updated.title,
-    imageUrl: updated.imageUrl,
-    status: updated.status as "pending" | "approved" | "rejected",
-    createdAtUtc: updated.createdAtUtc.toISOString(),
-  };
+  return toNomineeDto(updated);
 }
 
 /** Stores a new image for a wishlist item its owner (or an admin) owns; the previous upload is removed. */
@@ -193,16 +200,7 @@ export async function replaceWishlistImage(
   });
   if (item.imageUrl) await deleteUpload(item.imageUrl);
 
-  return {
-    id: updated.id,
-    userId: updated.userId,
-    eventId: updated.eventId,
-    title: updated.title,
-    url: updated.url,
-    notes: updated.notes,
-    imageUrl: updated.imageUrl,
-    updatedAtUtc: updated.updatedAtUtc.toISOString(),
-  };
+  return toWishlistItemDto(updated);
 }
 
 /** Every wishlist item of the event: wishlists are shared with the whole group. */
@@ -221,19 +219,8 @@ export async function getWishlistItems(
     prisma.wishlistItem.count({ where: { eventId } }),
   ]);
 
-  const mappedItems = items.map((item) => ({
-    id: item.id,
-    userId: item.userId,
-    eventId: item.eventId,
-    title: item.title,
-    url: item.url,
-    notes: item.notes,
-    imageUrl: item.imageUrl,
-    updatedAtUtc: item.updatedAtUtc.toISOString(),
-  }));
-
   return {
-    items: mappedItems,
+    items: items.map(toWishlistItemDto),
     total,
     skip,
     take,
@@ -257,16 +244,7 @@ export async function createWishlistItem(
     },
   });
 
-  return {
-    id: item.id,
-    userId: item.userId,
-    eventId: item.eventId,
-    title: item.title,
-    url: item.url,
-    notes: item.notes,
-    imageUrl: item.imageUrl,
-    updatedAtUtc: item.updatedAtUtc.toISOString(),
-  };
+  return toWishlistItemDto(item);
 }
 
 /** Deletes a wishlist item of this event; only its owner or an admin may. False when not allowed or not found. */

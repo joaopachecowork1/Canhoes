@@ -1,11 +1,12 @@
 # Diagramas
 
-Os documentos em `docs/` mostram os diagramas como imagens PNG com fundo branco. Assim leem-se igual no GitHub, no VS Code (tema claro ou escuro, com qualquer extensão de Markdown) e em qualquer visualizador. Cada imagem tem ao lado a fonte de onde sai; quem muda um diagrama muda a fonte e volta a gerar a imagem no mesmo PR.
+Os diagramas de sequência, estados e fluxo estão escritos em Mermaid dentro dos próprios documentos (blocos ` ```mermaid `), que o GitHub e o VS Code desenham. Mudar um diagrama é mudar esse bloco no mesmo PR que muda o comportamento. Para o ver enquanto o editas, cola-o no [Mermaid Live Editor](https://mermaid.live).
 
-| Ficheiros | Tipo | Fonte | Ferramenta |
-|---|---|---|---|
-| `classes/*.json` e `classes/*.png` | Diagramas de classes, um por área | JSON do BESSER | [BESSER Web Modeling Editor](https://editor.besser-pearl.org) |
-| `*.mmd` e `*.png` | Sequência, estados e fluxo | Mermaid | `npm run docs:diagrams` |
+Os diagramas de classes, um por área, estão nesta pasta, porque não têm forma em texto:
+
+| Ficheiros | Fonte | Ferramenta |
+|---|---|---|
+| `classes/*.json` e `classes/*.png` | JSON do BESSER | [BESSER Web Modeling Editor](https://editor.besser-pearl.org) |
 
 ## Diagramas de classes (BESSER)
 
@@ -15,16 +16,3 @@ Os documentos em `docs/` mostram os diagramas como imagens PNG com fundo branco.
 4. **Export → PNG (white background)** e substitui o `.png` com o mesmo nome.
 
 O JSON é o formato nativo do editor e guarda as posições, por isso o diagrama abre igual ao que está na imagem. O editor também exporta o modelo em B-UML (Python), se quiseres gerar código com o BESSER.
-
-## Diagramas Mermaid
-
-Edita o `.mmd` e corre:
-
-```bash
-npm run docs:diagrams                       # todos
-npm run docs:diagrams -- fluxo-votar.mmd    # só um
-```
-
-O script usa o [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) através do `npx`, por isso não acrescenta dependências ao projeto. Na primeira vez o `npx` descarrega o mermaid-cli e um Chrome para desenhar. Para usar um Chrome ou Chromium já instalado, define `PUPPETEER_EXECUTABLE_PATH` com o caminho do executável. O tema e os tamanhos de letra estão em `mermaid.config.json`.
-
-Para ver um `.mmd` enquanto o editas, cola-o no [Mermaid Live Editor](https://mermaid.live).

@@ -1,4 +1,3 @@
-import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import type {
   EventAdminStateDto,
@@ -7,7 +6,9 @@ import type {
   AdminListCountsDto,
   EventAdminBootstrapDto,
 } from "@/lib/api/types";
-import { resolveMemberModules, type PhaseType } from "@/lib/domains/event/rules/eventRules";
+import { readModuleSwitches, resolveMemberModules, type PhaseType } from "@/lib/domains/event/rules/eventRules";
+import { CANHOES_MODULES } from "@/lib/modules";
+
 import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
 
 /*
@@ -15,39 +16,38 @@ import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
  * counters. What members may do with these settings is decided in `eventRules.ts`.
  */
 
+/** The saved switches with their defaults: everything visible except results, no draw yet. */
+function readSwitches(state: { nominationsVisible: boolean; resultsVisible: boolean; hasSecretSantaDraw: boolean; moduleVisibilityJson: unknown } | null) {
+  const saved = readModuleSwitches(state?.moduleVisibilityJson);
+  return {
+    nominationsVisible: state?.nominationsVisible ?? true,
+    resultsVisible: state?.resultsVisible ?? false,
+    hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
+    // A module never switched off is on.
+    moduleVisibility: Object.fromEntries(
+      CANHOES_MODULES.map(({ key }) => [key, saved[key] ?? true])
+    ) satisfies EventAdminModuleVisibilityDto,
+  };
+}
+
 /** Phases and switches of one event, plus which modules the members see right now. */
 async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   const [phases, state] = await Promise.all([
     prisma.eventPhase.findMany({ where: { eventId }, orderBy: { startDateUtc: "asc" } }),
     prisma.canhoesEventState.findUnique({ where: { eventId } }),
   ]);
-
-  const activePhase = phases.find((p) => p.isActive) ?? null;
-  const visibility = (state?.moduleVisibilityJson ?? {}) as Record<string, boolean>;
-
-  const moduleVisibility: EventAdminModuleVisibilityDto = {
-    feed: visibility.feed ?? true,
-    secretSanta: visibility.secretSanta ?? true,
-    wishlist: visibility.wishlist ?? true,
-    categories: visibility.categories ?? true,
-    voting: visibility.voting ?? true,
-    gala: visibility.gala ?? true,
-    stickers: visibility.stickers ?? true,
-    measures: visibility.measures ?? true,
-    nominees: visibility.nominees ?? true,
-  };
+  const activePhase = phases.find((phase) => phase.isActive) ?? null;
+  const { hasSecretSantaDraw, ...switches } = readSwitches(state);
 
   return {
     eventId,
     activePhase: activePhase ? toPhaseDto(activePhase) : null,
-    nominationsVisible: state?.nominationsVisible ?? true,
-    resultsVisible: state?.resultsVisible ?? false,
-    moduleVisibility,
+    ...switches,
     effectiveModules: resolveMemberModules({
       activePhaseType: activePhase?.type ?? null,
-      moduleVisibility,
-      nominationsVisible: state?.nominationsVisible ?? true,
-      hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
+      moduleVisibility: switches.moduleVisibility,
+      nominationsVisible: switches.nominationsVisible,
+      hasSecretSantaDraw,
     }),
   };
 }
@@ -57,11 +57,12 @@ export async function updateAdminState(
   eventId: string,
   data: { nominationsVisible?: boolean; resultsVisible?: boolean; moduleVisibility?: EventAdminModuleVisibilityDto }
 ): Promise<EventAdminStateDto> {
-  const updateData: Record<string, unknown> = {};
-  if (data.nominationsVisible !== undefined) updateData.nominationsVisible = data.nominationsVisible;
-  if (data.resultsVisible !== undefined) updateData.resultsVisible = data.resultsVisible;
-  if (data.moduleVisibility) updateData.moduleVisibilityJson = data.moduleVisibility;
-
+  // Prisma leaves `undefined` fields untouched, so a switch left out keeps its value.
+  const changes = {
+    nominationsVisible: data.nominationsVisible,
+    resultsVisible: data.resultsVisible,
+    moduleVisibilityJson: data.moduleVisibility,
+  };
   await prisma.canhoesEventState.upsert({
     where: { eventId },
     create: {
@@ -69,13 +70,21 @@ export async function updateAdminState(
       phase: "gala",
       nominationsVisible: data.nominationsVisible ?? true,
       resultsVisible: data.resultsVisible ?? false,
-      ...(data.moduleVisibility ? { moduleVisibilityJson: data.moduleVisibility } : {}),
-    } as Prisma.CanhoesEventStateCreateInput,
-    update: updateData,
+      moduleVisibilityJson: data.moduleVisibility,
+    },
+    update: changes,
   });
 
   return getAdminState(eventId);
 }
+
+/** The older `CanhoesEventState.phase` name of each phase, still kept in sync. */
+const LEGACY_PHASE_NAMES: Record<PhaseType, string> = {
+  DRAW: "locked",
+  PROPOSALS: "nominations",
+  VOTING: "voting",
+  RESULTS: "gala",
+};
 
 /** A phase the admin opens for the first time stays open for a year, so its dates never close voting by surprise. */
 const NEW_PHASE_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
@@ -101,10 +110,7 @@ export async function updateAdminPhase(eventId: string, phaseType: PhaseType): P
     }),
   ]);
 
-  const legacyPhase = phaseType === "DRAW" ? "locked"
-    : phaseType === "PROPOSALS" ? "nominations"
-    : phaseType === "VOTING" ? "voting"
-    : "gala";
+  const legacyPhase = LEGACY_PHASE_NAMES[phaseType];
 
   await prisma.canhoesEventState.upsert({
     where: { eventId },
@@ -146,8 +152,7 @@ export async function updateEventModules(
     where: { eventId },
     select: { moduleVisibilityJson: true },
   });
-  const currentModules = (currentState?.moduleVisibilityJson ?? {}) as Record<string, boolean>;
-  const nextModules = { ...currentModules, ...modules };
+  const nextModules = { ...readModuleSwitches(currentState?.moduleVisibilityJson), ...modules };
 
   await prisma.canhoesEventState.upsert({
     where: { eventId },

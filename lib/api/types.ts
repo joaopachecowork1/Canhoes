@@ -281,7 +281,8 @@ export type AdminCategoryResultDto = {
     title: string;
     imageUrl: string | null;
     voteCount: number;
-    voterUserIds: string[];
+    /** Display names of the members who voted for this one. */
+    voterNames: string[];
   }>;
 };
 

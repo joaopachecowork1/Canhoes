@@ -116,10 +116,15 @@ async function main() {
   console.log("Seed completed.");
 }
 
+/** Demo members, three categories with approved nominations and a few posts, for a local database. */
 async function seedDemoData(eventId, seededAdmins, now) {
   console.log("Adding demo data...");
+  const allUsers = [...seededAdmins, ...(await seedDemoMembers(eventId, now))];
+  await seedDemoCategories(eventId, allUsers);
+  await seedDemoPosts(eventId, allUsers);
+}
 
-  // 3. Fake Users
+async function seedDemoMembers(eventId, now) {
   const fakeUsers = [
     { email: "rui.silva@fake.com", name: "Rui Silva" },
     { email: "joao.santos@fake.com", name: "João Santos" },
@@ -128,35 +133,26 @@ async function seedDemoData(eventId, seededAdmins, now) {
     { email: "pedro.gomes@fake.com", name: "Pedro Gomes" },
   ];
 
-  const createdFakeUsers = [];
+  const members = [];
   for (const fake of fakeUsers) {
     const user = await prisma.user.upsert({
       where: { email: fake.email },
       update: {},
-      create: {
-        externalId: `seed:${fake.email}`,
-        email: fake.email,
-        displayName: fake.name,
-        isAdmin: false,
-      },
+      create: { externalId: `seed:${fake.email}`, email: fake.email, displayName: fake.name, isAdmin: false },
     });
-    createdFakeUsers.push(user);
+    members.push(user);
 
     await prisma.eventMember.upsert({
       where: { eventId_userId: { eventId, userId: user.id } },
       update: {},
-      create: {
-        eventId,
-        userId: user.id,
-        role: "member",
-        joinedAtUtc: now,
-      },
+      create: { eventId, userId: user.id, role: "member", joinedAtUtc: now },
     });
   }
+  return members;
+}
 
-  const allUsers = [...seededAdmins, ...createdFakeUsers];
-
-  // 4. Categories & Nominees
+/** Each category is created once, with three approved nominations about random members. */
+async function seedDemoCategories(eventId, allUsers) {
   const categoriesData = [
     { id: "seed-cat-1", name: "Maior Bebedeira", description: "Quem deu o maior espetáculo?", voteQuestion: "Quem ganha a Maior Bebedeira?", sortOrder: 1, kind: 0, isActive: true },
     { id: "seed-cat-2", name: "Prémio Engate", description: "O rei ou rainha da pista.", voteQuestion: "Quem é o maior sedutor?", sortOrder: 2, kind: 0, isActive: true },
@@ -164,38 +160,24 @@ async function seedDemoData(eventId, seededAdmins, now) {
   ];
 
   for (const cat of categoriesData) {
-    const existingCat = await prisma.awardCategory.findFirst({ where: { name: cat.name, eventId } });
-    let catId = existingCat?.id;
-    if (!existingCat) {
-      const newCat = await prisma.awardCategory.create({
-        data: { ...cat, eventId, voteRules: {} }
-      });
-      catId = newCat.id;
-      
-      // Create Nominees for this new category
-      const nomineesData = [
-        { title: `O tombo do ${randomEl(allUsers).displayName}`, status: "approved" },
-        { title: `A dança de ${randomEl(allUsers).displayName}`, status: "approved" },
-        { title: `${randomEl(allUsers).displayName} a dormir no sofá`, status: "approved" },
-      ];
+    if (await prisma.awardCategory.findFirst({ where: { name: cat.name, eventId } })) continue;
 
-      for (const nom of nomineesData) {
-        await prisma.nominee.create({
-          data: {
-            eventId,
-            categoryId: catId,
-            title: nom.title,
-            submissionKind: "nominees",
-            submittedByUserId: randomEl(allUsers).id,
-            status: nom.status,
-          }
-        });
-      }
+    const category = await prisma.awardCategory.create({ data: { ...cat, eventId, voteRules: {} } });
+    const titles = [
+      `O tombo do ${randomEl(allUsers).displayName}`,
+      `A dança de ${randomEl(allUsers).displayName}`,
+      `${randomEl(allUsers).displayName} a dormir no sofá`,
+    ];
+    for (const title of titles) {
+      await prisma.nominee.create({
+        data: { eventId, categoryId: category.id, title, submissionKind: "nominees", submittedByUserId: randomEl(allUsers).id, status: "approved" },
+      });
     }
   }
+}
 
-  // 5. Fake Feed Posts
-  // Only add if feed is kinda empty to avoid spamming existing DB too much
+/** Five posts (one pinned, with a poll), each with comments and reactions; skipped once the feed has 10. */
+async function seedDemoPosts(eventId, allUsers) {
   const existingPosts = await prisma.hubPost.count({ where: { eventId } });
   if (existingPosts < 10) {
     const postsData = [

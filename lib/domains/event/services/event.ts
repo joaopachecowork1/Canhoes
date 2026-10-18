@@ -9,6 +9,7 @@ import {
   canSubmitProposals,
   resolveMemberModules,
   type EventRulesState,
+  readModuleSwitches,
 } from "@/lib/domains/event/rules/eventRules";
 
 /** The inputs of `eventRules` for one event, read from its phases and `CanhoesEventState`. */
@@ -19,7 +20,7 @@ export async function getEventRulesState(eventId: string): Promise<EventRulesSta
   ]);
   return {
     activePhaseType: activePhase?.type ?? null,
-    moduleVisibility: (state?.moduleVisibilityJson ?? {}) as EventRulesState["moduleVisibility"],
+    moduleVisibility: readModuleSwitches(state?.moduleVisibilityJson),
     nominationsVisible: state?.nominationsVisible ?? true,
     hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
   };

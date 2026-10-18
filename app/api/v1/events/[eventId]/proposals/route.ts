@@ -7,5 +7,5 @@ export const POST = apiRoute<{ eventId: string }>(async (request, { eventId }) =
   const user = await requireUser();
   await requireProposalsOpen(eventId, user);
   const { name, description, kind } = await readJson(request, CreateEventProposalSchema);
-  return json(await createProposal(eventId, user.id, name, description, kind));
+  return json(await createProposal(eventId, user.id, { name, description, kind }));
 });

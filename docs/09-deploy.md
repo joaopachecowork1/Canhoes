@@ -4,7 +4,19 @@ O site corre no teu PC em contentores (Docker ou Podman) e fica público no teu 
 
 O único custo é o domínio. O site só está online enquanto o PC estiver ligado; a [última secção](#alternativa-sempre-online) explica como passar a mesma configuração para um servidor que nunca desliga.
 
-![Deploy no PC com Cloudflare Tunnel](diagramas/deploy.png)
+```mermaid
+flowchart LR
+  B[Browser dos membros] -->|https://teu-dominio| CF[Cloudflare<br/>DNS + HTTPS]
+  CF -->|pedidos pelo túnel,<br/>que o PC abriu| T
+  subgraph PC["O teu PC (compose.server.yml)"]
+    T[tunnel<br/>cloudflared] -->|http://web:3000| W[web<br/>Next.js]
+    W --> P[(postgres)]
+    W --> U[(volume uploads)]
+    TM[systemd timer<br/>a cada 5 min] --> S[scripts/update-server.sh]
+    S -->|backup, build, restart| W
+  end
+  S -->|git fetch| GH[GitHub<br/>branch main]
+```
 
 ## Ficheiros envolvidos
 

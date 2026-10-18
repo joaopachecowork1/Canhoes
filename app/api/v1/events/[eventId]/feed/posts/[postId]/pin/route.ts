@@ -3,7 +3,7 @@ import { z } from "zod";
 import { notFound } from "@/lib/api/httpError";
 import { requireAdmin } from "@/lib/api/guards";
 import { apiRoute, json, readJson } from "@/lib/api/route";
-import { movePinnedPost, togglePin } from "@/lib/domains/feed/services/feed";
+import { movePinnedPost, togglePin } from "@/lib/domains/feed/services/feedPosts";
 
 const moveSchema = z.object({ direction: z.enum(["up", "down"]) }).strict();
 

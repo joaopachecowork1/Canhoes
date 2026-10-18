@@ -21,7 +21,24 @@ Os emails em `ADMIN_EMAILS` tornam-se admins no seed. Fora de produção existe 
 
 Cada edição é um `Event`. O admin ativa um evento de cada vez e faz avançar as fases à mão; um evento novo começa em PROPOSALS e as outras fases são criadas quando o admin as abre.
 
-![Ciclo anual: DRAW → PROPOSALS → VOTING → RESULTS](diagramas/ciclo-anual.png)
+```mermaid
+stateDiagram-v2
+  direction TB
+  [*] --> DRAW
+  DRAW --> PROPOSALS : admin muda a fase
+  PROPOSALS --> VOTING : admin muda a fase
+  VOTING --> RESULTS : admin muda a fase
+  RESULTS --> [*]
+
+  DRAW : Sorteio
+  DRAW : amigo secreto e wishlists
+  PROPOSALS : Propostas
+  PROPOSALS : categorias, nomeações, stickers, medidas
+  VOTING : Votação
+  VOTING : um voto por categoria, alterável
+  RESULTS : Resultados
+  RESULTS : gala com o top 5 de cada categoria
+```
 
 1. **Sorteio (`DRAW`).** Os membros preenchem a wishlist. O admin sorteia o amigo secreto, pode repetir o sorteio as vezes que quiser e, quando estiver satisfeito, revela-o. A partir daí cada membro vê a quem dá o presente e a wishlist dessa pessoa.
 2. **Propostas (`PROPOSALS`).** Os membros propõem categorias de prémio, nomeiam momentos para as categorias, submetem stickers e propõem medidas para a gala. O admin aprova ou rejeita cada proposta.

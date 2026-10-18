@@ -56,7 +56,7 @@ Os requisitos descrevem o comportamento atual da aplicação. Cada um aponta par
 
 | ID | Requisito | Código | Teste |
 |---|---|---|---|
-| RF-50 | Os membros publicam posts com texto (até 4000 caracteres), até 4 imagens e, opcionalmente, uma sondagem com 2 a 6 opções distintas. | `lib/domains/feed/services/feed.ts`, `lib/zod/feed.ts` | `feed.test.ts` |
+| RF-50 | Os membros publicam posts com texto (até 4000 caracteres), até 4 imagens e, opcionalmente, uma sondagem com 2 a 6 opções distintas. | `lib/domains/feed/services/feedPosts.ts`, `lib/zod/feed.ts` | `feed.test.ts` |
 | RF-51 | Os membros comentam (com respostas a comentários), reagem com emoji a posts e comentários, dão like ou downvote e votam nas sondagens (um voto por sondagem). | `feed.ts` | `ownership.int.test.ts` |
 | RF-52 | Cada um apaga os seus comentários; o admin apaga qualquer post ou comentário. | `feed.ts` (`deleteComment`, `deleteFeedPost`) | `ownership.int.test.ts` |
 | RF-53 | O admin fixa posts no topo do mural e ordena os fixados. | `feed.ts` (`togglePin`, `movePinnedPost`) | |

@@ -19,6 +19,25 @@ type EventVoteDto = {
   selectionId: string;
 };
 
+type MemberRow = { userId: string; role: string };
+type UserName = { displayName: string | null; email: string };
+
+/** Options of a person category: the event's non-admin members, by name. */
+function toMemberOptions(members: MemberRow[], users: Map<string, UserName>): EventVoteOptionDto[] {
+  const labelOf = (userId: string) => users.get(userId)?.displayName ?? users.get(userId)?.email ?? "Unknown";
+  return members
+    .filter((member) => member.role !== "admin")
+    .map((member) => ({ id: member.userId, label: labelOf(member.userId), imageUrl: null }))
+    .sort((left, right) => left.label.localeCompare(right.label));
+}
+
+/** Options of a nominee category: its approved nominations. */
+function toNomineeOptions(nominees: { id: string; title: string; categoryId: string | null }[], categoryId: string): EventVoteOptionDto[] {
+  return nominees
+    .filter((nominee) => nominee.categoryId === categoryId)
+    .map((nominee) => ({ id: nominee.id, label: nominee.title, imageUrl: null }));
+}
+
 /**
  * The voting board: every active category with its options and the user's current choice. Nominee
  * categories offer their approved nominations; person categories (`KindUserVote`) offer the
@@ -72,50 +91,17 @@ export async function getVotingBoard(
   const nomineeVoteMap = new Map(nomineeVotes.map((v) => [v.categoryId, v.nomineeId]));
   const userVoteMap = new Map(userVotes.map((v) => [v.categoryId, v.targetUserId]));
 
-  const categoriesDto: EventVotingCategoryDto[] = categories.map((cat) => {
-    let options: EventVoteOptionDto[];
-    let mySelectionId: string | null = null;
-
-    if (cat.kind === KindUserVote) {
-      options = members
-        .filter((m) => m.role !== "admin")
-        .sort((a, b) => {
-          const uA = memberUserMap.get(a.userId);
-          const uB = memberUserMap.get(b.userId);
-          return (uA?.displayName ?? uA?.email ?? "").localeCompare(uB?.displayName ?? uB?.email ?? "");
-        })
-        .map((m) => {
-          const u = memberUserMap.get(m.userId);
-          return {
-            id: m.userId,
-            label: u?.displayName ?? u?.email ?? "Unknown",
-            imageUrl: null,
-          };
-        });
-
-      const targetId = userVoteMap.get(cat.id);
-      mySelectionId = targetId ?? null;
-    } else {
-      options = nominees
-        .filter((n) => n.categoryId === cat.id)
-        .map((n) => ({
-          id: n.id,
-          label: n.title,
-          imageUrl: null,
-        }));
-
-      const nomId = nomineeVoteMap.get(cat.id);
-      mySelectionId = nomId ?? null;
-    }
-
+  const memberOptions = toMemberOptions(members, memberUserMap);
+  const categoriesDto = categories.map((category): EventVotingCategoryDto => {
+    const isPersonCategory = category.kind === KindUserVote;
     return {
-      id: cat.id,
-      title: cat.name,
-      kind: cat.kind,
-      description: cat.description,
-      voteQuestion: cat.voteQuestion,
-      options,
-      myOptionId: mySelectionId,
+      id: category.id,
+      title: category.name,
+      kind: category.kind,
+      description: category.description,
+      voteQuestion: category.voteQuestion,
+      options: isPersonCategory ? memberOptions : toNomineeOptions(nominees, category.id),
+      myOptionId: (isPersonCategory ? userVoteMap : nomineeVoteMap).get(category.id) ?? null,
     };
   });
 
@@ -201,9 +187,7 @@ export async function castVote(
 export async function createProposal(
   eventId: string,
   userId: string,
-  name: string,
-  description?: string | null,
-  kind?: number
+  { name, description, kind }: { name: string; description?: string | null; kind?: number }
 ): Promise<EventProposalDto> {
   const proposal = await prisma.categoryProposal.create({
     data: {

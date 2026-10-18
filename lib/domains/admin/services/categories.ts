@@ -39,22 +39,34 @@ export async function getActiveCategories(
   };
 }
 
+type CategoryRow = Prisma.AwardCategoryGetPayload<object>;
+
+/** The admin's view of a category. `voteRules` is free text stored in a JSON column. */
+function toCategoryDto(category: CategoryRow): AwardCategoryDto {
+  return {
+    id: category.id,
+    name: category.name,
+    sortOrder: category.sortOrder,
+    isActive: category.isActive,
+    kind: category.kind,
+    description: category.description,
+    voteQuestion: category.voteQuestion,
+    voteRules: typeof category.voteRules === "string" ? category.voteRules : null,
+  };
+}
+
+/** Trimmed text, `null` when cleared, `undefined` (left unchanged) when not sent. */
+function trimmedOrNull(value: string | null | undefined) {
+  return value === undefined ? undefined : (value?.trim() ?? null);
+}
+
 /** Every category of the event, active or not, for the admin. */
 export async function getAdminCategories(eventId: string): Promise<AwardCategoryDto[]> {
   const categories = await prisma.awardCategory.findMany({
     where: { eventId },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
   });
-  return categories.map((c) => ({
-    id: c.id,
-    name: c.name,
-    sortOrder: c.sortOrder,
-    isActive: c.isActive,
-    kind: c.kind,
-    description: c.description,
-    voteQuestion: c.voteQuestion,
-    voteRules: c.voteRules as string | null,
-  }));
+  return categories.map(toCategoryDto);
 }
 
 /** Creates an active category; without `sortOrder` it goes to the end of the list. */
@@ -66,7 +78,6 @@ export async function createCategory(
     where: { eventId },
     _max: { sortOrder: true },
   });
-  const nextSort = data.sortOrder ?? (maxSort._max.sortOrder ?? 0) + 1;
 
   const category = await prisma.awardCategory.create({
     data: {
@@ -74,23 +85,13 @@ export async function createCategory(
       name: data.name.trim(),
       description: data.description?.trim() ?? null,
       kind: data.kind,
-      sortOrder: nextSort,
+      sortOrder: data.sortOrder ?? (maxSort._max.sortOrder ?? 0) + 1,
       isActive: true,
       voteQuestion: data.voteQuestion?.trim() ?? null,
       voteRules: data.voteRules ?? Prisma.JsonNull,
     },
   });
-
-  return {
-    id: category.id,
-    name: category.name,
-    sortOrder: category.sortOrder,
-    isActive: category.isActive,
-    kind: category.kind,
-    description: category.description,
-    voteQuestion: category.voteQuestion,
-    voteRules: typeof category.voteRules === "string" ? category.voteRules : JSON.stringify(category.voteRules),
-  };
+  return toCategoryDto(category);
 }
 
 /** Updates the given fields of a category of this event; null when it does not exist here. */
@@ -102,30 +103,20 @@ export async function updateCategory(
   const existing = await prisma.awardCategory.findFirst({ where: { id: categoryId, eventId } });
   if (!existing) return null;
 
-  const updateData: Record<string, unknown> = {};
-  if (data.name !== undefined) updateData.name = data.name.trim();
-  if (data.sortOrder !== undefined) updateData.sortOrder = data.sortOrder;
-  if (data.isActive !== undefined) updateData.isActive = data.isActive;
-  if (data.kind !== undefined) updateData.kind = data.kind;
-  if (data.description !== undefined) updateData.description = data.description?.trim() ?? null;
-  if (data.voteQuestion !== undefined) updateData.voteQuestion = data.voteQuestion?.trim() ?? null;
-  if (data.voteRules !== undefined) updateData.voteRules = data.voteRules ?? Prisma.JsonNull;
-
+  // Prisma leaves `undefined` fields untouched, so only what the admin sent changes.
   const updated = await prisma.awardCategory.update({
     where: { id: categoryId },
-    data: updateData,
+    data: {
+      name: data.name?.trim(),
+      sortOrder: data.sortOrder,
+      isActive: data.isActive,
+      kind: data.kind,
+      description: trimmedOrNull(data.description),
+      voteQuestion: trimmedOrNull(data.voteQuestion),
+      voteRules: data.voteRules === undefined ? undefined : (data.voteRules ?? Prisma.JsonNull),
+    },
   });
-
-  return {
-    id: updated.id,
-    name: updated.name,
-    sortOrder: updated.sortOrder,
-    isActive: updated.isActive,
-    kind: updated.kind,
-    description: updated.description,
-    voteQuestion: updated.voteQuestion,
-    voteRules: typeof updated.voteRules === "string" ? updated.voteRules : JSON.stringify(updated.voteRules),
-  };
+  return toCategoryDto(updated);
 }
 
 /** Deletes a category of this event; false when it does not exist here. */

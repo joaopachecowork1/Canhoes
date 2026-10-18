@@ -105,8 +105,8 @@ export const officialResult = (overrides: Partial<AdminCategoryResultDto> = {}):
   totalVotes: 3,
   participationRate: 0.75,
   nominees: [
-    { nomineeId: "n1", title: "Ana", imageUrl: null, voteCount: 2, voterUserIds: ["rui", "eva"] },
-    { nomineeId: "n2", title: "Rui", imageUrl: null, voteCount: 1, voterUserIds: ["ana"] },
+    { nomineeId: "n1", title: "Ana", imageUrl: null, voteCount: 2, voterNames: ["Rui", "Eva"] },
+    { nomineeId: "n2", title: "Rui", imageUrl: null, voteCount: 1, voterNames: ["Ana"] },
   ],
   ...overrides,
 });

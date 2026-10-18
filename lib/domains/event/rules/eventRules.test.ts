@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveMemberModules, type EventRulesState } from "./eventRules";
+import { readModuleSwitches, resolveMemberModules, type EventRulesState } from "./eventRules";
 
 function openModules(state: Partial<EventRulesState>) {
   const modules = resolveMemberModules({
@@ -35,5 +35,15 @@ describe("resolveMemberModules", () => {
 
   it("keeps a module the admin switched off closed in every phase", () => {
     expect(openModules({ activePhaseType: "VOTING", moduleVisibility: { voting: false } })).not.toContain("voting");
+  });
+});
+
+describe("readModuleSwitches", () => {
+  it("keeps only on/off values of a saved object", () => {
+    expect(readModuleSwitches({ feed: false, stickers: true, gala: "yes" })).toEqual({ feed: false, stickers: true });
+  });
+
+  it.each([null, undefined, "feed", [true], 3])("reads %o as no switches", (value) => {
+    expect(readModuleSwitches(value)).toEqual({});
   });
 });

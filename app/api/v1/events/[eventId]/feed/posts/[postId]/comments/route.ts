@@ -1,6 +1,6 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
 import { apiRoute, json, readJson } from "@/lib/api/route";
-import { createComment, getPostComments } from "@/lib/domains/feed/services/feed";
+import { createComment, getPostComments } from "@/lib/domains/feed/services/feedComments";
 import { CreateFeedCommentSchema } from "@/lib/zod/feed";
 
 type PostParams = { eventId: string; postId: string };
@@ -15,5 +15,5 @@ export const POST = apiRoute<PostParams>(async (request, { eventId, postId }) =>
   const user = await requireUser();
   await requireEventAccess(eventId, user);
   const { text, replyToId } = await readJson(request, CreateFeedCommentSchema);
-  return json(await createComment(eventId, postId, user.id, text, replyToId), 201);
+  return json(await createComment(eventId, postId, user.id, { text, replyToId }), 201);
 });

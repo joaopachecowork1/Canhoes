@@ -1,8 +1,0 @@
-stateDiagram-v2
-  direction LR
-  [*] --> pending : membro submete (só em PROPOSALS)
-  pending --> approved : admin aprova
-  pending --> rejected : admin rejeita
-  approved --> rejected : admin muda de ideias
-  rejected --> approved : admin muda de ideias
-  approved --> [*]

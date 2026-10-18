@@ -237,9 +237,7 @@ npm run build
 Antes de cada push corre `scripts/quality-gate.sh` (ativa o hook com `git config core.hooksPath scripts/git-hooks`; ver `docs/07-operacao.md`).
 
 `npm run test:coverage` corre os três tipos de teste com cobertura (`coverage/lcov.info`) e precisa do PostgreSQL de testes. Falha se a cobertura descer abaixo dos mínimos em `vitest.config.mjs`.
-O CI envia-a ao [SonarQube Cloud](https://sonarcloud.io/project/overview?id=joaopachecowork1_Canhoes),
-que mostra code smells, duplicação e cobertura em cada push e PR. As regras de arquitetura, tamanho
-e textos estão em `docs/03-arquitetura.md`.
+As regras de arquitetura, tamanho e textos estão em `docs/03-arquitetura.md`.
 
 Os testes de integração chamam os route handlers contra uma base de dados real, que é limpa antes de cada teste; por isso só correm numa base de dados cujo nome acaba em `_test` (`TEST_DATABASE_URL`, por omissão `canhoes_test` em localhost:5433). O `npm run db:up` cria-a. Se mudaste `POSTGRES_PASSWORD` no `.env`, define também `TEST_DATABASE_URL` com essa password.
 

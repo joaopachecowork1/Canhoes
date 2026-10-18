@@ -197,7 +197,8 @@ describe("admin votes and results", () => {
 
     const results = (await callRoute(getOfficialResults, params)).body as PagedResult<AdminCategoryResultDto>;
     expect(results.items[0]).toMatchObject({ categoryName: "Membro do ano", totalVotes: 3, participationRate: 1 });
-    expect(results.items[0]?.nominees.map((nominee) => [nominee.nomineeId, nominee.voteCount])).toEqual([[rui.id, 2], [ana.id, 1]]);
+    expect(results.items[0]?.nominees.map((nominee) => [nominee.nomineeId, nominee.title, nominee.voteCount])).toEqual([[rui.id, "Rui", 2], [ana.id, "Ana", 1]]);
+    expect(results.items[0]?.nominees[0]?.voterNames.sort()).toEqual(["Admin", "Ana"]);
   });
 });
 

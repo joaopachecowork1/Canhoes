@@ -61,77 +61,65 @@ export async function getAdminVotesPaged(
   };
 }
 
+type UserVoteRow = { categoryId: string; voterUserId: string; targetUserId: string };
+type NomineeResult = AdminCategoryResultDto["nominees"][number];
+
+/** Votes of one category per voted member, most voted first, with the names of who voted. */
+function tallyCategory(votes: UserVoteRow[], nameOf: (userId: string) => string): NomineeResult[] {
+  const byTarget = new Map<string, string[]>();
+  for (const vote of votes) {
+    byTarget.set(vote.targetUserId, [...(byTarget.get(vote.targetUserId) ?? []), nameOf(vote.voterUserId)]);
+  }
+  return [...byTarget.entries()]
+    .map(([targetUserId, voterNames]) => ({
+      nomineeId: targetUserId,
+      title: nameOf(targetUserId),
+      imageUrl: null,
+      voteCount: voterNames.length,
+      voterNames,
+    }))
+    .sort((left, right) => right.voteCount - left.voteCount);
+}
+
+/** Display name (else email) of each user, for labelling votes. */
+async function getUserNames(userIds: string[]) {
+  const users = userIds.length > 0
+    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, displayName: true, email: true } })
+    : [];
+  const names = new Map(users.map((user) => [user.id, user.displayName ?? user.email]));
+  return (userId: string) => names.get(userId) ?? "Unknown";
+}
+
 /** Official results per category so far, for the admin, at any phase (members only see them in RESULTS). */
 export async function getAdminOfficialResultsPaged(
   eventId: string,
   skip = 0,
   take = 50
 ): Promise<PagedResult<AdminCategoryResultDto>> {
-  const members = await prisma.eventMember.count({ where: { eventId } });
+  const where = { eventId, kind: KindUserVote };
+  const [members, categories, total] = await Promise.all([
+    prisma.eventMember.count({ where: { eventId } }),
+    prisma.awardCategory.findMany({ where, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], skip, take }),
+    prisma.awardCategory.count({ where }),
+  ]);
 
-  const categories = await prisma.awardCategory.findMany({
-    where: { eventId, kind: KindUserVote },
-    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-    skip, take,
-  });
-
-  const total = await prisma.awardCategory.count({
-    where: { eventId, kind: KindUserVote },
-  });
-
-  const categoryIds = categories.map((c) => c.id);
+  const categoryIds = categories.map((category) => category.id);
   const userVotes = categoryIds.length > 0
     ? await prisma.userVote.findMany({ where: { eventId, categoryId: { in: categoryIds } } })
     : [];
+  const nameOf = await getUserNames([...new Set(userVotes.flatMap((vote) => [vote.voterUserId, vote.targetUserId]))]);
 
-  const voterIds = [...new Set(userVotes.map((v) => v.voterUserId))];
-  const voterUsers = voterIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: voterIds } }, select: { id: true, displayName: true, email: true } })
-    : [];
-  const voterMap = new Map(voterUsers.map((u) => [u.id, u]));
-
-  const votesByCategory = new Map<string, Map<string, { count: number; voters: string[] }>>();
-  for (const vote of userVotes) {
-    if (!votesByCategory.has(vote.categoryId)) {
-      votesByCategory.set(vote.categoryId, new Map());
-    }
-    const catVotes = votesByCategory.get(vote.categoryId)!;
-    if (!catVotes.has(vote.targetUserId)) {
-      catVotes.set(vote.targetUserId, { count: 0, voters: [] });
-    }
-    const entry = catVotes.get(vote.targetUserId)!;
-    entry.count++;
-    const v = voterMap.get(vote.voterUserId);
-    entry.voters.push(v?.displayName ?? v?.email ?? "Unknown");
-  }
-
-  const items: AdminCategoryResultDto[] = categories.map((cat) => {
-    const catVotes = votesByCategory.get(cat.id) ?? new Map();
-    const tallies = [...catVotes.entries()]
-      .sort((a, b) => b[1].count - a[1].count)
-      .map(([targetUserId, data]: [string, { count: number; voters: string[] }]) => ({
-        nomineeId: targetUserId,
-        title: targetUserId,
-        imageUrl: null as string | null,
-        voteCount: data.count,
-        voterUserIds: data.voters,
-      }));
-
-    const totalVotes = tallies.reduce((s, t) => s + t.voteCount, 0);
-
+  const items = categories.map((category): AdminCategoryResultDto => {
+    const nominees = tallyCategory(userVotes.filter((vote) => vote.categoryId === category.id), nameOf);
+    const totalVotes = nominees.reduce((sum, nominee) => sum + nominee.voteCount, 0);
     return {
-      categoryId: cat.id,
-      categoryName: cat.name,
+      categoryId: category.id,
+      categoryName: category.name,
       totalVotes,
       participationRate: members > 0 ? totalVotes / members : 0,
-      nominees: tallies,
+      nominees,
     };
   });
 
-  return {
-    items,
-    total,
-    skip, take,
-    hasMore: skip + take < total,
-  };
+  return { items, total, skip, take, hasMore: skip + take < total };
 }

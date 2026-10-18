@@ -1,6 +1,6 @@
 # Documentação dos Canhões do Ano
 
-Esta pasta descreve o negócio, os requisitos e a arquitetura da aplicação, num formato que se lê de cima a baixo por uma pessoa ou por um LLM. Os diagramas são imagens com fundo branco, legíveis no GitHub e no VS Code em qualquer tema; as fontes (BESSER e Mermaid) e a forma de os alterar estão em [diagramas/README.md](diagramas/README.md).
+Esta pasta descreve o negócio, os requisitos e a arquitetura da aplicação, num formato que se lê de cima a baixo por uma pessoa ou por um LLM. Os diagramas de fluxo estão em Mermaid dentro dos documentos; os de classes são imagens do BESSER. Como alterar cada um está em [diagramas/README.md](diagramas/README.md).
 
 Cada regra cita o ficheiro onde vive no código e o teste que a garante, para que a documentação possa ser verificada e mantida ao lado do código.
 
@@ -23,7 +23,7 @@ Cada regra cita o ficheiro onde vive no código e o teste que a garante, para qu
 Para dar contexto completo a um LLM, junta os ficheiros por ordem numa só mensagem:
 
 ```bash
-cat docs/README.md docs/0*.md docs/diagramas/*.mmd > canhoes-contexto.md
+cat docs/README.md docs/0*.md > canhoes-contexto.md
 ```
 
 Junta também `prisma/schema.prisma` e `lib/domains/event/rules/eventRules.ts` quando a pergunta for sobre dados ou permissões; são as duas fontes de verdade mais densas.
@@ -33,4 +33,4 @@ Junta também `prisma/schema.prisma` e `lib/domains/event/rules/eventRules.ts` q
 - Uma alteração de comportamento atualiza o requisito ou a regra correspondente no mesmo PR.
 - Uma rota nova entra em [06-api.md](06-api.md) e na matriz de autorização (`tests/integration/authorization.int.test.ts`).
 - Uma alteração ao `prisma/schema.prisma` atualiza [04-modelo-de-dados.md](04-modelo-de-dados.md) e o diagrama de classes da área (BESSER).
-- Um diagrama alterado leva a fonte e a imagem no mesmo PR ([diagramas/README.md](diagramas/README.md)).
+- Um diagrama muda no mesmo PR que o comportamento que descreve ([diagramas/README.md](diagramas/README.md)).

@@ -4,7 +4,39 @@
 
 Uma única aplicação Next.js 16 (App Router) serve as páginas e a API. Não há backend separado: os route handlers em `app/api` falam com o PostgreSQL através do Prisma.
 
-![Visão geral da arquitetura](diagramas/arquitetura.png)
+```mermaid
+flowchart TB
+  subgraph Browser
+    UI["Páginas e componentes<br/>app/canhoes, components/, lib/domains/*/components"]
+    RQ["TanStack Query<br/>hooks/, lib/domains/*/components/hooks"]
+    REPO["Repositórios de cliente<br/>lib/repositories/* via canhoesFetch"]
+  end
+
+  subgraph Servidor["Servidor Next.js"]
+    PROXY["proxy.ts<br/>redireciona quem não tem sessão"]
+    PAGES["Páginas de servidor<br/>app/canhoes/(app)/*/page.tsx"]
+    ROUTES["Route handlers<br/>app/api/v1/events/[eventId]/..."]
+    GUARDS["Guards e validação<br/>lib/api/guards.ts, lib/api/route.ts, lib/zod"]
+    SERVICES["Serviços de domínio<br/>lib/domains/*/services"]
+    RULES["Regras puras<br/>eventRules.ts, draw.ts, results.ts, adminRolePolicy.ts"]
+    AUTH["NextAuth<br/>lib/domains/auth/services/auth.ts"]
+    STORAGE["Uploads em disco<br/>lib/storage/localStorage.ts"]
+  end
+
+  DB[("PostgreSQL<br/>Prisma")]
+  DISK[("UPLOADS_DIR")]
+
+  UI --> RQ --> REPO -->|"fetch /api/..."| ROUTES
+  UI -.->|"navegação"| PROXY --> PAGES
+  PAGES -->|"canhoesServerFetch (HTTP para a própria API)"| ROUTES
+  ROUTES --> GUARDS --> AUTH
+  ROUTES --> SERVICES
+  GUARDS --> RULES
+  SERVICES --> RULES
+  SERVICES --> DB
+  AUTH --> DB
+  SERVICES --> STORAGE --> DISK
+```
 
 ## Camadas
 
@@ -94,7 +126,7 @@ diretamente no JSX.
 | Componentes e hooks (jsdom + Testing Library) | `**/*.test.tsx` | `npm run test:component` |
 | Integração (route handlers + PostgreSQL) | `tests/integration/**/*.int.test.ts` | `npm run test:integration` |
 
-`npm run test:coverage` junta os três numa só medição (o job de integração do CI corre-o e envia-o ao SonarQube). Os mínimos em `vitest.config.mjs` só sobem: depois de cada lote de testes, acerta-os logo abaixo dos números novos, até 90% de linhas e de branches.
+`npm run test:coverage` junta os três numa só medição (o job de integração do CI corre-o e falha abaixo dos mínimos). Os mínimos em `vitest.config.mjs` só sobem: depois de cada lote de testes, acerta-os logo abaixo dos números novos, até 90% de linhas e de branches.
 
 Os testes de componentes testam o que o utilizador vê e faz (texto, papéis, cliques), não a
 implementação. A API é simulada na rede com MSW, por isso o código corre como em produção, desde o
@@ -113,7 +145,22 @@ repositório até ao `canhoesFetch`. Os helpers ficam em `tests/component/`:
 Os testes de integração usam `tests/integration/helpers.ts`: `callRoute` chama um route handler como
 o Next.js, `signInAs` escolhe a sessão, e `createEvent`/`createMember`/`createUser` criam os dados.
 
-![Fluxo de autorização de um pedido](diagramas/autorizacao.png)
+```mermaid
+flowchart LR
+  REQ["Pedido"] --> U{"Tem sessão?"}
+  U -- não --> E401["401 UNAUTHORIZED"]
+  U -- sim --> A{"isAdmin?"}
+  A -- sim --> OK["Executa"]
+  A -- não --> RA{"Rota de admin?"}
+  RA -- sim --> E403A["403 FORBIDDEN"]
+  RA -- não --> M{"Membro do evento?"}
+  M -- não --> E403M["403 NOT_A_MEMBER"]
+  M -- sim --> R{"A rota exige um módulo<br/>ou propostas abertas?"}
+  R -- não --> OK
+  R -- sim --> MOD{"Está aberto<br/>na fase atual?"}
+  MOD -- não --> E4xx["403 MODULE_DISABLED<br/>409 PROPOSALS_CLOSED"]
+  MOD -- sim --> OK
+```
 
 Os guards (`lib/api/guards.ts`) aplicam este fluxo: `requireUser`, `requireAdmin`, `requireEventAccess`, `requireModule` e `requireProposalsOpen`. A matriz em `tests/integration/authorization.int.test.ts` descobre todas as rotas da API e verifica cada uma contra visitante, utilizador fora do evento, membro e admin.
 

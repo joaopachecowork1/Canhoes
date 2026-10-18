@@ -219,7 +219,7 @@ describe("CanhoesAdminModule — categories and results", () => {
     expect(await screen.findByText("Participação 75%")).toBeInTheDocument();
     expect(screen.getByText("2 votos (67%)")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Ver eleitores" }));
-    expect(screen.getByText(": rui, eva")).toBeInTheDocument();
+    expect(screen.getByText(": Rui, Eva")).toBeInTheDocument();
   });
 
   it("filters the vote audit", async () => {

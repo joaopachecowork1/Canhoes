@@ -19,7 +19,7 @@ type AdminCategoryNomineeResult = {
   title: string;
   imageUrl: string | null;
   voteCount: number;
-  voterUserIds: string[];
+  voterNames: string[];
 };
 
 function getParticipationClass(rate: number) {
@@ -98,7 +98,7 @@ function ResultsVotersList({
       {nominees.map((nominee) => (
         <p key={nominee.nomineeId} className="text-xs text-[var(--ink-secondary)]">
           <span className="text-[var(--ink-primary)]">{nominee.title}</span>
-          {`: ${nominee.voterUserIds.join(", ") || copy.noVotes}`}
+          {`: ${nominee.voterNames.join(", ") || copy.noVotes}`}
         </p>
       ))}
     </AdminDetailPanel>

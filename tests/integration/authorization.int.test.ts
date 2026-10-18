@@ -54,13 +54,16 @@ const adminRoutes = protectedRoutes.filter(
 
 type Handler = Parameters<typeof callRoute<Record<string, unknown>>>[0];
 
+/** A value for a route segment: the event under test, a file for catch-all segments, else a random id. */
+function paramValue(name: string, isCatchAll: boolean, eventId: string) {
+  if (isCatchAll) return ["file.png"];
+  return name === "eventId" ? eventId : randomUUID();
+}
+
 async function call({ route, method }: Route, eventId: string) {
   const handlers: Record<string, Handler> = await import(path.join(API_ROOT, route, "route.ts"));
   const params = Object.fromEntries(
-    [...route.matchAll(/\[(\.\.\.)?(\w+)\]/g)].map(([, spread, name]) => [
-      name,
-      spread ? ["file.png"] : name === "eventId" ? eventId : randomUUID(),
-    ])
+    [...route.matchAll(/\[(\.\.\.)?(\w+)\]/g)].map(([, spread, name]) => [name, paramValue(name, Boolean(spread), eventId)])
   );
   return callRoute(handlers[method], params, { method, body: method === "GET" ? undefined : {} });
 }

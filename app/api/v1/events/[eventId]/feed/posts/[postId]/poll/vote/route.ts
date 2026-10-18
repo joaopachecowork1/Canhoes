@@ -1,6 +1,6 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
 import { apiRoute, json, readJson } from "@/lib/api/route";
-import { votePoll } from "@/lib/domains/feed/services/feed";
+import { votePoll } from "@/lib/domains/feed/services/feedReactions";
 import { VoteFeedPollSchema } from "@/lib/zod/feed";
 
 export const POST = apiRoute<{ eventId: string; postId: string }>(async (request, { eventId, postId }) => {

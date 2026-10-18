@@ -1,6 +1,6 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
 import { apiRoute, json, readJson, readPaging } from "@/lib/api/route";
-import { createFeedPost, getFeedPosts } from "@/lib/domains/feed/services/feed";
+import { createFeedPost, getFeedPosts } from "@/lib/domains/feed/services/feedPosts";
 import { CreateFeedPostSchema } from "@/lib/zod/feed";
 
 export const GET = apiRoute<{ eventId: string }>(async (request, { eventId }) => {

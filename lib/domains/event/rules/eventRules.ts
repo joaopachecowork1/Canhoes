@@ -59,3 +59,11 @@ export function canSubmitProposals(state: EventRulesState) {
 export function isVotingOpen(votingPhase: VotingWindow | null, now: Date) {
   return votingPhase !== null && now >= votingPhase.startDateUtc && now <= votingPhase.endDateUtc;
 }
+
+/** The module switches saved in `CanhoesEventState.moduleVisibilityJson`, keeping only on/off values. */
+export function readModuleSwitches(value: unknown): Record<string, boolean> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value).filter((entry): entry is [string, boolean] => typeof entry[1] === "boolean")
+  );
+}

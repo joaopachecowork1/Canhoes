@@ -26,7 +26,7 @@ const CLIENT_CODE = [
   "./lib/repositories/**",
 ];
 
-/** Size, complexity and Sonar smells, at one severity. */
+/** Size, complexity and code smells (eslint-plugin-sonarjs), at one severity. */
 function qualityRules(severity) {
   return {
     ...Object.fromEntries(
@@ -36,7 +36,7 @@ function qualityRules(severity) {
       ]),
     ),
     "sonarjs/cognitive-complexity": [severity, 15],
-    // Duplicates `@typescript-eslint/no-unused-vars`; TODOs are tracked in Sonar anyway.
+    // Duplicates `@typescript-eslint/no-unused-vars`; TODOs are allowed while they name the follow-up.
     "sonarjs/no-unused-vars": "off",
     "sonarjs/todo-tag": "off",
 
@@ -145,6 +145,16 @@ const eslintConfig = defineConfig([
     // Declarations only: one DTO per API response; splitting it by size alone would not help.
     files: ["lib/api/types.ts"],
     rules: { "max-lines": "off" },
+  },
+  {
+    // Dev tooling and tests: random demo data and test IPs, `npx`/`docker` from PATH, and /tmp inside
+    // the database container are intended here; in app code these rules stay on.
+    files: ["prisma/seed.mjs", "scripts/**", "tests/**"],
+    rules: {
+      "sonarjs/pseudo-random": "off",
+      "sonarjs/no-os-command-from-path": "off",
+      "sonarjs/publicly-writable-directories": "off",
+    },
   },
   {
     files: ["**/*.test.ts", "**/*.test.tsx", "tests/**"],
