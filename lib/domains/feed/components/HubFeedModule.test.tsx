@@ -187,4 +187,84 @@ describe("HubFeedModule", () => {
       await waitFor(() => expect(screen.queryByText("Para apagar")).not.toBeInTheDocument());
     });
   });
+
+  describe("when the server refuses", () => {
+    const refuse = (method: "post" | "delete" | "patch", path: string) =>
+      http[method](`${POSTS}${path}`, () => HttpResponse.json({ message: "Recusado pelo servidor." }, { status: 409 }));
+
+    it("keeps the reply when the comment is not published", async () => {
+      servePosts([post({ commentCount: 1 })]);
+      server.use(http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])), refuse("post", "/post-1/comments"));
+      renderFeed();
+
+      await userEvent.click(await screen.findByRole("button", { name: "1 comentários" }));
+      await userEvent.click(await screen.findByRole("button", { name: "Responder" }));
+      expect(screen.getByText("A responder a")).toBeInTheDocument();
+      await userEvent.type(screen.getByPlaceholderText(/Escreve a tua resposta/), "Não concordo");
+      await userEvent.click(screen.getByRole("button", { name: "Enviar resposta" }));
+
+      expect(await screen.findByText(/Recusado pelo servidor/)).toBeInTheDocument();
+      expect(screen.getByPlaceholderText(/Escreve a tua resposta/)).toHaveValue("Não concordo");
+      await userEvent.click(screen.getByRole("button", { name: "Cancelar resposta" }));
+      expect(screen.queryByText("A responder a")).not.toBeInTheDocument();
+    });
+
+    it("puts the comment back when it cannot be deleted", async () => {
+      signInAs({ id: "rui", name: "Rui" });
+      servePosts([post({ commentCount: 1 })]);
+      server.use(http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])), refuse("delete", "/post-1/comments/comment-1"));
+      renderFeed();
+
+      await userEvent.click(await screen.findByRole("button", { name: "1 comentários" }));
+      await userEvent.click(await screen.findByRole("button", { name: "Apagar comentário" }));
+      await userEvent.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Eliminar" }));
+
+      expect(await screen.findByText(/Recusado pelo servidor/)).toBeInTheDocument();
+      expect(screen.getByText("Concordo")).toBeInTheDocument();
+    });
+
+    it("undoes a poll vote", async () => {
+      const poll = { question: "Quem ganha?", myOptionId: null, totalVotes: 0, options: [{ id: "o1", text: "Ana", voteCount: 0 }] };
+      servePosts([post({ poll })]);
+      server.use(refuse("post", "/post-1/poll/vote"));
+      renderFeed();
+
+      await userEvent.click(await screen.findByRole("button", { name: /^Ana: 0 votos/ }));
+      expect(await screen.findByText(/Recusado pelo servidor/)).toBeInTheDocument();
+      expect(await screen.findByRole("button", { name: /^Ana: 0 votos/ })).toHaveAttribute("aria-pressed", "false");
+    });
+
+    it("keeps the post when it cannot be pinned or deleted", async () => {
+      signInAs({ isAdmin: true });
+      servePosts([post({ text: "Fica" })]);
+      server.use(refuse("post", "/post-1/pin"), refuse("delete", "/post-1"));
+      renderFeed();
+
+      await userEvent.click(await screen.findByRole("button", { name: "Fixar post" }));
+      expect(await screen.findByText(/Recusado pelo servidor/)).toBeInTheDocument();
+      expect(screen.queryByText("Fixado")).not.toBeInTheDocument();
+
+      await userEvent.click(screen.getByRole("button", { name: "Eliminar post" }));
+      await userEvent.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Eliminar" }));
+      await waitFor(() => expect(screen.getAllByText(/Recusado pelo servidor/).length).toBeGreaterThan(0));
+      expect(screen.getByText("Fica")).toBeInTheDocument();
+    });
+
+    it("moves a pinned post", async () => {
+      signInAs({ isAdmin: true });
+      servePosts([post({ id: "post-1", text: "Um", isPinned: true, pinnedOrder: 0 }), post({ id: "post-2", text: "Dois", isPinned: true, pinnedOrder: 1 })]);
+      const directions: unknown[] = [];
+      server.use(
+        http.patch(`${POSTS}/post-2/pin`, async ({ request }) => {
+          directions.push(await request.json());
+          return HttpResponse.json({ success: true });
+        })
+      );
+      renderFeed();
+
+      const [, moveSecondUp] = await screen.findAllByRole("button", { name: "Subir post fixado" });
+      await userEvent.click(moveSecondUp);
+      await waitFor(() => expect(directions).toEqual([{ direction: "up" }]));
+    });
+  });
 });

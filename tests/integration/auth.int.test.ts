@@ -101,6 +101,30 @@ describe("session tokens", () => {
     expect(token).toMatchObject({ dbUserId: user.id, name: "Ana", authMode: "credentials" });
   });
 
+  it("keeps a development sign-in tied to its user and labels the session", async () => {
+    const user = await createUser({ isAdmin: true });
+    const token = await jwt({ email: user.email }, { provider: "development", providerAccountId: user.id, type: "credentials" }, { id: user.id, email: user.email });
+    expect(token).toMatchObject({ dbUserId: user.id, isAdmin: true, authMode: "development" });
+
+    const session = await authOptions.callbacks?.session?.({
+      session: { user: { id: "", isAdmin: false }, expires: "2099-01-01" } satisfies Session,
+      token: { sub: user.id },
+      user: { id: user.id, email: "", emailVerified: null },
+      newSession: undefined,
+      trigger: "update",
+    });
+    expect(session).toMatchObject({ user: { id: user.id, isAdmin: false }, authMode: "google" });
+  });
+
+  it("lets Google in only through the invitation policy", async () => {
+    const signIn = (email: string | null, provider = "google") =>
+      authOptions.callbacks?.signIn?.({ user: { id: "x", email }, account: { provider, providerAccountId: "g-1", type: "oauth" } });
+
+    expect(await signIn("ana@example.test", "credentials")).toBe(true);
+    expect(await signIn(null)).toBe(false);
+    expect(await signIn("stranger@example.test")).toBe(false);
+  });
+
   it("copies the user id, admin flag and sign-in mode into the session", async () => {
     const session = await authOptions.callbacks?.session?.({
       session: { user: { id: "", isAdmin: false }, expires: "2099-01-01" } satisfies Session,

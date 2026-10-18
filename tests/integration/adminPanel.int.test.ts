@@ -6,7 +6,7 @@ import { DELETE as deleteCategory, PUT as updateCategory } from "@/app/api/v1/ev
 import { GET as getCategories, POST as createCategory } from "@/app/api/v1/events/[eventId]/admin/categories/route";
 import { DELETE as deleteCategoryProposal, PUT as updateCategoryProposal } from "@/app/api/v1/events/[eventId]/admin/category-proposals/[proposalId]/route";
 import { GET as getCategoryProposals } from "@/app/api/v1/events/[eventId]/admin/category-proposals/route";
-import { DELETE as deleteMeasureProposal } from "@/app/api/v1/events/[eventId]/admin/measure-proposals/[proposalId]/route";
+import { DELETE as deleteMeasureProposal, PUT as updateMeasureProposal } from "@/app/api/v1/events/[eventId]/admin/measure-proposals/[proposalId]/route";
 import { GET as getMeasureProposals } from "@/app/api/v1/events/[eventId]/admin/measure-proposals/route";
 import { PATCH as setRole } from "@/app/api/v1/events/[eventId]/admin/members/[userId]/role/route";
 import { GET as getMembers } from "@/app/api/v1/events/[eventId]/admin/members/paged/route";
@@ -14,6 +14,7 @@ import { POST as approveNomination } from "@/app/api/v1/events/[eventId]/admin/n
 import { POST as rejectNomination } from "@/app/api/v1/events/[eventId]/admin/nominations/[nomineeId]/reject/route";
 import { POST as setNominationCategory } from "@/app/api/v1/events/[eventId]/admin/nominations/[nomineeId]/set-category/route";
 import { GET as getNominations } from "@/app/api/v1/events/[eventId]/admin/nominations/paged/route";
+import { PUT as updatePhase } from "@/app/api/v1/events/[eventId]/admin/phase/route";
 import { GET as getOfficialResults } from "@/app/api/v1/events/[eventId]/admin/official-results/paged/route";
 import { PUT as updateState } from "@/app/api/v1/events/[eventId]/admin/state/route";
 import { GET as getVotes } from "@/app/api/v1/events/[eventId]/admin/votes/paged/route";
@@ -111,6 +112,25 @@ describe("admin proposals", () => {
     expect((await callRoute(deleteCategoryProposal, proposalParams, { method: "DELETE" })).status).toBe(404);
   });
 
+  it("edits or rejects proposals without creating anything, and answers 404 for unknown ones", async () => {
+    const { event, params } = await setupAdmin();
+    const ana = await createMember(event.id, "Ana");
+    const category = await prisma.categoryProposal.create({ data: { eventId: event.id, name: "Sticker", kind: 0, proposedByUserId: ana.id, status: "pending" } });
+    const measure = await prisma.measureProposal.create({ data: { eventId: event.id, text: "Paga", proposedByUserId: ana.id, status: "pending" } });
+
+    const rejected = await callRoute(updateCategoryProposal, { ...params, proposalId: category.id }, { method: "PUT", body: { description: " Repetida ", status: "rejected" } });
+    expect(rejected.body).toMatchObject({ status: "rejected", description: "Repetida" });
+    const edited = await callRoute(updateMeasureProposal, { ...params, proposalId: measure.id }, { method: "PUT", body: { text: " Quem perder paga " } });
+    expect(edited.body).toMatchObject({ text: "Quem perder paga", status: "pending" });
+
+    expect(await prisma.awardCategory.count()).toBe(0);
+    expect(await prisma.galaMeasure.count()).toBe(0);
+    for (const handler of [updateCategoryProposal, updateMeasureProposal]) {
+      expect((await callRoute(handler, { ...params, proposalId: "missing" }, { method: "PUT", body: {} })).status).toBe(404);
+    }
+    expect((await callRoute(deleteMeasureProposal, { ...params, proposalId: "missing" }, { method: "DELETE" })).status).toBe(404);
+  });
+
   it("lists and deletes measure proposals", async () => {
     const { event, params } = await setupAdmin();
     const ana = await createMember(event.id, "Ana");
@@ -189,6 +209,23 @@ describe("admin event state", () => {
 
     expect(state).toMatchObject({ resultsVisible: true, moduleVisibility: { stickers: false, feed: true } });
     expect(state.effectiveModules.stickers).toBe(false);
+  });
+
+  it("creates the state of an event that has none, with the defaults", async () => {
+    const { event, params } = await setupAdmin();
+    await prisma.canhoesEventState.delete({ where: { eventId: event.id } });
+
+    const state = (await callRoute(updateState, params, { method: "PUT", body: { nominationsVisible: false } })).body as EventAdminStateDto;
+    expect(state).toMatchObject({ nominationsVisible: false, resultsVisible: false });
+  });
+
+  it("opens results only in the results phase", async () => {
+    const { params } = await setupAdmin();
+
+    const results = (await callRoute(updatePhase, params, { method: "PUT", body: { phaseType: "RESULTS" } })).body as EventAdminStateDto;
+    expect(results).toMatchObject({ activePhase: { type: "RESULTS" }, resultsVisible: true, nominationsVisible: false });
+    const proposals = (await callRoute(updatePhase, params, { method: "PUT", body: { phaseType: "PROPOSALS" } })).body as EventAdminStateDto;
+    expect(proposals).toMatchObject({ resultsVisible: false, nominationsVisible: true });
   });
 
   it("loads the panel with every event and the counters", async () => {

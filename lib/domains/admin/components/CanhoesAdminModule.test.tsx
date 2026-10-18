@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -151,6 +151,45 @@ describe("CanhoesAdminModule — categories and results", () => {
     expect(recorder.requests[0]?.body).toMatchObject({ name: "Revelação" });
   });
 
+  it("edits a category: renames it and switches it off", async () => {
+    serveAdmin();
+    setNavigation({ pathname: "/canhoes/admin/conteudo", search: "view=categorias" });
+    const recorder = recordRequests();
+    server.use(
+      http.put(`*/api/v1/${ADMIN}/categories/cat-1`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(category({ name: "Canhão Maior", isActive: false }));
+      })
+    );
+    renderAdmin();
+
+    await userEvent.click(await screen.findByRole("button", { name: /Canhão do Ano/ }));
+    const name = await screen.findByLabelText("Nome");
+    await userEvent.clear(name);
+    await userEvent.type(name, "Canhão Maior");
+    await userEvent.click(screen.getByRole("switch"));
+    await userEvent.click(screen.getByRole("button", { name: "Guardar alterações" }));
+
+    expect(await screen.findByText("Categoria atualizada.")).toBeInTheDocument();
+    expect(recorder.requests[0]?.body).toMatchObject({ name: "Canhão Maior", isActive: false });
+  });
+
+  it("deletes a category after confirming", async () => {
+    serveAdmin();
+    setNavigation({ pathname: "/canhoes/admin/conteudo", search: "view=categorias" });
+    server.use(
+      apiRoute("get", `${ADMIN}/categories`, [category(), category({ id: "cat-3", name: "Sem uso" })]),
+      apiRoute("delete", `${ADMIN}/categories/cat-3`, null, 204)
+    );
+    renderAdmin();
+
+    await userEvent.click(await screen.findByRole("button", { name: /Sem uso/ }));
+    await userEvent.click(await screen.findByRole("button", { name: "Apagar categoria" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmar" }));
+
+    expect(await screen.findByText("Categoria apagada.")).toBeInTheDocument();
+  });
+
   it("switches views through the URL", async () => {
     serveAdmin();
     setNavigation({ pathname: "/canhoes/admin/conteudo" });
@@ -168,6 +207,29 @@ describe("CanhoesAdminModule — categories and results", () => {
     expect(await screen.findByText("Resultados oficiais")).toBeInTheDocument();
     expect(await screen.findByText("Histórico de votos")).toBeInTheDocument();
     expect(screen.getAllByText("Canhão do Ano").length).toBeGreaterThan(0);
+  });
+
+  it("opens a category's results, ranked, with its voters on demand", async () => {
+    serveAdmin();
+    setNavigation({ pathname: "/canhoes/admin/conteudo", search: "view=resultados" });
+    renderAdmin();
+
+    await userEvent.click(await screen.findByRole("button", { name: /Canhão do Ano.*3\/4/ }));
+
+    expect(await screen.findByText("Participação 75%")).toBeInTheDocument();
+    expect(screen.getByText("2 votos (67%)")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Ver eleitores" }));
+    expect(screen.getByText(": rui, eva")).toBeInTheDocument();
+  });
+
+  it("filters the vote audit", async () => {
+    serveAdmin();
+    setNavigation({ pathname: "/canhoes/admin/conteudo", search: "view=resultados" });
+    renderAdmin();
+
+    const filter = await screen.findByPlaceholderText("Filtrar por membro, categoria ou opção...");
+    await userEvent.type(filter, "ninguém");
+    expect(screen.getByText("Nenhum voto corresponde ao filtro aplicado.")).toBeInTheDocument();
   });
 });
 
@@ -202,6 +264,45 @@ describe("CanhoesAdminModule — members", () => {
 
     expect(await screen.findByText("Convite gerado!")).toBeInTheDocument();
     expect(screen.getByDisplayValue(/register\?token=abc/)).toBeInTheDocument();
+  });
+
+  it("repeats and reveals the draw only after confirming", async () => {
+    serveAdmin();
+    server.use(
+      apiRoute("get", `${ADMIN}/secret-santa/state`, secretSantaState({ hasDraw: true, assignmentCount: 4 })),
+      apiRoute("post", `${ADMIN}/secret-santa/draw`, secretSantaState({ hasDraw: true, assignmentCount: 4 })),
+      apiRoute("post", `${ADMIN}/secret-santa/reveal`, secretSantaState({ hasDraw: true, isLocked: true }))
+    );
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
+    renderAdmin("membros");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Repetir sorteio" }));
+    expect(confirm).toHaveBeenCalledWith(expect.stringContaining("apaga as atribuições"));
+    expect(screen.queryByText(/Sorteio realizado/)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Repetir sorteio" }));
+    expect(await screen.findByText("Sorteio realizado. Ainda ninguém o vê até o revelares.")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Revelar aos membros" }));
+    expect(await screen.findByText("Sorteio revelado aos membros.")).toBeInTheDocument();
+    confirm.mockRestore();
+  });
+
+  it("shows a revealed draw as locked", async () => {
+    serveAdmin();
+    server.use(apiRoute("get", `${ADMIN}/secret-santa/state`, secretSantaState({ hasDraw: true, isLocked: true, assignmentCount: 4 })));
+    renderAdmin("membros");
+
+    expect(await screen.findByText("O sorteio já foi revelado aos membros e não pode ser repetido.")).toBeInTheDocument();
+  });
+
+  it("cannot draw with fewer than two members", async () => {
+    serveAdmin();
+    server.use(apiRoute("get", `${ADMIN}/secret-santa/state`, secretSantaState({ memberCount: 1 })));
+    renderAdmin("membros");
+
+    expect(await screen.findByText("São necessários pelo menos 2 membros para realizar o sorteio.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Realizar sorteio" })).toBeDisabled();
   });
 
   it("runs the secret santa draw", async () => {

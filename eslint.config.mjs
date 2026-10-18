@@ -126,6 +126,8 @@ const eslintConfig = defineConfig([
       "max-lines-per-function": "off",
       // it.each tables pass one argument per column.
       "max-params": "off",
+      // Tests talk to local fakes over plain http.
+      "sonarjs/no-clear-text-protocols": "off",
       "sonarjs/no-hardcoded-passwords": "off",
       "sonarjs/no-duplicate-string": "off",
     },
