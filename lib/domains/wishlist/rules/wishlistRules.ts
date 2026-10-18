@@ -27,6 +27,7 @@ export function pickSelectedMemberId(pickedId: string | null, members: PublicUse
   return members[0]?.id ?? null;
 }
 
+/** The name to show for a member: display name, else email, else id. */
 export function getMemberLabel(member: PublicUserDto) {
   return member.displayName || member.email || member.id;
 }

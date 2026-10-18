@@ -179,6 +179,7 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
   return { adminPin, adminMovePinned, adminDelete };
 }
 
+/** Reactions, downvotes, poll votes, pins and deletes on feed posts, applied optimistically and rolled back on failure. */
 export function useHubFeedPostActions({
   eventId,
   queryClient,

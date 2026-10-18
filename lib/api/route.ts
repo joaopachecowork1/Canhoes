@@ -23,6 +23,7 @@ import { logger } from "@/lib/logger";
 
 type RouteContext<Params> = { params: Promise<Params> };
 
+/** Wraps a route handler: resolves its params, logs the request with a `requestId` and turns errors into JSON responses (`HttpError` keeps its status, anything else is a logged 500). */
 export function apiRoute<Params = Record<string, never>>(
   handler: (request: NextRequest, params: Params) => Promise<Response>
 ) {
@@ -69,10 +70,12 @@ function logRequest(request: NextRequest, status: number, context: { requestId: 
   else logger.debug(message, context);
 }
 
+/** A JSON response with the given status (200 by default). */
 export function json(body: unknown, status = 200) {
   return NextResponse.json(body, { status });
 }
 
+/** An empty 204 response, for writes that return nothing. */
 export function noContent() {
   return new NextResponse(null, { status: 204 });
 }

@@ -27,6 +27,7 @@ export class AdminRoleChangeError extends HttpError {
   }
 }
 
+/** Throws `AdminRoleChangeError` when a demotion would leave no admin or is a self-demotion the actor did not confirm. */
 export function assertAdminRoleChangeAllowed(change: AdminRoleChange) {
   const isDemotion = change.targetIsAdmin && !change.nextIsAdmin;
   if (!isDemotion) return;

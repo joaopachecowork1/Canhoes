@@ -15,14 +15,17 @@ export class HttpError extends Error {
   }
 }
 
+/** A 400 for input the route cannot accept, with optional details for the client. */
 export function badRequest(message: string, details?: unknown) {
   return new HttpError(400, "VALIDATION_ERROR", message, details);
 }
 
+/** A 401 for a request without a session. */
 export function unauthorized() {
   return new HttpError(401, "UNAUTHORIZED", "Authentication required.");
 }
 
+/** A 404 for a resource that does not exist in this event (or that the user may not see). */
 export function notFound(message: string) {
   return new HttpError(404, "NOT_FOUND", message);
 }

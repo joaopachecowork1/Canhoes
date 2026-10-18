@@ -83,6 +83,7 @@ function useCommentDrafts(eventId: string | null) {
   return { ...state, stateRef, toggleComments, setCommentDraft, setReplyingTo, markSent };
 }
 
+/** Comments of feed posts: open threads, reply drafts, and optimistic add, react and delete that roll back on failure. */
 export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeedCommentsArgs>) {
   const drafts = useCommentDrafts(eventId);
   const { stateRef, markSent } = drafts;

@@ -4,6 +4,7 @@ export type ResolveAdminStatusInput = {
   userIsAdmin: boolean;
 };
 
+/** The admin flag for the UI (only for a signed-in admin) and whether the session is still loading. */
 export function resolveAdminStatus({
   authLoading,
   isLogged,

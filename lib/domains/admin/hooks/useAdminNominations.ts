@@ -117,6 +117,7 @@ function useNominationMutations(queryEventId: string, nominationsQueryKey: reado
   return { approve, reject, setCategory, isPending: approve.isPending || reject.isPending || setCategory.isPending };
 }
 
+/** Pending nominations and categories for the moderation queue, with approve, reject and move-to-category mutations. */
 export function useAdminNominations(eventId: string | null) {
   const queryClient = useQueryClient();
   const queryEventId = eventId ?? "";

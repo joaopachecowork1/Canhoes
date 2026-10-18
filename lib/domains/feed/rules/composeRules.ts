@@ -18,6 +18,7 @@ export function moveItem<T>(items: T[], index: number, direction: -1 | 1): T[] {
   return reordered;
 }
 
+/** The poll options the user actually typed, trimmed, without empty ones. */
 export function getFilledPollOptions(options: readonly string[]) {
   return options.map((option) => option.trim()).filter(Boolean);
 }

@@ -60,6 +60,7 @@ function getApiErrorMessage(error: ApiError, fallback: string, statusMessages?: 
   return joinMessages(baseMessage, detail);
 }
 
+/** A message for the user from any error: the API's error code or status message (optionally overridden per status), plus the server's detail when it adds something. */
 export function getErrorMessage(error: unknown, fallback?: string): string;
 export function getErrorMessage(
   error: unknown,
@@ -85,6 +86,7 @@ export function getErrorMessage(
   return fallback;
 }
 
+/** Logs a client error with where it happened and extra context. */
 export function logFrontendError(context: string, error: unknown, details?: Record<string, unknown>) {
   logger.error(context, error, details);
 }

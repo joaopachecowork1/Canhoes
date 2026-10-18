@@ -129,6 +129,7 @@ async function enrichPost(post: PostRow, userId: string): Promise<EventFeedPostF
   };
 }
 
+/** One page of the event's feed for this user: pinned posts first, then newest, with author, counts, the user's reactions and poll results. */
 export async function getFeedPosts(
   eventId: string,
   userId: string,
@@ -223,6 +224,7 @@ export async function getFeedPosts(
   return { items, total, skip, take, hasMore: skip + take < total };
 }
 
+/** Creates a post (and its poll) and links the images the author uploaded for it. */
 export async function createFeedPost(
   eventId: string,
   userId: string,
@@ -275,6 +277,7 @@ export async function createFeedPost(
   return enrichPost(post, userId);
 }
 
+/** Adds or removes the user's heart on a post; liking removes their downvote. */
 export async function toggleLike(
   eventId: string,
   postId: string,
@@ -299,6 +302,7 @@ export async function toggleLike(
   }
 }
 
+/** Adds or removes the user's downvote on a post; downvoting removes their heart. */
 export async function toggleDownvote(
   eventId: string,
   postId: string,
@@ -323,6 +327,7 @@ export async function toggleDownvote(
   }
 }
 
+/** Adds or removes one emoji reaction of the user on a post. */
 export async function toggleReaction(
   eventId: string,
   postId: string,
@@ -347,6 +352,7 @@ export async function toggleReaction(
   }
 }
 
+/** The post's comments, oldest first, with author names and the user's reactions. */
 export async function getPostComments(
   eventId: string,
   postId: string,
@@ -389,6 +395,7 @@ export async function getPostComments(
   });
 }
 
+/** Adds a comment, optionally replying to another comment of the same post. */
 export async function createComment(
   eventId: string,
   postId: string,
@@ -423,6 +430,7 @@ export async function createComment(
   };
 }
 
+/** Deletes a comment of this post; only its author or an admin may. False when not found or not allowed. */
 export async function deleteComment(
   eventId: string,
   postId: string,
@@ -441,6 +449,7 @@ export async function deleteComment(
   return true;
 }
 
+/** Adds or removes one emoji reaction of the user on a comment. */
 export async function toggleCommentReaction(
   eventId: string,
   postId: string,
@@ -464,6 +473,7 @@ export async function toggleCommentReaction(
   }
 }
 
+/** Votes for a poll option; voting again for the same option removes the vote, another option replaces it. */
 export async function votePoll(
   eventId: string,
   postId: string,
@@ -487,6 +497,7 @@ export async function votePoll(
   });
 }
 
+/** Pins a post at the end of the pinned list, or unpins it; null when the post is not in this event. */
 export async function togglePin(
   eventId: string,
   postId: string
@@ -517,6 +528,7 @@ export async function togglePin(
   });
 }
 
+/** Swaps a pinned post with its neighbour above or below; false when the post is not pinned. */
 export async function movePinnedPost(
   eventId: string,
   postId: string,
@@ -546,6 +558,7 @@ export async function movePinnedPost(
   });
 }
 
+/** Deletes a post of this event and its uploaded images; false when it does not exist. */
 export async function deleteFeedPost(
   eventId: string,
   postId: string

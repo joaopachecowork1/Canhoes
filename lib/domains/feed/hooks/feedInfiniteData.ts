@@ -11,6 +11,7 @@ export type FeedPageData = {
 
 export type FeedInfiniteData = InfiniteData<FeedPageData, number>;
 
+/** One page of the infinite feed from an API page, dropping malformed posts. */
 export function toFeedPage(result: PagedResult<EventFeedPostFullDto>): FeedPageData {
   return {
     posts: (Array.isArray(result.items) ? result.items : []).filter(
@@ -30,6 +31,7 @@ export function countRemainingPosts(feed: InfiniteData<FeedPageData> | undefined
   return Math.max(total - loadedCount, 0);
 }
 
+/** The feed without the given post, on every loaded page. */
 export function removePostFromFeed<TFeed extends InfiniteData<FeedPageData>>(
   feed: TFeed | undefined,
   postId: string
@@ -47,6 +49,7 @@ export function removePostFromFeed<TFeed extends InfiniteData<FeedPageData>>(
   };
 }
 
+/** The loaded post with this id, if any page has it. */
 export function findPostInFeed(feed: FeedInfiniteData | undefined, postId: string) {
   return feed?.pages.flatMap((page) => page.posts).find((post) => post.id === postId);
 }

@@ -22,6 +22,7 @@ function findLatestDraw(eventCode: string) {
   return prisma.secretSantaDraw.findFirst({ where: { eventCode }, orderBy: { createdAtUtc: "desc" } });
 }
 
+/** The admin view of the secret santa: event code, latest draw, whether it is revealed, member and assignment counts. */
 export async function getAdminSecretSantaState(eventId: string): Promise<EventAdminSecretSantaStateDto> {
   const eventCode = await getEventCode(eventId);
   const latestDraw = await findLatestDraw(eventCode);

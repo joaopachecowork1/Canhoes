@@ -32,6 +32,7 @@ function safePath(segments: string[]) {
   return target;
 }
 
+/** Stores an image (JPEG, PNG, GIF or WebP, up to 10 MB) under `UPLOADS_DIR` and returns its public `/uploads/...` URL. */
 export async function saveUpload(file: File, folders: string[]) {
   const extension = ALLOWED_TYPES[file.type];
   if (!extension) throw new UploadValidationError("Unsupported image type.");
@@ -55,6 +56,7 @@ export async function saveUpload(file: File, folders: string[]) {
   };
 }
 
+/** Reads a stored upload and its content type; the path cannot leave `UPLOADS_DIR`. */
 export async function readUpload(segments: string[]) {
   const physicalPath = safePath(segments);
   const extension = path.extname(physicalPath).toLowerCase();
@@ -63,6 +65,7 @@ export async function readUpload(segments: string[]) {
   return { buffer: await readFile(physicalPath), contentType };
 }
 
+/** Deletes a stored upload by its `/uploads/...` URL; other URLs and missing files are ignored. */
 export async function deleteUpload(url: string) {
   const prefix = "/uploads/";
   if (!url.startsWith(prefix)) return;

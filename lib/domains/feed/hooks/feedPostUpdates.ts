@@ -15,6 +15,7 @@ function toggleInSet(values: readonly string[], value: string, isOn: boolean) {
   return Array.from(next);
 }
 
+/** The post after the user toggles an emoji reaction; a heart also counts as a like and cancels a downvote. */
 export function applyPostReaction(post: EventFeedPostFullDto, emoji: string): EventFeedPostFullDto {
   const isHeart = emoji === HEART_REACTION;
   // The backend tracks hearts as likes, so `likedByMe` is the source of truth for them.
@@ -42,6 +43,7 @@ export function applyServerLike(post: EventFeedPostFullDto, liked: boolean): Eve
   return { ...post, likedByMe: liked, myReactions: toggleInSet(post.myReactions, HEART_REACTION, liked) };
 }
 
+/** The post after the user toggles their downvote; a downvote cancels a like. */
 export function applyDownvote(post: EventFeedPostFullDto): EventFeedPostFullDto {
   const wasDownvoted = post.downvotedByMe;
   const cancelsLike = !wasDownvoted && post.likedByMe;
@@ -86,6 +88,7 @@ export function applyPollVote(post: EventFeedPostFullDto, optionId: string): Eve
   return { ...post, poll: { ...poll, myOptionId: isRemoving ? null : optionId, options, totalVotes } };
 }
 
+/** The comment after the user toggles an emoji reaction. */
 export function applyCommentReaction(comment: HubCommentDto, emoji: string): HubCommentDto {
   const wasActive = comment.myReactions.includes(emoji);
   return {
@@ -95,6 +98,7 @@ export function applyCommentReaction(comment: HubCommentDto, emoji: string): Hub
   };
 }
 
+/** The post with one comment more or less, never below zero. */
 export function changeCommentCount(post: EventFeedPostFullDto, delta: 1 | -1): EventFeedPostFullDto {
   return { ...post, commentCount: step(post.commentCount, delta === 1) };
 }

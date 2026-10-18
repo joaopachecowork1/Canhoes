@@ -48,6 +48,18 @@ TEST_DATABASE_URL="postgresql://canhoes:<password>@localhost:5433/canhoes_test?s
 
 A cobertura mínima (linhas, statements, funções e branches) está em `vitest.config.mjs` e só sobe.
 
+## Verificações locais
+
+`scripts/quality-gate.sh` corre as verificações do CI que não precisam de base de dados: lint, tipos, testes unitários e de componentes, e knip. Com `--cached` só volta a correr quando a árvore de trabalho mudou desde a última passagem (guarda o estado em `.git/quality-gate.pass`).
+
+O hook `scripts/git-hooks/pre-push` corre-o antes de cada push. Ativa-o uma vez por clone:
+
+```bash
+git config core.hooksPath scripts/git-hooks
+```
+
+Numa emergência, `git push --no-verify` salta-o; o CI continua a bloquear o merge.
+
 ## CI
 
 `.github/workflows/ci.yml` corre em cada PR e em cada push para `main`:

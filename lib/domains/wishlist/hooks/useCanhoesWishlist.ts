@@ -119,6 +119,7 @@ function useWishlistMutations(eventId: string | null) {
   return { formState, setFormState, isSaving, deletingItemId, canSubmit, createWishlistItem, deleteWishlistItem, retryLoading };
 }
 
+/** Members and wishlist items of the event, the selected member's list, and adding or removing your own items. */
 export function useCanhoesWishlist(options: UseCanhoesWishlistOptions) {
   const { user } = useAuth();
   const { event } = useEventOverview(options.initialContext);

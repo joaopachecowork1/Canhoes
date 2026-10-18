@@ -8,6 +8,7 @@ type UseFeedInfiniteScrollParams = {
   onLoadMore: () => void;
 };
 
+/** A ref for a sentinel element; when it scrolls into view the next page loads (unless one is already loading). */
 export function useFeedInfiniteScroll({
   enabled,
   isFetchingNextPage,

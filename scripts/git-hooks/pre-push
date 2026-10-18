@@ -1,0 +1,5 @@
+#!/bin/sh
+# Blocks a push that would fail CI. Enabled once per clone with:
+#   git config core.hooksPath scripts/git-hooks
+# Skip in an emergency with `git push --no-verify`.
+exec "$(git rev-parse --show-toplevel)/scripts/quality-gate.sh" --cached

@@ -13,6 +13,7 @@ export type SignInFacts = {
 
 export type SignInDecision = "allow" | "accept-invitation" | "deny";
 
+/** Who may sign in with Google: admins, members and earlier invitees get in, an open invitation is accepted, everyone else is refused. */
 export function decideSignIn(facts: SignInFacts): SignInDecision {
   if (facts.isAdmin || facts.isMember || facts.wasInvited) return "allow";
   if (facts.hasOpenInvitation) return "accept-invitation";

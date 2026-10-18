@@ -20,6 +20,7 @@ export async function requireUser(): Promise<SessionUser> {
   return { id: session.user.id, isAdmin: Boolean(session.user.isAdmin) };
 }
 
+/** The signed-in user, who must be an admin; 401 without a session, 403 for members. */
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireUser();
   if (!user.isAdmin) {

@@ -2,6 +2,7 @@ import { readdirSync } from "node:fs";
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+import jsdoc from "eslint-plugin-jsdoc";
 import sonarjs from "eslint-plugin-sonarjs";
 
 // Each folder in lib/domains is one feature. Its UI may use the shared `event` feature and
@@ -113,6 +114,32 @@ const eslintConfig = defineConfig([
   {
     files: SERVER_CODE,
     rules: qualityRules("warn"),
+  },
+  {
+    // Shared logic says what it does in one JSDoc line: services, rules, hooks and lib helpers.
+    files: [
+      "lib/domains/*/services/**/*.ts",
+      "lib/domains/*/rules/**/*.ts",
+      "lib/domains/*/hooks/**/*.ts",
+      "lib/*.ts",
+      "lib/api/**/*.ts",
+      "lib/storage/**/*.ts",
+      "components/**/use*.ts",
+    ],
+    ignores: ["**/*.test.ts", "lib/api/types.ts"],
+    plugins: { jsdoc },
+    rules: {
+      "jsdoc/require-jsdoc": [
+        "error",
+        {
+          publicOnly: true,
+          require: { FunctionDeclaration: true },
+          // Exported `const x = () => …`, not the callbacks inside an exported object.
+          contexts: ["ExportNamedDeclaration > VariableDeclaration > VariableDeclarator > ArrowFunctionExpression"],
+          checkConstructors: false,
+        },
+      ],
+    },
   },
   {
     // Declarations only: one DTO per API response; splitting it by size alone would not help.
