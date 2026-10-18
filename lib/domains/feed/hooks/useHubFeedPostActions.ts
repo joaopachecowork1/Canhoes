@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -18,12 +18,6 @@ import {
 import { applyDownvote, applyPollVote, applyPostReaction, applyServerDownvote, applyServerLike } from "./feedPostUpdates";
 
 const copy = messages.feed.useHubFeedPostActions;
-
-export type HubFeedParticlesState = {
-  postId: string;
-  x: number;
-  y: number;
-} | null;
 
 type UseHubFeedPostActionsArgs = {
   eventId: string | null;
@@ -189,19 +183,13 @@ export function useHubFeedPostActions({
   eventId,
   queryClient,
 }: Readonly<UseHubFeedPostActionsArgs>) {
-  const [showParticles, setShowParticles] = useState<HubFeedParticlesState>(null);
   const { toggleReaction, toggleDownvote, runOptimistic } = usePostVotes(queryClient, eventId);
   const { adminPin, adminMovePinned, adminDelete } = useAdminPostActions(queryClient, eventId);
-
-  useEffect(() => {
-    setShowParticles(null);
-  }, [eventId]);
 
   const votePoll = useCallback(
     async (postId: string, optionId: string) => {
       if (!eventId) return;
 
-      setShowParticles({ postId, x: 50, y: 50 });
       await runOptimistic({
         action: "votePoll",
         context: { optionId, postId },
@@ -215,8 +203,6 @@ export function useHubFeedPostActions({
   );
 
   return {
-    showParticles,
-    setShowParticles,
     toggleReaction,
     toggleDownvote,
     votePoll,

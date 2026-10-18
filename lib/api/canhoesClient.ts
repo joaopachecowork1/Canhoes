@@ -49,7 +49,8 @@ function readErrorMessage(body: unknown, response: Response) {
 
 /** An aborted request means our timeout fired; anything else is rethrown as is. */
 function toTimeoutError(error: unknown) {
-  if (error instanceof DOMException && error.name === "AbortError") {
+  // Checked by name: the DOMException class differs between realms (browser, Node, jsdom).
+  if (error instanceof Error && error.name === "AbortError") {
     return new ApiError(messages.common.requestTimeout, 408);
   }
   return error;

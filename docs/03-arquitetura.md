@@ -97,9 +97,21 @@ diretamente no JSX.
 `npm run test:coverage` junta os três numa só medição (o job de integração do CI corre-o e envia-o ao SonarQube). Os mínimos em `vitest.config.mjs` só sobem: depois de cada lote de testes, acerta-os logo abaixo dos números novos, até 90% de linhas e de branches.
 
 Os testes de componentes testam o que o utilizador vê e faz (texto, papéis, cliques), não a
-implementação. Os repositórios mockam-se com `vi.mock("@/lib/repositories/<repo>")`;
-`tests/component/renderWithProviders.tsx` dá um `QueryClient` novo por teste e
-`tests/component/eventContext.ts` cria um evento ativo.
+implementação. A API é simulada na rede com MSW, por isso o código corre como em produção, desde o
+repositório até ao `canhoesFetch`. Os helpers ficam em `tests/component/`:
+
+| Ficheiro | Para quê |
+|---|---|
+| `server.ts` | O servidor MSW. Um pedido sem handler faz falhar o teste. |
+| `api.ts` | `apiRoute(método, caminho, corpo, estado)` para responder e `recordRequests()` para verificar o que a UI enviou. |
+| `fixtures.ts` | Construtores de DTOs com valores por omissão (`category()`, `nominee()`, `post()`…). |
+| `eventContext.ts` | `makeEventContext({ phaseType, modules, isAdmin })`: um evento ativo como o shell o recebe. |
+| `session.ts` | `signInAs()`/`signOutUser()` e os mocks de `signIn`/`signOut` do `next-auth/react`. |
+| `navigation.ts` | `setNavigation({ pathname, search })` e o `router` simulado de `next/navigation`. |
+| `renderWithProviders.tsx` | Renderiza com um `QueryClient` novo, o `AuthProvider` real e os toasts. |
+
+Os testes de integração usam `tests/integration/helpers.ts`: `callRoute` chama um route handler como
+o Next.js, `signInAs` escolhe a sessão, e `createEvent`/`createMember`/`createUser` criam os dados.
 
 ![Fluxo de autorização de um pedido](diagramas/autorizacao.png)
 

@@ -1,7 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient();
+// The generated client is TypeScript, so the seed runs with tsx (see prisma.config.ts).
+import { PrismaClient } from "../lib/generated/prisma/client.ts";
+
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
 function adminEmails() {
   const configured = process.env.ADMIN_EMAILS?.trim()

@@ -8,7 +8,9 @@ import {
   updatePostInFeed,
   type FeedInfiniteData,
 } from "./feedInfiniteData";
-import { makePost } from "./feedTestFixtures";
+import { post } from "@/tests/component/fixtures";
+
+const makePost = (id: string) => post({ id });
 
 function makeFeed(pagePostIds: string[][], total: number): FeedInfiniteData {
   return {
@@ -60,7 +62,7 @@ describe("updatePostInFeed", () => {
   it("changes only the matching post", () => {
     const feed = makeFeed([["a", "b"]], 2);
     const updated = updatePostInFeed(feed, "b", (post) => ({ ...post, text: "novo" }));
-    expect(updated?.pages[0].posts.map((post) => post.text)).toEqual(["", "novo"]);
+    expect(updated?.pages[0].posts.map((entry) => entry.text)).toEqual(["Bom dia, mural", "novo"]);
     expect(updated?.pages[0].posts[0]).toBe(feed.pages[0].posts[0]);
   });
 });

@@ -24,7 +24,9 @@ npm run dev                # app em http://localhost:3000/canhoes
 npm run lint               # ESLint
 npx tsc --noEmit           # tipos
 npm test                   # testes unitários (Vitest)
+npm run test:component     # componentes e hooks em jsdom, com a API simulada por MSW
 npm run test:integration   # route handlers contra PostgreSQL (base canhoes_test)
+npm run test:coverage      # os três juntos, com cobertura
 npm run knip               # exports, ficheiros e dependências mortos
 npm run build              # build de produção (output standalone)
 ```
@@ -34,10 +36,17 @@ npm run build              # build de produção (output standalone)
 | Tipo | Onde | O que cobre |
 |---|---|---|
 | Unitários | `**/*.test.ts` ao lado do código | Regras puras: sorteio, resultados, política de admins, quem entra com Google, validação, uploads, proxy |
-| Integração | `tests/integration/*.int.test.ts` | Route handlers reais contra PostgreSQL: autorização de todas as rotas, regras de fase e voto, posse de recursos, sorteio, login Google |
+| Componentes | `**/*.test.tsx` | Cada módulo de página e o shell como o utilizador os usa: listas, formulários, erros, admin |
+| Integração | `tests/integration/*.int.test.ts` | Route handlers reais contra PostgreSQL: autorização de todas as rotas, feed, admin, membros, voto, convites e login, regras de fase, posse de recursos, sorteio |
 | Segurança | CI, job Docker | OWASP ZAP baseline contra a imagem a correr; `npm audit` das dependências de produção |
 
-Os testes de integração exigem uma base de dados cujo nome termina em `_test`, porque cada ficheiro a esvazia (`tests/integration/setup/globalSetup.ts`).
+Os testes de integração exigem uma base de dados cujo nome termina em `_test`, porque cada ficheiro a esvazia (`tests/integration/setup/globalSetup.ts`). O URL vem de `TEST_DATABASE_URL`; por omissão usa a password `canhoes_local`, por isso quem mudou `POSTGRES_PASSWORD` no `.env` define-o:
+
+```bash
+TEST_DATABASE_URL="postgresql://canhoes:<password>@localhost:5433/canhoes_test?schema=public" npm run test:integration
+```
+
+A cobertura mínima (linhas, statements, funções e branches) está em `vitest.config.mjs` e só sobe.
 
 ## CI
 
@@ -61,7 +70,7 @@ docker compose up -d --build   # app em :3000 e PostgreSQL em :5433
 O arranque do contentor (`scripts/docker-start.sh`):
 
 1. `prisma migrate deploy` aplica as migrations pendentes. Uma base antiga criada com `db push` é marcada como baseline uma única vez.
-2. `node prisma/seed.mjs` garante os admins de `ADMIN_EMAILS` e o evento; nunca muda a fase de um evento que já existe.
+2. `tsx prisma/seed.mjs` garante os admins de `ADMIN_EMAILS` e o evento; nunca muda a fase de um evento que já existe.
 3. `node server.js` arranca o servidor standalone do Next.js.
 
 A imagem tem um `HEALTHCHECK` em `/api/health`, que responde 503 quando a base de dados não responde.

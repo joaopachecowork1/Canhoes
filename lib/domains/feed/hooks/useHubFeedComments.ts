@@ -24,49 +24,68 @@ function reportCommentError(action: string, error: unknown, { context, fallback 
   toast.error(getErrorMessage(error, fallback));
 }
 
-/** Per post: whether its comments are open, the unsent reply and which comment it answers. */
+type CommentDraftState = {
+  eventId: string | null;
+  openComments: Record<string, boolean>;
+  commentDrafts: Record<string, string>;
+  replyingTo: Record<string, string | null>;
+};
+
+const emptyDrafts = (eventId: string | null): CommentDraftState => ({ eventId, openComments: {}, commentDrafts: {}, replyingTo: {} });
+
+/**
+ * Per post: whether its comments are open, the unsent reply and which comment it answers.
+ * The state belongs to one event: switching event starts from empty, without an effect.
+ */
 function useCommentDrafts(eventId: string | null) {
-  const [openComments, setOpenComments] = useState<Record<string, boolean>>({});
-  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
-  const [replyingTo, setReplyingToMap] = useState<Record<string, string | null>>({});
+  const [stored, setStored] = useState<CommentDraftState>(() => emptyDrafts(eventId));
+  const state = stored.eventId === eventId ? stored : emptyDrafts(eventId);
 
   // Callbacks read the latest drafts without being recreated on every keystroke.
-  const draftsRef = useRef(commentDrafts);
-  draftsRef.current = commentDrafts;
-  const replyingToRef = useRef(replyingTo);
-  replyingToRef.current = replyingTo;
-
+  const stateRef = useRef(state);
   useEffect(() => {
-    setOpenComments({});
-    setCommentDrafts({});
-    setReplyingToMap({});
-  }, [eventId]);
+    stateRef.current = state;
+  });
 
-  const toggleComments = useCallback((postId: string) => {
-    setOpenComments((prev) => ({ ...prev, [postId]: !prev[postId] }));
-  }, []);
+  const update = useCallback(
+    (change: (current: CommentDraftState) => Partial<CommentDraftState>) =>
+      setStored((previous) => {
+        const current = previous.eventId === eventId ? previous : emptyDrafts(eventId);
+        return { ...current, ...change(current) };
+      }),
+    [eventId]
+  );
 
-  const setCommentDraft = useCallback((postId: string, draft: string) => {
-    setCommentDrafts((prev) => ({ ...prev, [postId]: draft }));
-  }, []);
-
-  const setReplyingTo = useCallback((postId: string, commentId: string | null) => {
-    setReplyingToMap((prev) => ({ ...prev, [postId]: commentId }));
-  }, []);
+  const toggleComments = useCallback(
+    (postId: string) => update(({ openComments }) => ({ openComments: { ...openComments, [postId]: !openComments[postId] } })),
+    [update]
+  );
+  const setCommentDraft = useCallback(
+    (postId: string, draft: string) => update(({ commentDrafts }) => ({ commentDrafts: { ...commentDrafts, [postId]: draft } })),
+    [update]
+  );
+  const setReplyingTo = useCallback(
+    (postId: string, commentId: string | null) => update(({ replyingTo }) => ({ replyingTo: { ...replyingTo, [postId]: commentId } })),
+    [update]
+  );
 
   /** After a reply is sent: clear it and keep the thread open to show it. */
-  const markSent = useCallback((postId: string) => {
-    setCommentDrafts((prev) => ({ ...prev, [postId]: "" }));
-    setReplyingToMap((prev) => ({ ...prev, [postId]: null }));
-    setOpenComments((prev) => ({ ...prev, [postId]: true }));
-  }, []);
+  const markSent = useCallback(
+    (postId: string) =>
+      update((current) => ({
+        commentDrafts: { ...current.commentDrafts, [postId]: "" },
+        replyingTo: { ...current.replyingTo, [postId]: null },
+        openComments: { ...current.openComments, [postId]: true },
+      })),
+    [update]
+  );
 
-  return { openComments, commentDrafts, replyingTo, draftsRef, replyingToRef, toggleComments, setCommentDraft, setReplyingTo, markSent };
+  return { ...state, stateRef, toggleComments, setCommentDraft, setReplyingTo, markSent };
 }
 
 export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeedCommentsArgs>) {
   const drafts = useCommentDrafts(eventId);
-  const { draftsRef, replyingToRef, markSent } = drafts;
+  const { stateRef, markSent } = drafts;
 
   const updateCommentCount = useCallback(
     (postId: string, delta: 1 | -1) => {
@@ -80,11 +99,11 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
   const addComment = useCallback(
     async (postId: string) => {
       if (!eventId) return;
-      const text = (draftsRef.current[postId] ?? "").trim();
+      const text = (stateRef.current.commentDrafts[postId] ?? "").trim();
       if (!text) return;
 
       try {
-        const newComment = await feedRepo.createComment(eventId, postId, { text, replyToId: replyingToRef.current[postId] || null });
+        const newComment = await feedRepo.createComment(eventId, postId, { text, replyToId: stateRef.current.replyingTo[postId] || null });
         markSent(postId);
         if (newComment) {
           queryClient.setQueryData<HubCommentDto[]>([COMMENTS_QUERY_KEY, postId], (prev) => [...(prev ?? []), newComment]);
@@ -95,7 +114,7 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
         reportCommentError("addComment", error, { context: { postId }, fallback: copy.publishError });
       }
     },
-    [eventId, queryClient, draftsRef, replyingToRef, markSent, updateCommentCount]
+    [eventId, queryClient, stateRef, markSent, updateCommentCount]
   );
 
   const toggleCommentReaction = useCallback(

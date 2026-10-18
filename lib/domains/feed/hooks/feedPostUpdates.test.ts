@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { EventFeedPostFullDto, HubCommentDto } from "@/lib/api/types";
 import { HEART_REACTION } from "@/lib/reactions";
 
-import { makePost } from "./feedTestFixtures";
+import { post as postFixture } from "@/tests/component/fixtures";
 import {
   applyCommentReaction,
   applyDownvote,
@@ -14,7 +14,7 @@ import {
   changeCommentCount,
 } from "./feedPostUpdates";
 
-const post = (overrides: Partial<EventFeedPostFullDto> = {}) => ({ ...makePost("p"), ...overrides });
+const post = (overrides: Partial<EventFeedPostFullDto> = {}) => postFixture({ id: "p", ...overrides });
 
 describe("applyPostReaction", () => {
   it("adds and removes an emoji reaction", () => {

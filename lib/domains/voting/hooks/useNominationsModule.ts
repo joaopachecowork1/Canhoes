@@ -68,7 +68,7 @@ export function useNominationsModule(initialCategories?: AwardCategoryDto[], ini
 
   const updateNominationCaches = () => {
     queryClient.setQueryData<MyNominationStatusDto | null>(["nominations", queryEventId, "my-status"], (current) =>
-      current && selectedCategory ? { ...current, hasNomination: true, nomineeId: selectedCategory.id } : current
+      current && selectedCategory ? { ...current, hasNomination: true, categoryId: selectedCategory.id } : current
     );
     queryClient.setQueryData<NomineeDto[]>(["nominations", queryEventId, "approved"], (current) => current ?? []);
     return Promise.resolve();

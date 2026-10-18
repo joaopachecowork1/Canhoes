@@ -280,15 +280,15 @@
     },
     "CanhoesLoginModule": {
       "tagline": "O espaço do grupo para partilhar, votar e preparar o amigo secreto.",
-      "errorTitle": "Falha no login Google",
+      "errorTitle": "Falha no login",
       "errorCode": "Codigo: {code}",
       "devModeNotice": "Modo desenvolvimento ativo. Bypass auth local ligado.",
       "devLogin": "Entrar em modo desenvolvimento",
       "or": "Ou",
       "googleLogin": "Continuar com Google",
       "footer": "Entra com a tua conta Google ou com as credenciais do convite.",
-      "invalidCredentials": "Credenciais inválidas",
       "authErrors": {
+        "CredentialsSignin": "Email ou palavra-passe errados.",
         "AccessDenied": "Esta conta ainda não foi convidada. Pede um convite a um admin e entra com o email do convite.",
         "Callback": "O regresso da Google falhou. Tenta novamente em alguns segundos.",
         "Configuration": "O login Google não está configurado corretamente neste deploy.",

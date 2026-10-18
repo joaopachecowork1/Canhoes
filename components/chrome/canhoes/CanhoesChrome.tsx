@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -15,6 +15,7 @@ import { CanhoesHeader } from "./CanhoesHeader";
 import { CanhoesMenuSheet } from "./CanhoesMenuSheet";
 import { useCanhoesShellNavigation } from "./useCanhoesShellNavigation";
 import { useComposeSheet } from "./useComposeSheet";
+import { usePathScopedOpen } from "./usePathScopedOpen";
 
 const loadCanhoesComposeSheet = () =>
   import("@/lib/domains/feed/components/compose/CanhoesComposeSheet").then((module) => ({
@@ -49,11 +50,7 @@ export function CanhoesChrome({
   const canCompose = !!eventOverview.overview?.modules.feed;
 
   const compose = useComposeSheet({ canCompose, pathname, preload: loadCanhoesComposeSheet });
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setIsMenuOpen(false);
-  }, [pathname]);
+  const [isMenuOpen, setIsMenuOpen] = usePathScopedOpen(pathname);
 
   const {
     bottomLeftEntries,

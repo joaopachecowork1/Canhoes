@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -54,20 +54,22 @@ export function useStickerData(
   };
 }
 
-function useFilePreviewUrl(file: File | null) {
-  const [previewUrl, setPreviewUrl] = useState("");
+/** The chosen image and its preview URL, made when it is picked and revoked when replaced. */
+function usePickedImage() {
+  const [picked, setPicked] = useState<{ file: File; previewUrl: string } | null>(null);
+  const pickedRef = useRef(picked);
 
-  useEffect(() => {
-    if (!file) {
-      setPreviewUrl("");
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+  useEffect(() => () => {
+    if (pickedRef.current) URL.revokeObjectURL(pickedRef.current.previewUrl);
+  }, []);
 
-  return previewUrl;
+  const setFile = useCallback((file: File | null) => {
+    if (pickedRef.current) URL.revokeObjectURL(pickedRef.current.previewUrl);
+    pickedRef.current = file ? { file, previewUrl: URL.createObjectURL(file) } : null;
+    setPicked(pickedRef.current);
+  }, []);
+
+  return { file: picked?.file ?? null, previewUrl: picked?.previewUrl ?? "", setFile };
 }
 
 function getFileRejection(file: File) {
@@ -81,8 +83,7 @@ export function useStickerSubmission({ eventId, isProposalPhase, onSubmitted }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [title, setTitle] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const previewUrl = useFilePreviewUrl(file);
+  const { file, previewUrl, setFile } = usePickedImage();
   const canSubmit = isProposalPhase && title.trim().length >= MIN_TITLE_LENGTH && !isSubmitting;
 
   const handleFileChange = (nextFile: File | null) => {

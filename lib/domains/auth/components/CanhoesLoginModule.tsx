@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 import { CanhoesBrandMark } from "@/components/chrome/canhoes/CanhoesBrandMark";
@@ -30,7 +30,10 @@ function getRequestedCallbackUrl() {
 function useLoginPageState() {
   const router = useRouter();
   const { isLogged, loading } = useAuth();
-  const [authError, setAuthError] = useState<string | null>(null);
+  // A failed email login shows its own message; otherwise NextAuth's `?error=` code, if any.
+  const searchParams = useSearchParams();
+  const [credentialsError, setAuthError] = useState<string | null>(null);
+  const authError = credentialsError ?? searchParams.get("error");
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -41,10 +44,6 @@ function useLoginPageState() {
   useEffect(() => {
     if (!loading && isLogged) router.replace(getRequestedCallbackUrl());
   }, [isLogged, loading, router]);
-
-  useEffect(() => {
-    setAuthError(new URLSearchParams(window.location.search).get("error"));
-  }, []);
 
   return { authError, setAuthError, isVisible };
 }
@@ -93,7 +92,8 @@ export function CanhoesLoginModule() {
     const result = await signIn("credentials", { email, password, redirect: false });
 
     if (result?.error) {
-      setAuthError(copy.invalidCredentials);
+      // The NextAuth code for a wrong email or password, shown like the `?error=` codes.
+      setAuthError("CredentialsSignin");
       setIsSigningIn(false);
     } else if (result?.ok) {
       router.push(callbackUrl);

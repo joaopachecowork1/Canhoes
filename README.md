@@ -6,7 +6,7 @@ A documentação do negócio, dos requisitos e da arquitetura, com diagramas UML
 
 ## Stack
 
-Next.js 16 (App Router) com React 18 e TypeScript, Tailwind CSS 4, Prisma 6 + PostgreSQL, NextAuth v4 e TanStack Query. Qualidade com ESLint 9 em flat config (`eslint-config-next`) e Vitest.
+Next.js 16 (App Router) com React 19 e TypeScript 6, Tailwind CSS 4, Prisma 7 (adaptador `pg`) + PostgreSQL, NextAuth v4 e TanStack Query. Qualidade com ESLint 9 em flat config (`eslint-config-next`) e Vitest.
 
 ## Requisitos
 
@@ -192,6 +192,8 @@ npm run db:down                     # parar os contentores (os dados ficam no vo
 
 Alterações ao `prisma/schema.prisma` precisam de uma migration: `npx prisma migrate dev --name <nome>`.
 
+O Prisma 7 gera o client em TypeScript para `lib/generated/prisma` (fora do Git). O `npm install` gera-o; depois de mudar o schema, corre `npx prisma generate`. A configuração (schema, migrations, seed e `DATABASE_URL`) está em `prisma.config.ts`, e o seed corre com `tsx`.
+
 Numa base de dados que já existia antes das migrations Prisma, corre `npm run db:baseline -- --existing-database` uma única vez antes de `db:migrate`, e só depois de fazer e verificar um backup.
 
 ## Uploads
@@ -237,6 +239,6 @@ O CI envia-a ao [SonarQube Cloud](https://sonarcloud.io/project/overview?id=joao
 que mostra code smells, duplicação e cobertura em cada push e PR. As regras de arquitetura, tamanho
 e textos estão em `docs/03-arquitetura.md`.
 
-Os testes de integração chamam os route handlers contra uma base de dados real, que é limpa antes de cada teste; por isso só correm numa base de dados cujo nome acaba em `_test` (`TEST_DATABASE_URL`, por omissão `canhoes_test` em localhost:5433). O `npm run db:up` cria-a.
+Os testes de integração chamam os route handlers contra uma base de dados real, que é limpa antes de cada teste; por isso só correm numa base de dados cujo nome acaba em `_test` (`TEST_DATABASE_URL`, por omissão `canhoes_test` em localhost:5433). O `npm run db:up` cria-a. Se mudaste `POSTGRES_PASSWORD` no `.env`, define também `TEST_DATABASE_URL` com essa password.
 
 O CI (`.github/workflows/ci.yml`) corre tudo isto em cada push e PR, mais `shellcheck` aos scripts, `npm audit` às dependências de produção, um scan OWASP ZAP à app a correr e um deploy de teste com `compose.server.yml`.

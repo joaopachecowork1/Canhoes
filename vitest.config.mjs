@@ -20,10 +20,10 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text-summary", "lcov"],
       include: ["{app,components,lib}/**/*.{ts,tsx}"],
-      exclude: ["**/*.test.{ts,tsx}", "**/*.d.ts", "lib/api/types.ts"],
+      exclude: ["**/*.test.{ts,tsx}", "**/*.d.ts", "lib/api/types.ts", "lib/generated/**"],
       // shortcut: a ratchet just under today's numbers (unit + component + integration); raise it
       // with every batch of tests until lines and branches reach 90.
-      thresholds: { lines: 25, statements: 24, functions: 22, branches: 20 },
+      thresholds: { lines: 85, statements: 82, functions: 80, branches: 70 },
     },
     projects: [
       {

@@ -1,15 +1,17 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
+import { http, HttpResponse } from "msw";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import type { EventWishlistItemDto, PublicUserDto } from "@/lib/api/types";
+import { apiRoute, recordRequests } from "@/tests/component/api";
 import { makeEventContext } from "@/tests/component/eventContext";
+import { paged } from "@/tests/component/fixtures";
 import { renderWithProviders } from "@/tests/component/renderWithProviders";
+import { server } from "@/tests/component/server";
 
 import { CanhoesWishlistModule } from "./CanhoesWishlistModule";
 
-vi.mock("@/components/providers/AuthContext", () => ({ useAuth: () => ({ user: { id: "ana" } }) }));
-vi.mock("@/lib/repositories/eventRepo", () => ({ eventRepo: {} }));
 
 const member = (id: string, displayName: string): PublicUserDto => ({ id, displayName, email: `${id}@canhoes.pt`, isAdmin: false });
 const item = (id: string, userId: string, title: string): EventWishlistItemDto => ({
@@ -53,5 +55,46 @@ describe("CanhoesWishlistModule", () => {
     expect(submit).toBeDisabled();
     await userEvent.type(screen.getByLabelText("Título"), "Té");
     expect(submit).toBeEnabled();
+  });
+
+  it("adds an item and refreshes the list", async () => {
+    const recorder = recordRequests();
+    server.use(
+      http.post("*/api/v1/events/event-1/wishlist", async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(item("i3", "ana", "Caneca"), { status: 201 });
+      }),
+      apiRoute("get", "events/event-1/wishlist", paged([item("i1", "ana", "Livro"), item("i3", "ana", "Caneca")]))
+    );
+    renderWishlist();
+
+    await userEvent.type(screen.getByLabelText("Título"), " Caneca ");
+    await userEvent.click(screen.getByRole("button", { name: "Adicionar item" }));
+
+    expect(await screen.findByText("Item adicionado")).toBeInTheDocument();
+    expect(recorder.requests[0]?.body).toEqual({ title: "Caneca", url: null, notes: null });
+    expect(await screen.findByText("Caneca")).toBeInTheDocument();
+    expect(screen.getByLabelText("Título")).toHaveValue("");
+  });
+
+  it("warns when the item cannot be saved", async () => {
+    server.use(apiRoute("post", "events/event-1/wishlist", { message: "Título repetido." }, 409));
+    renderWishlist();
+
+    await userEvent.type(screen.getByLabelText("Título"), "Caneca");
+    await userEvent.click(screen.getByRole("button", { name: "Adicionar item" }));
+
+    expect(await screen.findByText(/Título repetido/)).toBeInTheDocument();
+  });
+
+  it("removes your own item after confirming", async () => {
+    server.use(apiRoute("delete", "events/event-1/wishlist/i1", null, 204));
+    renderWishlist();
+
+    await userEvent.click(screen.getByRole("button", { name: "Apagar item" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Eliminar" }));
+
+    expect(await screen.findByText("Item removido")).toBeInTheDocument();
+    expect(screen.queryByText("Livro")).not.toBeInTheDocument();
   });
 });

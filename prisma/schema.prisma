@@ -1,10 +1,13 @@
+// Prisma 7: the client is generated as TypeScript into lib/generated/prisma (git-ignored, rebuilt by
+// `npm install` and `prisma generate`) and talks to PostgreSQL through the pg driver adapter.
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
 }
 
+// The connection URL lives in prisma.config.ts (DATABASE_URL).
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {

@@ -1,4 +1,4 @@
-import type { Nominee } from "@prisma/client";
+import type { Nominee } from "@/lib/generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import type {

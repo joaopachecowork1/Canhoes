@@ -23,18 +23,14 @@ type ImageLightboxProps = {
   createdAtUtc?: string;
 };
 
-/** Index of the shown image, moved by arrows, keys and swipes, reset to `initialIndex` on open. */
-function useLightboxNavigation({ initialIndex, isOpen, onClose, total }: Readonly<{ initialIndex: number; isOpen: boolean; onClose: () => void; total: number }>) {
+/** Index of the shown image, moved by arrows, keys and swipes; starts at `initialIndex`. */
+function useLightboxNavigation({ initialIndex, onClose, total }: Readonly<{ initialIndex: number; onClose: () => void; total: number }>) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const touchStartX = useRef(0);
   const canGoBack = currentIndex > 0;
   const canGoForward = currentIndex < total - 1;
   const showPrevious = useCallback(() => setCurrentIndex((index) => Math.max(0, index - 1)), []);
   const showNext = useCallback(() => setCurrentIndex((index) => Math.min(total - 1, index + 1)), [total]);
-
-  useEffect(() => {
-    if (isOpen) setCurrentIndex(initialIndex);
-  }, [isOpen, initialIndex]);
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") onClose();
@@ -55,15 +51,14 @@ function useLightboxNavigation({ initialIndex, isOpen, onClose, total }: Readonl
   return { currentIndex, setCurrentIndex, canGoBack, canGoForward, showPrevious, showNext, handleKeyDown, handleTouchStart, handleTouchEnd };
 }
 
-function useBodyScrollLock(isLocked: boolean) {
+function useBodyScrollLock() {
   useEffect(() => {
-    if (!isLocked) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [isLocked]);
+  }, []);
 }
 
 function AuthorCaption({ authorName, createdAtUtc }: Readonly<{ authorName: string; createdAtUtc?: string }>) {
@@ -116,21 +111,23 @@ function LightboxArrow({ direction, onClick }: Readonly<{ direction: "previous" 
   );
 }
 
-/** Full-screen viewer for a post's images. */
-export function ImageLightbox({
-  images,
+/** Full-screen viewer for a post's images; mounted only while open, so each open starts fresh. */
+export function ImageLightbox({ images, open, ...dialogProps }: Readonly<ImageLightboxProps>) {
+  const safeImages = images.filter(Boolean);
+  if (!open || safeImages.length === 0) return null;
+  return <LightboxDialog images={safeImages} {...dialogProps} />;
+}
+
+function LightboxDialog({
+  images: safeImages,
   initialIndex,
-  open,
   onClose,
   authorName,
   createdAtUtc,
-}: Readonly<ImageLightboxProps>) {
-  const safeImages = images.filter(Boolean);
+}: Readonly<Omit<ImageLightboxProps, "open">>) {
   const total = safeImages.length;
-  const navigation = useLightboxNavigation({ initialIndex, isOpen: open, onClose, total });
-  useBodyScrollLock(open);
-
-  if (!open || total === 0) return null;
+  const navigation = useLightboxNavigation({ initialIndex, onClose, total });
+  useBodyScrollLock();
 
   const currentImageUrl = safeImages[navigation.currentIndex] ?? safeImages[0];
   const hasSeveral = total > 1;

@@ -82,7 +82,7 @@ function NominationForm({ isPhaseOpen, nomination }: Readonly<{ isPhaseOpen: boo
       </div>
       <Button
         type="button"
-        onClick={() => mutation.mutate()}
+        onClick={() => mutation.mutate(titleTrimmed)}
         disabled={!isPhaseOpen || !isValidTitle || mutation.isPending}
         className="min-w-36"
         variant="default"

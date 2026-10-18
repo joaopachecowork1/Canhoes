@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import { OPEN_COMPOSE_SHEET_EVENT } from "@/lib/canhoesEvent";
+
+import { usePathScopedOpen } from "./usePathScopedOpen";
 
 const PRELOAD_DELAY_MS = 1200;
 
@@ -15,17 +17,10 @@ export function useComposeSheet({
   pathname,
   preload,
 }: Readonly<{ canCompose: boolean; pathname: string | null; preload: () => Promise<unknown> }>) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenOnPath, setIsOpen] = usePathScopedOpen(pathname);
 
   useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!canCompose) {
-      setIsOpen(false);
-      return;
-    }
+    if (!canCompose) return;
 
     const handleOpenCompose = () => setIsOpen(true);
     globalThis.addEventListener(OPEN_COMPOSE_SHEET_EVENT, handleOpenCompose);
@@ -35,7 +30,7 @@ export function useComposeSheet({
       globalThis.removeEventListener(OPEN_COMPOSE_SHEET_EVENT, handleOpenCompose);
       globalThis.clearTimeout(timeoutId);
     };
-  }, [canCompose, preload]);
+  }, [canCompose, preload, setIsOpen]);
 
-  return { isOpen, setIsOpen };
+  return { isOpen: isOpenOnPath && canCompose, setIsOpen };
 }

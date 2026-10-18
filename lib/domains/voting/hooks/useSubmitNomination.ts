@@ -34,19 +34,19 @@ export function useSubmitNomination({ categoryId, eventId, onNominationSubmitted
   const approvedKey = ["nominations", eventId, "approved"];
 
   const mutation = useMutation({
-    mutationFn: () => awardsRepo.createNomination(eventId, { categoryId, title: titleTrimmed }),
-    onMutate: async () => {
+    // The title travels as the mutation variable: onMutate clears the input before mutationFn runs.
+    mutationFn: (nomineeTitle: string) => awardsRepo.createNomination(eventId, { categoryId, title: nomineeTitle }),
+    onMutate: async (nomineeTitle) => {
       const previousMyStatus = queryClient.getQueryData<MyNominationStatusDto | null>(myStatusKey);
       const previousApproved = queryClient.getQueryData<NomineeDto[]>(approvedKey);
       queryClient.setQueryData<MyNominationStatusDto | null>(myStatusKey, (current) => ({
         ...(current ?? { categoryId: null, nomineeId: null, nomineeTitle: null, status: null }),
         hasNomination: true,
-        nomineeId: categoryId,
-        nomineeTitle: titleTrimmed,
+        nomineeTitle,
         categoryId,
         status: "pending",
       }));
-      setPendingLabel(titleTrimmed);
+      setPendingLabel(nomineeTitle);
       setTitle("");
       setFile(null);
       return { previousApproved, previousMyStatus };
@@ -58,7 +58,7 @@ export function useSubmitNomination({ categoryId, eventId, onNominationSubmitted
       logFrontendError("CanhoesNominations.createNomination", error, { categoryId, eventId });
       toast.error(getErrorMessage(error, copy.submitError));
     },
-    onSuccess: async (createdNominee) => {
+    onSuccess: async (createdNominee, nomineeTitle) => {
       if (file) {
         try {
           await awardsRepo.uploadNomineeImage(eventId, createdNominee.id, file);
@@ -66,7 +66,7 @@ export function useSubmitNomination({ categoryId, eventId, onNominationSubmitted
           toast.error(copy.imageUploadError);
         }
       }
-      setPendingLabel(titleTrimmed);
+      setPendingLabel(nomineeTitle);
       toast.success(copy.submitted);
       await onNominationSubmitted();
     },

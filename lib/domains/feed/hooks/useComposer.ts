@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { formatMessage } from "@/lib/messages";
@@ -12,22 +12,43 @@ import { getFileKey, MAX_MEDIA_FILES, MAX_POLL_OPTIONS, MIN_POLL_OPTIONS, moveIt
 const copy = messages.feed.compose;
 const EMPTY_POLL_OPTIONS = ["", ""];
 
-/** Object URLs for the picked images, revoked when the files change. */
-function usePreviewUrls(files: File[]) {
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+type MediaDraft = { file: File; previewUrl: string };
 
-  useEffect(() => {
-    if (files.length === 0) {
-      setPreviewUrls((currentUrls) => (currentUrls.length === 0 ? currentUrls : []));
-      return;
-    }
+const revoke = (media: MediaDraft[]) => media.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
 
-    const nextUrls = files.map((file) => URL.createObjectURL(file));
-    setPreviewUrls(nextUrls);
-    return () => nextUrls.forEach((url) => URL.revokeObjectURL(url));
-  }, [files]);
+/**
+ * The picked images with their preview URLs. A URL is created when its file is added and
+ * revoked when it is removed, on reset and on unmount, so no effect has to keep them in sync.
+ */
+function useMediaDraft() {
+  const [media, setMedia] = useState<MediaDraft[]>([]);
+  // The handlers read and write this, never the render, so URLs are made and revoked once each.
+  const mediaRef = useRef<MediaDraft[]>([]);
 
-  return previewUrls;
+  useEffect(() => () => revoke(mediaRef.current), []);
+
+  const commit = useCallback((next: MediaDraft[]) => {
+    revoke(mediaRef.current.filter((entry) => !next.includes(entry)));
+    mediaRef.current = next;
+    setMedia(next);
+  }, []);
+
+  /** Takes the new full list of files, keeping the URLs of files already there. */
+  const setFiles = useCallback(
+    (files: File[]) =>
+      commit(files.map((file) => mediaRef.current.find((entry) => entry.file === file) ?? { file, previewUrl: URL.createObjectURL(file) })),
+    [commit]
+  );
+  const removeFile = useCallback(
+    (index: number) => commit(mediaRef.current.filter((_, currentIndex) => currentIndex !== index)),
+    [commit]
+  );
+  const moveFile = useCallback(
+    (index: number, direction: -1 | 1) => commit(moveItem(mediaRef.current, index, direction)),
+    [commit]
+  );
+
+  return { media, setFiles, removeFile, moveFile };
 }
 
 function usePollDraft() {
@@ -101,8 +122,8 @@ async function prepareFiles(currentFiles: File[], fileList: FileList) {
 /** The draft of a mural post: text, up to four images and an optional poll. */
 export function useComposer() {
   const [text, setText] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
-  const previewUrls = usePreviewUrls(files);
+  const { media, setFiles, removeFile, moveFile } = useMediaDraft();
+  const files = media.map((entry) => entry.file);
   const poll = usePollDraft();
 
   const addFiles = useCallback(
@@ -110,23 +131,15 @@ export function useComposer() {
       if (!fileList) return;
       setFiles(await prepareFiles(files, fileList));
     },
-    [files]
+    [files, setFiles]
   );
-
-  const removeFile = useCallback((index: number) => {
-    setFiles((currentFiles) => currentFiles.filter((_, currentIndex) => currentIndex !== index));
-  }, []);
-
-  const moveFile = useCallback((index: number, direction: -1 | 1) => {
-    setFiles((currentFiles) => moveItem(currentFiles, index, direction));
-  }, []);
 
   const { reset: resetPoll } = poll;
   const reset = useCallback(() => {
     setText("");
     setFiles([]);
     resetPoll();
-  }, [resetPoll]);
+  }, [resetPoll, setFiles]);
 
-  return { text, setText, files, previewUrls, addFiles, removeFile, moveFile, poll, reset };
+  return { text, setText, files, previewUrls: media.map((entry) => entry.previewUrl), addFiles, removeFile, moveFile, poll, reset };
 }

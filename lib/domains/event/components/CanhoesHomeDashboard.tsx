@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { ArrowUpRight, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 
 import type { EventActiveContextDto } from "@/lib/api/types";
@@ -15,20 +15,40 @@ const copy = messages.event.CanhoesHomeDashboard;
 const DASHBOARD_COLLAPSED_STORAGE_KEY = "canhoes:home-dashboard-collapsed";
 const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss-glow)]";
 
-/** Collapsed or not, remembered in this browser. */
-function useCollapsedPreference() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const preferenceListeners = new Set<() => void>();
 
-  useEffect(() => {
-    setIsCollapsed(globalThis.localStorage.getItem(DASHBOARD_COLLAPSED_STORAGE_KEY) === "true");
-  }, []);
+function subscribeToPreference(onChange: () => void) {
+  preferenceListeners.add(onChange);
+  globalThis.addEventListener("storage", onChange);
+  return () => {
+    preferenceListeners.delete(onChange);
+    globalThis.removeEventListener("storage", onChange);
+  };
+}
+
+// When storage is refused (private windows), the choice lives here for the rest of the visit.
+let unsavedCollapsed: boolean | null = null;
+
+function readCollapsed() {
+  if (unsavedCollapsed !== null) return unsavedCollapsed;
+  try {
+    return globalThis.localStorage.getItem(DASHBOARD_COLLAPSED_STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+/** Collapsed or not, remembered in this browser; the server render is always expanded. */
+function useCollapsedPreference() {
+  const isCollapsed = useSyncExternalStore(subscribeToPreference, readCollapsed, () => false);
 
   const handleToggle = () => {
-    setIsCollapsed((current) => {
-      const next = !current;
-      globalThis.localStorage.setItem(DASHBOARD_COLLAPSED_STORAGE_KEY, String(next));
-      return next;
-    });
+    try {
+      globalThis.localStorage.setItem(DASHBOARD_COLLAPSED_STORAGE_KEY, String(!isCollapsed));
+    } catch {
+      unsavedCollapsed = !isCollapsed;
+    }
+    preferenceListeners.forEach((notify) => notify());
   };
 
   return { isCollapsed, handleToggle };

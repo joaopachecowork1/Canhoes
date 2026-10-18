@@ -18,12 +18,12 @@ if ! output=$(prisma migrate deploy 2>&1); then
   done
   prisma migrate deploy
 
-  if ! prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --exit-code > /dev/null; then
+  if ! prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code > /dev/null; then
     echo "WARNING: the database schema differs from prisma/schema.prisma. Check it with 'prisma migrate diff'." >&2
   fi
 else
   echo "$output"
 fi
 
-node prisma/seed.mjs
+tsx prisma/seed.mjs
 exec node server.js

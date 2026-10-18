@@ -39,8 +39,6 @@ export function useHubFeed(eventId: string | null, _currentUserId: string | null
     useHubFeedComments({ eventId, queryClient });
 
   const {
-    showParticles,
-    setShowParticles,
     toggleReaction,
     toggleDownvote,
     votePoll,
@@ -79,8 +77,6 @@ export function useHubFeed(eventId: string | null, _currentUserId: string | null
     openComments,
     commentDrafts,
     replyingTo,
-    showParticles,
-    setShowParticles,
     refresh: refreshPosts,
     toggleReaction,
     toggleDownvote,
