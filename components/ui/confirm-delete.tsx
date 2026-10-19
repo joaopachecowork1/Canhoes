@@ -33,7 +33,7 @@ function DefaultTrigger({ iconOnly }: Readonly<{ iconOnly: boolean }>) {
       <Button
         variant="ghost"
         size="sm"
-        className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-white/5 hover:text-[var(--color-danger)]"
+        className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--color-veil)]/5 hover:text-[var(--color-danger)]"
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -59,7 +59,7 @@ export function ConfirmDeleteAction({
       <AlertDialogTrigger asChild>
         {trigger ?? <DefaultTrigger iconOnly={iconOnly} />}
       </AlertDialogTrigger>
-      <AlertDialogContent className="border border-white/10 bg-[var(--bg-deep)] shadow-xl">
+      <AlertDialogContent className="border border-[var(--color-veil)]/10 bg-[var(--bg-deep)] shadow-xl">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-[var(--text-primary)]">{title}</AlertDialogTitle>
           <AlertDialogDescription className="text-[var(--text-muted)]">
@@ -67,7 +67,7 @@ export function ConfirmDeleteAction({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className="border-white/10 bg-transparent text-[var(--ink-secondary)] hover:bg-white/5 hover:text-white">
+          <AlertDialogCancel className="border-[var(--color-veil)]/10 bg-transparent text-[var(--ink-secondary)] hover:bg-[var(--color-veil)]/5 hover:text-[var(--text-primary)]">
             {messages.common.cancel}
           </AlertDialogCancel>
           <AlertDialogAction 
@@ -75,7 +75,7 @@ export function ConfirmDeleteAction({
               e.stopPropagation();
               onConfirm();
             }} 
-            className="bg-[var(--color-danger)] text-white hover:bg-[var(--color-danger-hover)]"
+            className="bg-[var(--color-danger)] text-[var(--text-primary)] hover:bg-[var(--color-danger-hover)]"
           >
             {messages.common.delete}
           </AlertDialogAction>

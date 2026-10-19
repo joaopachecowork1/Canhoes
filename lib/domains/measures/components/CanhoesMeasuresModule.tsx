@@ -119,7 +119,7 @@ function MeasureList({
         <div className="space-y-2">
           {measures.map((measure) => (
             <div key={measure.id} className="space-y-1 p-2.5">
-              <p className="text-sm font-semibold text-[var(--color-text-primary)]">{measure.text}</p>
+              <p className="text-base font-semibold text-[var(--color-text-primary)]">{measure.text}</p>
               <p className="text-xs text-[var(--color-text-muted)]">{new Date(measure.createdAtUtc).toLocaleString()}</p>
             </div>
           ))}

@@ -134,7 +134,7 @@ export function CanhoesLoginModule() {
 
               <OrDivider />
 
-              <Button variant="outline" className="w-full text-white/80" onClick={handleGoogleLogin} disabled={isGoogleBusy}>
+              <Button variant="outline" className="w-full text-[var(--text-secondary)]" onClick={handleGoogleLogin} disabled={isGoogleBusy}>
                 {isGoogleBusy ? messages.auth.common.signingIn : copy.googleLogin}
               </Button>
               <p className="text-center text-xs text-[var(--text-muted)]">{copy.footer}</p>

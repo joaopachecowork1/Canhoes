@@ -40,7 +40,7 @@ export function CommentForm({
 
       <div className="min-w-0 flex-1 space-y-2">
         {replyingToName ? (
-          <div className="flex items-center justify-between bg-[var(--moss)]/10 border border-[var(--moss)]/20 text-[var(--moss)] text-xs px-3 py-2 rounded-lg mb-2">
+          <div className="flex items-center justify-between bg-[var(--moss)]/10 border border-[var(--moss)]/20 text-[var(--moss-glow)] text-xs px-3 py-2 rounded-lg mb-2">
             <span className="truncate">
               {copy.replyingTo} <span className="font-semibold">{replyingToName}</span>
             </span>
@@ -48,7 +48,7 @@ export function CommentForm({
               type="button"
               onClick={onCancelReply}
               aria-label={copy.cancelReply}
-              className="text-[var(--moss)] hover:text-white p-1 rounded-full hover:bg-[var(--moss)]/20 transition-colors"
+              className="text-[var(--moss-glow)] hover:text-[var(--text-primary)] p-1 rounded-full hover:bg-[var(--moss)]/20 transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </button>

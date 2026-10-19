@@ -95,7 +95,7 @@ export function ProposalReviewItem({
         onClick={() => setIsOpen(true)}
         className="flex min-h-11 w-full flex-col border-b border-[var(--border-paper-soft)] p-3 text-left transition-colors hover:bg-[var(--bg-paper-soft)]"
       >
-        <span className="truncate text-sm font-medium text-[var(--ink-primary)]">{proposal.title}</span>
+        <span className="truncate text-base font-medium text-[var(--ink-primary)]">{proposal.title}</span>
         <span className="text-xs text-[var(--ink-muted)]">{createdAt}</span>
       </button>
 

@@ -515,10 +515,6 @@
     "StickerFeedList": {
       "justNow": "Agora mesmo",
       "hoursAgo": "{hours}h",
-      "authorInitials": "CA",
-      "author": "Comunidade",
-      "moreOptions": "Mais opções",
-      "like": "Lindo",
       "emptyTitle": "Sem stickers",
       "emptyDescription": "Ainda não há stickers com imagem para mostrar."
     }

@@ -13,6 +13,9 @@
   --color-text-secondary: #d5d9c9;
   --color-text-muted: #aeb8a0;
   --color-danger: #e05a3a;
+  /* Translucent layers: --color-veil lightens (hairlines, hover), --color-panel is the dark card base. Use with /opacity. */
+  --color-veil: #ffffff;
+  --color-panel: #12180d;
   --canhoes-moss: #4F6336;
   --moss: var(--canhoes-moss);
   --moss-light: rgba(79, 99, 54, 0.92);
@@ -162,6 +165,9 @@
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border-neon); box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.18); }
   button, [role="button"] { min-height: 44px; min-width: 44px; }
   ::selection { background: rgba(133, 165, 101, 0.2); color: var(--color-text-primary); }
+  /* One keyboard focus ring for every control the browser would otherwise draw its own for. */
+  :focus-visible { outline: 2px solid var(--moss-glow); outline-offset: 2px; }
+  input, textarea { caret-color: var(--moss-glow); }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
   @media (prefers-reduced-motion: reduce) {
@@ -169,5 +175,7 @@
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
+    /* A loading spinner is feedback, not decoration: it keeps turning, slowly. */
+    .animate-spin { animation-duration: 1.5s !important; }
   }
 }

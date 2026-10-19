@@ -25,7 +25,7 @@ export function NominationsLoadingState() {
         <Skeleton className="h-10 w-full rounded-[var(--radius-md-token)]" />
         <Skeleton className="h-10 w-36 rounded-full" />
       </div>
-      <div className="space-y-2 rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.12)] bg-[rgba(22,28,15,0.72)] p-4">
+      <div className="space-y-2 rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/72 p-4">
         <Skeleton className="h-4 w-40 rounded" />
         <Skeleton className="h-3 w-56 rounded" />
         <div className="space-y-2 pt-2">
@@ -55,7 +55,7 @@ function PendingNomination({ label }: Readonly<{ label: string | null }>) {
         <Clock className="mr-1 h-3.5 w-3.5" />
         {copy.pending}
       </Badge>
-      <span className="text-sm font-medium text-[var(--ink-primary)]">{label || copy.alreadyNominated}</span>
+      <span className="text-base font-medium text-[var(--ink-primary)]">{label || copy.alreadyNominated}</span>
     </div>
   );
 }
@@ -129,9 +129,9 @@ function ApprovedNomineesList({ nominees }: Readonly<{ nominees: NomineeDto[] }>
       ) : (
         <div className="space-y-2">
           {nominees.map((nominee) => (
-            <div key={nominee.id} className="flex items-center gap-2 rounded-[var(--radius-md-token)] border border-[rgba(255,255,255,0.1)] px-3 py-2.5 transition-colors duration-150 hover:border-[rgba(122,173,58,0.2)]">
+            <div key={nominee.id} className="flex items-center gap-2 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 px-3 py-2.5 transition-colors duration-150 hover:border-[var(--moss)]/20">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--neon-green)]" />
-              <span className="truncate text-sm font-medium text-[var(--ink-primary)]">{nominee.title}</span>
+              <span className="truncate text-base font-medium text-[var(--ink-primary)]">{nominee.title}</span>
             </div>))}
         </div>
       )}

@@ -14,7 +14,7 @@ import { AdminMembersList } from "./AdminMembersList";
 import { SecretSantaAdmin } from "./SecretSantaAdmin";
 
 const copy = messages.admin.AdminMembersSection;
-const CARD_CLASS = "border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]";
+const CARD_CLASS = "border-[var(--moss)]/12 bg-[var(--color-panel)]/96 shadow-[0_16px_32px_rgba(0,0,0,0.14)]";
 
 type AdminMembersSectionProps = {
   eventId: string | null;

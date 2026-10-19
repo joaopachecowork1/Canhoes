@@ -24,7 +24,7 @@ export function CategoryListItem({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-2.5">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">{category.name}</p>
+            <p className="truncate text-base font-semibold text-[var(--ink-primary)]">{category.name}</p>
             <Badge variant="secondary">{CATEGORY_KIND_LABELS[category.kind]}</Badge>
             {category.isActive ? (
               <Badge variant="default">{messages.categories.CanhoesCategoriesModule.active}</Badge>
@@ -35,7 +35,7 @@ export function CategoryListItem({
 
           <p className="text-sm leading-6 text-[var(--ink-muted)]">{category.description || copy.noDescription}</p>
 
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] uppercase tracking-[0.08em] text-[var(--ink-muted)]">
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs uppercase tracking-[0.08em] text-[var(--ink-muted)]">
             <span>{formatCount(usage.nomineeCount, copy.nominee, copy.nominees)}</span>
             <span>{formatCount(usage.voteCount, messages.common.vote, messages.common.votes)}</span>
             {category.kind === CATEGORY_KIND.USER_VOTE && category.voteQuestion ? (

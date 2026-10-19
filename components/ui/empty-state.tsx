@@ -38,13 +38,13 @@ export function EmptyState({
       )}
     >
       {Icon ? (
-        <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/8 bg-white/[0.05] text-[var(--moss)] shadow-none">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--color-veil)]/8 bg-[var(--color-veil)]/5 text-[var(--moss)] shadow-none">
           <Icon className="h-6 w-6" />
         </div>
       ) : null}
 
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</p>
+        <p className="text-base font-semibold text-[var(--color-text-primary)]">{title}</p>
         {description ? <p className="text-sm text-[var(--color-text-muted)]">{description}</p> : null}
       </div>
 

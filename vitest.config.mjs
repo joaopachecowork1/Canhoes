@@ -56,6 +56,8 @@ export default defineConfig({
             DATABASE_URL: testDatabaseUrl,
             NEXTAUTH_SECRET: "integration-test-secret",
             DEV_AUTH_BYPASS_ENABLED: "false",
+            // A shell that exports a local .env must not open Google sign-in to everyone during tests.
+            AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN: "false",
           },
         },
       },

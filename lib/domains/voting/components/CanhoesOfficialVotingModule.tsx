@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Flame, Loader2, Vote } from "lucide-react";
+import { CheckCircle2, Flame, Loader2, Lock, Vote } from "lucide-react";
 
 import type { CastOfficialVoteRequest, EventActiveContextDto, EventVotingBoardDto, EventVotingCategoryDto } from "@/lib/api/types";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
@@ -25,9 +25,9 @@ function OfficialVotingLoadingState() {
     <div className="space-y-4">
       <Skeleton className="h-24 rounded-[var(--radius-lg-token)]" />
       <Skeleton className="h-10 rounded-full" />
-      <div className="space-y-3 rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.12)] bg-[rgba(22,28,15,0.88)] p-3">
+      <div className="space-y-3 rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/88 p-3">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="space-y-2 rounded-[var(--radius-md-token)] border border-[rgba(255,255,255,0.1)] p-3">
+          <div key={index} className="space-y-2 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 p-3">
             <Skeleton className="h-4 w-3/5 rounded" />
             <Skeleton className="h-3 w-2/5 rounded" />
           </div>
@@ -45,8 +45,8 @@ function VotingProgressCard({ voted, total, percentage }: Readonly<{ voted: numb
           <span className="text-[var(--ink-secondary)]">{formatMessage(copy.progress, { voted, total })}</span>
           <span className="font-[var(--font-mono)] text-[var(--ink-primary)]">{`${percentage}%`}</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-[rgba(95,123,56,0.16)]">
-          <div className="h-full rounded-full bg-[var(--moss)] transition-all" style={{ width: `${percentage}%` }} />
+        <div className="h-2 overflow-hidden rounded-full bg-[var(--moss)]/16">
+          <div className="h-full origin-left rounded-full bg-[var(--moss)] transition-transform duration-200" style={{ transform: `scaleX(${percentage / 100})` }} />
         </div>
       </CardContent>
     </Card>
@@ -55,8 +55,8 @@ function VotingProgressCard({ voted, total, percentage }: Readonly<{ voted: numb
 
 function BallotComplete() {
   return (
-    <Card className="rounded-2xl border-[rgba(95,123,56,0.28)] bg-[rgba(95,123,56,0.1)] px-4 text-[var(--ink-primary)]">
-      <CardContent className="py-6 text-center font-semibold text-[var(--moss)]">{copy.complete}</CardContent>
+    <Card className="rounded-2xl border-[var(--moss)]/28 bg-[var(--moss)]/10 px-4 text-[var(--ink-primary)]">
+      <CardContent className="py-6 text-center font-semibold text-[var(--moss-glow)]">{copy.complete}</CardContent>
     </Card>
   );
 }
@@ -146,11 +146,11 @@ function VoteOptionButton({
       onClick={onClick}
       className={cn(
         "w-full text-left px-3 py-2 flex items-center justify-between gap-3 border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-none",
-        isSelected && "border-[rgba(95,123,56,0.28)] bg-[rgba(95,123,56,0.08)]"
+        isSelected && "border-[var(--moss)]/28 bg-[var(--moss)]/8"
       )}
     >
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-[var(--ink-primary)]">{label}</p>
+        <p className="truncate text-base font-medium text-[var(--ink-primary)]">{label}</p>
       </div>
       <div className="shrink-0 text-[var(--moss)]">{statusIcon}</div>
     </button>
@@ -171,11 +171,12 @@ function OfficialVotingCategoryCard({
   pendingPayload: CastOfficialVoteRequest | null;
 }>) {
   return (
-    <CanhoesFeatureCard title={category.title} description={category.description ?? undefined} icon={Flame} className="relative">
+    <CanhoesFeatureCard title={category.title} description={category.description ?? undefined} icon={Flame}>
       {canVote ? null : (
-        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-[rgba(42,30,21,0.12)] backdrop-blur-[1px] text-xs uppercase tracking-[0.12em] text-[var(--ink-muted)]">
+        <p className="flex items-center gap-2 rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 py-2 text-sm text-[var(--ink-secondary)]">
+          <Lock className="h-4 w-4 shrink-0" aria-hidden />
           {copy.closed}
-        </div>
+        </p>
       )}
 
       {category.options.length > 0 ? (

@@ -51,7 +51,7 @@ function StickerSubmitLoadingState() {
       </Card>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="space-y-3 rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.12)] bg-[rgba(22,28,15,0.9)] p-3">
+          <div key={index} className="space-y-3 rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/90 p-3">
             <Skeleton className="aspect-square w-full rounded-[var(--radius-md-token)]" />
             <Skeleton className="h-4 w-4/5 rounded" />
             <Skeleton className="h-3 w-2/3 rounded" />
@@ -106,7 +106,7 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
       />
 
       <Card>
-        <CardHeader className="space-y-1">
+        <CardHeader className="space-y-1 pb-4">
           <p>{copy.formKicker}</p>
           <CardTitle>{copy.formTitle}</CardTitle>
         </CardHeader>

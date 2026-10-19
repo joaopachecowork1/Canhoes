@@ -67,7 +67,7 @@ function NomineeRankCard({
         "flex items-center gap-3 rounded-[var(--radius-md-token)] border px-3 py-3 transition-colors duration-200",
         isWinner
           ? "border-[rgba(0,255,136,0.3)] bg-[linear-gradient(180deg,rgba(0,255,136,0.06),transparent)] shadow-[0_0_12px_rgba(0,255,136,0.08)]"
-          : "border-[rgba(255,255,255,0.1)] hover:border-[rgba(122,173,58,0.15)]"
+          : "border-[var(--color-veil)]/10 hover:border-[var(--moss)]/15"
       )}
       style={{ animationDelay: `${rank * 0.08}s` }}
     >
@@ -75,7 +75,7 @@ function NomineeRankCard({
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-sm font-semibold text-[var(--ink-primary)]">
+          <span className="inline-flex items-center gap-1 text-base font-semibold text-[var(--ink-primary)]">
             {renderPlacementIcon(rank)} {`#${rank + 1}`}
           </span>
           <span className="truncate font-semibold text-[var(--ink-primary)]">

@@ -45,7 +45,7 @@ export function CommentThreadItem({
   const offset = comment.indentLevel * INDENT_PX + GUTTER_PX;
 
   return (
-    <article style={{ paddingLeft: `${offset}px` }} className="group relative flex gap-3 pr-3 py-3 transition-colors hover:bg-white/[0.02]">
+    <article style={{ paddingLeft: `${offset}px` }} className="group relative flex gap-3 pr-3 py-3 transition-colors hover:bg-[var(--color-veil)]/2">
       <ThreadLines indentLevel={comment.indentLevel} offset={offset} />
 
       <div className="relative flex flex-col items-center">
@@ -59,7 +59,7 @@ export function CommentThreadItem({
           {isPostAuthor ? (
             <Badge
               variant="outline"
-              className="h-4 min-w-4 border-[var(--moss)]/30 bg-[var(--moss)]/10 px-1 text-[9px] font-bold uppercase tracking-[0.1em] text-[var(--moss)]"
+              className="h-4 min-w-4 border-[var(--moss)]/30 bg-[var(--moss)]/10 px-1 text-xs font-bold uppercase tracking-[0.1em] text-[var(--moss-glow)]"
             >
               {copy.authorBadge}
             </Badge>
@@ -67,12 +67,12 @@ export function CommentThreadItem({
           <span className="text-xs text-[var(--text-muted)]">{`· ${formatDateTime(comment.createdAtUtc)}`}</span>
         </div>
 
-        <p className="mt-1 whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--text-primary)]">{comment.text}</p>
+        <p className="mt-1 whitespace-pre-wrap break-words text-base leading-relaxed text-[var(--text-primary)]">{comment.text}</p>
 
         <div className="mt-2 flex items-center justify-between">
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded px-2 py-1 -ml-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--moss)] hover:bg-[var(--moss)]/10"
+            className="flex items-center gap-1.5 rounded px-2 py-1 -ml-2 text-xs font-medium text-[var(--text-muted)] transition-colors hover:text-[var(--moss-glow)] hover:bg-[var(--moss)]/10"
             aria-label={copy.reply}
             onClick={onReply}
           >

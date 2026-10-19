@@ -15,7 +15,7 @@ const copy = messages.feed.MediaCarousel;
 const IMAGE_SIZES = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px";
 const MAX_HEIGHT_BY_ASPECT = { portrait: "max-h-[32rem]", video: "max-h-[28rem]", square: "max-h-[24rem]" } as const;
 const ARROW_CLASS =
-  "absolute top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[rgba(0,0,0,0.5)] p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition-all group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35";
+  "absolute top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[var(--color-panel)]/50 p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35";
 
 function MediaFallback() {
   return (
@@ -89,7 +89,7 @@ function CarouselControls({
         <ChevronRight className="h-4 w-4" />
       </button>
       <span
-        className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-medium text-white"
+        className="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-[var(--text-primary)]"
         aria-live="polite"
         aria-atomic="true"
       >
@@ -101,18 +101,23 @@ function CarouselControls({
 
 function CarouselDots({ currentIndex, media, onSelect }: Readonly<{ currentIndex: number; media: string[]; onSelect: (index: number) => void }>) {
   return (
-    <div className="mt-1.5 flex items-center justify-center gap-1.5">
+    <div className="flex items-center justify-center">
       {media.map((url, index) => (
         <button
           key={`dot-${url}-${index}`}
           type="button"
           aria-label={formatMessage(copy.goTo, { number: index + 1 })}
-          className={cn(
-            "h-1.5 rounded-full transition-all",
-            index === currentIndex ? "w-6 bg-[var(--moss-glow)]" : "w-2 bg-[var(--text-muted)]/30 hover:bg-[var(--text-muted)]/50"
-          )}
+          aria-current={index === currentIndex ? "true" : undefined}
+          className="group flex h-11 w-11 items-center justify-center"
           onClick={() => onSelect(index)}
-        />
+        >
+          <span
+            className={cn(
+              "h-1.5 w-6 rounded-full transition-[transform,background-color] duration-200",
+              index === currentIndex ? "bg-[var(--moss-glow)]" : "scale-x-[0.34] bg-[var(--text-muted)]/30 group-hover:bg-[var(--text-muted)]/50"
+            )}
+          />
+        </button>
       ))}
     </div>
   );
@@ -135,7 +140,7 @@ function CarouselTrack({
 }>) {
   return (
     <div
-      className="flex h-full w-full transition-transform duration-300"
+      className="flex h-full w-full transition-transform duration-200"
       style={{ transform: `translateX(-${currentIndex * 100}%)`, willChange: "transform" }}
     >
       {media.map((url, index) => (

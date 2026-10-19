@@ -68,7 +68,7 @@ function CommentsHeader({ commentCount, onClose }: Readonly<{ commentCount: numb
         type="button"
         variant="ghost"
         size="sm"
-        className="h-8 rounded-full px-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/[0.06]"
+        className="h-8 rounded-full px-3 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--color-veil)]/6"
         onClick={onClose}
         aria-label={messages.feed.HubPostCard.closeComments}
       >
@@ -115,7 +115,7 @@ export function HubPostComments({
 
       <div className="space-y-0 relative">
         {displayComments.length === 0 ? (
-          <div className="rounded-xl px-4 py-6 text-center text-sm text-[var(--text-muted)] bg-[var(--bg-deep)] border border-white/[0.04]">
+          <div className="rounded-xl px-4 py-6 text-center text-sm text-[var(--text-muted)] bg-[var(--bg-deep)] border border-[var(--color-veil)]/4">
             {copy.empty}
           </div>
         ) : (

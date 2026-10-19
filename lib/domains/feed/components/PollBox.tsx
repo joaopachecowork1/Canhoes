@@ -18,7 +18,7 @@ export function PollBox({
   const totalVotes = Math.max(0, poll.totalVotes || 0);
 
   return (
-    <section className="border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] p-4 sm:p-5">
+    <section className="border border-[var(--color-veil)]/5 bg-[var(--color-veil)]/2.5 shadow-none rounded-[1.25rem] p-4 sm:p-5">
       <div className="space-y-4">
         <div className="space-y-1">
           <p className="text-[var(--text-muted)]">{copy.kicker}</p>
@@ -52,7 +52,7 @@ export function PollBox({
                     "absolute inset-0 origin-left rounded-[var(--radius-md-token)] transition-transform duration-200 ease-out motion-reduce:transition-none",
                     isActive
                       ? "bg-[var(--moss)]/25"
-                      : "bg-[rgba(255,255,255,0.06)]"
+                      : "bg-[var(--color-veil)]/6"
                   )}
                   style={{ transform: `scaleX(${percentage / 100})` }}
                   role="progressbar"
@@ -71,7 +71,7 @@ export function PollBox({
                   </span>
                   <span className={cn(
                     "text-sm",
-                    isActive ? "text-[var(--moss)] font-medium" : "text-[var(--text-muted)]"
+                    isActive ? "text-[var(--moss-glow)] font-medium" : "text-[var(--text-muted)]"
                   )}>
                     {option.voteCount} · {percentage}%
                   </span>

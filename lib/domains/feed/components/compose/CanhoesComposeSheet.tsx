@@ -25,9 +25,9 @@ function ComposeSheetHeader() {
   return (
     <>
       <div className="flex shrink-0 justify-center pt-2 sm:hidden">
-        <span className="h-1.5 w-14 rounded-full bg-white/20" />
+        <span className="h-1.5 w-14 rounded-full bg-[var(--color-veil)]/20" />
       </div>
-      <SheetHeader className="shrink-0 border-b border-white/10 px-4 pb-3 pt-3 sm:pt-4">
+      <SheetHeader className="shrink-0 border-b border-[var(--color-veil)]/10 px-4 pb-3 pt-3 sm:pt-4">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-moss)] text-[var(--ink-primary)]">
             <Leaf className="h-4 w-4" />
@@ -85,7 +85,7 @@ function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
           value={composer.text}
           onChange={(event) => composer.setText(event.target.value)}
           placeholder={composeCopy.textPlaceholder}
-          className="min-h-24 resize-none border-white/10 bg-[var(--bg-paper-soft)] text-base sm:min-h-28 sm:text-sm"
+          className="min-h-24 resize-none border-[var(--color-veil)]/10 bg-[var(--bg-paper-soft)] text-base sm:min-h-28 sm:text-sm"
         />
 
         <ComposeMediaGrid
@@ -160,7 +160,7 @@ export function CanhoesComposeSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="flex max-h-[92svh] flex-col gap-0 overflow-hidden border-t border-white/10 bg-[rgba(10,14,8,0.98)] p-0 pb-safe sm:mx-auto sm:mb-4 sm:max-h-[calc(100svh-2rem)] sm:max-w-2xl sm:rounded-[1.5rem] sm:border sm:border-white/10"
+        className="flex max-h-[92svh] flex-col gap-0 overflow-hidden border-t border-[var(--color-veil)]/10 bg-[var(--color-panel)]/98 p-0 pb-safe sm:mx-auto sm:mb-4 sm:max-h-[calc(100svh-2rem)] sm:max-w-2xl sm:rounded-[1.5rem] sm:border sm:border-[var(--color-veil)]/10"
       >
         <ComposeSheetHeader />
         {status === "authenticated" ? <ComposeForm onPublished={handlePublished} /> : <ComposeAuthPrompt />}

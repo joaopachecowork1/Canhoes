@@ -28,7 +28,7 @@ function CategoriesLoadingState() {
   return (
     <div className="space-y-2.5">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="flex items-center gap-3.5 rounded-2xl border border-white/5 bg-[var(--bg-paper-soft)] p-4">
+        <div key={index} className="flex items-center gap-3.5 rounded-2xl border border-[var(--color-veil)]/5 bg-[var(--bg-paper-soft)] p-4">
           <Skeleton className="h-11 w-11 shrink-0 rounded-xl" />
           <div className="min-w-0 flex-1 space-y-2">
             <Skeleton className="h-4 w-3/5 rounded" />
@@ -47,14 +47,14 @@ function CategoryRow({ category, index }: Readonly<{ category: AwardCategoryDto;
 
   return (
     <div
-      className="flex items-center gap-3.5 rounded-2xl border border-white/5 bg-[var(--bg-paper-soft)] p-4 transition-all duration-200 hover:border-white/10 hover:bg-white/[0.06] animate-fade-slide-up"
+      className="flex items-center gap-3.5 rounded-2xl border border-[var(--color-veil)]/5 bg-[var(--bg-paper-soft)] p-4 transition duration-200 hover:border-[var(--color-veil)]/10 hover:bg-[var(--color-veil)]/6 animate-fade-slide-up"
       style={style}
     >
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--moss)]/12">
         <Trophy className="h-5 w-5 text-[var(--moss-glow)]" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-bold text-[var(--ink-primary)]">{category.name}</p>
+        <p className="truncate text-base font-bold text-[var(--ink-primary)]">{category.name}</p>
         <p className="mt-0.5 truncate text-xs text-[var(--ink-secondary)]">{category.description || copy.noDescription}</p>
       </div>
       <Badge variant={category.isActive ? "default" : "outline"}>{category.isActive ? copy.active : copy.inactive}</Badge>
@@ -117,7 +117,7 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
 
   return (
     <div className="space-y-5">
-      <div className="sticky top-0 z-10 -mx-4 px-4 pb-4 pt-2 backdrop-blur-xl bg-[var(--bg-void)]/80 border-b border-white/5">
+      <div className="sticky top-0 z-10 -mx-4 px-4 pb-4 pt-2 backdrop-blur-xl bg-[var(--bg-void)]/80 border-b border-[var(--color-veil)]/5">
         <CanhoesModuleHeader
           icon={Flame}
           title={copy.title}

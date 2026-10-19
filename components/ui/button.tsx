@@ -9,19 +9,19 @@ import { cn } from "@/lib/utils";
  * Inclui estados como default, primary, destructive, outline, secondary, ghost, link e glow.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md-token)] text-sm font-medium transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] min-h-[44px]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md-token)] text-sm font-medium transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] min-h-[44px]",
   {
     variants: {
       variant: {
-        default: "border border-[rgba(95,123,56,0.36)] bg-[var(--moss)] text-white shadow-[var(--shadow-elevation-sm)] hover:bg-[var(--moss-light)] hover:border-[rgba(95,123,56,0.48)] hover:shadow-[var(--shadow-elevation-md)]",
-        primary: "border-0 rounded-full text-white bg-[#4F6336] shadow-[0_2px_8px_rgba(79,99,54,0.25)] hover:bg-[#677f46] hover:shadow-lg hover:-translate-y-0.5",
-        destructive: "border border-[rgba(224,90,58,0.22)] bg-[linear-gradient(180deg,var(--color-danger),var(--color-danger-hover))] text-white shadow-[var(--shadow-elevation-sm)] hover:border-[rgba(224,90,58,0.3)] hover:brightness-110",
-        outline: "border border-white/10 bg-white/[0.05] text-[var(--color-text-primary)] shadow-none hover:bg-white/[0.08] hover:border-white/15 hover:shadow-sm",
-        secondary: "border border-[var(--border-subtle)] bg-[rgba(255,255,255,0.08)] text-[var(--text-primary)] shadow-none hover:bg-[rgba(255,255,255,0.14)] hover:border-[rgba(255,255,255,0.18)]",
-        ghost: "border-transparent bg-transparent text-[var(--text-primary)] shadow-none hover:bg-[rgba(255,255,255,0.08)] hover:text-[var(--moss)]",
+        default: "border border-[var(--moss)]/36 bg-[var(--moss)] text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] hover:bg-[var(--moss-light)] hover:border-[var(--moss)]/48 hover:shadow-[var(--shadow-elevation-md)]",
+        primary: "border-0 rounded-full text-[var(--text-primary)] bg-[#4F6336] shadow-[0_2px_8px_rgba(79,99,54,0.25)] hover:bg-[#677f46] hover:shadow-lg hover:-translate-y-0.5",
+        destructive: "border border-[var(--color-danger)]/22 bg-[linear-gradient(180deg,var(--color-danger),var(--color-danger-hover))] text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] hover:border-[var(--color-danger)]/30 hover:brightness-110",
+        outline: "border border-[var(--color-veil)]/10 bg-[var(--color-veil)]/5 text-[var(--color-text-primary)] shadow-none hover:bg-[var(--color-veil)]/8 hover:border-[var(--color-veil)]/15 hover:shadow-sm",
+        secondary: "border border-[var(--border-subtle)] bg-[var(--color-veil)]/8 text-[var(--text-primary)] shadow-none hover:bg-[var(--color-veil)]/14 hover:border-[var(--color-veil)]/18",
+        ghost: "border-transparent bg-transparent text-[var(--text-primary)] shadow-none hover:bg-[var(--color-veil)]/8 hover:text-[var(--moss-glow)]",
         "ghost-subtle": "border-transparent bg-transparent text-[var(--text-muted)] shadow-none hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]",
-        link: "px-0 text-[var(--moss)] underline-offset-4 shadow-none hover:text-[var(--ink-primary)] hover:underline decoration-[rgba(95,123,56,0.3)] decoration-2 hover:underline-offset-4",
-        glow: "border border-[rgba(95,123,56,0.22)] bg-[rgba(95,123,56,0.12)] text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] hover:bg-[rgba(95,123,56,0.16)] hover:shadow-[0_0_15px_rgba(95,123,56,0.2)]",
+        link: "px-0 text-[var(--moss-glow)] underline-offset-4 shadow-none hover:text-[var(--ink-primary)] hover:underline decoration-[var(--moss)]/30 decoration-2 hover:underline-offset-4",
+        glow: "border border-[var(--moss)]/22 bg-[var(--moss)]/12 text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] hover:bg-[var(--moss)]/16 hover:shadow-[0_0_15px_rgba(95,123,56,0.2)]",
         neon: "bg-neon-glow border border-neon-green/30 text-neon-green hover:bg-neon-green/25 shadow-neon font-semibold",
       },
       size: {

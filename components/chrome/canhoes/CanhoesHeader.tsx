@@ -17,9 +17,9 @@ const copy = messages.shell.CanhoesHeader;
 
 const TONE_BADGE_CLASS: Record<CanhoesPageTone, string> = {
   social: "bg-[rgba(118,98,166,0.14)] text-[var(--accent-purple-soft)]",
-  official: "bg-[rgba(95,123,56,0.14)] text-[var(--color-text-primary)]",
+  official: "bg-[var(--moss)]/14 text-[var(--color-text-primary)]",
   admin: "bg-[rgba(201,164,106,0.14)] text-[var(--color-text-primary)]",
-  event: "bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.82)]",
+  event: "bg-[var(--color-veil)]/8 text-[var(--text-secondary)]",
 };
 
 type CanhoesHeaderProps = {
@@ -40,7 +40,7 @@ function PageHeading({ pageContext }: Readonly<{ pageContext: CanhoesPageContext
       <div className="flex min-w-0 items-center gap-2">
         <Badge
           variant="outline"
-          className={cn("shrink-0 border-transparent px-2 py-0.5 text-[10px] font-medium", TONE_BADGE_CLASS[pageContext.tone])}
+          className={cn("shrink-0 border-transparent px-2 py-0.5 text-xs font-medium", TONE_BADGE_CLASS[pageContext.tone])}
         >
           {pageContext.toneLabel}
         </Badge>
@@ -48,7 +48,7 @@ function PageHeading({ pageContext }: Readonly<{ pageContext: CanhoesPageContext
       </div>
 
       {pageContext.description ? (
-        <p className="line-clamp-1 text-xs text-[rgba(255,255,255,0.66)]">{pageContext.description}</p>
+        <p className="line-clamp-1 text-xs text-[var(--text-muted)]">{pageContext.description}</p>
       ) : null}
     </div>
   );
@@ -96,7 +96,7 @@ export function CanhoesHeader({
   userLabel,
 }: Readonly<CanhoesHeaderProps>) {
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[rgba(16,19,13,0.94)] backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--color-panel)]/94 backdrop-blur-md">
       <div className="mx-auto w-full max-w-[72rem] px-4 pb-3 pt-[env(safe-area-inset-top,0px)] sm:px-6 lg:px-8">
         <div className="px-0.5 pt-1 text-[var(--text-primary)]">
           <div className="flex items-center justify-between gap-3">

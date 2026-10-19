@@ -35,9 +35,9 @@ export function CanhoesBottomTabs({
     ariaLabel: messages.shell.CanhoesBottomTabs.createPost,
     ariaPressed: isComposeOpen,
     buttonClassName: cn(
-      "border-[rgba(255,255,255,0.12)] bg-[var(--bg-paper)] text-[var(--color-text-primary)]",
+      "border-[var(--color-veil)]/12 bg-[var(--bg-paper)] text-[var(--color-text-primary)]",
       isComposeOpen &&
-        "border-[rgba(95,123,56,0.24)] bg-[rgba(95,123,56,0.16)] text-[var(--color-text-primary)]"
+        "border-[var(--moss)]/24 bg-[var(--moss)]/16 text-[var(--color-text-primary)]"
     ),
     icon: Plus,
     iconClassName: cn("h-5 w-5", isComposeOpen && "text-[var(--moss)]"),
@@ -61,7 +61,7 @@ export function CanhoesBottomTabs({
         <Dock
           items={items}
           className="w-full"
-          dockClassName="rounded-[1.25rem] border border-[rgba(255,255,255,0.12)] bg-[rgba(12,17,9,0.96)] p-1.5 shadow-[var(--shadow-elevation-md)]"
+          dockClassName="rounded-[1.25rem] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/96 p-1.5 shadow-[var(--shadow-elevation-md)]"
         />
       </div>
     </nav>

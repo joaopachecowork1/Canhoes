@@ -26,9 +26,9 @@ function InviteLinkResult({ inviteUrl }: Readonly<{ inviteUrl: string }>) {
   };
 
   return (
-    <div className="mt-4 space-y-2 rounded-md border border-[rgba(255,255,255,0.14)] bg-[rgba(16,23,11,0.94)] p-3">
-      <p className="text-xs font-semibold text-[var(--moss)]">{copy.generatedTitle}</p>
-      <p className="text-[10px] text-[var(--ink-muted)]">{copy.generatedHint}</p>
+    <div className="mt-4 space-y-2 rounded-md border border-[var(--color-veil)]/14 bg-[var(--color-panel)]/94 p-3">
+      <p className="text-xs font-semibold text-[var(--moss-glow)]">{copy.generatedTitle}</p>
+      <p className="text-xs text-[var(--ink-muted)]">{copy.generatedHint}</p>
       <div className="flex items-center gap-2">
         <Input value={inviteUrl} readOnly className="h-8 text-xs bg-black/40 border-[var(--border-paper)]" />
         <Button size="icon" variant="outline" className="h-8 w-8 shrink-0" onClick={handleCopy} aria-label={copy.copyLabel}>
@@ -63,7 +63,7 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
   };
 
   return (
-    <Card className="border-[rgba(122,173,58,0.12)] bg-[rgba(15,22,10,0.96)] shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
+    <Card className="border-[var(--moss)]/12 bg-[var(--color-panel)]/96 shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
       <CardHeader className="space-y-1">
         <CardTitle>{copy.title}</CardTitle>
         <CardDescription className="text-xs text-[var(--ink-muted)]">{copy.description}</CardDescription>
@@ -80,7 +80,7 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={copy.emailPlaceholder}
                 disabled={isInviting}
-                className="bg-[rgba(16,23,11,0.94)] border-[rgba(255,255,255,0.14)]"
+                className="bg-[var(--color-panel)]/94 border-[var(--color-veil)]/14"
                 required
               />
             </div>

@@ -20,7 +20,7 @@ const VARIANT_CLASSES: Record<NonNullable<AdminStateMessageProps["variant"]>, st
 const TONE_CLASSES: Record<NonNullable<AdminStateMessageProps["tone"]>, string> = {
   default: "border-[var(--border-paper)] bg-[var(--bg-paper)] text-[var(--ink-primary)]",
   warning: "border-[rgba(253,224,71,0.22)] bg-[rgba(255,248,225,0.94)] text-[var(--ink-primary)]",
-  error: "border-[rgba(224,90,58,0.2)] bg-[rgba(255,243,239,0.96)] text-[var(--ink-primary)]",
+  error: "border-[var(--color-danger)]/20 bg-[rgba(255,243,239,0.96)] text-[var(--ink-primary)]",
 };
 
 export function AdminStateMessage({ action, children, variant = "panel", tone = "default" }: Readonly<AdminStateMessageProps>) {

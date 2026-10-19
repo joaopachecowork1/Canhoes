@@ -152,7 +152,7 @@ export function CanhoesRegisterModule() {
 
       <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-10">
         <section className="w-full max-w-md rounded-[var(--radius-xl-token)] border p-6 text-[var(--text-primary)] shadow-[var(--shadow-modal)] backdrop-blur-xl sm:p-8">
-          <Suspense fallback={<div className="text-center text-white">{messages.common.loading}</div>}>
+          <Suspense fallback={<div className="text-center text-[var(--text-primary)]">{messages.common.loading}</div>}>
             <RegisterForm />
           </Suspense>
         </section>

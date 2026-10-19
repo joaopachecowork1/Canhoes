@@ -34,7 +34,7 @@ export function PostVoteBar({
         )}
         aria-label={isUpvoted ? copy.removeUpvote : copy.upvote}
       >
-        <ArrowBigUp className={cn("h-5 w-5 transition-all", isUpvoted && "fill-green-500 text-green-500")} />
+        <ArrowBigUp className={cn("h-5 w-5 transition", isUpvoted && "fill-green-500 text-green-500")} />
       </button>
 
       <span className={cn("min-w-[2rem] text-center font-mono text-sm font-bold tabular-nums", getScoreClass(isUpvoted, isDownvoted))}>
@@ -52,7 +52,7 @@ export function PostVoteBar({
         )}
         aria-label={isDownvoted ? copy.removeDownvote : copy.downvote}
       >
-        <ArrowBigDown className={cn("h-5 w-5 transition-all", isDownvoted && "fill-red-500 text-red-500")} />
+        <ArrowBigDown className={cn("h-5 w-5 transition", isDownvoted && "fill-red-500 text-red-500")} />
       </button>
     </div>
   );

@@ -34,7 +34,7 @@ function ResultsCategoryButton({
 
   return (
     <AdminSelectableButton type="button" onClick={() => onSelect(category.categoryId)} selected={isSelected} aria-pressed={isSelected}>
-      <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">{category.categoryName}</p>
+      <p className="truncate text-base font-semibold text-[var(--ink-primary)]">{category.categoryName}</p>
       <p className="mt-1 text-xs text-[var(--ink-secondary)]">
         {formatMessage(copy.categoryVotes, { votes: category.totalVotes, members: totalMembers, percent: participationRate })}
       </p>

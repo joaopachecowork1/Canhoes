@@ -11,7 +11,7 @@ export function UserAvatar({
   return (
     <span
       className={cn(
-        "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border-paper)] text-[10px] font-semibold text-[var(--text-muted)]",
+        "flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[var(--border-paper)] text-xs font-semibold text-[var(--text-muted)]",
         className
       )}
     >

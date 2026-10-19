@@ -31,7 +31,7 @@ export function ComposePollEditor({
   const composeCopy = messages.feed.compose;
 
   return (
-    <section className="space-y-2.5 rounded-xl border border-white/10 bg-[var(--bg-paper-soft)] p-3">
+    <section className="space-y-2.5 rounded-xl border border-[var(--color-veil)]/10 bg-[var(--bg-paper-soft)] p-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
         <BarChart3 className="h-4 w-4 text-[var(--color-fire)]" />
         {composeCopy.pollLabel}

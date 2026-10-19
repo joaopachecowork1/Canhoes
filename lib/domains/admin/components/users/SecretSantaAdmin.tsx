@@ -126,7 +126,7 @@ export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
               </CardTitle>
             </div>
             {isLocked ? (
-              <Badge variant="outline" className="gap-1.5 border-[rgba(255,255,255,0.1)] py-1">
+              <Badge variant="outline" className="gap-1.5 border-[var(--color-veil)]/10 py-1">
                 <Lock className="h-3 w-3" />
                 {copy.revealed}
               </Badge>

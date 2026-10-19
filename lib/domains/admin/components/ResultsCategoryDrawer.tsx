@@ -77,7 +77,7 @@ function ResultsNomineeBar({
       <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           {Icon ? <Icon className={cn("h-4 w-4 shrink-0", iconClassName)} /> : null}
-          <p className="truncate text-sm text-[var(--ink-primary)]">{nominee.title}</p>
+          <p className="truncate text-base text-[var(--ink-primary)]">{nominee.title}</p>
         </div>
         <span className="text-xs text-[var(--ink-secondary)]">{`${formatCount(nominee.voteCount, messages.common.vote, messages.common.votes)} (${percentage}%)`}</span>
       </div>

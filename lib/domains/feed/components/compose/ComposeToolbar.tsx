@@ -10,7 +10,7 @@ import { MAX_MEDIA_FILES } from "../../rules/composeRules";
 
 const copy = messages.feed.compose;
 
-const IDLE_TOOL_CLASS = "border-[rgba(255,255,255,0.18)] bg-[rgba(18,23,12,0.72)] text-[var(--ink-primary)]";
+const IDLE_TOOL_CLASS = "border-[var(--color-veil)]/18 bg-[var(--color-panel)]/72 text-[var(--ink-primary)]";
 const TOOL_CLASS =
   "flex h-11 w-11 items-center justify-center rounded-xl border disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -35,7 +35,7 @@ export function ComposeToolbar({
   const SubmitIcon = isSubmitting ? Loader2 : Send;
 
   return (
-    <div className="flex shrink-0 items-center justify-between gap-3 border-t border-white/10 bg-[rgba(10,14,8,0.98)] px-4 py-3">
+    <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--color-veil)]/10 bg-[var(--color-panel)]/98 px-4 py-3">
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -53,7 +53,7 @@ export function ComposeToolbar({
         >
           <ImagePlus className="h-4 w-4" />
           {fileCount > 0 ? (
-            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-fire)] text-[9px] font-bold text-white">
+            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-fire)] text-xs font-bold text-[var(--text-primary)]">
               {fileCount}
             </span>
           ) : null}

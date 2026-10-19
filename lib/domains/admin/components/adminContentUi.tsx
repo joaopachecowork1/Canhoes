@@ -33,7 +33,7 @@ export function AdminSelectableButton({
       {...props}
       className={cn(
         "min-h-11 w-full rounded-[var(--radius-md-token)] border border-[var(--border-paper)] px-3 py-2.5 text-left text-[var(--ink-primary)] transition-colors",
-        selected ? "bg-[rgba(122,173,58,0.1)]" : "bg-[var(--bg-paper)] hover:bg-[var(--bg-paper-soft)]",
+        selected ? "bg-[var(--moss)]/10" : "bg-[var(--bg-paper)] hover:bg-[var(--bg-paper-soft)]",
         className
       )}
     >

@@ -26,7 +26,7 @@ export function FeedLoadMore({
     <>
       <div ref={sentinelRef} className="flex justify-center py-6">
         {isFetchingNextPage ? (
-          <div className="border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] flex flex-col items-center gap-3 px-4 py-3">
+          <div className="border border-[var(--color-veil)]/5 bg-[var(--color-veil)]/2.5 shadow-none rounded-[1.25rem] flex flex-col items-center gap-3 px-4 py-3">
             <div className="skeleton-shimmer h-6 w-6 rounded-full" />
             <span className="text-xs text-[var(--text-muted)]">{copy.loading}</span>
           </div>
@@ -42,7 +42,7 @@ export function FeedLoadMore({
           <button
             type="button"
             onClick={onLoadMore}
-            className="border border-white/5 bg-white/[0.025] shadow-none rounded-[1.25rem] px-6 py-2 text-xs font-medium text-[var(--text-muted)] hover:border-[var(--border-moss)] hover:text-[var(--text-primary)] active:scale-95 transition-transform"
+            className="border border-[var(--color-veil)]/5 bg-[var(--color-veil)]/2.5 shadow-none rounded-[1.25rem] px-6 py-2 text-xs font-medium text-[var(--text-muted)] hover:border-[var(--border-moss)] hover:text-[var(--text-primary)] active:scale-95 transition-transform"
             aria-label={copy.loadMoreLabel}
           >
             {formatMessage(copy.loadMore, { count: Math.max(remainingCount, 0) })}

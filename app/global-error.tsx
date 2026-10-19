@@ -26,7 +26,7 @@ export default function GlobalError({
       <body className="min-h-screen bg-[var(--bg-void)] text-[var(--text-primary)] antialiased">
         <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-6 px-6 text-center">
           <div className="space-y-2">
-            <p className="font-[var(--font-mono)] text-[11px] uppercase tracking-[0.16em] text-[rgba(255,255,255,0.68)]">
+            <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
               Erro crítico
             </p>
             <h1 className="text-2xl font-semibold text-[var(--bg-paper)]">
@@ -63,7 +63,7 @@ export default function GlobalError({
               <summary className="cursor-pointer text-xs font-medium text-[var(--text-muted)]">
                 Detalhes tecnicos
               </summary>
-              <pre className="mt-2 overflow-x-auto text-[11px] text-[var(--text-ghost)]">
+              <pre className="mt-2 overflow-x-auto text-xs text-[var(--text-ghost)]">
                 {error.message}
               </pre>
             </details>

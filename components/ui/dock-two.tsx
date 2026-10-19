@@ -30,10 +30,10 @@ function DockButton({ ariaLabel, ariaPressed, buttonClassName, icon: Icon, iconC
       aria-pressed={ariaPressed}
       aria-label={ariaLabel ?? label}
       className={cn(
-        "relative flex min-h-[3.375rem] w-full flex-col items-center justify-center gap-1 rounded-[0.95rem] border px-2 py-2 text-[11px] font-semibold leading-none transition-colors active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-void)]",
+        "relative flex min-h-[3.375rem] w-full flex-col items-center justify-center gap-1 rounded-[0.95rem] border px-2 py-2 text-xs font-semibold leading-none transition-colors active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-void)]",
         isActive
           ? "border-transparent bg-transparent text-[var(--neon-amber)]"
-          : "border-transparent bg-transparent text-[rgba(255,255,255,0.78)] hover:bg-[rgba(255,255,255,0.06)]",
+          : "border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-[var(--color-veil)]/6",
         buttonClassName
       )}
     >
@@ -47,7 +47,7 @@ function DockButton({ ariaLabel, ariaPressed, buttonClassName, icon: Icon, iconC
       </span>
       <span
         className={cn(
-          "truncate font-[var(--font-mono)] text-[10px] uppercase tracking-[0.08em]",
+          "truncate font-[var(--font-mono)] text-xs uppercase tracking-[0.08em]",
           isActive && "underline decoration-[var(--neon-amber)] decoration-2 underline-offset-[6px]"
         )}
       >

@@ -33,10 +33,10 @@ function VoteRow({ vote }: Readonly<{ vote: AdminVoteAuditRowDto }>) {
     <div className={VOTE_ROW_CLASS}>
       <div className="flex items-center justify-between gap-2">
         <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">{vote.userName}</p>
-        <span className="shrink-0 text-[10px] tabular-nums text-[var(--ink-muted)]">{formatDateTimeUtc(vote.updatedAtUtc)}</span>
+        <span className="shrink-0 text-xs tabular-nums text-[var(--ink-muted)]">{formatDateTimeUtc(vote.updatedAtUtc)}</span>
       </div>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+        <Badge variant="outline" className="h-5 px-1.5 text-xs">
           {vote.categoryName}
         </Badge>
         <span className="text-xs text-[var(--ink-muted)]">{copy.chose}</span>

@@ -18,7 +18,7 @@ import messages from "@/messages/pt.json";
 const copy = messages.event.EventModuleGate;
 
 const GATE_CARD_CLASS =
-  "rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.14)] bg-[linear-gradient(180deg,rgba(18,24,11,0.92),rgba(11,14,8,0.94))] text-[var(--color-text-primary)] shadow-[var(--shadow-panel)]";
+  "rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/14 bg-[linear-gradient(180deg,rgba(18,24,11,0.92),rgba(11,14,8,0.94))] text-[var(--color-text-primary)] shadow-[var(--shadow-panel)]";
 
 function GateError({ error, moduleLabel, onRetry }: Readonly<{ error: Error | null; moduleLabel: string; onRetry: () => void }>) {
   return (
@@ -45,7 +45,7 @@ function GateLocked({ moduleLabel }: Readonly<{ moduleLabel: string }>) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <p className="body-small text-[rgba(255,255,255,0.78)]">{copy.lockedDescription}</p>
+        <p className="body-small text-[var(--text-secondary)]">{copy.lockedDescription}</p>
         <p className="text-xs text-[var(--text-muted)]">{copy.lockedHint}</p>
         <div className="flex flex-wrap gap-2">
           <Button asChild>

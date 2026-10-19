@@ -54,7 +54,7 @@ export function WishlistMemberPanel({
                 <CanhoesMediaThumb alt={wishlistItem.title} src={wishlistItem.imageUrl} />
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-[var(--color-text-primary)]">
+                  <p className="truncate text-base font-semibold text-[var(--color-text-primary)]">
                     {wishlistItem.title}
                   </p>
                   {wishlistItem.notes ? (
@@ -74,7 +74,7 @@ export function WishlistMemberPanel({
                 </div>
 
                 <div className="flex shrink-0 flex-col items-end justify-between gap-2">
-                  <p className="text-[11px] text-[var(--color-text-muted)]">
+                  <p className="text-xs text-[var(--color-text-muted)]">
                     {new Date(wishlistItem.updatedAtUtc).toLocaleDateString()}
                   </p>
 

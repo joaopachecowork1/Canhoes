@@ -69,9 +69,9 @@ function NominationList({
           return (
             <AdminSelectableButton key={nomination.id} type="button" onClick={() => onSelect(nomination.id)} selected={isSelected} aria-pressed={isSelected}>
               <div className="min-w-0 space-y-1">
-                <p className="truncate text-sm font-semibold text-[var(--ink-primary)]">{nomination.title}</p>
+                <p className="truncate text-base font-semibold text-[var(--ink-primary)]">{nomination.title}</p>
                 <p className="truncate text-xs text-[var(--ink-muted)]">{getCategoryName(nomination.categoryId, categories)}</p>
-                <p className="text-[11px] text-[var(--ink-muted)]">{formatDateTimeUtc(nomination.createdAtUtc)}</p>
+                <p className="text-xs text-[var(--ink-muted)]">{formatDateTimeUtc(nomination.createdAtUtc)}</p>
               </div>
             </AdminSelectableButton>
           );

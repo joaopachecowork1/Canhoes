@@ -26,12 +26,12 @@ function WishlistLoadingState() {
           <Skeleton key={index} className="h-9 w-28 rounded-full" />
         ))}
       </div>
-      <div className="space-y-2 rounded-[var(--radius-lg-token)] border border-[rgba(255,255,255,0.12)] bg-[rgba(22,28,15,0.72)] p-4">
+      <div className="space-y-2 rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/72 p-4">
         <Skeleton className="h-5 w-48 rounded" />
         <Skeleton className="h-4 w-28 rounded" />
         <div className="space-y-3 pt-2">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="flex gap-3 rounded-[var(--radius-md-token)] border border-[rgba(255,255,255,0.1)] p-3">
+            <div key={index} className="flex gap-3 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 p-3">
               <Skeleton className="h-14 w-14 rounded-[var(--radius-md-token)]" />
               <div className="min-w-0 flex-1 space-y-2">
                 <Skeleton className="h-4 w-2/3 rounded" />

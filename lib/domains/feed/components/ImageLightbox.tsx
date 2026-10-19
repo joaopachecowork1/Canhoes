@@ -11,7 +11,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.feed.ImageLightbox;
 const SWIPE_THRESHOLD_PX = 50;
-const ROUND_BUTTON_CLASS = "rounded-full border border-white/10 bg-white/10 p-2 text-white hover:bg-white/20";
+const ROUND_BUTTON_CLASS = "rounded-full border border-[var(--color-veil)]/10 bg-[var(--color-veil)]/10 p-2 text-[var(--text-primary)] hover:bg-[var(--color-veil)]/20";
 const ARROW_CLASS = cn("absolute top-1/2 z-10 -translate-y-1/2 shadow-lg", ROUND_BUTTON_CLASS);
 
 type ImageLightboxProps = {
@@ -63,8 +63,8 @@ function useBodyScrollLock() {
 
 function AuthorCaption({ authorName, createdAtUtc }: Readonly<{ authorName: string; createdAtUtc?: string }>) {
   return (
-    <div className="absolute left-4 bottom-4 z-10 rounded-[var(--radius-md-token)] border border-white/10 bg-black/35 px-3 py-2 text-xs text-white/75 backdrop-blur-sm">
-      <span className="font-medium text-white/80">{authorName}</span>
+    <div className="absolute left-4 bottom-4 z-10 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 bg-black/35 px-3 py-2 text-xs text-[var(--text-secondary)] backdrop-blur-sm">
+      <span className="font-medium text-[var(--text-secondary)]">{authorName}</span>
       {createdAtUtc ? (
         <span className="ml-2">
           {new Date(createdAtUtc).toLocaleDateString("pt-PT", { day: "numeric", month: "short", year: "numeric" })}
@@ -76,7 +76,7 @@ function AuthorCaption({ authorName, createdAtUtc }: Readonly<{ authorName: stri
 
 function LightboxDots({ currentIndex, onSelect, total }: Readonly<{ currentIndex: number; onSelect: (index: number) => void; total: number }>) {
   return (
-    <div className="absolute bottom-16 left-1/2 z-10 -translate-x-1/2 flex items-center gap-1.5">
+    <div className="absolute bottom-14 left-1/2 z-10 -translate-x-1/2 flex items-center">
       {Array.from({ length: total }, (_, index) => (
         <button
           key={index}
@@ -85,9 +85,17 @@ function LightboxDots({ currentIndex, onSelect, total }: Readonly<{ currentIndex
             event.stopPropagation();
             onSelect(index);
           }}
-          className={cn("h-1.5 rounded-full transition-all", index === currentIndex ? "w-6 bg-white" : "w-2 bg-white/40 hover:bg-white/60")}
+          className="group flex h-11 w-11 items-center justify-center"
           aria-label={formatMessage(messages.feed.MediaCarousel.goTo, { number: index + 1 })}
-        />
+          aria-current={index === currentIndex ? "true" : undefined}
+        >
+          <span
+            className={cn(
+              "h-1.5 w-6 rounded-full transition-[transform,background-color] duration-200",
+              index === currentIndex ? "bg-[var(--text-primary)]" : "scale-x-[0.34] bg-[var(--text-primary)]/40 group-hover:bg-[var(--text-primary)]/60"
+            )}
+          />
+        </button>
       ))}
     </div>
   );
@@ -148,7 +156,7 @@ function LightboxDialog({
       </button>
 
       {hasSeveral ? (
-        <div className="absolute left-4 top-4 z-10 rounded-full border border-white/10 bg-black/50 px-3 py-1 text-xs font-medium text-white" aria-live="polite">
+        <div className="absolute left-4 top-4 z-10 rounded-full border border-[var(--color-veil)]/10 bg-black/50 px-3 py-1 text-xs font-medium text-[var(--text-primary)]" aria-live="polite">
           {`${navigation.currentIndex + 1} / ${total}`}
         </div>
       ) : null}

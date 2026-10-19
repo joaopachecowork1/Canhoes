@@ -239,6 +239,21 @@ Antes de cada push corre `scripts/quality-gate.sh` (ativa o hook com `git config
 `npm run test:coverage` corre os três tipos de teste com cobertura (`coverage/lcov.info`) e precisa do PostgreSQL de testes. Falha se a cobertura descer abaixo dos mínimos em `vitest.config.mjs`.
 As regras de arquitetura, tamanho e textos estão em `docs/03-arquitetura.md`.
 
+### Onde ver code smells, bugs e vulnerabilidades
+
+O projeto não usa SonarQube (foi removido por nunca ter sido configurado). As mesmas regras correm no ESLint, através do `eslint-plugin-sonarjs`:
+
+| O quê | Onde ver |
+| --- | --- |
+| Code smells, bugs prováveis, complexidade e tamanho | `npm run lint` no terminal, ou sublinhado no editor com a extensão ESLint. Regras em `eslint.config.mjs` |
+| Erros de tipos | `npx tsc --noEmit` |
+| Código, exports e dependências mortos | `npm run knip` |
+| Cobertura de testes | `npm run test:coverage`: resumo no terminal e `coverage/lcov.info` (abre-se com a extensão Coverage Gutters ou similar) |
+| Dependências com vulnerabilidades | `npm audit --omit=dev` |
+| Vulnerabilidades da app a correr (OWASP ZAP) | No GitHub: separador **Actions** → corrida do CI → job "Docker image, migrations and OWASP ZAP baseline" → passo "OWASP ZAP baseline scan". Alertas aceites em `.zap/rules.tsv` |
+
+No GitHub, cada push mostra no separador **Actions** qual destas verificações falhou; abre o job e o passo vermelho para ver o detalhe.
+
 Os testes de integração chamam os route handlers contra uma base de dados real, que é limpa antes de cada teste; por isso só correm numa base de dados cujo nome acaba em `_test` (`TEST_DATABASE_URL`, por omissão `canhoes_test` em localhost:5433). O `npm run db:up` cria-a. Se mudaste `POSTGRES_PASSWORD` no `.env`, define também `TEST_DATABASE_URL` com essa password.
 
 O CI (`.github/workflows/ci.yml`) corre tudo isto em cada push e PR, mais `shellcheck` aos scripts, `npm audit` às dependências de produção, um scan OWASP ZAP à app a correr e um deploy de teste com `compose.server.yml`.

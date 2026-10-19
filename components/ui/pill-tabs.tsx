@@ -24,25 +24,25 @@ type PillTabsProps = {
 };
 
 const CONTAINER_CLASS =
-  "overflow-hidden rounded-xl border border-white/6 bg-[var(--bg-paper-soft)] px-1.5 py-1.5";
+  "overflow-hidden rounded-xl border border-[var(--color-veil)]/6 bg-[var(--bg-paper-soft)] px-1.5 py-1.5";
 
 const SCROLL_CLASS =
   "-mx-1 overflow-x-auto px-1 snap-x snap-mandatory";
 
 const ITEM_BASE_CLASS =
-  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 font-semibold transition-all duration-200 ease-out active:scale-[0.97] snap-start";
+  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 font-semibold transition duration-200 ease-out active:scale-[0.97] snap-start";
 
 const ITEM_ACTIVE_CLASS =
-  "border-white/10 bg-white/[0.08] text-[var(--color-text-primary)] shadow-sm";
+  "border-[var(--color-veil)]/10 bg-[var(--color-veil)]/8 text-[var(--color-text-primary)] shadow-sm";
 
 const ITEM_IDLE_CLASS =
   "border-transparent bg-transparent text-[var(--color-text-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--color-text-primary)]";
 
 const BADGE_ACTIVE_CLASS =
-  "bg-[var(--moss)] text-white";
+  "bg-[var(--moss)] text-[var(--text-primary)]";
 
 const BADGE_IDLE_CLASS =
-  "border border-[rgba(95,123,56,0.24)] bg-[rgba(95,123,56,0.12)] text-[var(--color-text-muted)]";
+  "border border-[var(--moss)]/24 bg-[var(--moss)]/12 text-[var(--color-text-muted)]";
 
 function useScrollActiveIntoView(activeId: string) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -78,7 +78,7 @@ function PillTabContent({ isActive, item, stretch }: Readonly<{ isActive: boolea
       {item.badge == null ? null : (
         <span
           className={cn(
-            "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none transition-colors",
+            "inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-bold leading-none transition-colors",
             isActive ? BADGE_ACTIVE_CLASS : BADGE_IDLE_CLASS
           )}
         >
@@ -98,7 +98,7 @@ function PillTab({
 }: Readonly<{ isActive: boolean; item: PillTabItem; onSelect?: (id: string) => void; size: "sm" | "md"; stretch: boolean }>) {
   const className = cn(
     ITEM_BASE_CLASS,
-    size === "sm" ? "min-h-10 text-xs" : "min-h-11 text-[13px]",
+    size === "sm" ? "min-h-10 text-xs" : "min-h-11 text-sm",
     stretch && "w-full justify-center px-2",
     isActive ? ITEM_ACTIVE_CLASS : ITEM_IDLE_CLASS
   );

@@ -92,7 +92,7 @@ function CommentToggleButton({ count, isOpen, onToggle }: Readonly<{ count: numb
       className={cn(
         "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
         isOpen
-          ? "bg-[rgba(79,99,54,0.12)] text-[var(--moss)]"
+          ? "bg-[var(--moss)]/12 text-[var(--moss-glow)]"
           : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]"
       )}
       onClick={onToggle}
@@ -118,7 +118,7 @@ function PostCommentsSection({ post, openComments, ...commentProps }: Readonly<P
     <div
       ref={commentsRef}
       className={cn(
-        "grid w-full transition-all duration-200 ease-out",
+        "grid w-full transition duration-200 ease-out",
         openComments ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 mt-0"
       )}
     >
