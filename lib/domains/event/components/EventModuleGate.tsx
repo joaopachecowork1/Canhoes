@@ -18,7 +18,7 @@ import messages from "@/messages/pt.json";
 const copy = messages.event.EventModuleGate;
 
 const GATE_CARD_CLASS =
-  "rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/14 bg-[linear-gradient(180deg,rgba(18,24,11,0.92),rgba(11,14,8,0.94))] text-[var(--color-text-primary)] shadow-[var(--shadow-panel)]";
+  "rounded-[var(--radius-lg-token)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] shadow-[var(--shadow-panel)]";
 
 function GateError({ error, moduleLabel, onRetry }: Readonly<{ error: Error | null; moduleLabel: string; onRetry: () => void }>) {
   return (

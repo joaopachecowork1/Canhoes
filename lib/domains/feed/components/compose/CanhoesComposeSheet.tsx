@@ -29,7 +29,7 @@ function ComposeSheetHeader() {
       </div>
       <SheetHeader className="shrink-0 border-b border-[var(--color-veil)]/10 px-4 pb-3 pt-3 sm:pt-4">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-moss)] text-[var(--ink-primary)]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-moss)] text-[var(--on-moss)]">
             <Leaf className="h-4 w-4" />
           </span>
           <div className="min-w-0 space-y-1 pr-9">

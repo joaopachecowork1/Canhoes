@@ -24,6 +24,7 @@ Legenda da coluna "Quem":
 | POST | `/api/telemetry/log` | público | Erros do browser em produção, para o log do servidor |
 | GET | `/api/uploads/[...path]` | público | `readUpload` (também servido em `/uploads/*`) |
 | GET | `/api/v1/events/active/context` | sessão | `getActiveEventContext` |
+| PUT | `/api/v1/me/color` | sessão | `setUserColor` (a cor da pessoa, uma das 8 de `lib/personColors.ts`) |
 
 ## Evento (`/api/v1/events/[eventId]/…`)
 
@@ -52,7 +53,7 @@ Legenda da coluna "Quem":
 
 | Método | Rota | Quem | Serviço |
 |---|---|---|---|
-| GET, POST | `posts` | membro | `getFeedPosts`, `createFeedPost` |
+| GET, POST | `posts` | membro | `getFeedPosts` (fixados primeiro, depois do mais novo para o mais antigo; cada post traz `postNumber`, o lugar por data de criação), `createFeedPost` |
 | DELETE | `posts/[postId]` | admin | `deleteFeedPost` |
 | POST, PATCH | `posts/[postId]/pin` | admin | `togglePin`, `movePinnedPost` |
 | POST | `posts/[postId]/like` | membro | `toggleLike` (rate limit normal) |

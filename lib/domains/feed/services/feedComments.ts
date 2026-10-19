@@ -1,6 +1,7 @@
 import { notFound } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
 import type { HubCommentDto } from "@/lib/api/types";
+import { PERSON_COLORS } from "@/lib/personColors";
 
 import { assertPostInEvent } from "./feedAccess";
 
@@ -34,9 +35,9 @@ export async function getPostComments(
 
   const commentUserIds = [...new Set(comments.map((c) => c.userId))];
   const commentUsers = commentUserIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: commentUserIds } }, select: { id: true, displayName: true } })
+    ? await prisma.user.findMany({ where: { id: { in: commentUserIds } }, select: { id: true, displayName: true, color: true } })
     : [];
-  const commentUserMap = new Map(commentUsers.map((u) => [u.id, u.displayName]));
+  const commentUserMap = new Map(commentUsers.map((u) => [u.id, u]));
 
   return comments.map((c) => {
     const reactionCounts: Record<string, number> = {};
@@ -50,7 +51,8 @@ export async function getPostComments(
       id: c.id,
       postId: c.postId,
       userId: c.userId,
-      userName: commentUserMap.get(c.userId) ?? "Unknown",
+      userName: commentUserMap.get(c.userId)?.displayName ?? "Unknown",
+      userColor: commentUserMap.get(c.userId)?.color ?? PERSON_COLORS[0],
       text: c.text,
       createdAtUtc: c.createdAtUtc.toISOString(),
       replyToId: c.replyToId,
@@ -72,7 +74,7 @@ export async function createComment(
 
   const [comment, author] = await Promise.all([
     prisma.hubPostComment.create({ data: { postId, userId, text: text.trim(), replyToId: replyToId || null } }),
-    prisma.user.findUnique({ where: { id: userId }, select: { displayName: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { displayName: true, color: true } }),
   ]);
 
   return {
@@ -80,6 +82,7 @@ export async function createComment(
     postId: comment.postId,
     userId: comment.userId,
     userName: author?.displayName ?? "Unknown",
+    userColor: author?.color ?? PERSON_COLORS[0],
     text: comment.text,
     createdAtUtc: comment.createdAtUtc.toISOString(),
     replyToId: comment.replyToId,

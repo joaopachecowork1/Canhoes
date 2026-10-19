@@ -7,6 +7,7 @@ export type ResolvedUser = {
   email: string;
   displayName: string | null;
   isAdmin: boolean;
+  color: string;
 };
 
 /**
@@ -36,6 +37,7 @@ export async function resolveUser(
       email: existing.email,
       displayName: existing.displayName ?? displayName,
       isAdmin: existing.isAdmin,
+      color: existing.color,
     };
   }
 
@@ -53,6 +55,7 @@ export async function resolveUser(
     email: user.email,
     displayName: user.displayName,
     isAdmin: user.isAdmin,
+    color: user.color,
   };
 }
 
@@ -68,6 +71,6 @@ export async function resolveDevelopmentAdmin(
   return prisma.user.update({
     where: { id: user.id },
     data: { isAdmin: true },
-    select: { id: true, email: true, displayName: true, isAdmin: true },
+    select: { id: true, email: true, displayName: true, isAdmin: true, color: true },
   });
 }

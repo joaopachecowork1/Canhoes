@@ -66,7 +66,7 @@ function NomineeRankCard({
       className={cn(
         "flex items-center gap-3 rounded-[var(--radius-md-token)] border px-3 py-3 transition-colors duration-200",
         isWinner
-          ? "border-[rgba(0,255,136,0.3)] bg-[linear-gradient(180deg,rgba(0,255,136,0.06),transparent)] shadow-[0_0_12px_rgba(0,255,136,0.08)]"
+          ? "border-[var(--moss)]/40 bg-[var(--moss)]/8"
           : "border-[var(--color-veil)]/10 hover:border-[var(--moss)]/15"
       )}
       style={{ animationDelay: `${rank * 0.08}s` }}

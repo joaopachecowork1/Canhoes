@@ -39,11 +39,11 @@ function OfficialVotingLoadingState() {
 
 function VotingProgressCard({ voted, total, percentage }: Readonly<{ voted: number; total: number; percentage: number }>) {
   return (
-    <Card className="rounded-2xl border-[var(--border-paper)] bg-[var(--bg-paper)] text-[var(--ink-primary)]">
+    <Card>
       <CardContent className="space-y-3 py-4">
         <div className="flex items-center justify-between text-sm">
           <span className="text-[var(--ink-secondary)]">{formatMessage(copy.progress, { voted, total })}</span>
-          <span className="font-[var(--font-mono)] text-[var(--ink-primary)]">{`${percentage}%`}</span>
+          <span className="font-[family-name:var(--font-mono)] text-[var(--ink-primary)]">{`${percentage}%`}</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-[var(--moss)]/16">
           <div className="h-full origin-left rounded-full bg-[var(--moss)] transition-transform duration-200" style={{ transform: `scaleX(${percentage / 100})` }} />
@@ -55,7 +55,7 @@ function VotingProgressCard({ voted, total, percentage }: Readonly<{ voted: numb
 
 function BallotComplete() {
   return (
-    <Card className="rounded-2xl border-[var(--moss)]/28 bg-[var(--moss)]/10 px-4 text-[var(--ink-primary)]">
+    <Card className="border-[var(--moss)] px-4">
       <CardContent className="py-6 text-center font-semibold text-[var(--moss-glow)]">{copy.complete}</CardContent>
     </Card>
   );
@@ -144,15 +144,16 @@ function VoteOptionButton({
       type="button"
       disabled={isDisabled}
       onClick={onClick}
+      aria-pressed={isSelected}
       className={cn(
-        "w-full text-left px-3 py-2 flex items-center justify-between gap-3 border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-none",
-        isSelected && "border-[var(--moss)]/28 bg-[var(--moss)]/8"
+        "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border-2 px-4 py-2 text-left transition-colors disabled:cursor-not-allowed",
+        isSelected
+          ? "border-solid border-[var(--moss)] bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--shadow-elevation-sm)]"
+          : "border-dashed border-[var(--color-border-strong)] text-[var(--ink-primary)] hover:bg-[var(--bg-paper)] disabled:opacity-60"
       )}
     >
-      <div className="min-w-0">
-        <p className="truncate text-base font-medium text-[var(--ink-primary)]">{label}</p>
-      </div>
-      <div className="shrink-0 text-[var(--moss)]">{statusIcon}</div>
+      <span className="min-w-0 truncate text-base font-semibold">{label}</span>
+      <span className="shrink-0">{statusIcon}</span>
     </button>
   );
 }

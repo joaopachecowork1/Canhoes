@@ -4,7 +4,7 @@ import type { EventWishlistItemDto, PublicUserDto } from "@/lib/api/types";
 
 import { groupWishlistItemsByUser, pickSelectedMemberId } from "./wishlistRules";
 
-const member = (id: string): PublicUserDto => ({ id, email: `${id}@canhoes.pt`, displayName: id, isAdmin: false });
+const member = (id: string): PublicUserDto => ({ id, email: `${id}@canhoes.pt`, displayName: id, isAdmin: false, color: "teal" });
 const item = (id: string, userId: string, updatedAtUtc: string): EventWishlistItemDto => ({
   id,
   userId,

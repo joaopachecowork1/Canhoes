@@ -13,6 +13,7 @@ import { server } from "@/tests/component/server";
 import { CanhoesOfficialVotingModule } from "./CanhoesOfficialVotingModule";
 
 const bestCanhao = votingCategory();
+const bestCanhoVoted = { ...bestCanhao, myOptionId: "opt-rui" };
 const bestPhoto = votingCategory({ id: "cat-2", title: "Melhor Foto", options: [{ id: "opt-praia", label: "Praia", imageUrl: null }] });
 
 function renderVoting(initialData: EventVotingBoardDto | null = votingBoard([bestCanhao, bestPhoto])) {
@@ -31,6 +32,13 @@ describe("CanhoesOfficialVotingModule", () => {
     await userEvent.click(screen.getByRole("button", { name: "Melhor Foto" }));
     expect(screen.getByRole("button", { name: "Praia" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Ana" })).not.toBeInTheDocument();
+  });
+
+  it("marks the chosen option as stuck in, like a filled album slot", () => {
+    renderVoting(votingBoard([bestCanhoVoted, bestPhoto]));
+
+    expect(screen.getByRole("button", { name: "Rui" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: "Ana" })).toHaveAttribute("aria-pressed", "false");
   });
 
   it("sends the vote and counts it before the server answers", async () => {

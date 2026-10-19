@@ -32,7 +32,7 @@ function InviteLinkResult({ inviteUrl }: Readonly<{ inviteUrl: string }>) {
       <div className="flex items-center gap-2">
         <Input value={inviteUrl} readOnly className="h-8 text-xs bg-black/40 border-[var(--border-paper)]" />
         <Button size="icon" variant="outline" className="h-8 w-8 shrink-0" onClick={handleCopy} aria-label={copy.copyLabel}>
-          {isCopied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+          {isCopied ? <Check className="h-4 w-4 text-[var(--moss-glow)]" /> : <Copy className="h-4 w-4" />}
         </Button>
       </div>
     </div>
@@ -63,7 +63,7 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
   };
 
   return (
-    <Card className="border-[var(--moss)]/12 bg-[var(--color-panel)]/96 shadow-[0_16px_32px_rgba(0,0,0,0.14)]">
+    <Card className="border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-card)]">
       <CardHeader className="space-y-1">
         <CardTitle>{copy.title}</CardTitle>
         <CardDescription className="text-xs text-[var(--ink-muted)]">{copy.description}</CardDescription>

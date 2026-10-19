@@ -10,6 +10,7 @@ import { POST as reactToPost } from "@/app/api/v1/events/[eventId]/feed/posts/[p
 import { DELETE as deletePost } from "@/app/api/v1/events/[eventId]/feed/posts/[postId]/route";
 import { GET as getPosts, POST as createPost } from "@/app/api/v1/events/[eventId]/feed/posts/route";
 import type { EventFeedPostFullDto, HubCommentDto, PagedResult } from "@/lib/api/types";
+import { getFeedPosts } from "@/lib/domains/feed/services/feedPosts";
 import { prisma } from "@/lib/prisma";
 
 import { callRoute, createEvent, createMember, createUser, signInAs } from "./helpers";
@@ -80,6 +81,21 @@ describe("feed posts", () => {
 
     expect((await callRoute(togglePin, { eventId: event.id, postId: second.id }, { method: "POST" })).body).toEqual({ pinned: false, pinnedOrder: null });
     expect((await callRoute(movePin, { eventId: event.id, postId: second.id }, { method: "PATCH", body: { direction: "up" } })).status).toBe(404);
+  });
+
+  it("numbers posts by creation order, whatever their place in the list", async () => {
+    const { event, ana, admin } = await setupFeed();
+    const first = await postAs(ana, event.id, { text: "Primeiro" });
+    await postAs(ana, event.id, { text: "Segundo" });
+    const third = await postAs(ana, event.id, { text: "Terceiro" });
+    expect([first.postNumber, third.postNumber]).toEqual([1, 3]);
+
+    signInAs(admin);
+    await callRoute(togglePin, { eventId: event.id, postId: first.id }, { method: "POST" });
+    const secondPage = await getFeedPosts(event.id, admin.id, 1, 2);
+
+    // The pinned first post leads the list; page two still carries the numbers 3 and 2.
+    expect(secondPage.items.map((post) => post.postNumber)).toEqual([3, 2]);
   });
 
   it("lets an admin delete a post, and answers 404 for an unknown one", async () => {

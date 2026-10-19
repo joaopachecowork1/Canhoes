@@ -28,12 +28,12 @@ export function CanhoesModuleHeader({
     <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="space-y-1.5">
         <h1 className="flex items-center gap-2 text-2xl font-bold tracking-tight text-[var(--text-primary)] normal-case">
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--moss)]/15 text-[var(--moss-glow)]">
-            <Icon className="h-4 w-4" />
+          <span className="flex size-9 items-center justify-center rounded-lg bg-[var(--area,var(--moss))] text-[var(--on-person)]">
+            <Icon className="h-5 w-5" aria-hidden />
           </span>
           {title}
         </h1>
-        <p className="body-small text-[var(--color-text-muted)]">{description}</p>
+        <p className="body-base text-[var(--color-text-muted)]">{description}</p>
       </div>
 
       {badgeLabel ? <Badge variant={badgeVariant}>{badgeLabel}</Badge> : null}

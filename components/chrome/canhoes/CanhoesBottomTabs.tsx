@@ -2,11 +2,9 @@
 
 import { Plus } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-
 import { Dock, type DockItem } from "@/components/ui/dock-two";
 
-import { MENU_NAV_ITEM, type CanhoesNavItem } from "./canhoesNavigation";
+import { areaColorVar, HOME_NAV_ITEM, MENU_NAV_ITEM, type CanhoesNavItem } from "./canhoesNavigation";
 import messages from "@/messages/pt.json";
 
 export type CanhoesBottomTabEntry = {
@@ -34,15 +32,11 @@ export function CanhoesBottomTabs({
   const composeItem: DockItem = {
     ariaLabel: messages.shell.CanhoesBottomTabs.createPost,
     ariaPressed: isComposeOpen,
-    buttonClassName: cn(
-      "border-[var(--color-veil)]/12 bg-[var(--bg-paper)] text-[var(--color-text-primary)]",
-      isComposeOpen &&
-        "border-[var(--moss)]/24 bg-[var(--moss)]/16 text-[var(--color-text-primary)]"
-    ),
+    buttonClassName: "bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--glow-green-sm)] hover:bg-[var(--moss-glow)]",
     icon: Plus,
-    iconClassName: cn("h-5 w-5", isComposeOpen && "text-[var(--moss)]"),
+    iconClassName: "h-6 w-6",
     isActive: isComposeOpen,
-    label: "Publicar",
+    label: messages.shell.CanhoesBottomTabs.post,
     onClick: onCompose,
   };
 
@@ -61,29 +55,21 @@ export function CanhoesBottomTabs({
         <Dock
           items={items}
           className="w-full"
-          dockClassName="rounded-[1.25rem] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/96 p-1.5 shadow-[var(--shadow-elevation-md)]"
+          dockClassName="rounded-[1.25rem] bg-[var(--bg-surface)] p-1.5 shadow-[var(--shadow-panel)]"
         />
       </div>
     </nav>
   );
 }
 
+/** The area the tab leads to sets its active colour; the mural is the home tab. */
 function toDockItem(entry: CanhoesBottomTabEntry): DockItem {
-  const isActive = Boolean(entry.isActive);
-  const isMenuItem = entry.item.id === MENU_NAV_ITEM.id;
-
+  const areaId = entry.item.id === HOME_NAV_ITEM.id ? "feed" : entry.item.id;
   return {
+    accent: entry.item.id === MENU_NAV_ITEM.id ? "var(--text-primary)" : areaColorVar(areaId),
     ariaLabel: entry.item.label,
-    buttonClassName: cn(
-      isMenuItem && !isActive && "text-[var(--color-text-primary)]"
-    ),
     icon: entry.item.icon,
-    iconClassName: cn(
-      "h-[18px] w-[18px]",
-      isMenuItem && !isActive && "text-[var(--color-text-primary)]",
-      isActive && "text-[var(--neon-amber)]"
-    ),
-    isActive,
+    isActive: Boolean(entry.isActive),
     label: entry.item.label,
     onClick: entry.onClick,
   };

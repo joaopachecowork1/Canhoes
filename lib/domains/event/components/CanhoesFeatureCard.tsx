@@ -19,10 +19,10 @@ type CanhoesFeatureCardProps = {
 
 const VARIANT_CLASSES = {
   default: {
-    card: "border-[var(--border-paper)] bg-[var(--bg-paper)] text-[var(--ink-primary)]",
+    card: "text-[var(--ink-primary)]",
     header: "pb-2",
     title: "text-[var(--ink-primary)]",
-    icon: "text-[var(--bark)]",
+    icon: "text-[var(--area,var(--moss))]",
     description: "text-[var(--ink-secondary)]",
   },
   official: {
@@ -59,7 +59,7 @@ export function CanhoesFeatureCard({
   const variantClasses = VARIANT_CLASSES[variant];
 
   return (
-    <Card className={cn("rounded-2xl transition-colors", className, variantClasses.card)}>
+    <Card className={cn("shadow-[var(--shadow-card),inset_0_4px_0_var(--area,var(--moss))] transition-colors", className, variantClasses.card)}>
       <CardHeader className={cn("pb-2", variantClasses.header)}>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className={cn("flex items-center gap-2", variantClasses.title)}>

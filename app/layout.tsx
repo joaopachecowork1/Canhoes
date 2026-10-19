@@ -5,26 +5,25 @@ import AppProviders from "@/components/providers/AppProviders";
 
 import "./globals.css";
 
-// The fonts are committed (Google Fonts' latin variable files), so the build never depends on
-// reaching Google: a failed font download used to break `next build` in CI and on the server.
-const orbitron = localFont({
-  src: "./fonts/orbitron-latin.woff2",
-  variable: "--font-orbitron",
-  weight: "700 900",
+// The fonts are committed (Google Fonts' latin files), so the build never depends on reaching
+// Google: a failed font download used to break `next build` in CI and on the server.
+const barlowCondensed = localFont({
+  src: [
+    { path: "./fonts/barlow-condensed-600-latin.woff2", weight: "600" },
+    { path: "./fonts/barlow-condensed-700-latin.woff2", weight: "700" },
+    { path: "./fonts/barlow-condensed-800-latin.woff2", weight: "800" },
+  ],
+  variable: "--font-barlow-condensed",
   display: "swap",
 });
 
-const dmSans = localFont({
-  src: "./fonts/dm-sans-latin.woff2",
-  variable: "--font-dm-sans",
-  weight: "400 700",
+const atkinson = localFont({
+  src: [
+    { path: "./fonts/atkinson-hyperlegible-400-latin.woff2", weight: "400" },
+    { path: "./fonts/atkinson-hyperlegible-700-latin.woff2", weight: "700" },
+  ],
+  variable: "--font-atkinson",
   display: "swap",
-});
-
-const jetBrainsMono = localFont({
-  src: "./fonts/jetbrains-mono-latin.woff2",
-  variable: "--font-jetbrains-mono",
-  weight: "400 600",
 });
 
 const metadataBaseUrl =
@@ -63,10 +62,11 @@ export const viewport: Viewport = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  // The font variables live on <html> so the :root tokens (--font-display, --font-body) can read them.
   return (
-    <html lang="pt" suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang="pt" suppressHydrationWarning data-scroll-behavior="smooth" className={`${barlowCondensed.variable} ${atkinson.variable}`}>
       <body
-        className={`${orbitron.variable} ${dmSans.variable} ${jetBrainsMono.variable} min-h-screen antialiased [scrollbar-gutter:stable]`}
+        className="min-h-screen antialiased [scrollbar-gutter:stable]"
       >
         <AppProviders>{children}</AppProviders>
       </body>

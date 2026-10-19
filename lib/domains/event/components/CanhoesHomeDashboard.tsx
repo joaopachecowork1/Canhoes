@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
-import { ArrowUpRight, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronUp } from "lucide-react";
 
 import type { EventActiveContextDto } from "@/lib/api/types";
 import type { CanhoesModule } from "@/lib/modules";
@@ -74,15 +74,12 @@ function NextStepCard({ module }: Readonly<{ module: CanhoesModule | undefined }
       )}
     >
       <span className="flex min-w-0 items-center gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--moss)] text-[var(--text-primary)]">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--moss)] text-[var(--on-moss)]">
           <Icon className="h-5 w-5" aria-hidden />
         </span>
         <span className="min-w-0">
-          <span className="flex items-center gap-2 text-sm font-medium text-[var(--moss-glow)]">
-            <Sparkles className="h-4 w-4" aria-hidden />
-            {copy.nextStep}
-          </span>
-          <span className="mt-1 block truncate text-lg font-semibold text-[var(--text-primary)]">{module.label}</span>
+          <span className="sr-only">{copy.nextStep}</span>
+          <span className="block truncate text-lg font-semibold text-[var(--text-primary)]">{module.label}</span>
           <span className="block truncate text-sm text-[var(--text-secondary)]">{module.description}</span>
         </span>
       </span>
@@ -126,11 +123,10 @@ export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiv
     <section aria-label={copy.sectionLabel} className="space-y-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-[var(--moss-glow)]">{copy.sectionLabel}</p>
           {isCollapsed ? (
             <p className="mt-1 text-sm text-[var(--text-muted)]">{copy.collapsedHint}</p>
           ) : (
-            <h1 id="dashboard-title" className="mt-1 text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+            <h1 id="dashboard-title" className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
               {copy.title}
             </h1>
           )}

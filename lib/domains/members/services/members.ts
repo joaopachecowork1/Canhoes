@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ProposalStatusSchema } from "@/lib/zod/common";
+import type { PersonColor } from "@/lib/personColors";
 import { deleteUpload, saveUpload } from "@/lib/storage/localStorage";
 import type {
   PublicUserDto,
@@ -52,14 +53,14 @@ export async function getMembers(eventId: string): Promise<PublicUserDto[]> {
 
   const userIds = [...new Set(members.map((m) => m.userId))];
   const users = userIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, email: true, displayName: true, isAdmin: true } })
+    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } })
     : [];
   const userMap = new Map(users.map((u) => [u.id, u]));
 
   const result = members
     .map((m) => {
       const u = userMap.get(m.userId);
-      return u ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: m.role === "admin" } : null;
+      return u ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: m.role === "admin", color: u.color } : null;
     })
     .filter((x): x is PublicUserDto => x !== null)
     .sort((a, b) => {
@@ -256,4 +257,9 @@ export async function deleteWishlistItem(
 
   await prisma.wishlistItem.delete({ where: { id: itemId } });
   return true;
+}
+
+/** Changes the signed-in member's colour to another key of the palette. */
+export async function setUserColor(userId: string, color: PersonColor): Promise<{ color: string }> {
+  return prisma.user.update({ where: { id: userId }, data: { color }, select: { color: true } });
 }

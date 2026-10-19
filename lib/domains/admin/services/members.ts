@@ -20,14 +20,14 @@ export async function getAdminMembersPaged(
 
   const userIds = [...new Set(members.map((m) => m.userId))];
   const users = userIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, email: true, displayName: true, isAdmin: true } })
+    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } })
     : [];
   const userMap = new Map(users.map((u) => [u.id, u]));
 
   const items = members
     .map((m) => {
       const u = userMap.get(m.userId);
-      return u ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: u.isAdmin } : null;
+      return u ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: u.isAdmin, color: u.color } : null;
     })
     .filter((x): x is PublicUserDto => x !== null)
     .sort((a, b) => {

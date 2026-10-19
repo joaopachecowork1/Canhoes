@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 /** Paper surface for admin cards; `Card` merges it over its own defaults. */
 export const ADMIN_CONTENT_CARD_CLASS =
-  "border-[var(--border-paper)] bg-[var(--bg-paper)] shadow-[var(--shadow-paper)]";
+  "border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-card)]";
 
 export function AdminDetailPanel({
   children,

@@ -22,7 +22,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           actionButton:
-            "!bg-[var(--color-moss)] !text-[var(--text-primary)]",
+            "!bg-[var(--color-moss)] !text-[var(--on-moss)]",
           cancelButton:
             "!bg-[var(--color-bg-surface-alt)] !text-[var(--color-text-primary)]",
           closeButton:

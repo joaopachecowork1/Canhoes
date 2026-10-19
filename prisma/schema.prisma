@@ -17,6 +17,8 @@ model User {
   displayName  String?  @map("DisplayName")
   passwordHash String?  @map("PasswordHash")
   isAdmin      Boolean  @map("IsAdmin")
+  // A palette key (lib/personColors.ts), drawn at random when the user is created; the member can change it.
+  color        String   @default(dbgenerated("(ARRAY['coral'::text, 'amber'::text, 'teal'::text, 'blue'::text, 'pink'::text, 'lime'::text, 'violet'::text, 'sky'::text])[floor(((random() * (8)::double precision) + (1)::double precision))]")) @map("Color")
   createdAt    DateTime @map("CreatedAt") @default(now()) @db.Timestamptz(6)
 
   @@index([isAdmin], map: "IX_Users_IsAdmin")

@@ -72,6 +72,7 @@ const cases: [string, () => Promise<unknown>, string, string, unknown?][] = [
   ["authRepo.registerWithInvite", () => authRepo.registerWithInvite({ token: "t", password: "segredo123", displayName: "Ana" }), "POST", "/auth/register", { token: "t", password: "segredo123", displayName: "Ana" }],
 
   ["adminRepo.getBootstrap", () => adminRepo.getBootstrap("e1"), "GET", "/v1/events/e1/admin/bootstrap"],
+  ["authRepo.setMyColor", () => authRepo.setMyColor("pink"), "PUT", "/v1/me/color", { color: "pink" }],
   ["adminRepo.inviteUser", () => adminRepo.inviteUser({ email: "ana@canhoes.pt", eventId: "e1" }), "POST", "/admin/invites", { email: "ana@canhoes.pt", eventId: "e1" }],
   ["adminRepo.updatePhase", () => adminRepo.updatePhase("e1", { phaseType: "VOTING" }), "PUT", "/v1/events/e1/admin/phase", { phaseType: "VOTING" }],
   ["adminRepo.activateEvent", () => adminRepo.activateEvent("e1"), "PUT", "/v1/events/e1/admin/activate"],

@@ -26,10 +26,10 @@ export default function GlobalError({
       <body className="min-h-screen bg-[var(--bg-void)] text-[var(--text-primary)] antialiased">
         <div className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center gap-6 px-6 text-center">
           <div className="space-y-2">
-            <p className="font-[var(--font-mono)] text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
+            <p className="font-[family-name:var(--font-mono)] text-xs uppercase tracking-[0.16em] text-[var(--text-muted)]">
               Erro crítico
             </p>
-            <h1 className="text-2xl font-semibold text-[var(--bg-paper)]">
+            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">
               Algo correu mal a carregar a aplicação
             </h1>
             <p className="text-sm leading-relaxed text-[var(--text-muted)]">

@@ -14,7 +14,7 @@ import { AdminMembersList } from "./AdminMembersList";
 import { SecretSantaAdmin } from "./SecretSantaAdmin";
 
 const copy = messages.admin.AdminMembersSection;
-const CARD_CLASS = "border-[var(--moss)]/12 bg-[var(--color-panel)]/96 shadow-[0_16px_32px_rgba(0,0,0,0.14)]";
+const CARD_CLASS = "border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-card)]";
 
 type AdminMembersSectionProps = {
   eventId: string | null;
@@ -30,7 +30,6 @@ function MembersRoster({
   return (
     <Card className={CARD_CLASS}>
       <CardHeader className="space-y-1">
-        <p>{copy.kicker}</p>
         <CardTitle>{formatCount(members.length, copy.member, copy.members)}</CardTitle>
       </CardHeader>
       <CardContent>

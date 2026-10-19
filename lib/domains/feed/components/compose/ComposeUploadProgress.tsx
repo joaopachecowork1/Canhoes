@@ -18,7 +18,7 @@ export function ComposeUploadProgress({
         aria-valuenow={progress}
         aria-valuemin={0}
         aria-valuemax={100}
-        className="h-1.5 overflow-hidden rounded-[var(--radius-sm-token)] bg-[rgba(61,43,24,0.16)]"
+        className="h-1.5 overflow-hidden rounded-[var(--radius-sm-token)] bg-[var(--color-veil)]/16"
       >
         <div
           className="h-full w-full bg-[var(--moss)] transition-transform"

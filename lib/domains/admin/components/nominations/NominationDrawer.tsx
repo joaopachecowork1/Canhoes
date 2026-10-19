@@ -36,7 +36,7 @@ function NominationDetails({
     <>
       <AdminDetailPanel>
         <div className="space-y-1">
-          <p className="font-[var(--font-mono)] text-xs text-[var(--ink-muted)]">{formatDateTimeUtc(nomination.createdAtUtc)}</p>
+          <p className="font-[family-name:var(--font-mono)] text-xs text-[var(--ink-muted)]">{formatDateTimeUtc(nomination.createdAtUtc)}</p>
           <p className="flex items-center gap-1.5 text-sm text-[var(--ink-primary)]">
             <User className="h-3.5 w-3.5" />
             {formatMessage(copy.submittedBy, { name: nomination.submittedByName })}
@@ -65,7 +65,7 @@ function NominationDetails({
         <Button
           type="button"
           disabled={isMutationPending}
-          className="min-h-11 border-[var(--border-neon)] bg-[rgba(0,255,136,0.12)] text-[var(--neon-green)] hover:bg-[rgba(0,255,136,0.18)]"
+          className="min-h-11 border-[var(--moss)] bg-[var(--moss)]/12 text-[var(--moss-glow)] hover:bg-[var(--moss)]/20"
           onClick={onApprove}
           aria-label={formatMessage(copy.approveLabel, { name: nominationName })}
         >
@@ -75,7 +75,7 @@ function NominationDetails({
           type="button"
           variant="outline"
           disabled={isMutationPending}
-          className="min-h-11 border-[var(--neon-red)] bg-[rgba(255,58,58,0.08)] text-[var(--neon-red)]"
+          className="min-h-11 border-[var(--color-danger)] bg-[var(--color-danger)]/10 text-[var(--color-danger)]"
           onClick={onReject}
           aria-label={formatMessage(copy.rejectLabel, { name: nominationName })}
         >

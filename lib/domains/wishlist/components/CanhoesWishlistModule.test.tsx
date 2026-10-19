@@ -13,7 +13,7 @@ import { server } from "@/tests/component/server";
 import { CanhoesWishlistModule } from "./CanhoesWishlistModule";
 
 
-const member = (id: string, displayName: string): PublicUserDto => ({ id, displayName, email: `${id}@canhoes.pt`, isAdmin: false });
+const member = (id: string, displayName: string): PublicUserDto => ({ id, displayName, email: `${id}@canhoes.pt`, isAdmin: false, color: "teal" });
 const item = (id: string, userId: string, title: string): EventWishlistItemDto => ({
   id,
   userId,

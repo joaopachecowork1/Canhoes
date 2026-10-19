@@ -24,7 +24,7 @@ type PillTabsProps = {
 };
 
 const CONTAINER_CLASS =
-  "overflow-hidden rounded-xl border border-[var(--color-veil)]/6 bg-[var(--bg-paper-soft)] px-1.5 py-1.5";
+  "overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-panel)] px-1.5 py-1.5";
 
 const SCROLL_CLASS =
   "-mx-1 overflow-x-auto px-1 snap-x snap-mandatory";
@@ -33,16 +33,16 @@ const ITEM_BASE_CLASS =
   "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-2 font-semibold transition duration-200 ease-out active:scale-[0.97] snap-start";
 
 const ITEM_ACTIVE_CLASS =
-  "border-[var(--color-veil)]/10 bg-[var(--color-veil)]/8 text-[var(--color-text-primary)] shadow-sm";
+  "border-transparent bg-[var(--area,var(--moss))] text-[var(--on-person)] shadow-[var(--shadow-elevation-sm)]";
 
 const ITEM_IDLE_CLASS =
   "border-transparent bg-transparent text-[var(--color-text-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--color-text-primary)]";
 
 const BADGE_ACTIVE_CLASS =
-  "bg-[var(--moss)] text-[var(--text-primary)]";
+  "bg-[var(--on-person)] text-[var(--color-text-primary)]";
 
 const BADGE_IDLE_CLASS =
-  "border border-[var(--moss)]/24 bg-[var(--moss)]/12 text-[var(--color-text-muted)]";
+  "border border-[var(--color-border-strong)] bg-[var(--color-veil)]/8 text-[var(--color-text-muted)]";
 
 function useScrollActiveIntoView(activeId: string) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -98,7 +98,7 @@ function PillTab({
 }: Readonly<{ isActive: boolean; item: PillTabItem; onSelect?: (id: string) => void; size: "sm" | "md"; stretch: boolean }>) {
   const className = cn(
     ITEM_BASE_CLASS,
-    size === "sm" ? "min-h-10 text-xs" : "min-h-11 text-sm",
+    size === "sm" ? "min-h-11 text-sm" : "min-h-11 text-base",
     stretch && "w-full justify-center px-2",
     isActive ? ITEM_ACTIVE_CLASS : ITEM_IDLE_CLASS
   );

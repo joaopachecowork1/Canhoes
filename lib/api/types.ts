@@ -38,6 +38,8 @@ export type PublicUserDto = {
   email: string;
   displayName: string | null;
   isAdmin: boolean;
+  /** Palette key of the member's colour (lib/personColors.ts). */
+  color: string;
 };
 
 export type EventWishlistItemDto = {
@@ -86,6 +88,9 @@ export type EventFeedPostFullDto = {
   eventId: string;
   authorUserId: string;
   authorName: string;
+  /** Palette key of the author's colour. */
+  authorColor: string;
+  postNumber: number;
   text: string;
   mediaUrl: string | null;
   mediaUrls: string[];
@@ -175,13 +180,6 @@ export type AdminNomineeDto = {
   status: ProposalStatus;
   createdAtUtc: string;
   submittedByName: string;
-};
-
-export type AdminMemberDto = {
-  id: string;
-  email: string;
-  displayName: string | null;
-  isAdmin: boolean;
 };
 
 export type AdminListCountsDto = {
@@ -343,6 +341,8 @@ export type HubCommentDto = {
   postId: string;
   userId: string;
   userName: string;
+  /** Palette key of the commenter's colour. */
+  userColor: string;
   text: string;
   createdAtUtc: string;
   replyToId: string | null;

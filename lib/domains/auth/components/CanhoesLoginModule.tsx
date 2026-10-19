@@ -64,7 +64,7 @@ function OrDivider() {
 function DevLoginOption({ onLogin }: Readonly<{ onLogin: () => void }>) {
   return (
     <>
-      <div className="rounded-lg border border-[rgba(255,209,102,0.32)] bg-[rgba(62,38,12,0.72)] px-3 py-2 text-xs text-[rgba(255,236,188,0.92)]">
+      <div className="rounded-lg border border-dashed border-[var(--neon-amber)] px-3 py-2 text-sm text-[var(--neon-amber)]">
         {copy.devModeNotice}
       </div>
       <Button variant="outline" className="w-full" onClick={onLogin}>
@@ -104,11 +104,11 @@ export function CanhoesLoginModule() {
     <div className="relative isolate min-h-[100svh] bg-[var(--bg-void)]">
       <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-8">
         <section
-          className="w-full max-w-md rounded-[var(--radius-lg-token)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6 text-[var(--text-primary)] shadow-[var(--shadow-card)] sm:p-8"
+          className="w-full max-w-md rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6 text-[var(--text-primary)] shadow-[var(--shadow-card),inset_0_4px_0_var(--moss)] sm:p-8"
           style={{
             opacity: isVisible ? 1 : 0,
-            transform: isVisible ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 420ms ease, transform 420ms ease",
+            transform: isVisible ? "translateY(0)" : "translateY(12px)",
+            transition: "opacity 200ms ease, transform 200ms ease",
           }}
         >
           <div className="space-y-6">

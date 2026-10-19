@@ -50,8 +50,8 @@ type CategoryNominationCardProps = Readonly<{
 
 function PendingNomination({ label }: Readonly<{ label: string | null }>) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Badge className="border border-[var(--neon-amber)] bg-[rgba(255,184,0,0.08)] text-[var(--neon-amber)]">
+    <div className="flex min-h-14 flex-wrap items-center gap-2 rounded-xl border-2 border-dashed border-[var(--neon-amber)] px-3 py-2">
+      <Badge className="border border-[var(--neon-amber)] bg-transparent text-[var(--neon-amber)]">
         <Clock className="mr-1 h-3.5 w-3.5" />
         {copy.pending}
       </Badge>
@@ -76,7 +76,7 @@ function NominationForm({ isPhaseOpen, nomination }: Readonly<{ isPhaseOpen: boo
         />
         <div className="flex items-center justify-between text-xs text-[var(--ink-muted)]">
           <span>{formatMessage(copy.lengthHint, { min: NOMINATION_TITLE_MIN, max: NOMINATION_TITLE_MAX })}</span>
-          <span className="font-[var(--font-mono)]">{`${titleTrimmed.length}/${NOMINATION_TITLE_MAX}`}</span>
+          <span className="font-[family-name:var(--font-mono)]">{`${titleTrimmed.length}/${NOMINATION_TITLE_MAX}`}</span>
         </div>
         <CanhoesFileTrigger fileName={file?.name} onChange={setFile} placeholder={messages.wishlist.WishlistForm.imagePlaceholder} />
       </div>
@@ -122,15 +122,15 @@ function ApprovedNomineesList({ nominees }: Readonly<{ nominees: NomineeDto[] }>
     <div className="space-y-2 pt-1">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-medium text-[var(--ink-primary)]">{copy.approvedTitle}</h4>
-        <span className="font-[var(--font-mono)] text-xs text-[var(--ink-muted)]">{formatCount(nominees.length, copy.approvedOne, copy.approvedOther)}</span>
+        <span className="font-[family-name:var(--font-mono)] text-xs text-[var(--ink-muted)]">{formatCount(nominees.length, copy.approvedOne, copy.approvedOther)}</span>
       </div>
       {nominees.length === 0 ? (
         <p className="text-sm text-[var(--ink-muted)]">{copy.noApproved}</p>
       ) : (
         <div className="space-y-2">
           {nominees.map((nominee) => (
-            <div key={nominee.id} className="flex items-center gap-2 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 px-3 py-2.5 transition-colors duration-150 hover:border-[var(--moss)]/20">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--neon-green)]" />
+            <div key={nominee.id} className="flex min-h-12 items-center gap-2 rounded-xl border-2 border-[var(--moss)] bg-[var(--color-panel)] px-3 py-2.5 shadow-[var(--shadow-elevation-sm)]">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--moss-glow)]" aria-hidden />
               <span className="truncate text-base font-medium text-[var(--ink-primary)]">{nominee.title}</span>
             </div>))}
         </div>

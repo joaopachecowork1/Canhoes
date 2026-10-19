@@ -8,8 +8,8 @@ import messages from "@/messages/pt.json";
 const copy = messages.feed.PostVoteBar;
 
 function getScoreClass(isUpvoted: boolean, isDownvoted: boolean) {
-  if (isUpvoted) return "text-green-500";
-  if (isDownvoted) return "text-red-500";
+  if (isUpvoted) return "text-[var(--moss-glow)]";
+  if (isDownvoted) return "text-[var(--color-danger)]";
   return "text-[var(--ink-secondary)]";
 }
 
@@ -29,12 +29,12 @@ export function PostVoteBar({
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
           isUpvoted
-            ? "bg-green-500/20 text-green-500 shadow-[0_0_0_1px_rgba(34,197,94,0.25)]"
-            : "text-[var(--text-muted)] hover:bg-green-500/10 hover:text-green-400"
+            ? "bg-[var(--moss)]/20 text-[var(--moss-glow)] ring-1 ring-[var(--moss)]/40"
+            : "text-[var(--text-muted)] hover:bg-[var(--moss)]/10 hover:text-[var(--moss-glow)]"
         )}
         aria-label={isUpvoted ? copy.removeUpvote : copy.upvote}
       >
-        <ArrowBigUp className={cn("h-5 w-5 transition", isUpvoted && "fill-green-500 text-green-500")} />
+        <ArrowBigUp className={cn("h-5 w-5 transition", isUpvoted && "fill-[var(--moss-glow)] text-[var(--moss-glow)]")} />
       </button>
 
       <span className={cn("min-w-[2rem] text-center font-mono text-sm font-bold tabular-nums", getScoreClass(isUpvoted, isDownvoted))}>
@@ -47,12 +47,12 @@ export function PostVoteBar({
         className={cn(
           "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
           isDownvoted
-            ? "bg-red-500/15 text-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.25)]"
-            : "text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-400"
+            ? "bg-[var(--color-danger)]/15 text-[var(--color-danger)] ring-1 ring-[var(--color-danger)]/40"
+            : "text-[var(--text-muted)] hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)]"
         )}
         aria-label={isDownvoted ? copy.removeDownvote : copy.downvote}
       >
-        <ArrowBigDown className={cn("h-5 w-5 transition", isDownvoted && "fill-red-500 text-red-500")} />
+        <ArrowBigDown className={cn("h-5 w-5 transition", isDownvoted && "fill-[var(--color-danger)] text-[var(--color-danger)]")} />
       </button>
     </div>
   );

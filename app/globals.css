@@ -4,75 +4,105 @@
  */
 
 :root {
-  --color-bg-base: #10130d;
+  /*
+   * "Caderneta de Cromos": the group is a sticker album. Night-purple cover and pages, pitch green for
+   * the phase, the main action and what is "stuck in"; every member wears one colour of --person-*.
+   */
+  --color-bg-base: #170d22;
   --color-bg-surface: var(--bg-surface);
-  --color-bg-elevated: #1a2115;
-  --color-border: rgba(177, 194, 143, 0.18);
-  --color-border-strong: rgba(177, 194, 143, 0.38);
-  --color-text-primary: #f5f4ed;
-  --color-text-secondary: #d5d9c9;
-  --color-text-muted: #aeb8a0;
-  --color-danger: #e05a3a;
+  --color-bg-elevated: #24163a;
+  --color-border: rgba(196, 170, 240, 0.16);
+  --color-border-strong: rgba(196, 170, 240, 0.34);
+  --color-text-primary: #f6f1ff;
+  --color-text-secondary: #ddd2f0;
+  --color-text-muted: #b8a6d6;
+  --color-danger: #ff6b6b;
   /* Translucent layers: --color-veil lightens (hairlines, hover), --color-panel is the dark card base. Use with /opacity. */
   --color-veil: #ffffff;
-  --color-panel: #12180d;
-  --canhoes-moss: #4F6336;
+  --color-panel: #1d1230;
+  /* Pitch green: the phase, the primary action and filled slots. */
+  --canhoes-moss: #2fbf71;
   --moss: var(--canhoes-moss);
-  --moss-light: rgba(79, 99, 54, 0.92);
-  --moss-glow: #a4bd7a;
-  --shadow-elevation-sm: 0 6px 14px rgba(0, 0, 0, 0.16);
-  --shadow-elevation-md: 0 10px 24px rgba(0, 0, 0, 0.18);
-  --font-display: var(--font-orbitron);
-  --font-body: var(--font-dm-sans);
-  --font-mono: var(--font-jetbrains-mono);
-  --duration-base: 220ms;
+  --moss-light: rgba(47, 191, 113, 0.92);
+  --moss-glow: #5fe39a;
+  --on-moss: #0d1f14;
+  /* Album page: one step above the cover. */
+  --page: #2f2050;
+  /* Person colours: a member's frame, avatar and marks. Text on them uses --on-person. */
+  --person-coral: #ff6b6b;
+  --person-amber: #ffb547;
+  --person-teal: #4fd1c5;
+  --person-blue: #6c8cff;
+  --person-pink: #f472b6;
+  --person-lime: #a3e635;
+  --person-violet: #b388ff;
+  --person-sky: #38bdf8;
+  --on-person: #170d22;
+  /* Area tabs: each area keeps one colour across header, dock and page. */
+  --area-feed: var(--person-teal);
+  --area-voting: var(--moss);
+  --area-nominees: var(--person-amber);
+  --area-categories: var(--person-blue);
+  --area-gala: var(--person-pink);
+  --area-secret-santa: var(--person-coral);
+  --area-wishlist: var(--person-violet);
+  --area-stickers: var(--person-lime);
+  --area-measures: var(--person-sky);
+  --area-admin: var(--color-text-muted);
+  --shadow-elevation-sm: 0 6px 14px rgba(5, 0, 12, 0.45);
+  --shadow-elevation-md: 0 10px 24px rgba(5, 0, 12, 0.5);
+  --font-display: var(--font-barlow-condensed);
+  --font-body: var(--font-atkinson);
+  --font-mono: var(--font-barlow-condensed);
+  --duration-base: 200ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
   --bg-void: var(--color-bg-base);
   --bg-deep: var(--color-bg-surface);
   --bg-surface: var(--color-bg-elevated);
-  --bg-paper: rgba(255, 255, 255, 0.04);
-  --bg-paper-soft: rgba(255, 255, 255, 0.03);
+  --bg-paper: rgba(255, 255, 255, 0.05);
+  --bg-paper-soft: rgba(255, 255, 255, 0.035);
   --text-primary: var(--color-text-primary);
   --text-muted: var(--color-text-muted);
-  --text-ghost: #8a9772;
+  --text-ghost: #8f7cb0;
   --ink-primary: var(--color-text-primary);
   --ink-secondary: var(--color-text-secondary);
   --ink-muted: var(--color-text-muted);
-  --bark: #6b4c2a;
-  --beige: #e0c7a6;
-  --sand: #bea486;
-  --neon-green: #4F6336;
-  --neon-amber: #ffb800;
-  --neon-cyan: #00d4aa;
-  --neon-red: #ff3a3a;
-  --accent-purple-soft: #b8a8c8;
-  --accent-purple-deep: #5c4a6e;
-  --glow-green-sm: 0 0 4px #EAB308, 0 0 10px rgba(234, 179, 8, 0.16);
+  --bark: #8a5a3c;
+  --beige: #ffd9a8;
+  --sand: #e8c39a;
+  --neon-green: var(--moss);
+  --neon-amber: var(--person-amber);
+  --neon-cyan: var(--person-teal);
+  --neon-red: var(--person-coral);
+  --accent-purple-soft: #c9b6ef;
+  --accent-purple-deep: #5b3f8c;
+  --glow-green-sm: 0 6px 16px rgba(47, 191, 113, 0.28);
   --danger: var(--color-danger);
-  --fire: #ff6b35;
+  --fire: var(--person-amber);
   --border-subtle: var(--color-border);
-  --border-moss: rgba(234, 179, 8, 0.5);
+  --border-moss: rgba(47, 191, 113, 0.5);
   --border-neon: var(--color-border-strong);
-  --border-paper: rgba(255, 255, 255, 0.08);
+  --border-paper: rgba(255, 255, 255, 0.09);
   --border-paper-soft: rgba(255, 255, 255, 0.06);
-  --shadow-card: 0 10px 28px rgba(0, 0, 0, 0.16);
-  --shadow-paper: 0 12px 30px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  --shadow-paper-soft: 0 14px 32px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  --shadow-layered: 0 22px 52px rgba(10, 12, 8, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.08);
-  --shadow-panel: 0 24px 64px rgba(0, 0, 0, 0.42);
-  --shadow-modal: 0 28px 80px rgba(0, 0, 0, 0.45);
+  /* Elevated: cards sit visibly above the page. */
+  --shadow-card: 0 10px 24px rgba(5, 0, 12, 0.5);
+  --shadow-paper: 0 10px 24px rgba(5, 0, 12, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-paper-soft: 0 14px 30px rgba(5, 0, 12, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-layered: 0 18px 40px rgba(5, 0, 12, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-panel: 0 20px 48px rgba(5, 0, 12, 0.6);
+  --shadow-modal: 0 28px 80px rgba(5, 0, 12, 0.7);
   --page-max-width: 72rem;
   --radius-sm-token: 0.75rem;
   --radius-md-token: 0.875rem;
   --radius-lg-token: 1rem;
-  --radius-xl-token: 26px;
+  --radius-xl-token: 1.5rem;
   --destructive: var(--danger);
   --color-bg-card: var(--bg-deep);
   --color-bg-surface-alt: var(--bg-surface);
   --color-title: var(--moss-light);
   --color-title-light: var(--moss-glow);
-  --color-danger-hover: #c94f31;
+  --color-danger-hover: #ff5252;
   --color-moss: var(--moss);
   --color-beige: var(--beige);
   --color-beige-dark: var(--sand);
@@ -124,10 +154,10 @@
 
 /* Extra Tailwind utilities: text-canhoes-gold, text-neon-green, shadow-neon, animate-fade-in. */
 @theme {
-  --color-canhoes-gold: #C8A46B;
-  --color-neon-green: #00FF88;
+  --color-canhoes-gold: #ffd166;
+  --color-neon-green: #5fe39a;
 
-  --shadow-neon: 0 0 12px rgba(234, 179, 8, 0.25);
+  --shadow-neon: 0 6px 16px rgba(47, 191, 113, 0.3);
 
   --animate-fade-in: fade-in 0.18s ease-out;
 
@@ -138,7 +168,7 @@
 }
 
 @utility bg-neon-glow {
-  background-image: linear-gradient(180deg, rgba(234, 179, 8, 0.18), rgba(234, 179, 8, 0.12));
+  background-image: linear-gradient(180deg, rgba(47, 191, 113, 0.18), rgba(47, 191, 113, 0.1));
 }
 
 @layer base {
@@ -153,8 +183,9 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
-  h1 { font-size: clamp(1.85rem, 5vw, 2.55rem); font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
-  h2, .heading-2 { font-size: clamp(1.35rem, 3vw, 1.9rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; }
+  h1, h2, h3, .heading-2, .heading-3 { font-family: var(--font-display); letter-spacing: 0.01em; }
+  h1 { font-size: clamp(1.85rem, 5vw, 2.55rem); font-weight: 800; line-height: 1.05; }
+  h2, .heading-2 { font-size: clamp(1.35rem, 3vw, 1.9rem); font-weight: 700; line-height: 1.1; }
   h3, .heading-3 { font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
   .body-base { font-size: 1rem; line-height: 1.65; }
   .body-small { font-size: 0.92rem; line-height: 1.6; }
@@ -162,9 +193,9 @@
   a { color: inherit; text-decoration: none; }
   button { touch-action: manipulation; }
   input, textarea, select { min-height: 3rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md-token); color: var(--text-primary); padding: 0.875rem 1rem; font-size: 1rem; }
-  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border-neon); box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.18); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border-neon); box-shadow: 0 0 0 3px rgba(47, 191, 113, 0.28); }
   button, [role="button"] { min-height: 44px; min-width: 44px; }
-  ::selection { background: rgba(133, 165, 101, 0.2); color: var(--color-text-primary); }
+  ::selection { background: rgba(47, 191, 113, 0.32); color: var(--color-text-primary); }
   /* One keyboard focus ring for every control the browser would otherwise draw its own for. */
   :focus-visible { outline: 2px solid var(--moss-glow); outline-offset: 2px; }
   input, textarea { caret-color: var(--moss-glow); }

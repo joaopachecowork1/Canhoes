@@ -21,7 +21,6 @@ export function PollBox({
     <section className="border border-[var(--color-veil)]/5 bg-[var(--color-veil)]/2.5 shadow-none rounded-[1.25rem] p-4 sm:p-5">
       <div className="space-y-4">
         <div className="space-y-1">
-          <p className="text-[var(--text-muted)]">{copy.kicker}</p>
           <h3 className="heading-3 text-[var(--text-primary)]">
             {poll.question}
           </h3>
@@ -43,7 +42,7 @@ export function PollBox({
                 className={cn(
                   "relative min-h-11 w-full overflow-hidden rounded-[var(--radius-md-token)] border px-4 py-3 text-left transition-colors duration-200 ease-out",
                   isActive
-                    ? "border-[var(--moss)]/50 bg-[var(--moss)]/5 shadow-[0_0_15px_rgba(152,190,92,0.1)] ring-1 ring-[var(--moss)]/20"
+                    ? "border-[var(--moss)]/50 bg-[var(--moss)]/5 ring-1 ring-[var(--moss)]/20"
                     : "border-[var(--border-subtle)] bg-[var(--bg-deep)] hover:border-[var(--border-moss)]/40 hover:bg-[var(--bg-surface)]"
                 )}
               >

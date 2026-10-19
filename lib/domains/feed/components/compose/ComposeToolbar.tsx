@@ -47,7 +47,7 @@ export function ComposeToolbar({
             TOOL_CLASS,
             "relative",
             fileCount > 0
-              ? "border-[var(--moss)] bg-[var(--moss)] text-[var(--ink-primary)] shadow-[var(--glow-green-sm)]"
+              ? "border-[var(--moss)] bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--glow-green-sm)]"
               : IDLE_TOOL_CLASS
           )}
         >

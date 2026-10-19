@@ -5,30 +5,16 @@ import { ArrowDown, ArrowUp, Pin, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
-import { formatDateTime, initials } from "./hubUtils";
+import { PersonCromo } from "@/components/ui/person-cromo";
+import { formatDateTime } from "./hubUtils";
+import { formatMessage } from "@/lib/messages";
 import { useRelativeTime } from "@/lib/postUtils";
 import messages from "@/messages/pt.json";
 
 const copy = messages.feed.PostHeader;
 
-const AVATAR_ACCENTS = [
-  "var(--color-moss)",
-  "var(--color-brown)",
-  "var(--color-beige-dark)",
-  "var(--color-title-light)",
-];
-
-function accentForName(name: string) {
-  let hash = 0;
-  for (let index = 0; index < name.length; index++) {
-    hash = (hash * 31 + name.charCodeAt(index)) & 0xffff;
-  }
-
-  return AVATAR_ACCENTS[Math.abs(hash) % AVATAR_ACCENTS.length];
-}
-
 const ICON_BUTTON_CLASS =
-  "h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]";
+  "size-11 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]";
 
 type PostAdminActionsProps = {
   isPinned?: boolean;
@@ -63,7 +49,7 @@ function PostAdminActions({ isPinned, onAdminPin, onAdminMoveUp, onAdminMoveDown
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-8 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--danger)]"
+            className="size-11 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--danger)]"
             aria-label={copy.deleteLabel}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -76,34 +62,33 @@ function PostAdminActions({ isPinned, onAdminPin, onAdminMoveUp, onAdminMoveDown
 
 export function PostHeader({
   authorName,
+  authorColor,
   createdAtUtc,
+  postNumber,
   isAdmin,
   ...adminActions
 }: Readonly<{
   authorName: string;
+  authorColor?: string;
   createdAtUtc: string;
+  postNumber: number;
   isAdmin?: boolean;
 } & PostAdminActionsProps>) {
-  const accent = accentForName(authorName);
   const relativeTime = useRelativeTime(createdAtUtc);
 
   return (
     <div className="flex items-start justify-between gap-2">
       <div className="flex min-w-0 items-center gap-2">
-        <div
-          aria-hidden="true"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-xs font-bold"
-          style={{ color: accent }}
-        >
-          {initials(authorName)}
-        </div>
+        <PersonCromo name={authorName} color={authorColor} />
 
         <div className="min-w-0 space-y-0.5">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="truncate text-sm font-semibold text-[var(--text-primary)]">{authorName}</p>
+            <p className="truncate text-base font-bold text-[var(--text-primary)]">{authorName}</p>
             {adminActions.isPinned ? <Badge variant="secondary">{copy.pinned}</Badge> : null}
           </div>
-          <p className="text-xs text-[var(--text-muted)]" title={formatDateTime(createdAtUtc)}>
+          <p className="text-sm text-[var(--text-muted)]" title={formatDateTime(createdAtUtc)}>
+            <span className="font-[family-name:var(--font-display)] font-bold text-[var(--color-text-secondary)]">{formatMessage(copy.number, { number: postNumber })}</span>
+            {" · "}
             {relativeTime}
           </p>
         </div>

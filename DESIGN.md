@@ -1,54 +1,59 @@
 ---
 name: Canhões do Ano
-description: Portal privado do ritual anual de um grupo de amigos, em tema escuro.
+description: A caderneta de cromos do grupo, em roxo-noite com verde de relvado e uma cor por pessoa.
 colors:
-  night-olive: "#10130d"
-  raised-olive: "#1a2115"
-  parchment: "#f5f4ed"
-  parchment-soft: "#d5d9c9"
-  sage-muted: "#aeb8a0"
-  moss: "#4f6336"
-  moss-glow: "#a4bd7a"
-  signal-amber: "#ffb800"
-  ember-danger: "#e05a3a"
-  focus-amber: "#eab308"
-  selection-sage: "#85a565"
-  veil: "#ffffff"
-  panel: "#12180d"
+  night-cover: "#170d22"
+  album-card: "#24163a"
+  album-panel: "#1d1230"
+  album-page: "#2f2050"
+  ink-lilac: "#f6f1ff"
+  ink-lilac-soft: "#ddd2f0"
+  ink-lilac-muted: "#b8a6d6"
+  ink-ghost: "#8f7cb0"
+  pitch-green: "#2fbf71"
+  pitch-green-glow: "#5fe39a"
+  on-pitch: "#0d1f14"
+  on-person: "#170d22"
+  danger-coral: "#ff6b6b"
+  gold-wordmark: "#ffd166"
+  person-coral: "#ff6b6b"
+  person-amber: "#ffb547"
+  person-teal: "#4fd1c5"
+  person-blue: "#6c8cff"
+  person-pink: "#f472b6"
+  person-lime: "#a3e635"
+  person-violet: "#b388ff"
+  person-sky: "#38bdf8"
 typography:
   display:
-    fontFamily: "Orbitron, sans-serif"
-    fontWeight: 700
-    letterSpacing: "0.04em"
-  wordmark:
-    fontFamily: "Orbitron, sans-serif"
-    fontSize: "1.06rem"
-    fontWeight: 700
-  headline:
-    fontFamily: "DM Sans, sans-serif"
+    fontFamily: "Barlow Condensed, sans-serif"
     fontSize: "clamp(1.85rem, 5vw, 2.55rem)"
     fontWeight: 800
     lineHeight: 1.05
-  title:
-    fontFamily: "DM Sans, sans-serif"
+    letterSpacing: "0.01em"
+  headline:
+    fontFamily: "Barlow Condensed, sans-serif"
     fontSize: "clamp(1.35rem, 3vw, 1.9rem)"
     fontWeight: 700
     lineHeight: 1.1
-  subtitle:
-    fontFamily: "DM Sans, sans-serif"
+    letterSpacing: "0.01em"
+  title:
+    fontFamily: "Barlow Condensed, sans-serif"
     fontSize: "1.05rem"
     fontWeight: 700
     lineHeight: 1.2
   body:
-    fontFamily: "DM Sans, sans-serif"
+    fontFamily: "Atkinson Hyperlegible, sans-serif"
     fontSize: "1rem"
+    fontWeight: 400
     lineHeight: 1.65
   body-small:
-    fontFamily: "DM Sans, sans-serif"
+    fontFamily: "Atkinson Hyperlegible, sans-serif"
     fontSize: "0.92rem"
+    fontWeight: 400
     lineHeight: 1.6
   label:
-    fontFamily: "JetBrains Mono, monospace"
+    fontFamily: "Barlow Condensed, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 600
     letterSpacing: "0.05em"
@@ -56,110 +61,198 @@ rounded:
   sm: "0.75rem"
   md: "0.875rem"
   lg: "1rem"
-  xl: "26px"
+  xl: "1.5rem"
+  card: "1rem"
+  pill: "9999px"
+spacing:
+  xs: "6px"
+  sm: "12px"
+  md: "16px"
+  lg: "24px"
+  touch: "44px"
 components:
   button-primary:
-    backgroundColor: "{colors.moss}"
-    textColor: "{colors.parchment}"
+    backgroundColor: "{colors.pitch-green}"
+    textColor: "{colors.on-pitch}"
     rounded: "{rounded.md}"
     height: "44px"
-  input:
-    backgroundColor: "{colors.raised-olive}"
-    textColor: "{colors.parchment}"
+    padding: "8px 16px"
+  button-primary-hover:
+    backgroundColor: "{colors.pitch-green-glow}"
+  card:
+    backgroundColor: "{colors.album-card}"
+    textColor: "{colors.ink-lilac}"
+    rounded: "{rounded.card}"
+  empty-slot:
+    backgroundColor: "{colors.night-cover}"
+    textColor: "{colors.ink-lilac}"
+    rounded: "{rounded.card}"
+    padding: "40px 24px"
+  filled-slot:
+    backgroundColor: "{colors.pitch-green}"
+    textColor: "{colors.on-pitch}"
+    rounded: "{rounded.lg}"
+    height: "56px"
+  phase-pill:
+    backgroundColor: "{colors.pitch-green}"
+    textColor: "{colors.on-pitch}"
+    rounded: "{rounded.sm}"
+    height: "32px"
+  area-tab:
+    textColor: "{colors.on-person}"
+    rounded: "{rounded.sm}"
+    height: "32px"
+  person-cromo:
+    backgroundColor: "{colors.album-page}"
     rounded: "{rounded.md}"
-    height: "48px"
+    size: "40px"
+  input:
+    backgroundColor: "{colors.album-card}"
+    textColor: "{colors.ink-lilac}"
+    rounded: "{rounded.sm}"
+    height: "44px"
 ---
 
 # Design System: Canhões do Ano
 
 ## Overview
 
-**Creative North Star: "A Roda de Camaradas"**
+**Creative North Star: "A Caderneta de Cromos"**
 
-Um grupo de amigos à volta da mesa no fim do ano: descontraído, com humor, cada um com a sua cor. A app é para usar no telemóvel, em visitas curtas, por isso a densidade é moderada, os alvos são grandes e cada ecrã tem uma ação principal.
+O grupo é uma caderneta. Cada camarada é um cromo com a sua cor, cada categoria é uma página com lugares numerados, e participar é colar: publicar, nomear e votar enchem lugares. A capa é roxo-noite, o verde de relvado marca a fase, a ação principal e tudo o que já está colado, e o resto do arco-íris pertence às pessoas e às áreas, para que cada membro se reveja no aspeto.
 
-O código atual exprime isto num tema escuro único, verde-oliva quase preto, com texto pergaminho e acentos musgo e âmbar. A direção aprovada (ver `PRODUCT.md`) leva a paleta para uma base roxa e verde com acentos multicolores, e a profundidade para cartões elevados. Até esse redesign ser aplicado, este ficheiro descreve o que está no código.
+O tom é de camaradagem, não de cerimónia. As superfícies são cartões elevados com sombra real sobre a capa escura, os alvos são grandes (44px) e as respostas ao toque são imediatas. Os estados lêem-se como marcas impressas: lugar vazio tracejado, lugar cheio sólido e preenchido. Recusa o feed social genérico de avatares redondos sobre cinzento.
 
 **Key Characteristics:**
-- Tema escuro único, sem modo claro.
-- Alvos de toque de 44px no mínimo (regra global em `app/globals.css`).
-- Cores sempre a partir de tokens; camadas translúcidas com `--color-veil` e `--color-panel` mais opacidade (`bg-[var(--color-veil)]/8`).
-- Animações de 200 ms em interações, só em `transform`, cor e opacidade.
+- Tema escuro único: capa roxo-noite, cartões elevados, texto lilás-claro.
+- Verde de relvado reservado à fase, à ação principal e ao "colado".
+- Uma cor por pessoa (`--person-*`) e uma cor por área (`--area-*`), nunca misturadas com o verde de estado.
+- Letra condensada (Barlow Condensed) para títulos, números, etiquetas e nomes de cromo; Atkinson Hyperlegible para o texto corrido.
+- Vazio tracejado, cheio sólido; o estado muda no próprio sítio.
 
 ## Colors
 
-Uma paleta de floresta à noite: fundos verde-oliva muito escuros, texto pergaminho e um único acento verde.
+Uma capa roxa quase preta, um verde de relvado que só fala de estado, e oito cores de pessoa que também dão cor às áreas.
 
 ### Primary
-- **Musgo** (#4f6336): fundo dos botões principais e barras de progresso. Nunca como cor de texto (2,8:1 sobre o fundo).
-- **Musgo luminoso** (#a4bd7a): texto e ícones de destaque, foco do teclado, cursor de texto (9:1 sobre o fundo).
+- **Verde de Relvado** (#2fbf71, `--moss`): fase ativa, botão principal, lugar colado/voto escolhido, barra de progresso, anel de foco do botão. Texto sobre ele usa **Tinta de Relvado** (#0d1f14, `--on-moss`).
+- **Verde de Relvado Claro** (#5fe39a, `--moss-glow`): hover do botão primário, ícones e ligações de acento, anel de foco global (`:focus-visible`, 2px).
 
-### Secondary
-- **Âmbar de sinal** (#ffb800): estados pendentes e chamadas de atenção.
+### Secondary (cores de pessoa)
+Cada membro veste uma; a base de dados guarda a chave (`lib/personColors.ts`) e o hex vive em `--person-<chave>`. Servem de moldura, iniciais e marcas do cromo. Texto sobre elas usa **Tinta de Pessoa** (#170d22, `--on-person`).
+- **Coral** (#ff6b6b), **Âmbar** (#ffb547), **Turquesa** (#4fd1c5), **Azul** (#6c8cff), **Rosa** (#f472b6), **Lima** (#a3e635), **Violeta** (#b388ff), **Céu** (#38bdf8).
+
+### Tertiary (cores de área)
+Cada área mantém uma cor no cabeçalho, no dock e na página (`--area-*`, resolvida por `areaColorVar`): mural turquesa, votação verde de relvado, nomeações âmbar, categorias azul, gala rosa, amigo secreto coral, wishlist violeta, stickers lima, medidas céu, admin lilás-muted.
 
 ### Neutral
-- **Noite oliva** (#10130d): fundo da página (`--bg-void`).
-- **Oliva elevado** (#1a2115): superfícies, inputs, sheets (`--bg-surface`).
-- **Pergaminho** (#f5f4ed): texto principal.
-- **Pergaminho suave** (#d5d9c9): texto secundário.
-- **Salva** (#aeb8a0): texto discreto e metadados (8 a 9:1).
-- **Véu** (#ffffff com opacidade): bordas finas e hover (`--color-veil`).
-- **Âmbar de foco** (#eab308 a 12 a 18%): anel de foco dos inputs.
-- **Salva de seleção** (#85a565 a 20%): fundo do texto selecionado.
-- **Painel** (#12180d com opacidade): base escura de cartões translúcidos (`--color-panel`).
+- **Capa Roxo-Noite** (#170d22, `--color-bg-base`): fundo da página e do `html`.
+- **Cartão do Álbum** (#24163a, `--color-bg-elevated`): cartões, cabeçalho, dock, inputs.
+- **Painel Escuro** (#1d1230, `--color-panel`): base dos painéis de abas e contentores.
+- **Página do Álbum** (#2f2050, `--page`): miolo do cromo da pessoa.
+- **Lilás Tinta** (#f6f1ff), **Lilás Suave** (#ddd2f0), **Lilás Apagado** (#b8a6d6), **Lilás Fantasma** (#8f7cb0): texto primário, secundário, atenuado e fantasma.
+- **Fio Lilás** (rgba(196,170,240,0.16) e 0.34 forte, `--color-border` / `--color-border-strong`): bordas de cartão e de lugar vazio.
+- **Coral de Perigo** (#ff6b6b, `--color-danger`): erros e ações destrutivas.
+- **Dourado do Nome** (#ffd166, `text-canhoes-gold`): apenas o nome "Canhões do Ano" no cabeçalho.
 
 ### Named Rules
-**A regra do musgo legível.** O musgo escuro pinta fundos; o texto verde usa sempre `--moss-glow`.
+**A Regra do Verde Só de Estado.** O verde de relvado significa fase, ação principal ou "colado". Nunca decora uma área nem uma pessoa; a votação usa-o como cor de área porque votar é colar.
+
+**A Regra Uma Cor, Um Dono.** Cada cor de pessoa pertence a um membro, cada cor de área a uma área. Não se reutiliza uma cor de pessoa como sinal de estado.
+
+**A Regra do Texto Sobre Cor.** Texto sobre verde usa `--on-moss`, sobre cor de pessoa ou de área usa `--on-person`; nunca lilás claro sobre cor viva.
 
 ## Typography
 
-**Display Font:** Orbitron
-**Body Font:** DM Sans
-**Label/Mono Font:** JetBrains Mono
+**Display Font:** Barlow Condensed (600, 700, 800; fallback sans-serif; `--font-display`)
+**Body Font:** Atkinson Hyperlegible (400, 700; fallback sans-serif; `--font-body`)
+**Label Font:** Barlow Condensed (`--font-mono` é só um alias de `--font-display`)
 
-**Character:** o Orbitron dá o tom de "patente" ao nome da app; o DM Sans faz todo o trabalho de leitura.
+**Character:** A condensada dá o ar de número e etiqueta impressa nos cromos; a Atkinson, desenhada para legibilidade, carrega o texto corrido no telemóvel. As fontes estão no repositório (`app/fonts`), carregadas com `next/font/local`.
 
 ### Hierarchy
-- **Display / wordmark** (700, 1.06rem, maiúsculas): só a marca "Canhões do Ano".
-- **Headline** (700, 1.5rem): o `<h1>` de cada página (`CanhoesModuleHeader`).
-- **Title** (700, 1.35 a 1.9rem): `<h2>` de secções.
-- **Subtitle** (700, 1.05rem): `<h3>` e títulos de cartões.
-- **Body** (400, 1rem, 1.65): todo o conteúdo que se lê (posts, comentários, opções de voto, nomeações).
-- **Body small** (400, 0.92rem): descrições de apoio por baixo de um título.
-- **Label** (600, 0.75rem, maiúsculas): fases, contagens, datas. Nunca para conteúdo.
+- **Display** (800, clamp(1.85rem, 5vw, 2.55rem), 1.05): `h1`.
+- **Headline** (700, clamp(1.35rem, 3vw, 1.9rem), 1.1): `h2` / `.heading-2`.
+- **Title** (700, 1.05rem, 1.2): `h3`, títulos de cartão (`.heading-3`).
+- **Body** (400, 1rem, 1.65): texto de conteúdo, nunca abaixo de 16px.
+- **Body small** (400, 0.92rem, 1.6): descrições e metadados.
+- **Label** (600, 0.75rem, 0.05em, maiúsculas): etiquetas pequenas (`.label`, `Badge`).
+- **Etiqueta de cromo** (800, 1.125rem, maiúsculas, 0.03em): separador de área no cabeçalho; botões do dock em 700, 0.8125rem, maiúsculas.
 
 ### Named Rules
-**A regra dos 16px.** Conteúdo que alguém tem de ler está a 16px; abaixo disso só metadados.
+**A Regra da Condensada Nomeia, a Atkinson Explica.** Nomes, números, fases e áreas em Barlow Condensed; frases em Atkinson.
 
 ## Layout
 
-Mobile-first a partir de 375px, coluna única com 16px de margem lateral; os breakpoints só alargam (`max-w-[60rem]` nas páginas, `72rem` no mural). Navegação numa barra inferior fixa (dock) com o botão de publicar ao centro; o resto das áreas num bottom sheet. Formulários e detalhes abrem em bottom sheets, não em modais centrados.
+Mobile-first, base de 375px, breakpoints só para expandir. Conteúdo em coluna única centrada até `--page-max-width` (72rem), com margens de 16px (24px em `sm`, 32px em `lg`) e colunas de cartões com intervalos de 12 a 16px. O cabeçalho é fixo no topo; o dock é fixo em baixo com a área de segurança (`env(safe-area-inset-bottom)`) e um botão "Post" verde ao centro. Todo o alvo tocável tem pelo menos 44px (`min-h-11`; botões e inputs com 44px, opções de voto com 56px). Abas de pílula fazem scroll horizontal com snap e a ativa centra-se sozinha.
 
 ## Elevation & Depth
 
-Hoje a profundidade é tonal: superfícies ligeiramente mais claras do que o fundo, bordas de véu a 8 a 14%, e sombras pretas suaves (`--shadow-paper`, `--shadow-card`) que quase não se veem no escuro. Os overlays (sheets, lightbox) usam `--shadow-modal`. A direção aprovada pede cartões elevados, com sombra visível em repouso.
+Híbrido com predomínio de elevação: os cartões ficam acima da capa com sombra real, de tom roxo quase preto, e a borda lilás de 16% define o contorno. Não há contornos de brilho nem sombras duras deslocadas.
 
 ### Shadow Vocabulary
-- **Papel** (`--shadow-paper`): cartões de conteúdo.
-- **Painel** (`--shadow-panel`): blocos de formulário.
-- **Modal** (`--shadow-modal`): sheets e diálogos.
+- **Cartão** (`box-shadow: 0 10px 24px rgba(5, 0, 12, 0.5)`, `--shadow-card`, igual a `--shadow-elevation-md`): cartões e hover de botão.
+- **Elevação pequena** (`0 6px 14px rgba(5, 0, 12, 0.45)`, `--shadow-elevation-sm`): botões, cromos, abas ativas, alertas.
+- **Painel** (`0 20px 48px rgba(5, 0, 12, 0.6)`, `--shadow-panel`): cabeçalho e dock.
+- **Modal** (`0 28px 80px rgba(5, 0, 12, 0.7)`, `--shadow-modal`): folhas e diálogos.
+- **Verde de estado** (`0 6px 16px rgba(47, 191, 113, 0.28)`, `--glow-green-sm`): pastilha da fase e botão Post.
+
+### Named Rules
+**A Regra da Sombra Roxa.** Sombras são sempre roxo quase preto (rgba(5,0,12,·)); só a pastilha da fase e o botão Post têm sombra verde.
+
+**A Regra do Estado no Lugar.** Hover, pressionado e selecionado mudam cor e sombra no próprio elemento; só `transform` e `opacity`, até 200ms, com `prefers-reduced-motion` respeitado (`active:scale-[0.97]` a `[0.98]`).
 
 ## Shapes
 
-Cantos arredondados generosos: 12 a 16px em cartões e inputs (`--radius-sm-token` a `--radius-lg-token`), 26px em contentores grandes, pílulas (`rounded-full`) em tabs, badges e no dock.
+Cantos generosos e firmes. Cartões e painéis a 1rem (`rounded-2xl` nos contentores de aba, vazio e alerta); controlos a 0.75-0.875rem; pastilhas e badges totalmente redondos; o cromo da pessoa é um quadrado arredondado (0.5-0.75rem), nunca um círculo, com borda de 2/3/4px na cor da pessoa conforme o tamanho (32/40/64px). Bordas de 1px lilás em cartões; lugar vazio com 2px tracejados; lugar cheio com 2px sólidos.
 
 ## Components
 
-- **Botões:** 44px de altura, cantos `md`, primário em musgo com texto pergaminho, foco com anel de 2px em musgo luminoso.
-- **Inputs:** 48px, fundo oliva elevado, borda de véu, foco em âmbar suave.
-- **Tabs (pill tabs):** pílulas com contador opcional; o ativo ganha fundo de véu.
-- **Cartões:** fundo translúcido sobre o painel, borda de véu e sombra de papel.
-- **Pontos de carrossel:** ponto de 6px dentro de um alvo de 44px, com `aria-current` no ativo.
+### Buttons
+- **Shape:** cantos de 0.875rem (`--radius-md-token`); `primary` é uma pílula; `sm` 44px de altura, `default` 44px, `lg` 48px.
+- **Primary (`default`/`primary`):** fundo verde de relvado, texto `--on-moss`, sombra pequena; hover `--moss-glow` e sombra média.
+- **Secondary / outline / ghost:** véu branco a 5-8% sobre a capa, sem sombra; `ghost` realça o texto em `--moss-glow` no hover; `destructive` em gradiente coral.
+- **Foco:** anel de 2px em `--moss` com offset 2; `active:scale-[0.98]`.
+
+### Chips e etiquetas
+`Badge`: pílula de 28px de altura, Barlow Condensed em maiúsculas; `default` verde translúcido com texto `--moss-glow`, `amber` âmbar, `secondary` e `outline` em véu branco, `destructive` coral.
+
+### Cards / Containers
+- **Corner Style:** 1rem. **Background:** `--color-bg-elevated`. **Shadow:** `--shadow-card`. **Border:** 1px `--color-border`. **Padding:** 16px, 24px em `sm`.
+- `CardTitle` usa `.heading-3` (Barlow Condensed).
+
+### Inputs / Fields
+Fundo `--bg-paper` (branco a 5%), borda 1px, cantos 0.75rem, 44px mínimo, texto 16px Atkinson. Foco: borda e anel verdes translúcidos de 3px. Inválido: borda `--destructive`.
+
+### Navigation
+- **Cabeçalho:** barra fixa `--bg-surface` com sombra de painel: marca (nome em dourado, edição em condensada), pastilha da fase em verde, o cromo do próprio membro, botão de menu. Fora do mural mostra o separador da área (fundo na cor da área, texto `--on-person`, 32px).
+- **Dock:** grelha igual em baixo; botões com ícone e etiqueta condensada em maiúsculas; ativo = cor da área com fundo a 16%; Post ao centro em verde sólido.
+- **Abas de pílula (`PillTabs`):** contentor `--color-panel` de 1rem; a aba ativa preenche-se com `--area` (ou o verde) e texto `--on-person`; 44px.
+
+### Lugar vazio e lugar cheio (assinatura)
+- **Vazio** (`EmptyState`): 2px tracejado `--color-border-strong`, 1rem, ícone dentro de círculo tracejado; título 16px semibold, descrição atenuada; ação opcional até 20rem.
+- **Cheio** (opção de voto escolhida): 2px sólido e fundo verde de relvado, texto `--on-moss`, sombra pequena e visto; as não escolhidas mantêm o tracejado.
+
+### Cromo da pessoa (`PersonCromo`)
+Quadrado arredondado de 32/40/64px, miolo `--page`, iniciais (primeira e última palavra) em Barlow Condensed 800 ou foto, borda e iniciais na cor da pessoa, sombra pequena.
+
+### Alerta de erro
+Cartão elevado de 1rem com borda de 2px: `danger` coral, `official` verde, `social` violeta; ação em contorno.
 
 ## Do's and Don'ts
 
-- **Do:** usa os tokens (`var(--…)`), com opacidade por Tailwind (`/8`) para as camadas.
-- **Do:** 44px em tudo o que se carrega, 16px em tudo o que se lê.
-- **Don't:** cores fixas (`rgba(…)`, `text-white`) nos componentes.
-- **Don't:** `transition-all` ou animações de largura; usa `transform`.
-- **Don't:** botões sem ação ou conteúdo inventado (autores falsos, contagens de exemplo).
+### Do:
+- **Do** usar as cores dos tokens (`--color-*`, `--moss*`, `--person-*`, `--area-*`); não escrever hex nos componentes.
+- **Do** dar a cada pessoa a sua cor via `personColorVar` e a cada área a sua via `areaColorVar`.
+- **Do** mostrar vazio como tracejado e cheio como sólido preenchido.
+- **Do** usar cartões elevados (`--shadow-card`) em vez de camadas só tonais.
+- **Do** manter alvos de 44px, texto de conteúdo de 16px e movimento de 200ms ou menos com redução de movimento respeitada.
+
+### Don't:
+- **Don't** usar o verde de relvado como decoração de área ou de pessoa; é estado.
+- **Don't** pôr texto lilás claro sobre uma cor viva; usar `--on-moss` ou `--on-person`.
+- **Don't** usar avatares circulares sobre cinzento; o cromo é um quadrado arredondado com a cor da pessoa.
+- **Don't** usar sombras duras deslocadas nem contornos de brilho.
+- **Don't** voltar às fontes antigas (Orbitron, DM Sans, JetBrains Mono) nem ao verde-oliva.
+
+Não canonizado (defeitos que a build carrega): variante `neon` do `Button` (`bg-neon-glow`, `text-neon-green`), tokens órfãos herdados (`--bark`, `--beige`, `--sand`, `--neon-*`, `--color-fire`) e o alias enganador `--font-mono` (é Barlow Condensed); `EmptyState` tem um mapa de tons vazio.

@@ -32,13 +32,13 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] relative flex flex-col items-center justify-center gap-4 px-6 py-10 text-center",
+        "border-2 border-dashed border-[var(--color-border-strong)] rounded-2xl relative flex flex-col items-center justify-center gap-4 px-6 py-10 text-center",
         TONE_PANEL_CLASS[tone],
         className
       )}
     >
       {Icon ? (
-        <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[var(--color-veil)]/8 bg-[var(--color-veil)]/5 text-[var(--moss)] shadow-none">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-dashed border-[var(--color-border-strong)] text-[var(--moss-glow)]">
           <Icon className="h-6 w-6" />
         </div>
       ) : null}

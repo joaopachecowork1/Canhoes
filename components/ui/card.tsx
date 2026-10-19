@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
  */
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div data-slot="card" className={cn("border border-[var(--border-paper-soft)] bg-[var(--bg-paper-soft)] shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-[26px] text-[var(--color-text-primary)]", className)} {...props} />
+    <div data-slot="card" className={cn("border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-card)] rounded-2xl text-[var(--color-text-primary)]", className)} {...props} />
   );
 }
 

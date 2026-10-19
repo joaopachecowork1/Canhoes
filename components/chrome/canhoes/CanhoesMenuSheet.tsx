@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 import type { CanhoesNavItem } from "./canhoesNavigation";
+import { PersonColorPicker } from "./PersonColorPicker";
 import messages from "@/messages/pt.json";
 
 const copy = messages.shell.CanhoesMenuSheet;
@@ -43,6 +44,8 @@ export function CanhoesMenuSheet({
             {copy.menuDescription}
           </SheetDescription>
         </SheetHeader>
+
+        <PersonColorPicker />
 
         <nav aria-label={copy.otherAreasLabel} className="flex flex-col px-2">
           {items.map((item) => (
@@ -110,7 +113,7 @@ function MenuLink({
         isActive && "bg-[var(--bg-paper)]"
       )}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--moss)] text-[var(--color-text-primary)]">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--moss)] text-[var(--on-moss)]">
         <Icon className="h-5 w-5" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">

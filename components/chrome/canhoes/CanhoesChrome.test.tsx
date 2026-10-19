@@ -62,6 +62,14 @@ describe("CanhoesChrome", () => {
     expect(within(dock()).queryByRole("button", { name: "Mais" })).not.toBeInTheDocument();
   });
 
+  it("lets admins open the menu from the header to change their colour or log out", async () => {
+    renderChrome({ isAdmin: true });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Abrir mais opções" }));
+    expect(await screen.findByRole("radio", { name: "Turquesa" })).toBeChecked();
+    expect(screen.getByRole("button", { name: /Terminar sessão/ })).toBeInTheDocument();
+  });
+
   it("offers the post button when the mural is open", async () => {
     renderChrome();
     expect(await within(dock()).findByRole("button", { name: "Criar publicação" })).toBeInTheDocument();

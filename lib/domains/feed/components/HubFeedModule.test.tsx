@@ -1,13 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { http, HttpResponse } from "msw";
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { comment, post } from "@/tests/component/fixtures";
+import { comment, member, post } from "@/tests/component/fixtures";
 import { makeEventContext } from "@/tests/component/eventContext";
 import { renderWithProviders } from "@/tests/component/renderWithProviders";
 import { server } from "@/tests/component/server";
 import { signInAs } from "@/tests/component/session";
+
+import { OPEN_COMPOSE_SHEET_EVENT } from "@/lib/canhoesEvent";
 
 import { HubFeedModule } from "./HubFeedModule";
 
@@ -20,7 +22,10 @@ const context = makeEventContext({ modules: { feed: true } });
 const POSTS = "*/api/v1/events/event-1/feed/posts";
 
 function servePosts(posts: ReturnType<typeof post>[], { hasMore = false, total = posts.length } = {}) {
-  server.use(http.get(POSTS, () => HttpResponse.json({ items: posts, total, skip: 0, take: 15, hasMore })));
+  server.use(
+    http.get(POSTS, () => HttpResponse.json({ items: posts, total, skip: 0, take: 15, hasMore })),
+    http.get("*/api/v1/events/event-1/members", () => HttpResponse.json([member({ id: "ana", displayName: "Ana" }), member({ id: "rui", displayName: "Rui Costa", color: "pink" })]))
+  );
 }
 
 /** The score between the up and down arrows of the (only) post. */
@@ -32,13 +37,28 @@ function renderFeed() {
 
 describe("HubFeedModule", () => {
   it("lists the event's posts with author, text and score", async () => {
-    servePosts([post({ text: "Primeiro post", likeCount: 3, downvoteCount: 1, commentCount: 2 })]);
+    servePosts([post({ text: "Primeiro post", postNumber: 7, likeCount: 3, downvoteCount: 1, commentCount: 2 })]);
     renderFeed();
 
     expect(await screen.findByText("Primeiro post")).toBeInTheDocument();
     expect(screen.getByText("Rui")).toBeInTheDocument();
+    expect(screen.getByText("Nº 7")).toBeInTheDocument();
     expect(score()).toBe("2"); // 3 likes - 1 downvote
     expect(screen.getByRole("button", { name: "2 comentários" })).toBeInTheDocument();
+  });
+
+  it("shows the group's cromos and opens the composer from the empty slot", async () => {
+    servePosts([]);
+    const onOpenCompose = vi.fn();
+    globalThis.addEventListener(OPEN_COMPOSE_SHEET_EVENT, onOpenCompose);
+    renderFeed();
+
+    const strip = await screen.findByRole("list", { name: "Membros" });
+    expect(await within(strip).findByText("Rui Costa")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Cola aqui o teu post" }));
+
+    expect(onOpenCompose).toHaveBeenCalledOnce();
+    globalThis.removeEventListener(OPEN_COMPOSE_SHEET_EVENT, onOpenCompose);
   });
 
   it("shows the empty mural", async () => {
@@ -48,6 +68,7 @@ describe("HubFeedModule", () => {
   });
 
   it("offers a retry when the posts fail to load", async () => {
+    servePosts([]);
     server.use(http.get(POSTS, () => HttpResponse.json({ message: "boom" }, { status: 500 })));
     renderFeed();
     expect(await screen.findByText("Erro ao carregar o mural")).toBeInTheDocument();

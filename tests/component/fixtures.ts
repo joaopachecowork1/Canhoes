@@ -1,6 +1,5 @@
 import type {
   AdminCategoryResultDto,
-  AdminMemberDto,
   AdminNomineeDto,
   AdminVoteAuditRowDto,
   AwardCategoryDto,
@@ -15,6 +14,7 @@ import type {
   MeasureProposalDto,
   NomineeDto,
   PagedResult,
+  PublicUserDto,
 } from "@/lib/api/types";
 
 /*
@@ -54,11 +54,12 @@ export const adminNominee = (overrides: Partial<AdminNomineeDto> = {}): AdminNom
   ...overrides,
 });
 
-export const member = (overrides: Partial<AdminMemberDto> = {}): AdminMemberDto => ({
+export const member = (overrides: Partial<PublicUserDto> = {}): PublicUserDto => ({
   id: "ana",
   email: "ana@canhoes.pt",
   displayName: "Ana",
   isAdmin: false,
+  color: "teal",
   ...overrides,
 });
 
@@ -161,6 +162,8 @@ export const post = (overrides: Partial<EventFeedPostFullDto> = {}): EventFeedPo
   eventId: "event-1",
   authorUserId: "rui",
   authorName: "Rui",
+  authorColor: "amber",
+  postNumber: 1,
   text: "Bom dia, mural",
   mediaUrl: null,
   mediaUrls: [],
@@ -183,6 +186,7 @@ export const comment = (overrides: Partial<HubCommentDto> = {}): HubCommentDto =
   postId: "post-1",
   userId: "rui",
   userName: "Rui",
+  userColor: "amber",
   text: "Concordo",
   createdAtUtc: CREATED_AT,
   replyToId: null,

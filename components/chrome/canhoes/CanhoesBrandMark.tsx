@@ -17,15 +17,15 @@ export function CanhoesBrandMark({
   subtitle = copy.subtitle,
 }: Readonly<CanhoesBrandMarkProps>) {
   return (
-    <div className={cn("flex min-w-0 items-center gap-3", className)}>
+    <div className={cn("flex min-w-0 items-center gap-2", className)}>
       <CanhoesBrandIcon size="sm" />
 
       <div className="min-w-0">
-        <p className="truncate font-[var(--font-display)] text-[1.06rem] font-bold uppercase tracking-[0.03em] text-canhoes-gold">
+        <p className="truncate font-[family-name:var(--font-display)] text-base font-bold uppercase leading-tight text-canhoes-gold">
           {messages.common.appName}
         </p>
         {compact ? null : (
-          <p className="truncate font-[var(--font-mono)] text-xs uppercase tracking-[0.16em] text-[var(--text-secondary)]">
+          <p className="truncate font-[family-name:var(--font-mono)] text-xs uppercase tracking-[0.08em] text-[var(--text-secondary)]">
             {subtitle}
           </p>
         )}

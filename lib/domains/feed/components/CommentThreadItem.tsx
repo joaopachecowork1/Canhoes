@@ -8,7 +8,7 @@ import messages from "@/messages/pt.json";
 
 import { formatDateTime } from "./hubUtils";
 import type { DisplayComment } from "./hubPostCommentTree";
-import { UserAvatar } from "./UserAvatar";
+import { PersonCromo } from "@/components/ui/person-cromo";
 
 const copy = messages.feed.CommentThreadItem;
 const INDENT_PX = 32;
@@ -49,7 +49,7 @@ export function CommentThreadItem({
       <ThreadLines indentLevel={comment.indentLevel} offset={offset} />
 
       <div className="relative flex flex-col items-center">
-        <UserAvatar name={comment.userName} image={avatarImage} className="bg-[var(--bg-deep)]" />
+        <PersonCromo name={comment.userName} color={comment.userColor} image={avatarImage} size="sm" />
         {comment.hasChildren ? <div className="absolute top-8 bottom-[-12px] w-px bg-[var(--border-subtle)]" /> : null}
       </div>
 

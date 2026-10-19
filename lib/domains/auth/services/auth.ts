@@ -39,7 +39,7 @@ async function findTokenUser(token: JWT): Promise<ResolvedUser | null> {
   if (isDatabaseUserId(token.dbUserId)) {
     const user = await prisma.user.findUnique({
       where: { id: token.dbUserId },
-      select: { id: true, email: true, displayName: true, isAdmin: true },
+      select: { id: true, email: true, displayName: true, isAdmin: true, color: true },
     });
     if (user) return user;
   }
@@ -145,6 +145,7 @@ export const authOptions: NextAuthOptions = {
 
       const dbUser = await findTokenUser(token);
       token.isAdmin = Boolean(dbUser?.isAdmin);
+      token.color = dbUser?.color;
       if (dbUser) {
         token.dbUserId = dbUser.id;
         token.sub = dbUser.id;
@@ -155,6 +156,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.user.isAdmin = Boolean(token.isAdmin);
+      session.user.color = token.color;
       session.user.id = String(token.dbUserId ?? token.sub ?? "");
       session.authMode = token.authMode ?? "google";
       return session;

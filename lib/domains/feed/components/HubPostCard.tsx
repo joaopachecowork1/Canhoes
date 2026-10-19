@@ -176,7 +176,9 @@ function HubPostCardComponent({
         <CardHeader className="px-4 py-4 pb-2 sm:px-5">
           <PostHeader
             authorName={post.authorName}
+            authorColor={post.authorColor}
             createdAtUtc={post.createdAtUtc}
+            postNumber={post.postNumber}
             isPinned={post.isPinned}
             isAdmin={isAdmin}
             onAdminPin={() => onAdminPin(post.id)}

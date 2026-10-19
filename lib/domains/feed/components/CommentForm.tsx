@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import messages from "@/messages/pt.json";
 
-import { UserAvatar } from "./UserAvatar";
+import { PersonCromo } from "@/components/ui/person-cromo";
+import { useAuth } from "@/components/providers/AuthContext";
 
 const copy = messages.feed.CommentForm;
 
@@ -34,9 +35,10 @@ export function CommentForm({
   postId: string;
   replyingToName: string | null;
 }>) {
+  const { user } = useAuth();
   return (
     <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-deep)]/50 rounded-b-[1.25rem] flex gap-3 p-4 -mx-4 sm:-mx-5 -mb-4 sm:-mb-5 mt-2">
-      <UserAvatar name={currentUserName} image={currentUserImage} className="mt-1 bg-[var(--bg-surface)]" />
+      <PersonCromo name={currentUserName} color={user?.color} image={currentUserImage} size="sm" className="mt-1" />
 
       <div className="min-w-0 flex-1 space-y-2">
         {replyingToName ? (

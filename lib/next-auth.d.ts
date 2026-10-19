@@ -7,6 +7,8 @@ declare module "next-auth" {
     user: {
       id: string;
       isAdmin?: boolean;
+      /** Palette key of the member's colour. */
+      color?: string;
     } & import("next-auth").DefaultSession["user"];
   }
 }
@@ -17,5 +19,6 @@ declare module "next-auth/jwt" {
     externalId?: string;
     authMode?: "google" | "development" | "credentials";
     isAdmin?: boolean;
+    color?: string;
   }
 }

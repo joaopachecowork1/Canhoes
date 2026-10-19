@@ -1,47 +1,33 @@
 "use client";
 
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
-import type { EventOverviewDto, EventSummaryDto } from "@/lib/api/types";
+import type { EventOverviewDto } from "@/lib/api/types";
 import { getPhaseLabel } from "@/lib/canhoesEvent";
 import messages from "@/messages/pt.json";
 
 const copy = messages.shell.CanhoesPhaseHud;
 
-/** Pill in the header with the event name and its active phase. */
+const PILL_CLASS =
+  "inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 font-[family-name:var(--font-display)] text-sm font-extrabold uppercase tracking-[0.04em]";
+
+/** The active phase as a pitch-green pill in the header. */
 export function CanhoesPhaseHud({
-  event,
   isLoading = false,
   overview,
 }: Readonly<{
-  event?: EventSummaryDto | null;
   isLoading?: boolean;
   overview?: EventOverviewDto | null;
 }>) {
   if (isLoading) {
     return (
-      <div className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-[var(--bg-paper)] px-2.5 py-1 text-[var(--text-muted)]">
-        <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--moss)]" />
-        <span className="text-xs font-medium">
-          {copy.loading}
-        </span>
-      </div>
+      <span className={`${PILL_CLASS} bg-[var(--bg-paper)] text-[var(--text-muted)]`}>
+        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+        {copy.loading}
+      </span>
     );
   }
+  if (!overview) return null;
 
-  if (!event || !overview) return null;
-
-  const phaseLabel = getPhaseLabel(overview.activePhase?.type);
-
-  return (
-    <div className="inline-flex min-h-8 items-center gap-2 rounded-lg bg-[var(--bg-paper)] px-2.5 py-1">
-      <Sparkles className="h-3.5 w-3.5 text-[var(--moss-glow)]" />
-      <span className="text-xs text-[var(--text-muted)]">
-        {event.name}
-      </span>
-      <span className="text-xs font-semibold text-[var(--color-text-primary)]">
-        {phaseLabel}
-      </span>
-    </div>
-  );
+  return <span className={`${PILL_CLASS} bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--glow-green-sm)]`}>{getPhaseLabel(overview.activePhase?.type)}</span>;
 }

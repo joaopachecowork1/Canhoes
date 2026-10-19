@@ -7,4 +7,10 @@ export const authRepo = {
       body: JSON.stringify(payload),
       canhoes: { throwOnUnauthorized: true },
     }),
+
+  setMyColor: (color: string) =>
+    canhoesFetch<{ color: string }>("/v1/me/color", {
+      method: "PUT",
+      body: JSON.stringify({ color }),
+    }),
 };

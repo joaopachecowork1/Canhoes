@@ -64,7 +64,7 @@ Uma alteração só está pronta quando:
 - **Uploads:** em disco, em `UPLOADS_DIR` (por defeito `.data/uploads`), servidos por `app/api/uploads/[...path]`; `/uploads/*` é reescrito para lá em `next.config.mjs`.
 - **Tailwind 4:** configurado só em CSS (`@import "tailwindcss"` e `@theme` no `app/globals.css`, via `@tailwindcss/postcss`); não há `tailwind.config.js`.
 - **Logs:** usa `logger` (`lib/logger.ts`), nunca `console.*` na app. No servidor cada entrada é uma linha `<hora> <NÍVEL> <mensagem> {contexto JSON}`; `LOG_LEVEL` filtra. `apiRoute` já regista cada pedido com um `requestId`.
-- **Design system:** tema escuro único (fundo verde-oliva quase preto, texto pergaminho, acentos musgo e amarelo). Os tokens vivem em `app/globals.css` (variáveis `--color-*`, `--bg-*`, `--text-*`, `--border-*`, `--shadow-*`). Usa-os; não metas cores hardcoded.
+- **Design system:** tema escuro único, a "Caderneta de Cromos" (fundo roxo-noite, texto claro, verde-relva para a fase e a ação principal, uma cor por pessoa `--person-*` e uma por área `--area-*`). Os tokens vivem em `app/globals.css` (variáveis `--color-*`, `--bg-*`, `--text-*`, `--border-*`, `--shadow-*`). Usa-os; não metas cores hardcoded.
 
 ## Código
 

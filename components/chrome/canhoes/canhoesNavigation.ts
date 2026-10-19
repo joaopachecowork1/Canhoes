@@ -21,14 +21,18 @@ export type CanhoesNavItem = {
   description?: string;
 };
 
-export type CanhoesPageTone = "admin" | "event" | "official" | "social";
-
 export type CanhoesPageContext = {
   title: string;
   description?: string;
-  tone: CanhoesPageTone;
-  toneLabel: string;
+  /** The area's tab colour (`--area-*` in app/globals.css), the same in header and dock. */
+  areaColor: string;
 };
+
+/** CSS colour of an area's tab: `secretSanta` reads `--area-secret-santa`. */
+export function areaColorVar(areaId: string) {
+  const kebab = areaId.replaceAll(/[A-Z]/g, (letter) => "-" + letter.toLowerCase());
+  return `var(--area-${kebab})`;
+}
 
 export const HOME_NAV_ITEM: CanhoesNavItem = {
   id: "home",
@@ -54,10 +58,6 @@ export const MENU_NAV_ITEM: CanhoesNavItem = {
 };
 
 const DOCK_AREA_COUNT = 2;
-
-const TONE_LABELS: Record<CanhoesPageTone, string> = copy.toneLabels;
-
-const OFFICIAL_AREAS = new Set(["voting", "nominees", "categories", "gala"]);
 
 /** Open member areas, in registry order; the mural is the home tab and never counted here. */
 function getOpenAreas(modules: EventModulesDto | null | undefined): CanhoesNavItem[] {
@@ -98,12 +98,8 @@ export function getPageContext(pathname: string | null): CanhoesPageContext {
     : undefined;
 
   if (!page) {
-    return { title: HOME_NAV_ITEM.label, description: HOME_NAV_ITEM.description, tone: "social", toneLabel: TONE_LABELS.social };
+    return { title: HOME_NAV_ITEM.label, description: HOME_NAV_ITEM.description, areaColor: areaColorVar("feed") };
   }
 
-  let tone: CanhoesPageTone = "event";
-  if (page.id === ADMIN_NAV_ITEM.id) tone = "admin";
-  else if (OFFICIAL_AREAS.has(page.id)) tone = "official";
-
-  return { title: page.label, description: page.description, tone, toneLabel: TONE_LABELS[tone] };
+  return { title: page.label, description: page.description, areaColor: areaColorVar(page.id) };
 }

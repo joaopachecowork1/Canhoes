@@ -5,6 +5,8 @@ import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type DockItem = {
+  /** CSS colour of the active state (the area's tab colour). */
+  accent?: string;
   ariaLabel?: string;
   ariaPressed?: boolean;
   buttonClassName?: string;
@@ -21,7 +23,8 @@ type DockProps = {
   items: readonly DockItem[];
 };
 
-function DockButton({ ariaLabel, ariaPressed, buttonClassName, icon: Icon, iconClassName, isActive, label, onClick }: Readonly<DockItem>) {
+function DockButton({ accent, ariaLabel, ariaPressed, buttonClassName, icon: Icon, iconClassName, isActive, label, onClick }: Readonly<DockItem>) {
+  const activeStyle = isActive && accent ? { color: accent, backgroundColor: `color-mix(in srgb, ${accent} 16%, transparent)` } : undefined;
   return (
     <button
       type="button"
@@ -29,30 +32,15 @@ function DockButton({ ariaLabel, ariaPressed, buttonClassName, icon: Icon, iconC
       aria-current={isActive && !ariaPressed ? "page" : undefined}
       aria-pressed={ariaPressed}
       aria-label={ariaLabel ?? label}
+      style={activeStyle}
       className={cn(
-        "relative flex min-h-[3.375rem] w-full flex-col items-center justify-center gap-1 rounded-[0.95rem] border px-2 py-2 text-xs font-semibold leading-none transition-colors active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-void)]",
-        isActive
-          ? "border-transparent bg-transparent text-[var(--neon-amber)]"
-          : "border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-[var(--color-veil)]/6",
+        "relative flex min-h-[3.375rem] w-full flex-col items-center justify-center gap-1 rounded-[0.95rem] px-0.5 py-2 leading-none transition-colors duration-200 active:scale-[0.97]",
+        isActive ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--color-veil)]/6",
         buttonClassName
       )}
     >
-      <span
-        className={cn(
-          "inline-flex items-center justify-center",
-          isActive && "text-[var(--neon-amber)]"
-        )}
-      >
-        <Icon className={cn("h-5 w-5 shrink-0", iconClassName)} />
-      </span>
-      <span
-        className={cn(
-          "truncate font-[var(--font-mono)] text-xs uppercase tracking-[0.08em]",
-          isActive && "underline decoration-[var(--neon-amber)] decoration-2 underline-offset-[6px]"
-        )}
-      >
-        {label}
-      </span>
+      <Icon className={cn("h-5 w-5 shrink-0", iconClassName)} aria-hidden />
+      <span className="max-w-full font-[family-name:var(--font-display)] text-[0.8125rem] font-bold uppercase">{label}</span>
     </button>
   );
 }

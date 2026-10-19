@@ -39,7 +39,7 @@ function StatPanel({ hint, icon: Icon, label, value }: Readonly<{ hint: string; 
 /** Whether the draw is still hidden from members (and can be repeated) or already revealed. */
 function DrawStatus({ isLocked }: Readonly<{ isLocked: boolean }>) {
   return (
-    <div className="rounded-[var(--radius-lg-token)] border border-[rgba(var(--neon-green-rgb),0.15)] bg-[rgba(var(--neon-green-rgb),0.02)] p-4">
+    <div className="rounded-[var(--radius-lg-token)] border border-[var(--moss)]/20 bg-[var(--moss)]/5 p-4">
       <div className="flex items-start gap-3">
         <div className="rounded-full bg-[var(--neon-green)] p-1.5">
           <Lock className="h-3 w-3 text-black" />
@@ -119,7 +119,6 @@ export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-between gap-4">
             <div className="space-y-1">
-              <p>{copy.kicker}</p>
               <CardTitle className="flex items-center gap-2">
                 <Gift className="h-4 w-4" />
                 {messages.secretSanta.CanhoesSecretSantaModule.title}
@@ -147,7 +146,7 @@ export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
           </div>
 
           <div className="space-y-4">
-            {isLocked ? <AdminDetailPanel className="border-amber-500/20 bg-amber-500/5">{copy.lockedNotice}</AdminDetailPanel> : null}
+            {isLocked ? <AdminDetailPanel className="border-[var(--neon-amber)]/30 bg-[var(--neon-amber)]/5">{copy.lockedNotice}</AdminDetailPanel> : null}
             <DrawActions actions={actions} canDraw={canDraw} canReveal={state.hasDraw && !isLocked} hasDraw={state.hasDraw} onRefresh={onRefresh} />
             {!canDraw && !isLocked ? <p className="text-center text-xs text-[var(--neon-amber)]">{copy.notEnoughMembers}</p> : null}
           </div>

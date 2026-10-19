@@ -101,7 +101,6 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
       <Card className={ADMIN_CONTENT_CARD_CLASS}>
         <CardHeader className="space-y-3">
           <div className="space-y-1">
-            <p>{copy.kicker}</p>
             <CardTitle className="flex items-center gap-2">
               <History className="h-4 w-4" />
               {copy.title}

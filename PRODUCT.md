@@ -13,7 +13,7 @@ O portal privado de um grupo de amigos para o seu ritual anual: um amigo secreto
 
 Camaradagem: amigos a conviver e a relaxar juntos, não uma cerimónia solene. O humor e o sentido de pertença vêm primeiro; os prémios são um pretexto para estar juntos.
 
-O grupo é diverso e inclusivo, e o aspeto tem de o mostrar: uma base roxa e verde com cores de todo o tipo nos acentos, para que cada pessoa se reveja nela. (Direção aprovada a 2026-10-19; o código ainda usa o tema verde-oliva e musgo descrito em `DESIGN.md`.)
+O grupo é diverso e inclusivo, e o aspeto tem de o mostrar: uma base roxa e verde com cores de todo o tipo nos acentos, para que cada pessoa se reveja nela. (Direção aprovada a 2026-10-19, descrita em `DESIGN.md`.)
 
 ## Compromissos visuais
 

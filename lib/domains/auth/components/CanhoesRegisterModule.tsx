@@ -6,7 +6,7 @@ import { signIn } from "next-auth/react";
 import { CheckCircle2 } from "lucide-react";
 
 import { CanhoesBrandMark } from "@/components/chrome/canhoes/CanhoesBrandMark";
-import { CanhoesHeroEmblem } from "@/components/chrome/canhoes/CanhoesHeroEmblem";
+import { CanhoesBrandIcon } from "@/components/chrome/canhoes/CanhoesBrandIcon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,13 +42,12 @@ function RegisterHeading() {
   return (
     <>
       <div className="flex items-center justify-center">
-        <CanhoesHeroEmblem />
+        <CanhoesBrandIcon size="lg" />
       </div>
       <div className="space-y-3 text-center">
         <div className="flex justify-center">
           <CanhoesBrandMark compact />
         </div>
-        <p className="text-[var(--beige)]">{copy.kicker}</p>
         <p className="body-small text-[var(--beige)]/78">{copy.intro}</p>
       </div>
     </>

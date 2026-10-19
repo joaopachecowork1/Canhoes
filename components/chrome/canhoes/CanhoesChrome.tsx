@@ -74,17 +74,18 @@ export function CanhoesChrome({
   return (
     <div
       data-theme="canhoes"
+      style={{ "--area": pageContext.areaColor }}
       className="relative isolate flex min-h-[100svh] flex-col overflow-x-clip bg-[var(--bg-void)] text-[var(--text-primary)]"
     >
       <CanhoesHeader
         event={eventOverview.event}
-        isAdmin={isAdmin}
         isEventHomePath={isEventHomePath}
         isLoading={eventOverview.isLoading}
         isMenuOpen={isMenuOpen}
         onOpenMenu={() => setIsMenuOpen(true)}
         overview={eventOverview.overview}
         pageContext={pageContext}
+        userColor={user?.color}
         userLabel={userLabel}
       />
 

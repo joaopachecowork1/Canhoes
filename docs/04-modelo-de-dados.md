@@ -49,7 +49,7 @@ O que os membros propõem na fase PROPOSALS e o admin aprova.
 
 | Modelo (tabela) | Para quê | Unicidade relevante |
 |---|---|---|
-| `User` (`Users`) | Uma pessoa. `externalId` é o id do Google, `credentials:<email>` ou `seed:<email>`. | `email`, `externalId` |
+| `User` (`Users`) | Uma pessoa. `externalId` é o id do Google, `credentials:<email>` ou `seed:<email>`. `color` é a cor da pessoa (chave de `lib/personColors.ts`): sorteada ao criar a conta, a pessoa muda-a no menu. | `email`, `externalId` |
 | `UserInvitation` (`UserInvitations`) | Convite pendente ou usado para um email, com o evento a que dá acesso. | `email`, `token` |
 | `Event` (`Events`) | Uma edição dos Canhões. | |
 | `EventMember` (`EventMembers`) | Quem pertence a um evento. | `(eventId, userId)` |

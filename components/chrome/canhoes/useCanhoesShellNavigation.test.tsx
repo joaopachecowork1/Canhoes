@@ -83,11 +83,11 @@ describe("useCanhoesShellNavigation", () => {
     expect(onOpenMenu).toHaveBeenCalledOnce();
   });
 
-  it("titles the header after the current area, with its tone", () => {
-    expect(buildNavigation({ pathname: "/canhoes/votacao/123" }).pageContext).toMatchObject({ tone: "official" });
-    expect(buildNavigation({ pathname: "/canhoes/wishlist" }).pageContext).toMatchObject({ tone: "event" });
-    expect(buildNavigation({ pathname: "/canhoes/admin" }).pageContext).toMatchObject({ title: "Admin", tone: "admin" });
-    expect(buildNavigation({ pathname: null }).pageContext).toMatchObject({ title: "Mural", tone: "social" });
+  it("titles the header after the current area, in its colour", () => {
+    expect(buildNavigation({ pathname: "/canhoes/votacao/123" }).pageContext).toMatchObject({ areaColor: "var(--area-voting)" });
+    expect(buildNavigation({ pathname: "/canhoes/wishlist" }).pageContext).toMatchObject({ areaColor: "var(--area-wishlist)" });
+    expect(buildNavigation({ pathname: "/canhoes/admin" }).pageContext).toMatchObject({ title: "Admin", areaColor: "var(--area-admin)" });
+    expect(buildNavigation({ pathname: null }).pageContext).toMatchObject({ title: "Mural", areaColor: "var(--area-feed)" });
   });
 
   it("labels the user by name, then email, then a fallback", () => {

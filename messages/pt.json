@@ -2,7 +2,8 @@
   "shell": {
     "CanhoesBottomTabs": {
       "createPost": "Criar publicação",
-      "navLabel": "Navegação principal do evento"
+      "navLabel": "Navegação principal do evento",
+      "post": "Post"
     },
     "CanhoesChrome": {
       "eventSubtitle": "Prémios da edição",
@@ -32,16 +33,24 @@
       "homeLabel": "Mural",
       "homeDescription": "Publicações e sondagens do grupo.",
       "adminLabel": "Admin",
-      "adminDescription": "Fases, propostas, membros e todas as áreas do evento.",
-      "toneLabels": {
-        "admin": "Admin",
-        "event": "Evento",
-        "official": "Oficial",
-        "social": "Social"
-      }
+      "adminDescription": "Fases, propostas, membros e todas as áreas do evento."
     },
     "CanhoesHeader": {
       "openMenu": "Abrir mais opções"
+    },
+    "PersonColorPicker": {
+      "legend": "A tua cor",
+      "saveError": "Não foi possível guardar a cor.",
+      "colors": {
+        "coral": "Coral",
+        "amber": "Âmbar",
+        "teal": "Turquesa",
+        "blue": "Azul",
+        "pink": "Rosa",
+        "lime": "Lima",
+        "violet": "Violeta",
+        "sky": "Céu"
+      }
     }
   },
   "feed": {
@@ -50,10 +59,11 @@
       "emptyDescription": "Abre o mural com uma fotografia, um aviso rápido ou uma sondagem para o grupo."
     },
     "HubFeedModule": {
-      "title": "Mural",
-      "description": "O que está a acontecer nesta edição.",
       "loadError": "Erro ao carregar o mural",
-      "currentUserFallback": "Tu"
+      "currentUserFallback": "Tu",
+      "membersLabel": "Membros",
+      "composeSlot": "Cola aqui o teu post",
+      "title": "Mural"
     },
     "HubPostComments": {
       "empty": "Este registo ainda não tem respostas.",
@@ -127,7 +137,6 @@
       "loadMore": "Carregar mais ({count} restantes)"
     },
     "PollBox": {
-      "kicker": "Sondagem",
       "voteRecorded": "voto registado",
       "votesRecorded": "votos registados",
       "changeVoteHint": ". Podes trocar o teu voto enquanto a sondagem estiver ativa."
@@ -140,7 +149,8 @@
       "pin": "Fixar post",
       "deleteTitle": "Eliminar Publicação?",
       "deleteDescription": "Esta publicação vai ser removida permanentemente do Mural Social. Esta ação não pode ser desfeita.",
-      "deleteLabel": "Eliminar post"
+      "deleteLabel": "Eliminar post",
+      "number": "Nº {number}"
     },
     "PostVoteBar": {
       "upvote": "Upvote",
@@ -176,7 +186,6 @@
   },
   "app": {
     "CanhoesError": {
-      "eyebrow": "Recuperação",
       "title": "Esta área falhou",
       "alertTitle": "Erro ao carregar esta secção",
       "alertDescription": "O erro ficou isolado nesta área. Tenta novamente para recuperar o conteúdo ou volta ao evento.",
@@ -188,7 +197,6 @@
       "back": "Voltar aos Canhões"
     },
     "CanhoesNotFound": {
-      "eyebrow": "Não encontrado",
       "title": "Esta área não existe",
       "alertTitle": "Link indisponível",
       "alertDescription": "Este link já não existe, está incompleto ou a área deixou de estar disponível nesta edição.",
@@ -307,7 +315,6 @@
       "successTitle": "Conta criada com sucesso!",
       "successRedirecting": "A redirecionar para a página de login...",
       "goToLogin": "Ir para Login",
-      "kicker": "Criar Conta",
       "intro": "Foste convidado para o evento. Preenche os teus dados para aceder.",
       "errorTitle": "Erro no registo",
       "displayNameLabel": "Nome visível (Alcunha)",
@@ -563,7 +570,6 @@
       "created": "Categoria criada.",
       "updated": "Categoria atualizada.",
       "deleted": "Categoria apagada.",
-      "kicker": "Categorias",
       "title": "Catalogo oficial",
       "description": "Toca numa categoria para editar, rever dependências e ajustar o estado sem sair do contexto admin.",
       "summary": "{active} ativas · {inactive} inativas · {userVote} de voto oficial",
@@ -610,7 +616,6 @@
     },
     "PendingProposals": {
       "noEvent": "Falta uma edição ativa para abrir a moderação.",
-      "kicker": "Moderação",
       "loading": "A carregar propostas...",
       "panels": {
         "category": {
@@ -687,7 +692,6 @@
       "noEvent": "Falta uma edição ativa para gerir amigos.",
       "loading": "A carregar membros...",
       "loadError": "Não foi possível carregar os membros desta edição.",
-      "kicker": "Roster",
       "member": "membro",
       "members": "membros",
       "empty": "Nenhum membro nesta edição.",
@@ -712,7 +716,6 @@
       "revealedToast": "Sorteio revelado aos membros.",
       "redrawConfirm": "Repetir o sorteio apaga as atribuições atuais. Continuar?",
       "revealConfirm": "Depois de revelado, cada membro vê o seu amigo secreto e o sorteio já não pode ser repetido. Revelar?",
-      "kicker": "Logística",
       "revealed": "Sorteio revelado",
       "notRevealed": "Sorteio por revelar",
       "description": "Gere as atribuições aleatórias para o Amigo Secreto deste evento.",
@@ -734,7 +737,6 @@
       "noEvent": "Falta uma edição ativa para consultar auditoria.",
       "loading": "A carregar auditoria de votos...",
       "loadError": "Não foi possível carregar a auditoria de votos.",
-      "kicker": "Auditoria",
       "title": "Histórico de votos",
       "description": "Lista crua de todos os votos submetidos para garantir transparência operacional.",
       "filterPlaceholder": "Filtrar por membro, categoria ou opção...",
@@ -747,7 +749,6 @@
       "participation": "Participação {percent}%",
       "showVoters": "Ver eleitores",
       "drawerDescription": "{votes}/{members} membros votaram ({percent}%)",
-      "kicker": "Análise",
       "title": "Resultados oficiais",
       "updatedAt": "Atualizado em {date}",
       "adminsOnly": "Secção disponível apenas para admins.",

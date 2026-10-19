@@ -8,6 +8,8 @@ export type AuthUser = {
   email: string;
   name?: string;
   isAdmin: boolean;
+  /** Palette key of the member's colour. */
+  color?: string;
 };
 
 type AuthContextType = {
@@ -108,6 +110,7 @@ export function AuthProvider({
       email: sessionUser.email ?? "",
       name: sessionUser.name ?? sessionUser.email?.split("@")[0] ?? "",
       isAdmin: Boolean(sessionUser.isAdmin),
+      color: sessionUser.color,
     };
   }, [sessionUser]);
 

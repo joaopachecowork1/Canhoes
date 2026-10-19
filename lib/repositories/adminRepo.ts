@@ -35,7 +35,7 @@ export const adminRepo = {
     }),
     
   getMembersPaged: (eventId: string, skip = 0, take = 50) =>
-    canhoesFetch<T.PagedResult<T.AdminMemberDto>>(`/v1/events/${eventId}/admin/members/paged?skip=${skip}&take=${take}`),
+    canhoesFetch<T.PagedResult<T.PublicUserDto>>(`/v1/events/${eventId}/admin/members/paged?skip=${skip}&take=${take}`),
 
   setMemberAdmin: (
     eventId: string,

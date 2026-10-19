@@ -2,15 +2,15 @@
 
 import { useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { ScrollText } from "lucide-react";
 
 import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
 import { useHubFeed } from "@/lib/domains/feed/hooks/useHubFeed";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { useAuth, useIsAdmin } from "@/components/providers/AuthContext";
-import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { ErrorAlert } from "@/components/ui/error-alert";
+import { FeedComposeSlot } from "./FeedComposeSlot";
 import { HubFeedList } from "./HubFeedList";
+import { MemberCromoStrip } from "./MemberCromoStrip";
 import { useFeedInfiniteScroll } from "../hooks/useFeedInfiniteScroll";
 import type { FeedInfiniteData } from "../hooks/feedInfiniteData";
 import messages from "@/messages/pt.json";
@@ -106,7 +106,9 @@ function HubFeedModuleView({
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4 px-1 sm:px-0">
-      <CanhoesModuleHeader icon={ScrollText} title={copy.title} description={copy.description} />
+      <h1 className="sr-only">{copy.title}</h1>
+      <MemberCromoStrip eventId={state.eventId} />
+      <FeedComposeSlot />
       {errorMessage ? <ErrorAlert title={copy.loadError} description={errorMessage} actionLabel={messages.common.retry} tone="social" onAction={handleRetry} /> : null}
       {feedList}
     </div>
