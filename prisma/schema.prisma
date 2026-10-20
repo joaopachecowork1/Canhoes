@@ -244,6 +244,8 @@ model HubPost {
     isPinned      Boolean  @map("IsPinned")
     pinnedOrder   Int?     @map("PinnedOrder")
     createdAtUtc  DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  /// The "Nº" shown on the post: the event's count when it was created. Kept when older posts are deleted.
+  number        Int      @default(0) @map("Number")
   comments      HubPostComment[]
   downvotes     HubPostDownvote[]
   likes         HubPostLike[]

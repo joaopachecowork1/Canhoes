@@ -188,10 +188,11 @@ async function seedDemoPosts(eventId, allUsers) {
       { text: "O troféu do ano passado já está polido e pronto para o novo vencedor!", isPinned: false, mediaUrl: "https://picsum.photos/seed/canhoes3/600/600" },
     ];
 
-    for (const pd of postsData) {
+    for (const [index, pd] of postsData.entries()) {
       const post = await prisma.hubPost.create({
         data: {
           eventId,
+          number: existingPosts + index + 1,
           authorUserId: randomEl(allUsers).id,
           text: pd.text,
           mediaUrl: pd.mediaUrl,

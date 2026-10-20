@@ -1,4 +1,3 @@
-import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { deleteUpload, saveUpload } from "@/lib/storage/localStorage";
 import type { EventFeedPostFullDto, PagedResult } from "@/lib/api/types";
@@ -12,10 +11,10 @@ import { loadUsersById } from "@/lib/usersById";
 
 const POST_SELECT = {
   id: true, eventId: true, authorUserId: true, text: true,
-  mediaUrl: true, mediaUrlsJson: true, isPinned: true, pinnedOrder: true, createdAtUtc: true,
+  mediaUrl: true, mediaUrlsJson: true, isPinned: true, pinnedOrder: true, createdAtUtc: true, number: true,
 } as const;
 
-type PostRow = { id: string; eventId: string; authorUserId: string; text: string; mediaUrl: string | null; mediaUrlsJson: unknown; isPinned: boolean; pinnedOrder: number | null; createdAtUtc: Date };
+type PostRow = { id: string; eventId: string; authorUserId: string; text: string; mediaUrl: string | null; mediaUrlsJson: unknown; isPinned: boolean; pinnedOrder: number | null; createdAtUtc: Date; number: number };
 type PollRow = Awaited<ReturnType<typeof loadPostDetails>>["polls"][number];
 
 /** Authors, comment counts, downvotes, reactions and polls of these posts, in one query each. */
@@ -28,17 +27,6 @@ async function loadPostDetails(postIds: string[], authorIds: string[]) {
     prisma.hubPostPoll.findMany({ where: { postId: { in: postIds } }, include: { options: { orderBy: { sortOrder: "asc" } }, votes: true } }),
   ]);
   return { authors, comments, downvotes, reactions, polls };
-}
-
-/** Each post's number: its place among the event's posts by creation date (the oldest is Nº 1). */
-async function loadPostNumbers(eventId: string, postIds: string[]) {
-  if (postIds.length === 0) return new Map<string, number>();
-  const rows = await prisma.$queryRaw<{ id: string; number: number }[]>`
-    SELECT id, number FROM (
-      SELECT "Id" AS id, ROW_NUMBER() OVER (ORDER BY "CreatedAtUtc", "Id")::int AS number
-      FROM "HubPosts" WHERE "EventId" = ${eventId}
-    ) numbered WHERE id IN (${Prisma.join(postIds)})`;
-  return new Map(rows.map((row) => [row.id, row.number]));
 }
 
 /** Reaction counts per emoji and the emojis this user reacted with. */
@@ -69,10 +57,7 @@ function toPollDto(poll: PollRow, userId: string) {
 /** The feed DTOs of these posts as this user sees them (a heart is a like). */
 async function toFeedPosts(rows: PostRow[], userId: string): Promise<EventFeedPostFullDto[]> {
   const postIds = rows.map((row) => row.id);
-  const [details, postNumbers] = await Promise.all([
-    loadPostDetails(postIds, [...new Set(rows.map((row) => row.authorUserId))]),
-    loadPostNumbers(rows[0]?.eventId ?? "", postIds),
-  ]);
+  const details = await loadPostDetails(postIds, [...new Set(rows.map((row) => row.authorUserId))]);
   const { authors } = details;
   const commentCounts = new Map(details.comments.map((entry) => [entry.postId, entry._count._all]));
   const polls = new Map(details.polls.map((poll) => [poll.postId, poll]));
@@ -86,7 +71,7 @@ async function toFeedPosts(rows: PostRow[], userId: string): Promise<EventFeedPo
       eventId: post.eventId,
       authorUserId: post.authorUserId,
       authorName: authors.get(post.authorUserId)?.displayName ?? "Unknown",
-      postNumber: postNumbers.get(post.id) ?? 0,
+      postNumber: post.number,
       authorColor: authors.get(post.authorUserId)?.color ?? PERSON_COLORS[0],
       text: post.text,
       mediaUrl: post.mediaUrl,
@@ -141,8 +126,12 @@ export async function createFeedPost(
   }
 ): Promise<EventFeedPostFullDto> {
   const post = await prisma.$transaction(async (tx) => {
+    // Locks the event's row so two posts created at once cannot take the same number.
+    await tx.$queryRaw`SELECT "Id" FROM "Events" WHERE "Id" = ${eventId} FOR UPDATE`;
+    const { _max } = await tx.hubPost.aggregate({ where: { eventId }, _max: { number: true } });
     const p = await tx.hubPost.create({
       data: {
+        number: (_max.number ?? 0) + 1,
         eventId,
         authorUserId: userId,
         text: data.text.trim(),

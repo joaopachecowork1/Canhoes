@@ -45,7 +45,7 @@ stateDiagram-v2
 3. **Votação (`VOTING`).** Cada membro escolhe uma opção por categoria ativa e pode mudar de ideias enquanto a votação estiver aberta. Há dois tipos de categoria: voto num momento nomeado, ou voto numa pessoa do grupo.
 4. **Resultados (`RESULTS`).** A gala mostra, por categoria, os 5 mais votados com o número de votos.
 
-O mural (feed) está aberto em todas as fases, para posts, fotos, sondagens, comentários e reações.
+O mural (feed) está aberto em todas as fases, para posts, fotos, sondagens, comentários e reações. Cada post tem um "Nº" fixo, dado na criação (o seguinte ao mais alto do evento); apagar um post não renumera os outros.
 
 ## Módulos
 

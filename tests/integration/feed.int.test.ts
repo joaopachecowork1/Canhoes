@@ -107,6 +107,21 @@ describe("feed posts", () => {
     expect(secondPage.items.map((post) => post.postNumber)).toEqual([3, 2]);
   });
 
+  it("keeps every post's number when an older one is deleted", async () => {
+    const { event, ana, admin } = await setupFeed();
+    await postAs(ana, event.id, { text: "Primeiro" });
+    const second = await postAs(ana, event.id, { text: "Segundo" });
+    const third = await postAs(ana, event.id, { text: "Terceiro" });
+
+    signInAs(admin);
+    await callRoute(deletePost, { eventId: event.id, postId: second.id }, { method: "DELETE" });
+
+    const posts = (await getFeedPosts(event.id, admin.id, 0, 10)).items;
+    expect(posts.find((post) => post.id === third.id)?.postNumber).toBe(3);
+    // A new post carries on after the highest number, not into the gap.
+    expect((await postAs(ana, event.id, { text: "Quarto" })).postNumber).toBe(4);
+  });
+
   it("lets an admin delete a post, and answers 404 for an unknown one", async () => {
     const { event, ana, admin } = await setupFeed();
     const post = await postAs(ana, event.id, { text: "Apaga-me" });
