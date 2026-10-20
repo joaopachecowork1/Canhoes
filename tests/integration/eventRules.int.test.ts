@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { POST as postProposal } from "@/app/api/v1/events/[eventId]/proposals/route";
 import { GET as getResults } from "@/app/api/v1/events/[eventId]/results/route";
 import { POST as postVote } from "@/app/api/v1/events/[eventId]/votes/route";
-import { KindUserVote } from "@/lib/domains/admin/services/constants";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { prisma } from "@/lib/prisma";
 
 import { callRoute, createEvent, createMember, createUser, signInAs, type PhaseType } from "./helpers";
@@ -103,7 +103,7 @@ describe("votes", () => {
 
   it("in person categories only accept members of the event", async () => {
     const { event } = await setupEvent("VOTING");
-    const category = await createCategory(event.id, { kind: KindUserVote });
+    const category = await createCategory(event.id, { kind: CATEGORY_KIND.USER_VOTE });
     const colleague = await createMember(event.id, "Bruno");
     const outsider = await createUser();
 
@@ -124,7 +124,7 @@ describe("results", () => {
   it("show nominee titles, images and vote counts, and member names", async () => {
     const { event, member } = await setupEvent("RESULTS");
     const nomineeCategory = await createCategory(event.id);
-    const personCategory = await createCategory(event.id, { kind: KindUserVote, name: "Pessoa do ano", sortOrder: 1 });
+    const personCategory = await createCategory(event.id, { kind: CATEGORY_KIND.USER_VOTE, name: "Pessoa do ano", sortOrder: 1 });
     const winner = await createNominee(event.id, nomineeCategory.id, member.id, { title: "Vencedor" });
     const bruno = await createMember(event.id, "Bruno");
     await prisma.vote.createMany({

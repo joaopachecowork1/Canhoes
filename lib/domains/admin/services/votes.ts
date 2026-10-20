@@ -4,7 +4,7 @@ import type {
   PagedResult,
   AdminCategoryResultDto,
 } from "@/lib/api/types";
-import { KindUserVote } from "./constants";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { loadUsersById } from "@/lib/usersById";
 
 /* What the admin sees of the voting: every individual vote and the official results so far. */
@@ -90,7 +90,7 @@ export async function getAdminOfficialResultsPaged(
   skip = 0,
   take = 50
 ): Promise<PagedResult<AdminCategoryResultDto>> {
-  const where = { eventId, kind: KindUserVote };
+  const where = { eventId, kind: CATEGORY_KIND.USER_VOTE };
   const [members, categories, total] = await Promise.all([
     prisma.eventMember.count({ where: { eventId } }),
     prisma.awardCategory.findMany({ where, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], skip, take }),

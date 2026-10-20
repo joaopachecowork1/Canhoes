@@ -9,7 +9,9 @@ import type {
 import { readModuleSwitches, resolveMemberModules, type PhaseType } from "@/lib/domains/event/rules/eventRules";
 import { CANHOES_MODULES } from "@/lib/modules";
 
-import { toPhaseDto, toEventSummary, KindUserVote } from "./constants";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
+
+import { toPhaseDto, toEventSummary } from "./constants";
 
 /*
  * The admin's control panel for an event: the active phase, the module switches and the tab
@@ -166,7 +168,7 @@ async function getAdminListCounts(eventId: string): Promise<AdminListCountsDto> 
   const [membersTotal, categoriesTotal, officialResultsCategoriesCount] = await Promise.all([
     prisma.eventMember.count({ where: { eventId } }),
     prisma.awardCategory.count({ where: { eventId } }),
-    prisma.awardCategory.count({ where: { eventId, kind: KindUserVote } }),
+    prisma.awardCategory.count({ where: { eventId, kind: CATEGORY_KIND.USER_VOTE } }),
   ]);
 
   return { membersTotal, categoriesTotal, officialResultsCategoriesCount };

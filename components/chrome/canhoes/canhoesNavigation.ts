@@ -19,6 +19,8 @@ export type CanhoesNavItem = {
   href: string;
   icon: LucideIcon;
   description?: string;
+  /** Other paths that count as being on this item (the pages grouped under it). */
+  alsoActiveFor?: string[];
 };
 
 export type CanhoesPageContext = {
@@ -62,15 +64,17 @@ const DOCK_AREA_COUNT = 2;
 /** Open member areas, in registry order; the mural is the home tab and never counted here. */
 function getOpenAreas(modules: EventModulesDto | null | undefined): CanhoesNavItem[] {
   if (!modules) return [];
-  return CANHOES_MODULES.filter((module) => module.key !== "feed" && modules[module.key]).map(
-    (module) => ({
-      id: module.key,
-      label: module.label,
-      href: module.href,
-      icon: module.icon,
-      description: module.description,
-    })
-  );
+  // A grouped page (stickers, measures) is reached from its parent's tabs; on its own only when the parent is closed.
+  const isListed = (module: (typeof CANHOES_MODULES)[number]) =>
+    module.key !== "feed" && modules[module.key] && !(module.inMenuUnder && modules[module.inMenuUnder]);
+  return CANHOES_MODULES.filter(isListed).map((module) => ({
+    id: module.key,
+    label: module.label,
+    href: module.href,
+    icon: module.icon,
+    description: module.description,
+    alsoActiveFor: CANHOES_MODULES.filter((child) => child.inMenuUnder === module.key && modules[child.key]).map((child) => child.href),
+  }));
 }
 
 /** Splits the open areas between the dock and the menu sheet. */

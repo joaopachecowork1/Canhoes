@@ -8,7 +8,7 @@ import type {
 
 /*
  * Award categories. `kind` says what members vote for: 0 = an approved nomination of the category,
- * 1 = a person of the event (`KindUserVote`).
+ * 1 = a person of the event (`CATEGORY_KIND.USER_VOTE`).
  */
 
 /** Active categories of an event, in display order (the member-facing list). */

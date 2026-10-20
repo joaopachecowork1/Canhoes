@@ -16,7 +16,9 @@ import { AdminStateMessage } from "../layout/AdminStateMessage";
 import { CategoryDeleteDialog } from "./CategoryDeleteDialog";
 import { CategoryEditorDrawer } from "./CategoryEditorDrawer";
 import { CategoryListItem } from "./CategoryListItem";
-import { CATEGORY_KIND, type CategoryUsage } from "./categoryTypes";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
+
+import { type CategoryUsage } from "./categoryTypes";
 
 const copy = messages.admin.CategoriesAdmin;
 const NO_USAGE: CategoryUsage = { canDelete: false, deleteReason: null, nomineeCount: 0, voteCount: 0 };

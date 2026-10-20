@@ -1,6 +1,6 @@
 import { HttpError } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
-import { KindUserVote } from "@/lib/domains/admin/services/constants";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { isVotingOpen } from "@/lib/domains/event/rules/eventRules";
 import type {
   EventVotingBoardDto,
@@ -41,39 +41,27 @@ function toNomineeOptions(nominees: { id: string; title: string; categoryId: str
 
 /**
  * The voting board: every active category with its options and the user's current choice. Nominee
- * categories offer their approved nominations; person categories (`KindUserVote`) offer the
+ * categories offer their approved nominations; person categories (`CATEGORY_KIND.USER_VOTE`) offer the
  * event's non-admin members.
  */
 export async function getVotingBoard(
   eventId: string,
   userId: string
 ): Promise<EventVotingBoardDto | null> {
-  const event = await prisma.event.findUnique({ where: { id: eventId } });
+  const [event, votingPhase, categories, nominees, members] = await Promise.all([
+    prisma.event.findUnique({ where: { id: eventId } }),
+    prisma.eventPhase.findFirst({ where: { eventId, type: "VOTING", isActive: true } }),
+    prisma.awardCategory.findMany({ where: { eventId, isActive: true }, orderBy: { sortOrder: "asc" } }),
+    prisma.nominee.findMany({ where: { eventId, status: "approved" } }),
+    prisma.eventMember.findMany({ where: { eventId } }),
+  ]);
   if (!event) return null;
 
-  const votingPhase = await prisma.eventPhase.findFirst({
-    where: { eventId, type: "VOTING", isActive: true },
-  });
-
-  const categories = await prisma.awardCategory.findMany({
-    where: { eventId, isActive: true },
-    orderBy: { sortOrder: "asc" },
-  });
-
-  const nominees = await prisma.nominee.findMany({
-    where: { eventId, status: "approved" },
-  });
-
-  const members = await prisma.eventMember.findMany({
-    where: { eventId },
-  });
-
-  const memberUserMap = await loadUsersById(
-    members.map((m) => m.userId),
-    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
-  );
-
-  const [nomineeVotes, userVotes] = await Promise.all([
+  const [memberUserMap, nomineeVotes, userVotes] = await Promise.all([
+    loadUsersById(
+      members.map((m) => m.userId),
+      (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
+    ),
     prisma.vote.findMany({
       where: { eventId, userId, categoryId: { in: categoryIds(categories) } },
       select: { categoryId: true, nomineeId: true },
@@ -89,7 +77,7 @@ export async function getVotingBoard(
 
   const memberOptions = toMemberOptions(members, memberUserMap);
   const categoriesDto = categories.map((category): EventVotingCategoryDto => {
-    const isPersonCategory = category.kind === KindUserVote;
+    const isPersonCategory = category.kind === CATEGORY_KIND.USER_VOTE;
     return {
       id: category.id,
       title: category.name,
@@ -150,7 +138,7 @@ export async function castVote(
   });
   if (!category) throw new VoteError("CATEGORY_NOT_FOUND");
 
-  if (category.kind === KindUserVote) {
+  if (category.kind === CATEGORY_KIND.USER_VOTE) {
     const target = await prisma.eventMember.findUnique({
       where: { eventId_userId: { eventId, userId: selectionId } },
       select: { role: true },
@@ -191,7 +179,7 @@ export async function createProposal(
       proposedByUserId: userId,
       name: name.trim(),
       description: description?.trim() ?? null,
-      kind: kind ?? 0,
+      kind: kind ?? CATEGORY_KIND.NOMINEE,
       status: "pending",
     },
   });

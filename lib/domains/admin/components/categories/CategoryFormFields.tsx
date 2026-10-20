@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import messages from "@/messages/pt.json";
 
-import { CATEGORY_KIND, CATEGORY_KIND_FORM_LABELS, CATEGORY_KIND_LABELS, type CategoryFormState } from "./categoryTypes";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
+
+import { CATEGORY_KIND_FORM_LABELS, CATEGORY_KIND_LABELS, type CategoryFormState } from "./categoryTypes";
 
 const copy = messages.admin.CategoryFormFields;
 const LABEL_CLASS = "text-[var(--ink-secondary)]";
@@ -76,7 +78,7 @@ export function CategoryFormFields({ form, isBusy, onChange }: FieldsProps) {
             <SelectValue placeholder={copy.kindPlaceholder} />
           </SelectTrigger>
           <SelectContent className="z-[100]">
-            <SelectItem value={CATEGORY_KIND_FORM_LABELS.STICKER}>{CATEGORY_KIND_LABELS[CATEGORY_KIND.STICKER]}</SelectItem>
+            <SelectItem value={CATEGORY_KIND_FORM_LABELS.STICKER}>{CATEGORY_KIND_LABELS[CATEGORY_KIND.NOMINEE]}</SelectItem>
             <SelectItem value={CATEGORY_KIND_FORM_LABELS.USER_VOTE}>{CATEGORY_KIND_LABELS[CATEGORY_KIND.USER_VOTE]}</SelectItem>
           </SelectContent>
         </Select>

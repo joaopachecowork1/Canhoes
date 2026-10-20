@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { toast } from "sonner";
 
 import type { AwardCategoryDto, NomineeDto } from "@/lib/api/types";
@@ -13,7 +14,6 @@ import { queryKeys } from "@/lib/queryKeys";
 const copy = messages.stickers.CanhoesStickerSubmitModule;
 const MAX_STICKER_BYTES = 15 * 1024 * 1024;
 const MIN_TITLE_LENGTH = 2;
-const STICKER_CATEGORY_KIND = 2;
 const STALE_TIME_MS = 1000 * 60 * 2;
 
 /** Sticker categories and the approved stickers that have an image. */
@@ -42,7 +42,7 @@ export function useStickerData(
   const error = categoriesQuery.error || nomineesQuery.error;
 
   return {
-    stickerCategories: categories.filter((category) => category.kind === STICKER_CATEGORY_KIND),
+    stickerCategories: categories.filter((category) => category.kind === CATEGORY_KIND.STICKER),
     stickersWithImage: nominees.filter((nominee) => nominee.imageUrl),
     isLoading: categoriesQuery.isLoading || nomineesQuery.isLoading,
     isEmpty: categories.length === 0 && nominees.length === 0,

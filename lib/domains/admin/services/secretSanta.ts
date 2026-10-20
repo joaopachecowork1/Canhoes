@@ -79,7 +79,9 @@ export async function executeSecretSantaDraw(
   const pairs = drawSecretSanta(members.map((member) => member.userId), secureRandom);
 
   await prisma.$transaction(async (tx) => {
-    const previousDraws = await tx.secretSantaDraw.findMany({ where: { eventCode: code }, select: { id: true } });
+    // Checked again inside the transaction: a reveal may have landed since the check above.
+    const previousDraws = await tx.secretSantaDraw.findMany({ where: { eventCode: code }, select: { id: true, isLocked: true } });
+    if (previousDraws.some((previousDraw) => previousDraw.isLocked)) throw new SecretSantaDrawError("DRAW_REVEALED");
     await tx.secretSantaAssignment.deleteMany({ where: { drawId: { in: previousDraws.map((draw) => draw.id) } } });
     await tx.secretSantaDraw.deleteMany({ where: { eventCode: code } });
 

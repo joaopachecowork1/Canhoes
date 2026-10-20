@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { AwardCategoryDto } from "@/lib/api/types";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import {
-  CATEGORY_KIND,
   buildCategoryForm,
   buildCategoryUsage,
   buildCategoryUsageById,
@@ -53,7 +53,7 @@ describe("category types", () => {
     };
 
     expect(buildCreateCategoryPayload(form)).toMatchObject({
-      kind: CATEGORY_KIND.STICKER,
+      kind: CATEGORY_KIND.NOMINEE,
       voteQuestion: null,
       voteRules: null,
     });
@@ -62,7 +62,7 @@ describe("category types", () => {
   it("protects categories with known dependencies or official votes", () => {
     expect(buildCategoryUsage(category, 1, 0).canDelete).toBe(false);
     expect(buildCategoryUsage(category, 0, 0).canDelete).toBe(false);
-    expect(buildCategoryUsage({ ...category, kind: CATEGORY_KIND.STICKER }, 0, 0).canDelete).toBe(true);
+    expect(buildCategoryUsage({ ...category, kind: CATEGORY_KIND.NOMINEE }, 0, 0).canDelete).toBe(true);
   });
 
   it("maps an API category to an editable form", () => {
@@ -79,7 +79,7 @@ describe("category types", () => {
 });
 
 describe("category usage", () => {
-  const sticker: AwardCategoryDto = { ...category, id: "sticker", kind: CATEGORY_KIND.STICKER };
+  const sticker: AwardCategoryDto = { ...category, id: "sticker", kind: CATEGORY_KIND.NOMINEE };
 
   it("blocks deleting a category that already has nominees or votes", () => {
     const usage = buildCategoryUsage(sticker, 2, 1);

@@ -1,3 +1,4 @@
+import { AreaTabs } from "@/lib/domains/event/components/AreaTabs";
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
 import { CanhoesStickerSubmitModule } from "@/lib/domains/stickers/components/CanhoesStickerSubmitModule";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
@@ -14,11 +15,14 @@ export default async function StickersPage() {
 
   return (
     <EventModuleGate moduleKey="stickers">
-      <CanhoesStickerSubmitModule
-        initialContext={activeContext ?? undefined}
-        initialStickerCategories={initialCategories?.items ?? undefined}
-        initialApprovedNominees={initialNominees ?? undefined}
-      />
+      <div className="space-y-4">
+        <AreaTabs current="stickers" modules={activeContext?.overview.modules} />
+        <CanhoesStickerSubmitModule
+          initialContext={activeContext ?? undefined}
+          initialStickerCategories={initialCategories?.items ?? undefined}
+          initialApprovedNominees={initialNominees ?? undefined}
+        />
+      </div>
     </EventModuleGate>
   );
 }

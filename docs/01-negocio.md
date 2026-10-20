@@ -49,7 +49,7 @@ O mural (feed) está aberto em todas as fases, para posts, fotos, sondagens, com
 
 ## Módulos
 
-Cada área da app é um módulo. O admin pode desligar qualquer um; os que estão ligados só aparecem na fase em que servem para alguma coisa (regra RN-04 em [02-requisitos.md](02-requisitos.md)). A navegação é igual para todos: o mural, as duas primeiras áreas abertas e o botão de post ficam na barra de baixo, e o resto no menu. O admin tem ainda o separador Admin, onde abre qualquer área, mesmo fechada, em Admin › Evento.
+Cada área da app é um módulo. O admin pode desligar qualquer um; os que estão ligados só aparecem na fase em que servem para alguma coisa (regra RN-04 em [02-requisitos.md](02-requisitos.md)). A navegação é igual para todos: o mural, as duas primeiras áreas abertas e o botão de post ficam na barra de baixo, e o resto no menu. Os stickers aparecem junto das nomeações e as medidas junto das categorias (separadores no topo de cada página); só têm entrada própria no menu se a área-mãe estiver desligada. O admin tem ainda o separador Admin, onde abre qualquer área, mesmo fechada, em Admin › Evento.
 
 | Módulo | Rota | Para quê |
 |---|---|---|

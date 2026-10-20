@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { formatCount } from "@/lib/utils";
 import messages from "@/messages/pt.json";
 
-import { CATEGORY_KIND, CATEGORY_KIND_LABELS, type CategoryUsage } from "./categoryTypes";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
+
+import { CATEGORY_KIND_LABELS, type CategoryUsage } from "./categoryTypes";
 
 const copy = messages.admin.CategoryListItem;
 const CATEGORY_ITEM_CLASS =

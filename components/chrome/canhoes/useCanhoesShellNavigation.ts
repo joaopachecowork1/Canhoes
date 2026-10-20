@@ -22,6 +22,10 @@ function isPathActive(pathname: string | null, href: string) {
   return pathname.startsWith(href);
 }
 
+function isItemActive(pathname: string | null, item: { href: string; alsoActiveFor?: string[] }) {
+  return isPathActive(pathname, item.href) || (item.alsoActiveFor ?? []).some((href) => isPathActive(pathname, href));
+}
+
 function resolveUserLabel(user?: { email?: string | null; name?: string | null } | null) {
   return user?.name?.trim() || user?.email || messages.shell.useCanhoesShellNavigation.memberFallback;
 }
@@ -48,7 +52,7 @@ export function useCanhoesShellNavigation({
 
   const toEntry = (item: typeof HOME_NAV_ITEM): CanhoesBottomTabEntry => ({
     item,
-    isActive: isPathActive(pathname, item.href),
+    isActive: isItemActive(pathname, item),
     onClick: () => onNavigate(item.href),
   });
 
@@ -57,7 +61,7 @@ export function useCanhoesShellNavigation({
     ? toEntry(ADMIN_NAV_ITEM)
     : {
         item: MENU_NAV_ITEM,
-        isActive: isMenuOpen || menuItems.some((item) => isPathActive(pathname, item.href)),
+        isActive: isMenuOpen || menuItems.some((item) => isItemActive(pathname, item)),
         onClick: onOpenMenu,
       };
 

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { PublicCategoryResultDto } from "@/lib/api/types";
-import { KindUserVote } from "@/lib/domains/admin/services/constants";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { loadUsersById } from "@/lib/usersById";
 
 const TOP_PLACES = 5;
@@ -59,7 +59,7 @@ export async function getResults(eventId: string): Promise<PublicCategoryResultD
   );
 
   return categories.map((category) =>
-    category.kind === KindUserVote
+    category.kind === CATEGORY_KIND.USER_VOTE
       ? rankCategory(
           category,
           userVotes.filter((vote) => vote.categoryId === category.id).map((vote) => vote.targetUserId),

@@ -12,6 +12,8 @@ export type CanhoesModule = {
   icon: LucideIcon;
   /** One line on what members do there, shown in the menu. */
   description: string;
+  /** The area whose pages this one shares in the menu: stickers sit under nominations, measures under categories. */
+  inMenuUnder?: AdminModuleKey;
   /** When the phase opens it (`resolveMemberModules`), shown in the admin area. */
   opensIn: string;
 };
@@ -72,6 +74,7 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
   },
   {
     key: "stickers",
+    inMenuUnder: "nominees",
     label: messages.modules.stickers.label,
     href: "/canhoes/stickers",
     icon: Sticker,
@@ -80,6 +83,7 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
   },
   {
     key: "measures",
+    inMenuUnder: "categories",
     label: messages.modules.measures.label,
     href: "/canhoes/medidas",
     icon: Ruler,

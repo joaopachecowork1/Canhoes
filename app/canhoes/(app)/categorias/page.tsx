@@ -1,3 +1,4 @@
+import { AreaTabs } from "@/lib/domains/event/components/AreaTabs";
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
 import { CanhoesCategoriesModule } from "@/lib/domains/categories/components/CanhoesCategoriesModule";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
@@ -13,10 +14,13 @@ export default async function CategoriasPage() {
 
   return (
     <EventModuleGate moduleKey="categories">
-      <CanhoesCategoriesModule
-        initialContext={activeContext ?? undefined}
-        initialCategories={initialCategories?.items ?? undefined}
-      />
+      <div className="space-y-4">
+        <AreaTabs current="categories" modules={activeContext?.overview.modules} />
+        <CanhoesCategoriesModule
+          initialContext={activeContext ?? undefined}
+          initialCategories={initialCategories?.items ?? undefined}
+        />
+      </div>
     </EventModuleGate>
   );
 }

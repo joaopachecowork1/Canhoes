@@ -255,12 +255,12 @@
     },
     "nominees": {
       "label": "Nomeações",
-      "description": "Nomeia alguém para uma categoria.",
+      "description": "Nomeia alguém para uma categoria e envia stickers.",
       "opensIn": "Propostas"
     },
     "categories": {
       "label": "Categorias",
-      "description": "Propõe uma categoria nova.",
+      "description": "Propõe categorias novas e regras para a gala.",
       "opensIn": "Propostas"
     },
     "stickers": {

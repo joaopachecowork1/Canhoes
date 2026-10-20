@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { POST as draw } from "@/app/api/v1/events/[eventId]/admin/secret-santa/draw/route";
 import { POST as reveal } from "@/app/api/v1/events/[eventId]/admin/secret-santa/reveal/route";
@@ -64,6 +64,22 @@ describe("secret santa", () => {
     await callRoute(reveal, { eventId: event.id }, { method: "POST" });
     const redraw = await callRoute(draw, { eventId: event.id }, { method: "POST", body: {} });
     expect(redraw).toMatchObject({ status: 409, body: { code: "DRAW_REVEALED" } });
+  });
+
+  it("keeps a revealed draw even when the redraw checked it a moment too early", async () => {
+    const { event, admin } = await setupDraw(4);
+    signInAs(admin);
+    await callRoute(draw, { eventId: event.id }, { method: "POST", body: {} });
+    await callRoute(reveal, { eventId: event.id }, { method: "POST" });
+    const revealedPairs = await prisma.secretSantaAssignment.findMany({ orderBy: { giverUserId: "asc" } });
+
+    // The reveal lands between the redraw's check and its write: the check still sees an open draw.
+    vi.spyOn(prisma.secretSantaDraw, "findFirst").mockResolvedValueOnce(null);
+    const redraw = await callRoute(draw, { eventId: event.id }, { method: "POST", body: {} });
+    vi.restoreAllMocks();
+
+    expect(redraw).toMatchObject({ status: 409, body: { code: "DRAW_REVEALED" } });
+    expect(await prisma.secretSantaAssignment.findMany({ orderBy: { giverUserId: "asc" } })).toEqual(revealedPairs);
   });
 
   it("needs at least two participants and a draw before revealing", async () => {

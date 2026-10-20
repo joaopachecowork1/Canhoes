@@ -1,3 +1,4 @@
+import { AreaTabs } from "@/lib/domains/event/components/AreaTabs";
 import dynamic from "next/dynamic";
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
 import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
@@ -17,7 +18,10 @@ export default async function MeasuresPage() {
 
   return (
     <EventModuleGate moduleKey="measures">
-      <CanhoesMeasuresModule initialData={initialData ?? undefined} initialContext={activeContext ?? undefined} />
+      <div className="space-y-4">
+        <AreaTabs current="measures" modules={activeContext?.overview.modules} />
+        <CanhoesMeasuresModule initialData={initialData ?? undefined} initialContext={activeContext ?? undefined} />
+      </div>
     </EventModuleGate>
   );
 }

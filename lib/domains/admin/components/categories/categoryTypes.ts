@@ -5,20 +5,16 @@ import type {
   CreateAwardCategoryRequest,
   UpdateAwardCategoryRequest,
 } from "@/lib/api/types";
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { formatMessage } from "@/lib/messages";
 import messages from "@/messages/pt.json";
 
 const copy = messages.admin.categoryRules;
 
-export const CATEGORY_KIND = {
-  STICKER: 0,
-  USER_VOTE: 1,
-} as const;
-
-type CategoryKind = (typeof CATEGORY_KIND)[keyof typeof CATEGORY_KIND];
+type CategoryKind = typeof CATEGORY_KIND.NOMINEE | typeof CATEGORY_KIND.USER_VOTE;
 
 export const CATEGORY_KIND_LABELS: Record<number, string> = {
-  [CATEGORY_KIND.STICKER]: messages.categories.CategoryProposalForm.kindNominees,
+  [CATEGORY_KIND.NOMINEE]: messages.categories.CategoryProposalForm.kindNominees,
   [CATEGORY_KIND.USER_VOTE]: messages.categories.CategoryProposalForm.kindMember,
 };
 
@@ -87,7 +83,7 @@ function parseSortOrder(value: string): number | null {
 function parseCategoryKind(value: string): CategoryKind {
   return value === CATEGORY_KIND_FORM_LABELS.USER_VOTE
     ? CATEGORY_KIND.USER_VOTE
-    : CATEGORY_KIND.STICKER;
+    : CATEGORY_KIND.NOMINEE;
 }
 
 function buildCategoryPayload(form: Readonly<CategoryFormState>) {
