@@ -1,6 +1,6 @@
 import { parsePostText } from "@/lib/postUtils";
 
-/** A post's text; a multi-line post shows its first line as the title. */
+/** O texto de um post; um post com várias linhas mostra a primeira como título. */
 export function PostText({ text }: Readonly<{ text: string }>) {
   if (!text.trim()) return null;
 

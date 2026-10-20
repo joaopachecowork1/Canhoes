@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-/** Bottom sheet for admin forms and reviews. */
+/** Gaveta a subir de baixo para formulários e revisões do admin. */
 export function AdminDrawer({
   open,
   onOpenChange,

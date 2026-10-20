@@ -1,17 +1,18 @@
 /*
- * Every member wears one colour of the group palette: their frame, avatar and marks. The database
- * stores the palette key; the hex lives in app/globals.css as --person-<key>.
+ * Cada membro usa uma cor da paleta do grupo: a moldura, o avatar e as marcas. A base de dados
+ * guarda a chave da paleta; o hex vive em app/globals.css como --person-<chave>.
  */
 export const PERSON_COLORS = ["coral", "amber", "teal", "blue", "pink", "lime", "violet", "sky"] as const;
 
+/** Uma das chaves de cor de `PERSON_COLORS`. */
 export type PersonColor = (typeof PERSON_COLORS)[number];
 
-/** Whether a stored or submitted value is one of the palette's colours. */
+/** Indica se um valor guardado ou enviado é uma das cores da paleta. */
 function isPersonColor(value: unknown): value is PersonColor {
   return typeof value === "string" && (PERSON_COLORS as readonly string[]).includes(value);
 }
 
-/** The CSS colour of a person, falling back to the first palette colour for unknown values. */
+/** A cor CSS de uma pessoa; valores desconhecidos usam a primeira cor da paleta. */
 export function personColorVar(color: string | null | undefined) {
   return `var(--person-${isPersonColor(color) ? color : PERSON_COLORS[0]})`;
 }

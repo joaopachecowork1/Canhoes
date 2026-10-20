@@ -36,7 +36,7 @@ function useFailedMedia() {
   return { failedMedia, markAsFailed };
 }
 
-/** Images of a post: one image as is, several as a swipeable strip with arrows and dots. */
+/** Imagens de um post: uma sozinha tal como está, várias como uma faixa deslizante com setas e pontos. */
 export function MediaCarousel({
   urls,
   className,
@@ -50,7 +50,7 @@ export function MediaCarousel({
   const { currentIndex, setCurrentIndex, handleTouchEnd, handleTouchMove, handleTouchStart } = useCarouselGesture(
     media.length,
   );
-  // The gesture hook keeps the index inside the strip.
+  // o hook de gestos mantém o índice dentro da faixa
   const showPrevious = useCallback(() => setCurrentIndex((index) => index - 1), [setCurrentIndex]);
   const showNext = useCallback(() => setCurrentIndex((index) => index + 1), [setCurrentIndex]);
 

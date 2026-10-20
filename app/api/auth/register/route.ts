@@ -10,8 +10,13 @@ const registerSchema = z.object({
   displayName: z.string().trim().min(1, "Indica o teu nome."),
 });
 
+/** POST /auth/register: cria a conta a partir de um convite (token, password e nome) */
 export const POST = apiRoute(async (request) => {
+  // Limita o ritmo de pedidos por cliente.
   enforceRateLimit(request, "strict");
+
+  // Valida o corpo do pedido.
   const registration = await readJson(request, registerSchema);
+
   return json(await registerWithInvitation(registration), 201);
 });

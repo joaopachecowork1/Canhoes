@@ -1,13 +1,14 @@
 import { withAuth } from "next-auth/middleware";
 
-// The register page is reached through an invite link, before the account exists.
+// A página de registo abre-se por um link de convite, antes de a conta existir.
 const PUBLIC_PATHS = new Set(["/canhoes/login", "/canhoes/register"]);
 
-/** In development, the login page signs in automatically and returns to `callbackUrl`. */
+/** Indica se um pedido sem sessão deve ser reencaminhado para o login (tudo menos as páginas públicas). */
 export function shouldRedirectUnauthenticated(pathname: string, token: unknown) {
   return !token && !PUBLIC_PATHS.has(pathname);
 }
 
+// Protege `/canhoes/*`: quem não tem sessão vai para o login.
 export default withAuth(function proxy() {}, {
   pages: { signIn: "/canhoes/login" },
   callbacks: {

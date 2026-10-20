@@ -6,10 +6,12 @@ import type { CanhoesBottomTabEntry } from "./CanhoesBottomTabs";
 import { ADMIN_NAV_ITEM, getNavigation, getPageContext, HOME_NAV_ITEM, MENU_NAV_ITEM } from "./canhoesNavigation";
 import messages from "@/messages/pt.json";
 
+/** Diz se o caminho é a página inicial (com ou sem barra final). */
 function isHomePath(pathname: string | null) {
   return pathname === "/canhoes" || pathname === "/canhoes/";
 }
 
+/** Diz se o `href` corresponde ao caminho atual; a página inicial compara por igualdade, as outras por prefixo. */
 function isPathActive(pathname: string | null, href: string) {
   if (!pathname) return false;
   if (href === HOME_NAV_ITEM.href) return isHomePath(pathname);
@@ -24,7 +26,7 @@ function resolveUserLabel(user?: { email?: string | null; name?: string | null }
   return user?.name?.trim() || user?.email || messages.shell.useCanhoesShellNavigation.memberFallback;
 }
 
-/** Builds the dock, the menu sheet and the header text for the current page and user. */
+/** Constrói o dock, a folha de menu e o texto do cabeçalho para a página e o utilizador atuais. */
 export function useCanhoesShellNavigation({
   isAdmin,
   isMenuOpen,
@@ -50,7 +52,7 @@ export function useCanhoesShellNavigation({
     onClick: () => onNavigate(item.href),
   });
 
-  // Admins get the admin area in the dock; members get the menu sheet with the remaining areas.
+  // Os admins têm a área de admin no dock; os membros têm a folha de menu com as restantes áreas.
   const rightEntry: CanhoesBottomTabEntry = isAdmin
     ? toEntry(ADMIN_NAV_ITEM)
     : {

@@ -1,13 +1,15 @@
 /*
- * Canhões design system: a single dark theme.
- * Tokens live in :root; components read them with var(--token) in Tailwind arbitrary values.
+ * Design system dos Canhões: um único tema escuro.
+ * Os tokens vivem em :root; os componentes lêem-nos com var(--token) em valores arbitrários do Tailwind.
  */
 
 :root {
   /*
-   * "Caderneta de Cromos": the group is a sticker album. Night-purple cover and pages, pitch green for
-   * the phase, the main action and what is "stuck in"; every member wears one colour of --person-*.
+   * "Caderneta de Cromos": o grupo é uma caderneta de cromos. Capa e páginas roxo-noite, verde-relva para
+   * a fase, a ação principal e o que está "colado"; cada membro usa uma cor de --person-*.
    */
+
+  /* Base: fundos, linhas, texto e perigo. */
   --color-bg-base: #170d22;
   --color-bg-surface: var(--bg-surface);
   --color-bg-elevated: #24163a;
@@ -17,18 +19,21 @@
   --color-text-secondary: #ddd2f0;
   --color-text-muted: #b8a6d6;
   --color-danger: #ff6b6b;
-  /* Translucent layers: --color-veil lightens (hairlines, hover), --color-panel is the dark card base. Use with /opacity. */
+  /* Camadas translúcidas: --color-veil clareia (linhas finas, hover), --color-panel é a base escura dos cartões. Usar com /opacidade. */
   --color-veil: #ffffff;
   --color-panel: #1d1230;
-  /* Pitch green: the phase, the primary action and filled slots. */
+
+  /* Verde-relva: a fase, a ação principal e as ranhuras preenchidas. */
   --canhoes-moss: #2fbf71;
   --moss: var(--canhoes-moss);
   --moss-light: rgba(47, 191, 113, 0.92);
   --moss-glow: #5fe39a;
   --on-moss: #0d1f14;
-  /* Album page: one step above the cover. */
+
+  /* Página da caderneta: um degrau acima da capa. */
   --page: #2f2050;
-  /* Person colours: a member's frame, avatar and marks. Text on them uses --on-person. */
+
+  /* Cores das pessoas: moldura, avatar e marcas de um membro. O texto sobre elas usa --on-person. */
   --person-coral: #ff6b6b;
   --person-amber: #ffb547;
   --person-teal: #4fd1c5;
@@ -38,7 +43,8 @@
   --person-violet: #b388ff;
   --person-sky: #38bdf8;
   --on-person: #170d22;
-  /* Area tabs: each area keeps one colour across the dock and its page. Dustier than --person-*, so a member's frame is never mistaken for an area. */
+
+  /* Separadores das áreas: cada área mantém uma cor no dock e na sua página. Mais acinzentadas que --person-*, para a moldura de um membro nunca se confundir com uma área. */
   --area-feed: #5fb7b0;
   --area-voting: var(--moss);
   --area-nominees: #d9a441;
@@ -50,6 +56,8 @@
   --area-measures: #5aa9d6;
   --area-admin: var(--color-text-muted);
   --area-welcome: var(--color-text-muted);
+
+  /* Sombras de elevação, tipografia e movimento. */
   --shadow-elevation-sm: 0 6px 14px rgba(5, 0, 12, 0.45);
   --shadow-elevation-md: 0 10px 24px rgba(5, 0, 12, 0.5);
   --font-display: var(--font-barlow-condensed);
@@ -58,6 +66,8 @@
   --duration-base: 200ms;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+
+  /* Apelidos semânticos usados pelos componentes (fundos, texto, acentos, bordas). */
   --bg-void: var(--color-bg-base);
   --bg-deep: var(--color-bg-surface);
   --bg-surface: var(--color-bg-elevated);
@@ -78,17 +88,22 @@
   --border-neon: var(--color-border-strong);
   --border-paper: rgba(255, 255, 255, 0.09);
   --border-paper-soft: rgba(255, 255, 255, 0.06);
-  /* Elevated: cards sit visibly above the page. */
+
+  /* Elevadas: os cartões ficam visivelmente acima da página. */
   --shadow-card: 0 10px 24px rgba(5, 0, 12, 0.5);
   --shadow-paper: 0 10px 24px rgba(5, 0, 12, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   --shadow-paper-soft: 0 14px 30px rgba(5, 0, 12, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   --shadow-layered: 0 18px 40px rgba(5, 0, 12, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
   --shadow-panel: 0 20px 48px rgba(5, 0, 12, 0.6);
   --shadow-modal: 0 28px 80px rgba(5, 0, 12, 0.7);
+
+  /* Raios de canto. */
   --radius-sm-token: 0.75rem;
   --radius-md-token: 0.875rem;
   --radius-lg-token: 1rem;
   --radius-xl-token: 1.5rem;
+
+  /* Apelidos de compatibilidade (shadcn, toasts). */
   --destructive: var(--danger);
   --color-bg-card: var(--bg-deep);
   --color-bg-surface-alt: var(--bg-surface);
@@ -96,7 +111,7 @@
   --color-moss: var(--moss);
 }
 
-/* Kept before the Tailwind layers on purpose: utilities on the same element win over these. */
+/* Animações próprias. Ficam antes das camadas do Tailwind de propósito: as utilities no mesmo elemento ganham a estas. */
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
@@ -114,6 +129,7 @@
   animation-fill-mode: both;
 }
 
+/* Brilho dos esqueletos de carregamento. */
 .skeleton-shimmer {
   position: relative;
   overflow: hidden;
@@ -138,7 +154,7 @@
 
 @import "tailwindcss";
 
-/* Extra Tailwind utilities: text-canhoes-gold, animate-fade-in. */
+/* Utilities extra do Tailwind: text-canhoes-gold, animate-fade-in. */
 @theme {
   --color-canhoes-gold: #ffd166;
 
@@ -150,6 +166,7 @@
   }
 }
 
+/* Estilos base: tipografia, formulários, alvos táteis (44px) e foco visível. */
 @layer base {
   * { border-color: var(--border-subtle); }
   html { color-scheme: dark; background: var(--bg-void); scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
@@ -175,7 +192,7 @@
   input:focus, textarea:focus, select:focus { outline: none; border-color: var(--border-neon); box-shadow: 0 0 0 3px rgba(47, 191, 113, 0.28); }
   button, [role="button"] { min-height: 44px; min-width: 44px; }
   ::selection { background: rgba(47, 191, 113, 0.32); color: var(--color-text-primary); }
-  /* One keyboard focus ring for every control the browser would otherwise draw its own for. */
+  /* Um único anel de foco de teclado para todos os controlos a que o browser desenharia o seu. */
   :focus-visible { outline: 2px solid var(--moss-glow); outline-offset: 2px; }
   input, textarea { caret-color: var(--moss-glow); }
   .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -185,7 +202,7 @@
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
-    /* A loading spinner is feedback, not decoration: it keeps turning, slowly. */
+    /* Um spinner de carregamento é feedback, não decoração: continua a rodar, devagar. */
     .animate-spin { animation-duration: 1.5s !important; }
   }
 }

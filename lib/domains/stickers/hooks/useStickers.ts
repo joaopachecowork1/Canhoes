@@ -16,7 +16,7 @@ const MAX_STICKER_BYTES = 15 * 1024 * 1024;
 const MIN_TITLE_LENGTH = 2;
 const STALE_TIME_MS = 1000 * 60 * 2;
 
-/** Sticker categories and the approved stickers that have an image. */
+/** Categorias de cromos e os cromos aprovados que têm imagem. */
 export function useStickerData(
   eventId: string | null,
   {
@@ -30,6 +30,7 @@ export function useStickerData(
     queryFn: () => awardsRepo.getCategories(eventId ?? "").then((result) => result.items),
     enabled: !!eventId,
     staleTime: STALE_TIME_MS,
+    // Os dados iniciais vêm do servidor (render inicial) e evitam um primeiro pedido.
     initialData: initialCategories,
   });
   const nomineesQuery = useQuery({
@@ -50,6 +51,7 @@ export function useStickerData(
     isLoading: categoriesQuery.isLoading || nomineesQuery.isLoading,
     isEmpty: categories.length === 0 && nominees.length === 0,
     errorMessage: error ? getErrorMessage(error, copy.loadError) : null,
+    // Invalida as duas queries para a lista e as categorias voltarem a ser pedidas.
     refresh: () =>
       Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.stickerCategories(eventId) }),
@@ -58,9 +60,10 @@ export function useStickerData(
   };
 }
 
-/** The chosen image and its preview URL, made when it is picked and revoked when replaced. */
+/** A imagem escolhida e o seu URL de pré-visualização, criado ao escolher e libertado ao substituir. */
 function usePickedImage() {
   const [picked, setPicked] = useState<{ file: File; previewUrl: string } | null>(null);
+  // A ref espelha o estado para o cleanup do unmount libertar o URL mais recente.
   const pickedRef = useRef(picked);
 
   useEffect(
@@ -79,13 +82,14 @@ function usePickedImage() {
   return { file: picked?.file ?? null, previewUrl: picked?.previewUrl ?? "", setFile };
 }
 
+/** Porque é que o ficheiro é recusado (não é imagem ou é demasiado grande), ou null quando serve. */
 function getFileRejection(file: File) {
   if (!file.type.startsWith("image/")) return copy.imagesOnly;
   if (file.size > MAX_STICKER_BYTES) return copy.imageTooLarge;
   return null;
 }
 
-/** The sticker form: category, title and an image checked before it is accepted. */
+/** O formulário do cromo: categoria, título e uma imagem validada antes de ser aceite. */
 export function useStickerSubmission({
   eventId,
   isProposalPhase,
@@ -106,7 +110,7 @@ export function useStickerSubmission({
     setFile(nextFile);
   };
 
-  /** Sends the sticker; resolves to whether it went through, so the form can close. */
+  /** Envia o cromo; resolve com o sucesso, para o formulário poder fechar. */
   const handleSubmit = async () => {
     if (!canSubmit || !eventId) return false;
 
@@ -117,7 +121,7 @@ export function useStickerSubmission({
         title: title.trim(),
         kind: "stickers",
       });
-      // The sticker exists from here on: a failed image must not make a retry send it again.
+      // O cromo existe a partir daqui: uma imagem que falhe não pode fazer uma nova tentativa enviá-lo outra vez.
       const isImageMissing = file
         ? await awardsRepo.uploadNomineeImage(eventId, createdNominee.id, file).then(
             () => false,
@@ -128,6 +132,7 @@ export function useStickerSubmission({
           )
         : false;
 
+      // Limpa o formulário e atualiza a lista antes do aviso final.
       setTitle("");
       setFile(null);
       await onSubmitted();

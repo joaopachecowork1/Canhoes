@@ -17,6 +17,7 @@ import { Trash2 } from "lucide-react";
 
 import messages from "@/messages/pt.json";
 
+/** Propriedades do `ConfirmDeleteAction`: o que fazer ao confirmar, textos e gatilho opcional. */
 interface ConfirmDeleteProps {
   onConfirm: () => void;
   title?: string;
@@ -27,6 +28,7 @@ interface ConfirmDeleteProps {
 
 const copy = messages.ui.ConfirmDeleteAction;
 
+/** Gatilho por defeito: um botão de lixo (só ícone) ou um botão "Apagar". */
 function DefaultTrigger({ iconOnly }: Readonly<{ iconOnly: boolean }>) {
   if (iconOnly) {
     return (
@@ -47,6 +49,7 @@ function DefaultTrigger({ iconOnly }: Readonly<{ iconOnly: boolean }>) {
   );
 }
 
+/** Pede confirmação num diálogo antes de apagar; `onConfirm` só corre se o utilizador confirmar. */
 export function ConfirmDeleteAction({
   onConfirm,
   title = copy.defaultTitle,

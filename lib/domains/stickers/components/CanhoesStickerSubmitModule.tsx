@@ -85,7 +85,7 @@ function StickerGallery({ isReady, stickers }: Readonly<{ isReady: boolean; stic
   );
 }
 
-/** Stickers page: send a sticker image to a category and see the approved ones. */
+/** Página dos stickers: enviar a imagem de um sticker para uma categoria e ver os aprovados. */
 export function CanhoesStickerSubmitModule({
   initialContext,
   initialStickerCategories,

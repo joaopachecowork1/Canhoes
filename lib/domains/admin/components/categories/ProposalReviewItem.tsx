@@ -18,7 +18,7 @@ const copy = messages.admin.ProposalReviewItem;
 
 type ProposalField = { key: string; label: string; multiline?: boolean; placeholder?: string };
 
-/** The first field of each kind is required. */
+/** O primeiro campo de cada tipo é obrigatório. */
 const PROPOSAL_FIELDS: Record<ProposalKind, ProposalField[]> = {
   category: [
     { key: "name", label: copy.categoryNameLabel },
@@ -27,6 +27,7 @@ const PROPOSAL_FIELDS: Record<ProposalKind, ProposalField[]> = {
   measure: [{ key: "text", label: copy.measureTextLabel, placeholder: copy.measureTextPlaceholder }],
 };
 
+/** Proposta já preparada para a lista: título, data e rascunho editável. */
 export type ProposalRow = {
   id: string;
   title: string;
@@ -36,6 +37,7 @@ export type ProposalRow = {
 
 type Moderation = ReturnType<typeof useProposalModeration>;
 
+/** Ações de moderação: guardar, aprovar, rejeitar e apagar (este com confirmação). */
 function ProposalActions({
   isDisabled,
   isBusy,
@@ -75,6 +77,7 @@ function ProposalActions({
   );
 }
 
+/** Linha de uma proposta; ao tocar abre uma gaveta para editar o rascunho e aprová-la, rejeitá-la ou apagá-la. */
 export function ProposalReviewItem({
   kind,
   moderation,
@@ -130,6 +133,7 @@ export function ProposalReviewItem({
 
         <ProposalActions
           isBusy={moderation.isBusy}
+          // o primeiro campo é obrigatório
           isDisabled={moderation.isBusy || !draft[fields[0].key].trim()}
           onSave={handleSave}
           onDelete={() => {

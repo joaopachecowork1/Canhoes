@@ -7,7 +7,7 @@ declare module "next-auth" {
     user: {
       id: string;
       isAdmin?: boolean;
-      /** Palette key of the member's colour. */
+      /** Chave da paleta da cor do membro. */
       color?: string;
     } & import("next-auth").DefaultSession["user"];
   }

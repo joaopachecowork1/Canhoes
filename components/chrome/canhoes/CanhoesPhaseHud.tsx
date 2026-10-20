@@ -11,7 +11,7 @@ const copy = messages.shell.CanhoesPhaseHud;
 const PILL_CLASS =
   "inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 font-[family-name:var(--font-display)] text-sm font-extrabold uppercase tracking-[0.04em]";
 
-/** The active phase as a quiet outlined label: it says where the event is, it is not something to tap. */
+/** A fase ativa como uma etiqueta discreta com contorno: diz onde o evento vai, não é para tocar. */
 export function CanhoesPhaseHud({
   isLoading = false,
   overview,

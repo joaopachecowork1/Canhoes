@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/** Um botão do dock: ícone, etiqueta, estado ativo e cor de destaque. */
 export type DockItem = {
   /** CSS colour of the active state (the area's tab colour). */
   accent?: string;
@@ -17,12 +18,14 @@ export type DockItem = {
   onClick?: () => void;
 };
 
+/** Propriedades do `Dock`. */
 type DockProps = {
   className?: string;
   dockClassName?: string;
   items: readonly DockItem[];
 };
 
+/** Um botão do dock: ícone por cima da etiqueta, destacado com a cor da área quando ativo. */
 function DockButton({
   accent,
   ariaLabel,
@@ -34,6 +37,7 @@ function DockButton({
   label,
   onClick,
 }: Readonly<DockItem>) {
+  // Fundo do estado ativo: a cor de destaque misturada com transparente.
   const activeStyle =
     isActive && accent
       ? { color: accent, backgroundColor: `color-mix(in srgb, ${accent} 16%, transparent)` }
@@ -60,6 +64,7 @@ function DockButton({
   );
 }
 
+/** Barra de botões em grelha, uma coluna por item, usada como navegação em baixo. */
 function Dock({ className, dockClassName, items }: Readonly<DockProps>) {
   return (
     <div className={cn("w-full", className)}>

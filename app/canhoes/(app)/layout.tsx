@@ -6,9 +6,10 @@ import { AuthProviders } from "@/components/providers/AuthProviders";
 import { authOptions } from "@/lib/domains/auth/services/auth";
 import { isDevelopmentAuthEnabled } from "@/lib/domains/auth/services/developmentAuth";
 
+/** Layout das páginas autenticadas: valida a sessão no servidor e monta os providers e a moldura da app. */
 export default async function CanhoesAppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await getServerSession(authOptions);
-  // The proxy already redirects anonymous requests; this covers an expired or revoked token.
+  // O proxy já reencaminha pedidos anónimos; isto cobre um token expirado ou revogado.
   if (!session?.user?.id) redirect("/canhoes/login");
 
   return (

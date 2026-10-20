@@ -49,6 +49,7 @@ function OfficialVotingLoadingState() {
   );
 }
 
+/** Barra com quantas categorias já votaste e a percentagem concluída. */
 function VotingProgressCard({
   voted,
   total,
@@ -72,7 +73,7 @@ function VotingProgressCard({
   );
 }
 
-/** What replaces the ballot when voting is not open: not yet (nominate, or back to the mural) or over (on to the gala). */
+/** O que substitui o boletim quando a votação não está aberta: ainda não (nomear, ou voltar ao mural) ou já acabou (seguir para a gala). */
 function BallotClosedState({ isOver, canNominate }: Readonly<{ canNominate: boolean; isOver: boolean }>) {
   let action = { href: "/canhoes", label: copy.backToMural };
   if (isOver) action = { href: "/canhoes/gala", label: copy.seeGala };
@@ -93,6 +94,7 @@ function BallotClosedState({ isOver, canNominate }: Readonly<{ canNominate: bool
   );
 }
 
+/** Página mostrada quando ainda não se pode votar, ou a votação já terminou. */
 function ClosedBallot({ overview }: Readonly<{ overview: EventOverviewDto | null }>) {
   return (
     <div className="space-y-4">
@@ -150,6 +152,7 @@ export function CanhoesOfficialVotingModule({
   return <OfficialBallot board={votingBoardQuery.data} castVoteMutation={castVoteMutation} />;
 }
 
+/** O boletim: separadores por categoria, progresso e as opções da categoria selecionada. */
 function OfficialBallot({
   board,
   castVoteMutation,
@@ -194,6 +197,7 @@ function OfficialBallot({
   );
 }
 
+/** Uma opção de voto; mostra um indicador enquanto grava e um visto quando é a escolhida. */
 function VoteOptionButton({
   isDisabled,
   isPending,

@@ -65,7 +65,7 @@ function GateLocked({ moduleLabel }: Readonly<{ moduleLabel: string }>) {
   );
 }
 
-/** Shows a module page only when the user may open it: admins always, members when the phase opens it. */
+/** Mostra a página de um módulo só quando o utilizador a pode abrir: admins sempre, membros quando a fase a abre. */
 export function EventModuleGate({
   children,
   moduleKey,
@@ -76,7 +76,7 @@ export function EventModuleGate({
   const { error, event, isLoading, overview, refresh } = useEventOverview();
   const moduleLabel = CANHOES_MODULE_BY_KEY[moduleKey].label;
 
-  // Only the first fetch shows a loader; a background refetch keeps the page on screen.
+  // Só o primeiro fetch mostra o indicador de carregamento; um refetch em segundo plano mantém a página no ecrã.
   if (isLoading) {
     return (
       <Skeleton

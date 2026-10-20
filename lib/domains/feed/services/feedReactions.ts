@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 
 import { assertPostInEvent } from "./feedAccess";
 
-/* What members do to a feed post: hearts (likes), downvotes, emoji reactions and poll votes. */
+/* O que os membros fazem a um post do feed: corações (gostos), votos negativos, reações com emoji e votos em sondagens. */
 
-/** Adds or removes the user's heart on a post; liking removes their downvote. */
+/** Põe ou tira o coração do utilizador num post; gostar tira o voto negativo. */
 export async function toggleLike(eventId: string, postId: string, userId: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostReaction.findFirst({
@@ -15,6 +15,7 @@ export async function toggleLike(eventId: string, postId: string, userId: string
   if (existing) {
     await prisma.hubPostReaction.delete({ where: { id: existing.id } });
   } else {
+    // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: já está feito, ignora-se.
     try {
       await prisma.hubPostDownvote.deleteMany({ where: { postId, userId } });
       await prisma.hubPostReaction.create({
@@ -26,7 +27,7 @@ export async function toggleLike(eventId: string, postId: string, userId: string
   }
 }
 
-/** Adds or removes the user's downvote on a post; downvoting removes their heart. */
+/** Põe ou tira o voto negativo do utilizador num post; votar contra tira o coração. */
 export async function toggleDownvote(eventId: string, postId: string, userId: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostDownvote.findFirst({
@@ -36,6 +37,7 @@ export async function toggleDownvote(eventId: string, postId: string, userId: st
   if (existing) {
     await prisma.hubPostDownvote.delete({ where: { id: existing.id } });
   } else {
+    // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: ignora-se.
     try {
       await prisma.hubPostReaction.deleteMany({ where: { postId, userId, emoji: "heart" } });
       await prisma.hubPostDownvote.create({
@@ -47,7 +49,7 @@ export async function toggleDownvote(eventId: string, postId: string, userId: st
   }
 }
 
-/** Adds or removes one emoji reaction of the user on a post. */
+/** Põe ou tira uma reação com emoji do utilizador num post. */
 export async function toggleReaction(eventId: string, postId: string, userId: string, emoji: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostReaction.findFirst({
@@ -57,6 +59,7 @@ export async function toggleReaction(eventId: string, postId: string, userId: st
   if (existing) {
     await prisma.hubPostReaction.delete({ where: { id: existing.id } });
   } else {
+    // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: ignora-se.
     try {
       await prisma.hubPostReaction.create({
         data: { postId, userId, emoji },
@@ -67,15 +70,16 @@ export async function toggleReaction(eventId: string, postId: string, userId: st
   }
 }
 
-/** Votes for a poll option; voting again for the same option removes the vote, another option replaces it. */
+/** Vota numa opção de sondagem; votar outra vez na mesma opção retira o voto, outra opção substitui-o. */
 export async function votePoll(eventId: string, postId: string, userId: string, optionId: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
+  // A opção tem de pertencer a este post.
   const option = await prisma.hubPostPollOption.findFirst({ where: { id: optionId, postId }, select: { id: true } });
   if (!option) throw notFound("Poll option not found.");
 
-  // Voting again for the same option removes the vote; any other option becomes the member's vote.
-  // Each step is one statement (the upsert is an INSERT ... ON CONFLICT), so overlapping taps can't
-  // trip over a row another request just deleted or created.
+  // Votar outra vez na mesma opção retira o voto; qualquer outra opção passa a ser o voto do membro.
+  // Cada passo é uma só instrução (o upsert é um INSERT ... ON CONFLICT), por isso toques sobrepostos
+  // não tropeçam numa linha que outro pedido acabou de apagar ou criar.
   const removed = await prisma.hubPostPollVote.deleteMany({ where: { postId, userId, optionId } });
   if (removed.count > 0) return;
 

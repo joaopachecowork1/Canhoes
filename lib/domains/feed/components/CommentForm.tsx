@@ -11,9 +11,10 @@ import { useAuth } from "@/components/providers/AuthContext";
 
 const copy = messages.feed.CommentForm;
 
+/** O `id` da caixa de comentário de um post, usado para lhe dar foco ao responder. */
 export const getCommentInputId = (postId: string) => `comment-input-${postId}`;
 
-/** The reply box under a thread; when answering a comment it says whom. */
+/** A caixa de resposta por baixo de uma conversa; ao responder a um comentário, indica a quem. */
 export function CommentForm({
   currentUserImage,
   currentUserName,
@@ -36,6 +37,7 @@ export function CommentForm({
   replyingToName: string | null;
 }>) {
   const { user } = useAuth();
+
   return (
     <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-deep)]/50 rounded-b-[1.25rem] flex gap-3 p-4 -mx-4 sm:-mx-5 -mb-4 sm:-mb-5 mt-2">
       <PersonCromo name={currentUserName} color={user?.color} image={currentUserImage} size="sm" className="mt-1" />

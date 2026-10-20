@@ -1,24 +1,28 @@
 /**
- * The app's logger, for the server and the browser.
+ * O logger da app, para o servidor e para o browser.
  *
- * On the server each entry is one line on stdout/stderr, which is what `docker compose logs web` shows:
+ * No servidor cada entrada é uma linha em stdout/stderr, que é o que `docker compose logs web` mostra:
  *
  *   2026-10-15T16:30:00.123Z ERROR Unhandled API error {"requestId":"a1b2c3d4","error":"...","stack":"..."}
  *
- * `LOG_LEVEL` (debug, info, warn, error) sets the lowest level written; the default is `info` in
- * production and `debug` in development. In the browser, warnings and errors in production are also
- * sent to /api/telemetry/log, so they show up in the same server log.
+ * `LOG_LEVEL` (debug, info, warn, error) define o nível mais baixo escrito; por defeito é `info` em
+ * produção e `debug` em desenvolvimento. No browser, os avisos e erros em produção são também
+ * enviados para /api/telemetry/log, para aparecerem no mesmo log do servidor.
  */
 
+/** Níveis de gravidade, do menos ao mais grave. */
 type LogLevel = "debug" | "info" | "warn" | "error";
+/** Dados extra que acompanham uma mensagem de log. */
 type LogContext = Record<string, unknown>;
 
+// Ordem numérica para comparar níveis com o mínimo configurado.
 const LEVEL_ORDER: Record<LogLevel, number> = { debug: 10, info: 20, warn: 30, error: 40 };
 
 const IS_PROD = process.env.NODE_ENV === "production";
 const IS_BROWSER = typeof window !== "undefined";
 const MIN_LEVEL = readLogLevel(process.env.LOG_LEVEL) ?? (IS_PROD ? "info" : "debug");
 
+/** Lê um nível válido de `LOG_LEVEL`, ou null quando falta ou é desconhecido. */
 function readLogLevel(value: string | undefined): LogLevel | null {
   const normalized = value?.trim().toLowerCase();
   return normalized === "debug" || normalized === "info" || normalized === "warn" || normalized === "error"
@@ -26,12 +30,13 @@ function readLogLevel(value: string | undefined): LogLevel | null {
     : null;
 }
 
-/** An Error becomes its message and stack; JSON.stringify would turn it into `{}`. */
+/** Um Error passa a mensagem e stack; o JSON.stringify transformá-lo-ia em `{}`. */
 function describeError(error: unknown) {
   if (error instanceof Error) return { error: error.message, stack: error.stack };
   return { error: String(error) };
 }
 
+/** Escreve uma entrada numa linha `<hora> <NÍVEL> <mensagem> {contexto}`. */
 function writeServerLine(level: LogLevel, message: string, context?: LogContext) {
   const json = context === undefined ? "{}" : JSON.stringify(context);
   const details = json === "{}" ? "" : ` ${json}`;
@@ -41,7 +46,7 @@ function writeServerLine(level: LogLevel, message: string, context?: LogContext)
   else console.log(line);
 }
 
-// Browser errors are forwarded to /api/telemetry/log in production, where they reach the server log.
+// Em produção, os erros do browser seguem para /api/telemetry/log e chegam ao log do servidor.
 function sendToTelemetry(level: LogLevel, message: string, context?: LogContext) {
   if (!IS_PROD) return;
 
@@ -56,10 +61,11 @@ function sendToTelemetry(level: LogLevel, message: string, context?: LogContext)
       timestamp: new Date().toISOString(),
     }),
   }).catch(() => {
-    // Never report a failed report: that could loop.
+    // Nunca reportar um reporte falhado: poderia entrar em ciclo.
   });
 }
 
+/** Escreve uma entrada se o nível passar o mínimo, no formato do servidor ou do browser. */
 function log(level: LogLevel, message: string, context?: LogContext) {
   if (LEVEL_ORDER[level] < LEVEL_ORDER[MIN_LEVEL]) return;
 
@@ -76,6 +82,7 @@ function log(level: LogLevel, message: string, context?: LogContext) {
   if (level === "warn" || level === "error") sendToTelemetry(level, message, context);
 }
 
+/** Logger da app: usar em vez de `console.*`. O `error` aceita o erro capturado antes do contexto. */
 export const logger = {
   debug: (message: string, context?: LogContext) => log("debug", message, context),
   info: (message: string, context?: LogContext) => log("info", message, context),

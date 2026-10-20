@@ -19,8 +19,10 @@ type PendingProposalsProps = {
   onUpdate: () => Promise<void>;
 };
 
+// títulos e textos de cada painel, por tipo de proposta
 const PANEL_META: Record<ProposalKind, { title: string; description: string; emptyMessage: string }> = copy.panels;
 
+/** Filas de propostas por rever (categorias e medidas); sem evento mostra só um aviso. */
 export function PendingProposals({ eventId, ...props }: Readonly<PendingProposalsProps>) {
   if (!eventId) {
     return <AdminStateMessage>{copy.noEvent}</AdminStateMessage>;
@@ -28,6 +30,7 @@ export function PendingProposals({ eventId, ...props }: Readonly<PendingProposal
   return <ProposalQueue eventId={eventId} {...props} />;
 }
 
+/** Dois painéis lado a lado, um por tipo de proposta, com a moderação partilhada. */
 function ProposalQueue({
   eventId,
   categoryProposals,
@@ -37,6 +40,7 @@ function ProposalQueue({
 }: Readonly<PendingProposalsProps & { eventId: string }>) {
   const moderation = useProposalModeration(eventId, onUpdate);
 
+  // as propostas passam a linhas comuns, com o rascunho editável de cada tipo
   const panels: Array<{ kind: ProposalKind; rows: ProposalRow[] }> = [
     {
       kind: "category",

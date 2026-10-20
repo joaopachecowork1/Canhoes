@@ -13,14 +13,22 @@ const createCategorySchema = z.object({
   voteRules: z.string().nullish(),
 });
 
+/** GET /v1/events/:eventId/admin/categories: lista as categorias do evento */
 export const GET = apiRoute<{ eventId: string }>(async (_request, { eventId }) => {
+  // Só administradores.
   await requireAdmin();
+
   return json(await getAdminCategories(eventId));
 });
 
+/** POST /v1/events/:eventId/admin/categories: cria uma categoria */
 export const POST = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
+  // Só administradores.
   await requireAdmin();
+
+  // Valida o corpo do pedido.
   const category = await readJson(request, createCategorySchema);
+
   const created = await createCategory(eventId, {
     name: category.name,
     kind: category.kind,

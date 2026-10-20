@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-/** A form kept behind one button: the page shows the list first, and the form opens from the bottom. */
+/** Um formulário atrás de um botão: a página mostra primeiro a lista e o formulário abre a partir de baixo. */
 export function FormSheet({
   children,
   isOpen,

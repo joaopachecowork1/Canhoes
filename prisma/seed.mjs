@@ -1,11 +1,12 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
-// The generated client is TypeScript, so the seed runs with tsx (see prisma.config.ts).
+// O client gerado é TypeScript, por isso o seed corre com tsx (ver prisma.config.ts).
 import { PrismaClient } from "../lib/generated/prisma/client.ts";
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
+// Emails dos admins a criar: `ADMIN_EMAILS`, senão o email de login de desenvolvimento.
 function adminEmails() {
   const configured = process.env.ADMIN_EMAILS?.trim() || process.env.DEV_AUTH_EMAIL?.trim() || "dev@example.com";
   return configured
@@ -14,18 +15,19 @@ function adminEmails() {
     .filter(Boolean);
 }
 
-// Fake members, categories and posts are for local development. A production container only gets
-// the admins and the event, unless SEED_DEMO_DATA=true.
+// Membros, categorias e publicações falsos são para desenvolvimento local. Um contentor de produção
+// só recebe os admins e o evento, a não ser que SEED_DEMO_DATA=true.
 const shouldSeedDemoData = process.env.SEED_DEMO_DATA
   ? process.env.SEED_DEMO_DATA === "true"
   : process.env.NODE_ENV !== "production";
 
+// Escolhe um elemento ao acaso de uma lista.
 const randomEl = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 async function main() {
   console.log("Seeding admins and the event...");
 
-  // 1. Ensure Admins
+  // 1. Garante os admins (a password só é definida se ainda não tiverem uma)
   const seededAdmins = [];
   const adminPassword = process.env.ADMIN_PASSWORD?.trim();
   if (adminPassword && adminPassword.length < 8) {
@@ -52,7 +54,7 @@ async function main() {
     seededAdmins.push(user);
   }
 
-  // 2. Event & State
+  // 2. Evento e estado
   const eventId = "canhoes-local";
   await prisma.event.upsert({
     where: { id: eventId },
@@ -64,7 +66,7 @@ async function main() {
     },
   });
 
-  // Initial state only: the seed runs on every container start and must not reset the phase.
+  // Só o estado inicial: o seed corre em cada arranque do contentor e não pode repor a fase.
   await prisma.canhoesEventState.upsert({
     where: { eventId },
     update: {},
@@ -78,6 +80,7 @@ async function main() {
     },
   });
 
+  // A fase de propostas fica aberta durante um ano a partir de agora.
   const now = new Date();
   const nextYear = new Date(now);
   nextYear.setUTCFullYear(nextYear.getUTCFullYear() + 1);
@@ -94,6 +97,7 @@ async function main() {
     },
   });
 
+  // Os admins são membros do evento.
   for (const admin of seededAdmins) {
     await prisma.eventMember.upsert({
       where: { eventId_userId: { eventId, userId: admin.id } },
@@ -114,7 +118,7 @@ async function main() {
   console.log("Seed completed.");
 }
 
-/** Demo members, three categories with approved nominations and a few posts, for a local database. */
+/** Membros de demonstração, três categorias com nomeações aprovadas e algumas publicações, para uma base de dados local. */
 async function seedDemoData(eventId, seededAdmins, now) {
   console.log("Adding demo data...");
   const allUsers = [...seededAdmins, ...(await seedDemoMembers(eventId, now))];
@@ -122,6 +126,7 @@ async function seedDemoData(eventId, seededAdmins, now) {
   await seedDemoPosts(eventId, allUsers);
 }
 
+// Cria cinco membros falsos e junta-os ao evento.
 async function seedDemoMembers(eventId, now) {
   const fakeUsers = [
     { email: "rui.silva@fake.com", name: "Rui Silva" },
@@ -149,7 +154,7 @@ async function seedDemoMembers(eventId, now) {
   return members;
 }
 
-/** Each category is created once, with three approved nominations about random members. */
+/** Cada categoria é criada uma só vez, com três nomeações aprovadas sobre membros ao acaso. */
 async function seedDemoCategories(eventId, allUsers) {
   const categoriesData = [
     {
@@ -205,7 +210,7 @@ async function seedDemoCategories(eventId, allUsers) {
   }
 }
 
-/** Five posts (one pinned, with a poll), each with comments and reactions; skipped once the feed has 10. */
+/** Cinco publicações (uma fixada, com sondagem), cada uma com comentários e reações; ignorado quando o mural já tem 10. */
 async function seedDemoPosts(eventId, allUsers) {
   const existingPosts = await prisma.hubPost.count({ where: { eventId } });
   if (existingPosts < 10) {
@@ -242,7 +247,7 @@ async function seedDemoPosts(eventId, allUsers) {
         },
       });
 
-      // Add a poll to the restaurant one
+      // A publicação do restaurante (a fixada) leva uma sondagem
       if (pd.isPinned) {
         await prisma.hubPostPoll.create({
           data: {
@@ -259,7 +264,7 @@ async function seedDemoPosts(eventId, allUsers) {
         });
       }
 
-      // Add comments
+      // Comentários
       await prisma.hubPostComment.create({
         data: {
           postId: post.id,
@@ -275,7 +280,7 @@ async function seedDemoPosts(eventId, allUsers) {
         },
       });
 
-      // Add reactions
+      // Reações
       await prisma.hubPostReaction.create({
         data: {
           postId: post.id,

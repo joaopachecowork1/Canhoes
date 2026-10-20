@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import { queryKeys } from "@/lib/queryKeys";
 
-/** Pending category and measure proposals for the admin review queue and its counters. */
+/** Propostas pendentes de categorias e medidas para a fila de revisão do admin e os seus contadores. */
 export function useAdminProposals(eventId: string | null) {
   const categoryProposalsQuery = useQuery({
     queryKey: queryKeys.admin.categoryProposals(eventId),

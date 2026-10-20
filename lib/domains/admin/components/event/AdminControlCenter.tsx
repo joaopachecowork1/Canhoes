@@ -30,9 +30,9 @@ type AdminControlCenterProps = {
 };
 
 /**
- * The admin "Evento" tab: which edition is active, its phase, whether proposals are open, and
- * every member area with its switch and a link. The link opens the area even when the phase has
- * it closed, so admins reach from here what members no longer see in the menu.
+ * Separador "Evento" do admin: que edição está ativa, a fase, se as propostas estão abertas e
+ * cada área de membros com o seu interruptor e uma ligação. A ligação abre a área mesmo quando
+ * a fase a fechou, para o admin chegar aqui ao que os membros já não veem no menu.
  */
 export function AdminControlCenter({ eventId, events, loading, onRefresh, state }: Readonly<AdminControlCenterProps>) {
   const control = useAdminControlCenter(eventId, state, onRefresh);
@@ -51,6 +51,7 @@ export function AdminControlCenter({ eventId, events, loading, onRefresh, state 
 
 type Control = ReturnType<typeof useAdminControlCenter>;
 
+/** Cartão com a edição ativa, a fase e o interruptor das propostas. */
 function EventSettingsCard({
   control,
   eventId,
@@ -119,6 +120,7 @@ function EventSettingsCard({
   );
 }
 
+/** Cartão com todas as áreas de membros e o respetivo interruptor. */
 function ModulesCard({ control }: Readonly<{ control: Control }>) {
   return (
     <Card className={ADMIN_CONTENT_CARD_CLASS}>
@@ -140,6 +142,7 @@ function ModulesCard({ control }: Readonly<{ control: Control }>) {
   );
 }
 
+/** Campo com título por cima do controlo. */
 function Field({ children, label }: Readonly<{ children: ReactNode; label: string }>) {
   return (
     <div className="space-y-1.5">
@@ -149,12 +152,15 @@ function Field({ children, label }: Readonly<{ children: ReactNode; label: strin
   );
 }
 
+/** Linha de uma área: ligação para a abrir, estado atual e interruptor. */
 function ModuleRow({
   isSaving,
   module,
   onToggle,
 }: Readonly<{ isSaving: boolean; module: AdminModuleItem; onToggle: (isEnabled: boolean) => void }>) {
   const Icon = module.icon;
+
+  // desativada ganha a "aberta agora", que ganha a "abre em"
   let status = formatMessage(copy.opensIn, { phase: module.opensIn });
   if (!module.isEnabled) status = copy.disabled;
   else if (module.isOpenNow) status = copy.openNow;

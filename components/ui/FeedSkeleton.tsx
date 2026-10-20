@@ -1,9 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+/** Propriedades do `FeedSkeleton`: quantos posts falsos mostrar. */
 interface FeedSkeletonProps {
   count?: number;
 }
 
+/** Esqueleto do mural enquanto os posts carregam. */
 export function FeedSkeleton({ count = 3 }: FeedSkeletonProps) {
   return (
     <div className="space-y-4">
@@ -14,10 +16,12 @@ export function FeedSkeleton({ count = 3 }: FeedSkeletonProps) {
   );
 }
 
+/** Propriedades do esqueleto de um post: a posição, que escalona a animação. */
 interface FeedPostSkeletonProps {
   index: number;
 }
 
+/** Esqueleto de um post: cabeçalho, texto, imagem e botões de ação. */
 function FeedPostSkeleton({ index }: FeedPostSkeletonProps) {
   return (
     <div

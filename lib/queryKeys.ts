@@ -1,11 +1,13 @@
 /*
- * Every TanStack Query key of the app, so the screen that reads a list and the code that refreshes it
- * after a write cannot spell it differently. Keys that take an event id start with the same prefix, so
- * invalidating the prefix refreshes every variant (pages, filters).
+ * Todas as chaves de TanStack Query da app, para o ecrã que lê uma lista e o código que a atualiza
+ * depois de uma escrita não as escreverem de forma diferente. As chaves com id de evento começam
+ * pelo mesmo prefixo, por isso invalidar o prefixo atualiza todas as variantes (páginas, filtros).
  */
-/** The event of the current page, which is not known until the overview has loaded. */
+
+/** O evento da página atual, que só se conhece depois de a visão geral carregar. */
 type EventId = string | null | undefined;
 
+/** As chaves de cache de todas as queries da app, agrupadas por funcionalidade. */
 export const queryKeys = {
   eventOverview: ["eventOverview"] as const,
   eventMembers: (eventId: EventId) => ["eventMembers", eventId] as const,
@@ -23,12 +25,12 @@ export const queryKeys = {
   nominationCategories: (eventId: string) => ["nominations", eventId, "categories"] as const,
   nominationsApproved: (eventId: string) => ["nominations", eventId, "approved"] as const,
   /**
-   * The cached lists that show a person's colour: `authorColor` on posts and comments, `PublicUserDto.color` on the member lists
-   * (mural strip, wishlist, admin). Refreshed when someone changes theirs; a new screen that shows a colour must add its root here.
+   * As listas em cache que mostram a cor de uma pessoa: `authorColor` em publicações e comentários, `PublicUserDto.color` nas listas
+   * de membros (faixa do mural, wishlist, admin). Atualizam quando alguém muda a sua; um ecrã novo que mostre uma cor tem de juntar aqui a sua raiz.
    */
   colorRoots: ["hub-posts", "hub-comments", "eventMembers", "canhoes"] as readonly unknown[],
   admin: {
-    /** Every admin query of one event except `bootstrap` and `proposals`: one invalidation refreshes them all. */
+    /** Todas as queries de admin de um evento, exceto `bootstrap` e `proposals`: uma só invalidação atualiza-as todas. */
     all: (eventId: EventId) => ["canhoes", "admin", eventId] as const,
     bootstrap: (eventId: EventId) => ["adminBootstrap", eventId] as const,
     proposals: (eventId: EventId) => ["admin", "proposals", eventId] as const,
@@ -46,7 +48,7 @@ export const queryKeys = {
     membersPage: (eventId: EventId, skip: number, take: number) =>
       ["canhoes", "admin", eventId, "members", skip, take] as const,
     secretSantaState: (eventId: EventId) => ["canhoes", "admin", eventId, "secret-santa-state"] as const,
-    /** What to invalidate after any admin write, so every tab of that event is fresh. */
+    /** O que invalidar depois de qualquer escrita de admin, para todos os separadores desse evento ficarem atualizados. */
     afterWrite: (eventId: EventId) =>
       [
         ["canhoes", "admin", eventId],

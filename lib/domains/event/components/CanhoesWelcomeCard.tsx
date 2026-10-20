@@ -7,9 +7,9 @@ import { useStoredFlag, WELCOME_DISMISSED_STORAGE_KEY } from "../hooks/useStored
 
 const copy = messages.event.CanhoesWelcomeCard;
 
-/** A one-time hello for a new member: what the app is and what to do first. Hidden for good once dismissed. */
+/** Uma saudação única para um novo membro: o que é a app e o que fazer primeiro. Fica escondida para sempre depois de dispensada. */
 export function CanhoesWelcomeCard() {
-  // Hidden in the server render: someone who already dismissed it must not see it flash before hydration.
+  // Escondido no render do servidor: quem já o dispensou não deve vê-lo a piscar antes da hidratação.
   const [isDismissed, setIsDismissed] = useStoredFlag(WELCOME_DISMISSED_STORAGE_KEY, true);
   if (isDismissed) return null;
 

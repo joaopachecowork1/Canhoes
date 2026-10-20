@@ -14,7 +14,7 @@ const IDLE_TOOL_CLASS = "border-[var(--color-veil)]/18 bg-[var(--color-panel)]/7
 const TOOL_CLASS =
   "flex h-11 w-11 items-center justify-center rounded-xl border disabled:cursor-not-allowed disabled:opacity-50";
 
-/** The bottom bar of the compose sheet: add images, toggle the poll, publish. */
+/** A barra inferior da folha de publicação: adicionar imagens, ativar a sondagem e publicar. */
 export function ComposeToolbar({
   canSubmit,
   fileCount,

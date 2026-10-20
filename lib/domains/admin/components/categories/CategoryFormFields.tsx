@@ -19,7 +19,7 @@ type FieldsProps = Readonly<{
   onChange: (patch: Partial<CategoryFormState>) => void;
 }>;
 
-/** Question and rules, only for categories voted on members. */
+/** Pergunta e regras de voto, só para categorias votadas em membros. */
 function UserVoteFields({ form, isBusy, onChange }: FieldsProps) {
   return (
     <div className="space-y-4">
@@ -52,7 +52,7 @@ function UserVoteFields({ form, isBusy, onChange }: FieldsProps) {
   );
 }
 
-/** Name, description and voting kind of a category. */
+/** Nome, descrição e tipo de uma categoria (e, no voto em membros, pergunta e regras). */
 export function CategoryFormFields({ form, isBusy, onChange }: FieldsProps) {
   return (
     <>

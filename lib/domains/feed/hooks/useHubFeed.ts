@@ -12,7 +12,7 @@ import { queryKeys } from "@/lib/queryKeys";
 
 const PAGE_SIZE = 15;
 
-/** The event's feed as an infinite query (15 posts per page), seeded with the server's first page. */
+/** O feed do evento como query infinita (15 publicações por página), iniciada com a primeira página do servidor. */
 export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteData) {
   const queryClient = useQueryClient();
 
@@ -28,9 +28,11 @@ export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteDat
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
+    // Atualiza de 15 em 15 s só com o separador visível, para o feed parecer vivo sem gastar bateria em segundo plano.
     refetchInterval: () => (typeof document !== "undefined" && document.visibilityState === "visible" ? 15_000 : false),
   });
 
+  // Junta todas as páginas numa só lista.
   const posts = useMemo(
     () => postsInfiniteQuery.data?.pages.flatMap((page) => page.posts) ?? [],
     [postsInfiniteQuery.data],
@@ -66,6 +68,7 @@ export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteDat
     await queryClient.invalidateQueries({ queryKey: queryKeys.hubPosts(eventId) });
   }, [queryClient, eventId]);
 
+  // `usePublishPost` avisa por evento global quando cria uma publicação; aqui o feed recarrega.
   useEffect(() => {
     const handlePostCreated = () => void refreshPosts();
     window.addEventListener("hub:postCreated", handlePostCreated);

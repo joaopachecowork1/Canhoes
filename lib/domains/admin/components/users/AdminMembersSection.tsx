@@ -22,6 +22,7 @@ type AdminMembersSectionProps = {
   onUpdate: () => Promise<void>;
 };
 
+/** Cartão com a contagem e a lista de membros. */
 function MembersRoster({
   isPendingRoleChange,
   members,
@@ -47,6 +48,7 @@ function MembersRoster({
   );
 }
 
+/** Secção "Membros" do admin: amigo secreto, convites e lista de membros com o papel de admin. */
 export function AdminMembersSection({ eventId, loading, onUpdate }: Readonly<AdminMembersSectionProps>) {
   const admin = useAdminMembers(eventId);
 

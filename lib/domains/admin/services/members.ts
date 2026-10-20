@@ -3,9 +3,9 @@ import type { PagedResult, PublicUserDto } from "@/lib/api/types";
 import { AdminRoleChangeError, assertAdminRoleChangeAllowed } from "./adminRolePolicy";
 import { loadUsersById } from "@/lib/usersById";
 
-/* Event members as the admin sees them, and promoting or demoting admins (rules in `adminRolePolicy.ts`). */
+/* Os membros do evento como o admin os vê, e a promoção ou despromoção de admins (regras em `adminRolePolicy.ts`). */
 
-/** Members of the event, admins first and then by name. */
+/** Membros do evento, primeiro os admins e depois por nome. */
 export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50): Promise<PagedResult<PublicUserDto>> {
   const total = await prisma.eventMember.count({ where: { eventId } });
 
@@ -16,12 +16,14 @@ export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50)
     take,
   });
 
+  // Carrega os utilizadores de uma só vez.
   const userMap = await loadUsersById(
     members.map((m) => m.userId),
     (where) =>
       prisma.user.findMany({ where, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } }),
   );
 
+  // Junta membro e utilizador e ordena: admins primeiro, depois por nome ou email.
   const items = members
     .map((m) => {
       const u = userMap.get(m.userId);
@@ -44,8 +46,8 @@ export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50)
 }
 
 /**
- * Grants or removes admin rights for a member of the event. Serializable, so two admins demoting
- * each other at the same time cannot leave the portal without an admin.
+ * Dá ou retira direitos de admin a um membro do evento. É Serializable, para que dois admins a
+ * despromoverem-se um ao outro ao mesmo tempo não deixem o portal sem admin.
  */
 export async function setAdminRole(input: {
   actorUserId: string;
@@ -56,6 +58,7 @@ export async function setAdminRole(input: {
 }) {
   return prisma.$transaction(
     async (tx) => {
+      // O alvo tem de pertencer ao evento e existir.
       const membership = await tx.eventMember.findUnique({
         where: { eventId_userId: { eventId: input.eventId, userId: input.targetUserId } },
         select: { userId: true },
@@ -68,6 +71,7 @@ export async function setAdminRole(input: {
       });
       if (!target) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
 
+      // Só conta os admins quando é uma despromoção; depois aplica a política.
       const adminCount = target.isAdmin && !input.isAdmin ? await tx.user.count({ where: { isAdmin: true } }) : 0;
       assertAdminRoleChangeAllowed({
         actorUserId: input.actorUserId,

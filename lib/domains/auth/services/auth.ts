@@ -13,23 +13,23 @@ import { resolveDevelopmentAdmin, resolveUser, type ResolvedUser } from "./authS
 import { authorizeGoogleSignIn } from "./signInAccess";
 
 /*
- * NextAuth configuration. Google access follows the onboarding policy in `signInAccess.ts`,
- * email + password is for accounts created from an invitation, and outside production there is
- * a one-click development admin. Sessions are 24-hour JWTs.
+ * Configuração do NextAuth. O acesso com Google segue a política de entrada em `signInAccess.ts`,
+ * email + password é para contas criadas a partir de um convite e, fora de produção, há um
+ * admin de desenvolvimento com um clique. As sessões são JWT de 24 horas.
  */
 
 const developmentLoginEnabled = isDevelopmentAuthEnabled();
 
 /**
- * Whether this IP or this email made too many login attempts; the email counter holds even when the IP is faked.
- * A throttled attempt looks like a wrong password, so it tells a guesser nothing.
+ * Indica se este IP ou este email fez demasiadas tentativas de login; o contador do email vale mesmo com o IP falsificado.
+ * Uma tentativa bloqueada parece uma password errada, por isso não diz nada a quem anda a adivinhar.
  */
 function isLoginThrottled(email: string, requestHeaders: Record<string, unknown> = {}) {
   const headers = new Headers(
     Object.entries(requestHeaders).map(([name, value]): [string, string] => [name, String(value)]),
   );
   try {
-    // The account first: an attempt it refuses must not also use up the budget of a house that shares one IP.
+    // A conta primeiro: uma tentativa que ela recusa não deve gastar também o limite de uma casa que partilha um IP.
     enforceAccountRateLimit(email, "login");
     enforceRateLimit({ headers }, "login");
     return false;
@@ -39,15 +39,17 @@ function isLoginThrottled(email: string, requestHeaders: Record<string, unknown>
   }
 }
 
-/** The user with this email when the password matches, otherwise null (no such user, no password set, or a wrong one). */
+/** O utilizador com este email quando a password coincide, senão null (não existe, não tem password ou está errada). */
 async function findUserWithPassword(email: string, password: string) {
   const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
   if (!user?.passwordHash) return null;
   return (await bcrypt.compare(password, user.passwordHash)) ? user : null;
 }
 
+/** Como o utilizador entrou, guardado no token. */
 type AuthMode = NonNullable<JWT["authMode"]>;
 
+// Do id do fornecedor do NextAuth para o modo guardado no token.
 const AUTH_MODES: Record<string, AuthMode> = {
   google: "google",
   development: "development",
@@ -55,8 +57,8 @@ const AUTH_MODES: Record<string, AuthMode> = {
 };
 
 /**
- * On sign-in, notes the provider on the token. Credentials and development logins already carry
- * the database user's id; a Google login is matched to (or creates) its user in `findTokenUser`.
+ * No login, regista o fornecedor no token. Os logins por credenciais e de desenvolvimento já trazem
+ * o id do utilizador da BD; um login Google é ligado ao seu utilizador (ou cria-o) em `findTokenUser`.
  */
 function recordSignIn(token: JWT, account: Account, userId: string | undefined) {
   token.externalId = account.providerAccountId;
@@ -66,7 +68,7 @@ function recordSignIn(token: JWT, account: Account, userId: string | undefined) 
   token.dbUserId = authMode === "google" ? undefined : (userId ?? token.dbUserId);
 }
 
-/** The token's database user: by id once known, else found or created from the email (first Google sign-in). */
+/** O utilizador da BD do token: pelo id quando já é conhecido, senão encontrado ou criado a partir do email (primeiro login Google). */
 async function findTokenUser(token: JWT): Promise<ResolvedUser | null> {
   if (isDatabaseUserId(token.dbUserId)) {
     const user = await prisma.user.findUnique({
@@ -79,6 +81,7 @@ async function findTokenUser(token: JWT): Promise<ResolvedUser | null> {
   return resolveUser(String(token.externalId ?? token.sub ?? token.email), token.email, token.name ?? null);
 }
 
+/** Configuração do NextAuth usada pela rota de auth e pelos `getServerSession`. */
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -129,7 +132,7 @@ export const authOptions: NextAuthOptions = {
   ],
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 },
   secret: process.env.NEXTAUTH_SECRET,
-  // Sign-in failures (a wrong Google redirect URI, a missing secret) go to the same log as the API.
+  // As falhas de login (um redirect URI do Google errado, um segredo em falta) vão para o mesmo log da API.
   logger: {
     error: (code, metadata) => logger.error(`NextAuth ${code}`, metadata instanceof Error ? metadata : metadata.error),
     warn: (code) => logger.warn(`NextAuth ${code}`),
@@ -140,8 +143,8 @@ export const authOptions: NextAuthOptions = {
     error: "/canhoes/login",
   },
   callbacks: {
-    // Google proves who someone is, not that they belong here: only admins, members and invited
-    // people get in. A refusal lands on the login page with `?error=AccessDenied`.
+    // O Google prova quem alguém é, não que pertence aqui: só entram admins, membros e convidados.
+    // Uma recusa vai para a página de login com `?error=AccessDenied`.
     async signIn({ user, account }) {
       if (account?.provider !== "google") return true;
       if (!user.email) return false;
@@ -151,8 +154,8 @@ export const authOptions: NextAuthOptions = {
         displayName: user.name ?? null,
       });
     },
-    // Runs on sign-in and on every request. It ties the token to the row in `Users` (creating it for a
-    // first Google sign-in) and re-reads `isAdmin`, so a role change applies without signing in again.
+    // Corre no login e em cada pedido. Liga o token à linha em `Users` (criando-a no primeiro login Google)
+    // e relê `isAdmin`, por isso uma mudança de papel aplica-se sem voltar a entrar.
     async jwt({ token, user, account }) {
       if (account) recordSignIn(token, account, user?.id);
 

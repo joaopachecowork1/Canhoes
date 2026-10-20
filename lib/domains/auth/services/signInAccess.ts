@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
 
 /**
- * Who may sign in with Google. Public onboarding can be enabled temporarily with
- * AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN=true; otherwise the portal remains invitation-only.
+ * Quem pode entrar com o Google. A entrada pública pode ser ativada temporariamente com
+ * AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN=true; caso contrário o portal continua só por convite.
  */
 export type SignInFacts = {
   isAdmin: boolean;
@@ -11,24 +11,27 @@ export type SignInFacts = {
   hasOpenInvitation: boolean;
 };
 
+/** Resultado da política: entrar, aceitar o convite aberto ou recusar. */
 export type SignInDecision = "allow" | "accept-invitation" | "deny";
 
-/** Who may sign in with Google: admins, members and earlier invitees get in, an open invitation is accepted, everyone else is refused. */
+/** Quem pode entrar com o Google: admins, membros e convidados anteriores entram, um convite aberto é aceite, os restantes são recusados. */
 export function decideSignIn(facts: SignInFacts): SignInDecision {
   if (facts.isAdmin || facts.isMember || facts.wasInvited) return "allow";
   if (facts.hasOpenInvitation) return "accept-invitation";
   return "deny";
 }
 
+/** Indica se a entrada pública com Google está ligada. */
 function isPublicGoogleSignInEnabled() {
   return process.env.AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN?.trim().toLowerCase() === "true";
 }
 
-/** Applies the access policy and creates a membership for a first public Google sign-in. */
+/** Aplica a política de acesso e cria a participação num primeiro login público com Google. */
 export async function authorizeGoogleSignIn(input: { email: string; externalId: string; displayName: string | null }) {
   const email = input.email.trim().toLowerCase();
   const now = new Date();
 
+  // Carrega o utilizador e o convite em paralelo.
   const [user, invitation] = await Promise.all([
     prisma.user.findFirst({
       where: { OR: [{ email }, { externalId: input.externalId }] },
@@ -44,19 +47,24 @@ export async function authorizeGoogleSignIn(input: { email: string; externalId: 
     wasInvited: Boolean(invitation?.usedAtUtc),
     hasOpenInvitation: Boolean(invitation && !invitation.usedAtUtc && invitation.expiresAtUtc > now),
   });
+
+  // Recusa, a não ser que a entrada pública esteja ligada; quem já tem acesso entra sem escrever nada.
   if (decision === "deny" && !isPublicGoogleSignInEnabled()) return false;
   if (decision !== "accept-invitation" && decision !== "deny") return true;
 
+  // Numa só transação: gastar o convite, criar o utilizador e inscrevê-lo no evento.
   await prisma.$transaction(async (tx) => {
     if (invitation && decision === "accept-invitation") {
       await tx.userInvitation.update({ where: { id: invitation.id }, data: { usedAtUtc: now } });
     }
+
     const invitedUser =
       user ??
       (await tx.user.create({
         data: { email, externalId: input.externalId, displayName: input.displayName ?? email, isAdmin: false },
         select: { id: true, isAdmin: true },
       }));
+    // Evento do convite, ou o evento ativo mais antigo no login público.
     const eventId =
       invitation?.eventId ??
       (

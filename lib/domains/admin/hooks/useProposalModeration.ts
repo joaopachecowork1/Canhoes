@@ -7,7 +7,7 @@ import messages from "@/messages/pt.json";
 
 export type ProposalKind = "category" | "measure";
 
-/** The edited fields of a proposal: `name` and `description` for categories, `text` for measures. */
+/** Os campos editados de uma proposta: `name` e `description` nas categorias, `text` nas medidas. */
 export type ProposalDraft = Record<string, string>;
 
 type ProposalDecision = "approved" | "rejected";
@@ -26,6 +26,7 @@ type UpdateRequest = {
   status?: ProposalDecision;
 };
 
+/** Envia a proposta editada (já aparada) para o endpoint da categoria ou da medida; `status` aprova ou rejeita. */
 function updateProposal(eventId: string, { kind, id, draft, status }: UpdateRequest): Promise<unknown> {
   return kind === "category"
     ? adminRepo.updateCategoryProposal(eventId, id, {
@@ -36,7 +37,7 @@ function updateProposal(eventId: string, { kind, id, draft, status }: UpdateRequ
     : adminRepo.updateMeasureProposal(eventId, id, { text: draft.text.trim(), status });
 }
 
-/** Save, approve, reject and delete category and measure proposals. */
+/** Guarda, aprova, rejeita e apaga propostas de categorias e de medidas. */
 export function useProposalModeration(eventId: string, onUpdate: () => Promise<void>) {
   const updateMutation = useMutation({
     mutationFn: (request: UpdateRequest) => updateProposal(eventId, request),
@@ -52,6 +53,7 @@ export function useProposalModeration(eventId: string, onUpdate: () => Promise<v
   });
 
   const handleSave = (request: UpdateRequest) => {
+    // Sem `status` é só uma edição; com `status` o aviso é o da decisão.
     const toastMessages = request.status ? DECISION_MESSAGES[request.status] : copy.updated;
 
     updateMutation.mutate(request, {

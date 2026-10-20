@@ -8,6 +8,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.feed.PollBox;
 
+/** Uma sondagem com as opções, a percentagem de votos de cada uma e a escolha do utilizador realçada. */
 export function PollBox({
   poll,
   onVote,
@@ -27,6 +28,7 @@ export function PollBox({
         <div className="space-y-3">
           {poll.options.map((option) => {
             const isActive = poll.myOptionId === option.id;
+            // a barra de fundo enche proporcionalmente à percentagem
             const percentage = totalVotes > 0 ? Math.round((option.voteCount / totalVotes) * 100) : 0;
 
             return (

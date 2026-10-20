@@ -12,6 +12,7 @@ import messages from "@/messages/pt.json";
 import { myNominationsKey } from "./useNominationsModule";
 
 const copy = messages.voting.CategoryNominationCard;
+/** Limites de tamanho do título de uma nomeação. */
 export const NOMINATION_TITLE_MIN = 2;
 export const NOMINATION_TITLE_MAX = 120;
 
@@ -23,8 +24,8 @@ type SubmitNominationArgs = {
 };
 
 /**
- * One nomination per category: shows it as pending straight away, rolls back on failure and
- * uploads the optional image once the nominee exists.
+ * Uma nomeação por categoria: mostra-a logo como pendente, faz rollback se falhar e
+ * envia a imagem opcional depois de o nomeado existir.
  */
 export function useSubmitNomination({
   categoryId,
@@ -40,19 +41,22 @@ export function useSubmitNomination({
   const mineKey = myNominationsKey(eventId);
 
   const mutation = useMutation({
-    // The title travels as the mutation variable: onMutate clears the input before mutationFn runs.
+    // O título viaja como variável da mutação: o onMutate limpa o campo antes de o mutationFn correr.
     mutationFn: (nomineeTitle: string) => awardsRepo.createNomination(eventId, { categoryId, title: nomineeTitle }),
     onMutate: async (nomineeTitle) => {
+      // Guarda a lista anterior para o rollback e mostra já a nomeação como pendente.
       const previousMine = queryClient.getQueryData<MyNominationDto[]>(mineKey);
       queryClient.setQueryData<MyNominationDto[]>(mineKey, (current = []) => [
         { categoryId, nomineeId: null, nomineeTitle, status: "pending" },
         ...current,
       ]);
+      // Limpa o formulário de imediato; o utilizador pode já escrever outra.
       setPendingLabel(nomineeTitle);
       setTitle("");
       setFile(null);
       return { previousMine };
     },
+    // Rollback: repõe a lista anterior de nomeações.
     onError: (error, _variables, context) => {
       if (context?.previousMine !== undefined) queryClient.setQueryData(mineKey, context.previousMine);
       setPendingLabel(null);
@@ -60,6 +64,7 @@ export function useSubmitNomination({
       toast.error(getErrorMessage(error, copy.submitError));
     },
     onSuccess: async (createdNominee, nomineeTitle) => {
+      // A imagem sobe depois de a nomeação existir (precisa do id); se falhar, a nomeação fica e só se avisa.
       if (file) {
         try {
           await awardsRepo.uploadNomineeImage(eventId, createdNominee.id, file);

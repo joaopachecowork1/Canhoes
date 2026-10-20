@@ -21,6 +21,7 @@ import { ComposeUploadProgress } from "./ComposeUploadProgress";
 
 const composeCopy = messages.feed.compose;
 
+/** Cabeçalho da folha de publicação, com a pega de arrastar em ecrãs pequenos. */
 function ComposeSheetHeader() {
   return (
     <>
@@ -44,6 +45,7 @@ function ComposeSheetHeader() {
   );
 }
 
+/** Convite para iniciar sessão, mostrado a quem ainda não a tem. */
 function ComposeAuthPrompt() {
   const { loginGoogle, loginDevelopment, isDevLoginAvailable } = useAuth();
   return (
@@ -56,6 +58,7 @@ function ComposeAuthPrompt() {
   );
 }
 
+/** O formulário de publicação: texto, imagens e sondagem, com os botões de ação. */
 function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
   const { event: activeEvent } = useEventOverview();
   const composer = useComposer();
@@ -68,12 +71,15 @@ function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
 
   const handleFiles = async (fileList: FileList | null) => {
     await composer.addFiles(fileList);
+
+    // limpa o campo para se poder escolher o mesmo ficheiro outra vez
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async () => {
     const isPublished = await publish({ text: composer.text, files: composer.files, poll });
     if (!isPublished) return;
+
     composer.reset();
     onPublished();
   };
@@ -137,8 +143,8 @@ function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
 }
 
 /**
- * Bottom sheet to write a mural post with up to 4 images or a poll. The shell mounts it only while
- * open, so closing it drops the draft.
+ * Folha inferior para escrever um post do mural com até 4 imagens ou uma sondagem. A estrutura só a monta
+ * enquanto aberta, por isso fechá-la descarta o rascunho.
  */
 export function CanhoesComposeSheet({
   open,

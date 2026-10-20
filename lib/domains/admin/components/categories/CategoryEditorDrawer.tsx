@@ -16,6 +16,7 @@ import type { CategoryFormState, CategorySheetState, CategoryUsage } from "./cat
 const copy = messages.admin.CategoryEditorDrawer;
 const HINT_CLASS = "text-xs leading-5 text-[var(--text-muted)]";
 
+/** Mostra quantos nomeados e votos a categoria tem e porque pode (ou não) ser apagada. */
 function CategoryUsagePanel({ usage }: Readonly<{ usage: CategoryUsage }>) {
   return (
     <AdminDetailPanel className="space-y-2">
@@ -34,6 +35,7 @@ function CategoryUsagePanel({ usage }: Readonly<{ usage: CategoryUsage }>) {
   );
 }
 
+/** Interruptor para ativar ou desativar a categoria. */
 function ActiveToggle({
   isActive,
   isBusy,
@@ -50,6 +52,7 @@ function ActiveToggle({
   );
 }
 
+/** Botão de apagar, ou a explicação de porque não é possível. */
 function DeleteAction({
   canDelete,
   isBusy,
@@ -70,6 +73,7 @@ function DeleteAction({
   );
 }
 
+/** Rodapé da gaveta: apagar (só ao editar), cancelar e guardar/criar. */
 function DrawerFooter({
   canDelete,
   canSave,
@@ -109,7 +113,7 @@ function DrawerFooter({
   );
 }
 
-/** Drawer to create a category or edit one (with its usage, active switch and delete). */
+/** Gaveta para criar uma categoria ou editar uma existente (com utilização, interruptor de ativa e apagar). */
 export function CategoryEditorDrawer({
   categoryUsage,
   form,

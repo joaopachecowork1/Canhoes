@@ -2,8 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { deleteUpload, saveUpload } from "@/lib/storage/localStorage";
 import type { EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 
-/* Members' wishlists, shared with the whole group. Route guards decide who may call each one. */
+/* Listas de desejos dos membros, partilhadas com o grupo todo. As guardas das rotas decidem quem pode chamar cada função. */
 
+/** Os campos de um item da lista de desejos que o DTO precisa. */
 type WishlistItemRow = {
   id: string;
   userId: string;
@@ -15,6 +16,7 @@ type WishlistItemRow = {
   updatedAtUtc: Date;
 };
 
+/** Converte um item da BD no DTO da API. */
 function toWishlistItemDto(item: WishlistItemRow): EventWishlistItemDto {
   return {
     id: item.id,
@@ -28,13 +30,14 @@ function toWishlistItemDto(item: WishlistItemRow): EventWishlistItemDto {
   };
 }
 
-/** Stores a new image for a wishlist item its owner (or an admin) owns; the previous upload is removed. */
+/** Guarda uma nova imagem para um item do próprio dono (ou de um admin); o upload anterior é apagado. */
 export async function replaceWishlistImage(
   eventId: string,
   itemId: string,
   user: { id: string; isAdmin: boolean },
   file: File,
 ): Promise<EventWishlistItemDto | null> {
+  // Só o dono ou um admin pode mudar a imagem; devolve null se não existir ou não for permitido.
   const item = await prisma.wishlistItem.findFirst({ where: { id: itemId, eventId } });
   if (!item || (item.userId !== user.id && !user.isAdmin)) return null;
 
@@ -43,17 +46,19 @@ export async function replaceWishlistImage(
     where: { id: itemId },
     data: { imageUrl: upload.url },
   });
+  // Só apaga a imagem antiga depois de a nova estar gravada.
   if (item.imageUrl) await deleteUpload(item.imageUrl);
 
   return toWishlistItemDto(updated);
 }
 
-/** Every wishlist item of the event: wishlists are shared with the whole group. */
+/** Todos os itens de desejos do evento, paginados: as listas são partilhadas com o grupo todo. */
 export async function getWishlistItems(
   eventId: string,
   skip = 0,
   take = 50,
 ): Promise<PagedResult<EventWishlistItemDto>> {
+  // Página e total em paralelo, para saber se há mais.
   const [items, total] = await Promise.all([
     prisma.wishlistItem.findMany({
       where: { eventId },
@@ -73,7 +78,7 @@ export async function getWishlistItems(
   };
 }
 
-/** Adds an item to the user's wishlist in this event. */
+/** Acrescenta um item à lista de desejos do utilizador neste evento. */
 export async function createWishlistItem(
   eventId: string,
   userId: string,
@@ -92,7 +97,7 @@ export async function createWishlistItem(
   return toWishlistItemDto(item);
 }
 
-/** Deletes a wishlist item of this event; only its owner or an admin may. False when not allowed or not found. */
+/** Apaga um item de desejos deste evento; só o dono ou um admin pode. Devolve false se não for permitido ou não existir. */
 export async function deleteWishlistItem(
   eventId: string,
   itemId: string,

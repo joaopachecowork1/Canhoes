@@ -7,13 +7,14 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.feed.PostVoteBar;
 
+/** A cor da pontuação conforme o utilizador tenha votado a favor, contra ou não tenha votado. */
 function getScoreClass(isUpvoted: boolean, isDownvoted: boolean) {
   if (isUpvoted) return "text-[var(--moss-glow)]";
   if (isDownvoted) return "text-[var(--color-danger)]";
   return "text-[var(--ink-secondary)]";
 }
 
-/** Upvote, score (likes minus downvotes) and downvote for one post. */
+/** Voto a favor, pontuação (gostos menos votos contra) e voto contra de um post. */
 export function PostVoteBar({
   isDownvoted,
   isUpvoted,

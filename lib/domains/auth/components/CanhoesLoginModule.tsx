@@ -24,11 +24,11 @@ function getRequestedCallbackUrl() {
   return getSafeCallbackUrl(new URLSearchParams(window.location.search).get("callbackUrl"));
 }
 
-/** Fades the card in, sends signed-in users on, and reads the NextAuth `?error=` code. */
+/** Faz o cartão aparecer, encaminha quem já tem sessão e lê o código `?error=` do NextAuth. */
 function useLoginPageState() {
   const router = useRouter();
   const { isLogged, loading } = useAuth();
-  // A failed email login shows its own message; otherwise NextAuth's `?error=` code, if any.
+  // Um login por email falhado mostra a sua mensagem; senão, o código `?error=` do NextAuth, se existir.
   const searchParams = useSearchParams();
   const [credentialsError, setAuthError] = useState<string | null>(null);
   const authError = credentialsError ?? searchParams.get("error");
@@ -90,7 +90,7 @@ export function CanhoesLoginModule() {
     const result = await signIn("credentials", { email, password, redirect: false });
 
     if (result?.error) {
-      // The NextAuth code for a wrong email or password, shown like the `?error=` codes.
+      // O código do NextAuth para email ou palavra-passe errados, mostrado como os códigos `?error=`.
       setAuthError("CredentialsSignin");
       setIsSigningIn(false);
     } else if (result?.ok) {

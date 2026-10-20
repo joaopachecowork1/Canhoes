@@ -19,13 +19,14 @@ export type PostDraft = {
   poll: { isEnabled: boolean; question: string; options: string[] };
 };
 
-/** Why a draft cannot be sent yet, or null when it can. */
+/** Porque é que um rascunho ainda não pode ser enviado, ou null quando pode. */
 function getDraftProblem(draft: PostDraft, eventId: string | null) {
   if (draft.poll.isEnabled && !isPollReady(draft.poll.question, draft.poll.options)) return copy.pollIncomplete;
   if (!eventId) return copy.noActiveEvent;
   return null;
 }
 
+/** Envia as imagens e devolve os URLs, na mesma ordem; falha se o servidor devolver um número diferente. */
 async function uploadImages(eventId: string, files: File[]) {
   if (files.length === 0) return [];
   const uploadedUrls = await feedRepo.uploadFeedImages(eventId, files);
@@ -33,6 +34,7 @@ async function uploadImages(eventId: string, files: File[]) {
   return uploadedUrls;
 }
 
+/** Monta o pedido de criação; sem sondagem ativa, a pergunta e as opções vão a null. */
 function toCreatePostRequest(draft: PostDraft, text: string, mediaUrls: string[]) {
   if (!draft.poll.isEnabled) return { text, mediaUrls, pollOptions: null, pollQuestion: null };
   return {
@@ -43,7 +45,7 @@ function toCreatePostRequest(draft: PostDraft, text: string, mediaUrls: string[]
   };
 }
 
-/** Uploads the images, then creates the post and tells the feed about it. */
+/** Envia as imagens, depois cria a publicação e avisa o feed. */
 export function usePublishPost(eventId: string | null) {
   const [status, setStatus] = useState<PublishStatus>("idle");
 
@@ -58,6 +60,7 @@ export function usePublishPost(eventId: string | null) {
         return false;
       }
 
+      // As imagens sobem primeiro: a publicação só é criada com os URLs já prontos.
       try {
         setStatus("uploading");
         const mediaUrls = await uploadImages(eventId, draft.files);
@@ -65,6 +68,7 @@ export function usePublishPost(eventId: string | null) {
         setStatus("publishing");
         const createdPost = await feedRepo.createPost(eventId, toCreatePostRequest(draft, text, mediaUrls));
 
+        // O feed ouve este evento e recarrega-se (ver `useHubFeed`).
         if (createdPost?.id) globalThis.dispatchEvent(new CustomEvent("hub:postCreated", { detail: createdPost }));
         toast.success(copy.published);
         return true;

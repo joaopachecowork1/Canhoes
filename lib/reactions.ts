@@ -1,2 +1,2 @@
-/** The primary "like" reaction — used for double-tap, upvote fallback, etc. */
+/** A reação principal de "gosto", usada no duplo toque, no voto positivo por omissão, etc. */
 export const HEART_REACTION = "❤️";

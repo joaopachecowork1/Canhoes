@@ -1,6 +1,7 @@
 import { canhoesFetch } from "@/lib/api/canhoesClient";
 import type * as T from "@/lib/api/types";
 
+/** Chamadas do evento: contexto ativo, visão geral, membros, wishlist e amigo secreto. */
 export const eventRepo = {
   getActiveContext: () => canhoesFetch<T.EventActiveContextDto>("/v1/events/active/context"),
 

@@ -56,8 +56,8 @@ function NominationsBoard({ nominations }: Readonly<{ nominations: Nominations }
 }
 
 /**
- * Coordinates the nomination module states; remote state and submission behavior
- * live in dedicated hooks/components so this boundary stays presentation-focused.
+ * Coordena os estados do módulo de nomeações; o estado remoto e o comportamento de submissão
+ * vivem em hooks/componentes próprios, para esta fronteira ficar focada na apresentação.
  */
 export function CanhoesNominationsModule({
   initialCategories,

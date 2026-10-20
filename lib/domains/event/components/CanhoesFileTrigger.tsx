@@ -14,7 +14,7 @@ type CanhoesFileTriggerProps = {
 };
 
 /**
- * Trigger para upload de ficheiros com estilo Canhões.
+ * Botão para carregar ficheiros, com o estilo dos Canhões.
  */
 export function CanhoesFileTrigger({
   accept = "image/*",

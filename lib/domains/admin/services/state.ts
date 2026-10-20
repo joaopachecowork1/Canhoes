@@ -14,11 +14,11 @@ import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { toPhaseDto, toEventSummary } from "./constants";
 
 /*
- * The admin's control panel for an event: the active phase, the module switches and the tab
- * counters. What members may do with these settings is decided in `eventRules.ts`.
+ * O painel de controlo do admin para um evento: a fase ativa, os interruptores das áreas e os
+ * contadores dos separadores. O que os membros podem fazer com estas definições decide-se em `eventRules.ts`.
  */
 
-/** The saved switches with their defaults: everything visible except results, no draw yet. */
+/** Os interruptores guardados com os seus valores por defeito: tudo visível exceto os resultados, sem sorteio feito. */
 function readSwitches(
   state: {
     nominationsVisible: boolean;
@@ -32,14 +32,14 @@ function readSwitches(
     nominationsVisible: state?.nominationsVisible ?? true,
     resultsVisible: state?.resultsVisible ?? false,
     hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
-    // A module never switched off is on.
+    // Uma área que nunca foi desligada está ligada.
     moduleVisibility: Object.fromEntries(
       CANHOES_MODULES.map(({ key }) => [key, saved[key] ?? true]),
     ) satisfies EventAdminModuleVisibilityDto,
   };
 }
 
-/** Phases and switches of one event, plus which modules the members see right now. */
+/** Fases e interruptores de um evento, mais as áreas que os membros veem neste momento. */
 async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   const [phases, state] = await Promise.all([
     prisma.eventPhase.findMany({ where: { eventId }, orderBy: { startDateUtc: "asc" } }),
@@ -61,17 +61,18 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   };
 }
 
-/** Saves the admin's switches (nominations, results, modules); fields left out keep their value. */
+/** Guarda os interruptores do admin (nomeações, resultados, áreas); os campos omitidos mantêm o valor. */
 export async function updateAdminState(
   eventId: string,
   data: { nominationsVisible?: boolean; resultsVisible?: boolean; moduleVisibility?: EventAdminModuleVisibilityDto },
 ): Promise<EventAdminStateDto> {
-  // Prisma leaves `undefined` fields untouched, so a switch left out keeps its value.
+  // O Prisma deixa os campos `undefined` como estão, por isso um interruptor omitido mantém o valor.
   const changes = {
     nominationsVisible: data.nominationsVisible,
     resultsVisible: data.resultsVisible,
     moduleVisibilityJson: data.moduleVisibility,
   };
+  // Upsert: o estado do evento é criado na primeira vez que o admin mexe nos interruptores.
   await prisma.canhoesEventState.upsert({
     where: { eventId },
     create: {
@@ -87,7 +88,7 @@ export async function updateAdminState(
   return getAdminState(eventId);
 }
 
-/** The older `CanhoesEventState.phase` name of each phase, still kept in sync. */
+/** O nome antigo de `CanhoesEventState.phase` para cada fase, que continua a ser mantido em sincronia. */
 const LEGACY_PHASE_NAMES: Record<PhaseType, string> = {
   DRAW: "locked",
   PROPOSALS: "nominations",
@@ -95,15 +96,17 @@ const LEGACY_PHASE_NAMES: Record<PhaseType, string> = {
   RESULTS: "gala",
 };
 
-/** A phase the admin opens for the first time stays open for a year, so its dates never close voting by surprise. */
+/** Uma fase que o admin abre pela primeira vez fica aberta um ano, para as datas nunca fecharem a votação de surpresa. */
 const NEW_PHASE_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
 
 /**
- * Makes `phaseType` the event's only active phase, creating it the first time it is opened (an event
- * starts with PROPOSALS only). Nominations are visible exactly during PROPOSALS and results during RESULTS.
+ * Torna `phaseType` a única fase ativa do evento, criando-a na primeira vez que é aberta (um evento
+ * começa só com PROPOSALS). As nomeações ficam visíveis exatamente durante PROPOSALS e os resultados durante RESULTS.
  */
 export async function updateAdminPhase(eventId: string, phaseType: PhaseType): Promise<EventAdminStateDto> {
   const now = new Date();
+
+  // Na mesma transação: desativar as outras fases e ativar (ou criar) esta.
   await prisma.$transaction([
     prisma.eventPhase.updateMany({ where: { eventId, type: { not: phaseType } }, data: { isActive: false } }),
     prisma.eventPhase.upsert({
@@ -119,6 +122,7 @@ export async function updateAdminPhase(eventId: string, phaseType: PhaseType): P
     }),
   ]);
 
+  // Mantém o estado do evento coerente com a fase: o que está visível depende dela.
   const legacyPhase = LEGACY_PHASE_NAMES[phaseType];
 
   await prisma.canhoesEventState.upsert({
@@ -139,11 +143,12 @@ export async function updateAdminPhase(eventId: string, phaseType: PhaseType): P
   return getAdminState(eventId);
 }
 
-/** Makes this the one active event (the one members land on); every other event is deactivated. */
+/** Torna este o único evento ativo (aquele para onde os membros vão); todos os outros são desativados. */
 export async function activateEvent(eventId: string): Promise<EventSummaryDto | null> {
   const target = await prisma.event.findUnique({ where: { id: eventId } });
   if (!target) return null;
 
+  // Desativa todos e ativa este numa só transação, para nunca haver dois ativos nem nenhum.
   await prisma.$transaction([
     prisma.event.updateMany({ where: { isActive: true }, data: { isActive: false } }),
     prisma.event.update({ where: { id: eventId }, data: { isActive: true } }),
@@ -152,7 +157,7 @@ export async function activateEvent(eventId: string): Promise<EventSummaryDto | 
   return toEventSummary({ ...target, isActive: true });
 }
 
-/** Merges module switches into the saved ones, so a partial update leaves the other modules as they were. */
+/** Junta os interruptores das áreas aos guardados, para uma atualização parcial deixar as outras áreas como estavam. */
 export async function updateEventModules(
   eventId: string,
   modules: Partial<EventAdminModuleVisibilityDto>,
@@ -161,6 +166,7 @@ export async function updateEventModules(
     where: { eventId },
     select: { moduleVisibilityJson: true },
   });
+
   const nextModules = { ...readModuleSwitches(currentState?.moduleVisibilityJson), ...modules };
 
   await prisma.canhoesEventState.upsert({
@@ -176,7 +182,7 @@ export async function updateEventModules(
   });
 }
 
-/** Totals for the admin tab badges and the results participation. */
+/** Totais para os indicadores dos separadores de admin e para a participação nos resultados. */
 async function getAdminListCounts(eventId: string): Promise<AdminListCountsDto> {
   const [membersTotal, categoriesTotal, officialResultsCategoriesCount] = await Promise.all([
     prisma.eventMember.count({ where: { eventId } }),
@@ -187,7 +193,7 @@ async function getAdminListCounts(eventId: string): Promise<AdminListCountsDto> 
   return { membersTotal, categoriesTotal, officialResultsCategoriesCount };
 }
 
-/** Everything the admin panel needs on load: all events, this event's state and the list counters. */
+/** Tudo o que o painel de admin precisa ao carregar: todos os eventos, o estado deste evento e os contadores das listas. */
 export async function getAdminBootstrap(eventId: string): Promise<EventAdminBootstrapDto> {
   const [events, state] = await Promise.all([
     prisma.event.findMany({ orderBy: [{ isActive: "desc" }, { name: "asc" }] }),

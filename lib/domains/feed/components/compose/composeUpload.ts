@@ -1,8 +1,11 @@
 "use client";
 
+/** O tamanho máximo, em MB, de uma imagem escolhida. */
 export const MAX_FILE_MB = 10;
+/** O tamanho máximo, em bytes, de uma imagem escolhida. */
 export const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
 
+// acima destes limites a imagem é redimensionada e comprimida antes do envio
 const TARGET_UPLOAD_MB = 2.5;
 const TARGET_UPLOAD_BYTES = TARGET_UPLOAD_MB * 1024 * 1024;
 const TARGET_MAX_DIMENSION = 1600;
@@ -21,34 +24,40 @@ const ACCEPTED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", 
 
 const TRANSCODE_IMAGE_TYPES = new Set(["image/heic", "image/heif"]);
 
+/** A extensão do ficheiro em minúsculas, ou texto vazio se não tiver. */
 function fileExtension(name: string) {
   const extensionStart = name.lastIndexOf(".");
   if (extensionStart < 0) return "";
   return name.slice(extensionStart + 1).toLowerCase();
 }
 
+/** Diz se o ficheiro é um formato de imagem aceite, pelo tipo MIME ou, em falta dele, pela extensão. */
 export function isAcceptedImage(file: File) {
   const mimeType = (file.type || "").toLowerCase();
   if (mimeType && ACCEPTED_IMAGE_TYPES.has(mimeType)) return true;
   return ACCEPTED_IMAGE_EXTENSIONS.has(fileExtension(file.name));
 }
 
+/** Diz se o ficheiro (HEIC/HEIF) tem de ser convertido porque os navegadores não o mostram. */
 function shouldTranscode(file: File) {
   const mimeType = (file.type || "").toLowerCase();
   if (TRANSCODE_IMAGE_TYPES.has(mimeType)) return true;
   return ["heic", "heif"].includes(fileExtension(file.name));
 }
 
+/** Diz se o navegador consegue codificar WebP. */
 function supportsWebpEncode() {
   if (typeof document === "undefined") return false;
   const canvas = document.createElement("canvas");
   return canvas.toDataURL("image/webp").startsWith("data:image/webp");
 }
 
+/** Descodifica a imagem e devolve as dimensões e uma função para a desenhar num canvas. */
 async function decodeImage(file: File) {
   const objectUrl = URL.createObjectURL(file);
 
   try {
+    // caminho rápido; o `Image` é o recurso para navegadores sem `createImageBitmap`
     if ("createImageBitmap" in globalThis) {
       const bitmap = await createImageBitmap(file);
 
@@ -82,12 +91,14 @@ async function decodeImage(file: File) {
   }
 }
 
+/** Reduz e comprime a imagem (WebP ou JPEG) antes do envio; em qualquer falha devolve o original. */
 export async function normalizeUploadImage(file: File) {
   const mustTranscode = shouldTranscode(file);
 
   if (!mustTranscode && file.size <= TARGET_UPLOAD_BYTES) return file;
 
   try {
+    // nunca amplia: a escala máxima é 1
     const sourceImage = await decodeImage(file);
     const scale = Math.min(1, TARGET_MAX_DIMENSION / Math.max(sourceImage.width, sourceImage.height));
     const targetWidth = Math.max(1, Math.round(sourceImage.width * scale));
@@ -106,6 +117,8 @@ export async function normalizeUploadImage(file: File) {
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mimeType, TARGET_QUALITY));
 
     if (!blob) return file;
+
+    // só troca o original se ficar mais pequeno, exceto HEIC/HEIF que tem de ser convertido
     if (!mustTranscode && blob.size >= file.size) return file;
 
     const extension = mimeType === "image/webp" ? "webp" : "jpg";

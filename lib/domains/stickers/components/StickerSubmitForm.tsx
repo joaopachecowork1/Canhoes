@@ -12,7 +12,7 @@ import type { useStickerSubmission } from "../hooks/useStickers";
 
 const copy = messages.stickers.StickerSubmitForm;
 
-/** Category, title and image of a new sticker, with a preview of the image. */
+/** Categoria, título e imagem de um novo sticker, com pré-visualização da imagem. */
 export function StickerSubmitForm({
   categories,
   onSubmit,

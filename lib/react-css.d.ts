@@ -2,9 +2,9 @@ import "react";
 
 declare module "react" {
   interface CSSProperties {
-    /** The current area's colour, set by CanhoesChrome and read by area-aware components. */
+    /** A cor da área atual, definida por CanhoesChrome e lida pelos componentes que a usam. */
     "--area"?: string;
-    /** Sonner's toast theme variables, set in `components/ui/sonner.tsx`. */
+    /** Variáveis do tema dos toasts do Sonner, definidas em `components/ui/sonner.tsx`. */
     "--normal-bg"?: string;
     "--normal-text"?: string;
     "--normal-border"?: string;

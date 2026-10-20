@@ -1,6 +1,6 @@
 import { AlertTriangle } from "lucide-react";
 
-/** Red panel at the top of the login and register forms. */
+/** Painel vermelho no topo dos formulários de login e de registo. */
 export function AuthErrorPanel({
   detail,
   message,

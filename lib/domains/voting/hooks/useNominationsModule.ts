@@ -12,15 +12,17 @@ const EMPTY_CATEGORIES: AwardCategoryDto[] = [];
 const EMPTY_NOMINEES: NomineeDto[] = [];
 const EMPTY_MY_NOMINATIONS: MyNominationDto[] = [];
 
-/** Query key of the user's own nominations, shared with the optimistic update in `useSubmitNomination`. */
+/** Chave da query das nomeações do próprio utilizador, partilhada com a atualização otimista em `useSubmitNomination`. */
 export const myNominationsKey = (eventId: string) => ["nominations", eventId, "my-status"];
 
+// `keepPreviousData` evita piscar vazio ao mudar de evento.
 const QUERY_OPTIONS = {
   placeholderData: keepPreviousData,
   staleTime: 1000 * 60 * 5,
   refetchOnWindowFocus: false,
 } as const;
 
+/** As três queries do ecrã de nomeações: categorias, as minhas nomeações e os nomeados aprovados. */
 function useNominationQueries(eventId: string | null, initialCategories?: AwardCategoryDto[]) {
   const queryEventId = eventId ?? "";
   const enabled = Boolean(eventId);
@@ -31,9 +33,10 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
     enabled,
     queryFn: async () => {
       const result = await awardsRepo.getCategories(queryEventId);
-      // Kind 1 categories are chosen from members, not through a nomination.
+      // As categorias do tipo 1 escolhem-se entre os membros, não por nomeação.
       return result.items.filter((category) => category.isActive && category.kind !== 1);
     },
+    // Os dados iniciais vêm do servidor e evitam um primeiro pedido.
     initialData: initialCategories,
   });
 
@@ -63,8 +66,8 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
 }
 
 /**
- * Owns the remote nomination state and the category selection.
- * The view only receives the data and callbacks it needs to render.
+ * Dono do estado remoto das nomeações e da categoria selecionada.
+ * A vista só recebe os dados e os callbacks de que precisa para desenhar.
  */
 export function useNominationsModule(
   initialCategories?: AwardCategoryDto[],
@@ -86,6 +89,7 @@ export function useNominationsModule(
     ...remote,
     eventId,
     queryEventId,
+    // Só se pode nomear na fase de propostas.
     isPhaseOpen: overview?.activePhase?.type === "PROPOSALS",
     isLoading: isOverviewLoading || isLoading,
     categories,

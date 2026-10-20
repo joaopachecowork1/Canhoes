@@ -20,10 +20,12 @@ const copy = messages.feed.HubFeedModule;
 
 type SessionUser = { name?: string | null; email?: string | null; image?: string | null } | undefined;
 
+/** O nome a mostrar do utilizador da sessão: nome, senão email, senão um texto por defeito. */
 function getSessionUserName(user: SessionUser) {
   return user?.name?.trim() || user?.email?.trim() || copy.currentUserFallback;
 }
 
+/** O módulo do mural: mostra o esqueleto enquanto carrega e depois a lista de posts. */
 export function HubFeedModule({
   initialData,
   initialContext,
@@ -99,6 +101,7 @@ function HubFeedStateList({ state }: Readonly<{ state: HubFeedState }>) {
   );
 }
 
+/** A estrutura visual do mural: cromos dos membros, espaço para publicar, erro e lista. */
 function HubFeedModuleView({ state }: Readonly<{ state: HubFeedState }>) {
   const { errorMessage, refresh } = state;
   const handleRetry = useCallback(() => void refresh(), [refresh]);
@@ -122,6 +125,7 @@ function HubFeedModuleView({ state }: Readonly<{ state: HubFeedState }>) {
   );
 }
 
+/** Junta o feed, a sessão e o evento ativo no estado de que o mural precisa. */
 function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: EventActiveContextDto | null) {
   const { data: session } = useSession();
   const { user } = useAuth();

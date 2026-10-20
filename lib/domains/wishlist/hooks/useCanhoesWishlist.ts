@@ -18,6 +18,7 @@ import { queryKeys } from "@/lib/queryKeys";
 const copy = messages.wishlist.useCanhoesWishlist;
 const STALE_TIME_MS = 1000 * 60 * 2;
 
+/** Campos do formulário de novo item da wishlist. */
 export type WishlistFormState = {
   title: string;
   url: string;
@@ -38,6 +39,7 @@ type UseCanhoesWishlistOptions = {
   initialWishlistItems?: EventWishlistItemDto[];
 };
 
+/** Membros e itens da wishlist do evento, com os dados iniciais vindos do servidor. */
 function useWishlistQueries(
   eventId: string | null,
   { initialMembers, initialWishlistItems }: UseCanhoesWishlistOptions,
@@ -49,6 +51,7 @@ function useWishlistQueries(
     queryFn: () => eventRepo.getWishlist(eventId ?? "", 0, 1000).then((response) => response.items),
     enabled: !!eventId,
     staleTime: STALE_TIME_MS,
+    // Os dados iniciais vêm do servidor e evitam um primeiro pedido.
     initialData: initialWishlistItems,
   });
 
@@ -61,7 +64,7 @@ function useWishlistQueries(
   };
 }
 
-/** Adding (with an optional image) and removing your own items. */
+/** Adicionar (com imagem opcional) e remover os teus itens. */
 function useWishlistMutations(eventId: string | null) {
   const queryClient = useQueryClient();
   const [formState, setFormState] = useState<WishlistFormState>(EMPTY_WISHLIST_FORM);
@@ -69,7 +72,7 @@ function useWishlistMutations(eventId: string | null) {
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const canSubmit = formState.title.trim().length >= MIN_WISHLIST_TITLE_LENGTH;
 
-  /** Adds the item; resolves to whether it was saved, so the form can close. */
+  /** Adiciona o item; resolve com o sucesso, para o formulário poder fechar. */
   const createWishlistItem = async () => {
     if (!canSubmit || !eventId) return false;
 
@@ -80,7 +83,7 @@ function useWishlistMutations(eventId: string | null) {
         title: formState.title.trim(),
         url: formState.url.trim() || null,
       });
-      // The item exists from here on: a failed image must not make a retry create it again.
+      // O item existe a partir daqui: uma imagem que falhe não pode fazer uma nova tentativa criá-lo outra vez.
       const isImageMissing = formState.selectedFile
         ? await eventRepo.uploadWishlistImage(eventId, createdItem.id, formState.selectedFile).then(
             () => false,
@@ -90,6 +93,7 @@ function useWishlistMutations(eventId: string | null) {
             },
           )
         : false;
+      // Limpa o formulário e recarrega a lista antes do aviso final.
       setFormState(EMPTY_WISHLIST_FORM);
       await queryClient.invalidateQueries({ queryKey: queryKeys.wishlistItems(eventId) });
       if (isImageMissing) toast.warning(copy.imageUploadError);
@@ -104,6 +108,7 @@ function useWishlistMutations(eventId: string | null) {
     }
   };
 
+  // Não é otimista: o item só sai da cache depois de o servidor confirmar.
   const deleteWishlistItem = async (wishlistItemId: string) => {
     if (!eventId) return;
     setDeletingItemId(wishlistItemId);
@@ -137,7 +142,7 @@ function useWishlistMutations(eventId: string | null) {
   };
 }
 
-/** Members and wishlist items of the event, the selected member's list, and adding or removing your own items. */
+/** Membros e itens da wishlist do evento, a lista do membro selecionado e adicionar ou remover os teus itens. */
 export function useCanhoesWishlist(options: UseCanhoesWishlistOptions) {
   const { user } = useAuth();
   const { event } = useEventOverview(options.initialContext);

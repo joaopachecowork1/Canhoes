@@ -9,7 +9,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.auth.CredentialsLoginForm;
 
-/** Email and password form for accounts created from an invite. */
+/** Formulário de email e palavra-passe para contas criadas por convite. */
 export function CredentialsLoginForm({
   isSigningIn,
   onSubmit,

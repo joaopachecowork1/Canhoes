@@ -21,14 +21,17 @@ type VotesAuditProps = {
   eventId: string | null;
 };
 
+// Linhas separadas por uma linha fina; a última não leva separador
 const VOTE_ROW_CLASS =
   "flex w-full flex-col gap-1 border-b border-[var(--border-subtle)] bg-[var(--bg-paper)] px-4 py-3 last:border-0";
 const EMPTY_ADMIN_VOTES: AdminVoteAuditRowDto[] = [];
 
+/** Indica se o nome do utilizador, da categoria ou do nomeado contém o termo (já em minúsculas). */
 function matchesVoteFilter(vote: AdminVoteAuditRowDto, term: string) {
   return [vote.userName, vote.categoryName, vote.nomineeName].some((value) => value.toLowerCase().includes(term));
 }
 
+/** Uma linha da auditoria: quem votou, quando e em quem, dentro de que categoria. */
 function VoteRow({ vote }: Readonly<{ vote: AdminVoteAuditRowDto }>) {
   return (
     <div className={VOTE_ROW_CLASS}>
@@ -49,6 +52,7 @@ function VoteRow({ vote }: Readonly<{ vote: AdminVoteAuditRowDto }>) {
   );
 }
 
+/** Lista de votos, ou a mensagem de "sem resultados" quando o filtro não apanha nenhum. */
 function VoteList({ votes }: Readonly<{ votes: AdminVoteAuditRowDto[] }>) {
   if (votes.length === 0) {
     return (
@@ -67,9 +71,11 @@ function VoteList({ votes }: Readonly<{ votes: AdminVoteAuditRowDto[] }>) {
   );
 }
 
+/** Auditoria de votos do admin: lista todos os votos do evento com um filtro por texto. */
 export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
   const [filter, setFilter] = useState("");
 
+  // 1000 votos de uma vez: o filtro corre no cliente
   const votesQuery = useQuery({
     enabled: Boolean(eventId),
     queryFn: () => adminRepo.getVotesPaged(eventId ?? "", 0, 1000),

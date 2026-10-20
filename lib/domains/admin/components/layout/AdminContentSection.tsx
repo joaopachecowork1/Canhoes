@@ -14,10 +14,12 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.admin.AdminContentSection;
 
+/** Vistas do separador de conteúdo: fila de revisão, categorias e resultados. */
 type ContentViewId = "queue" | "categorias" | "resultados";
 
 const DEFAULT_VIEW: ContentViewId = "queue";
 
+/** Indica se o parâmetro `view` do URL é uma vista conhecida. */
 function isContentView(value: string | null): value is ContentViewId {
   return value === "queue" || value === "categorias" || value === "resultados";
 }
@@ -34,6 +36,7 @@ type AdminContentSectionProps = {
   onUpdate: () => Promise<void>;
 };
 
+/** Renderiza a vista ativa; a fila de revisão (nomeações e propostas) é a vista por omissão. */
 function ContentView({
   activeView,
   categoryProposals,
@@ -73,6 +76,7 @@ function ContentView({
   );
 }
 
+/** Secção "Conteúdo" do admin: separadores (na query `view`) para a fila de revisão, as categorias e os resultados. */
 export function AdminContentSection({
   categoryProposals,
   categoriesCount,
@@ -88,6 +92,7 @@ export function AdminContentSection({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // a vista vive no URL (`?view=`), por isso sobrevive a recarregar a página
   const viewParam = searchParams.get("view");
   const activeView = isContentView(viewParam) ? viewParam : DEFAULT_VIEW;
 
@@ -102,6 +107,7 @@ export function AdminContentSection({
     if (nextView === activeView) return;
 
     const nextSearchParams = new URLSearchParams(searchParams.toString());
+    // a vista por omissão não precisa de aparecer no URL
     if (nextView === DEFAULT_VIEW) {
       nextSearchParams.delete("view");
     } else {

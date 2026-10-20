@@ -8,7 +8,7 @@ type UseFeedInfiniteScrollParams = {
   onLoadMore: () => void;
 };
 
-/** A ref for a sentinel element; when it scrolls into view the next page loads (unless one is already loading). */
+/** Uma ref para um elemento sentinela; quando entra no ecrã carrega a página seguinte (se não houver uma a carregar). */
 export function useFeedInfiniteScroll({
   enabled,
   isFetchingNextPage,
@@ -27,6 +27,7 @@ export function useFeedInfiniteScroll({
           onLoadMore();
         }
       },
+      // Margem de 200px: começa a carregar um pouco antes de o utilizador chegar ao fim.
       { rootMargin: "200px" },
     );
 

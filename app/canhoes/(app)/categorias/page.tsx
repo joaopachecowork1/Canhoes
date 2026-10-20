@@ -4,6 +4,7 @@ import { CanhoesCategoriesModule } from "@/lib/domains/categories/components/Can
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, AwardCategoryDto, PagedResult } from "@/lib/api/types";
 
+/** Página das categorias: pré-carrega a primeira página de categorias do evento ativo. */
 export default async function CategoriasPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const initialCategories = activeContext

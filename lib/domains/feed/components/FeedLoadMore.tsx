@@ -13,6 +13,7 @@ type FeedLoadMoreProps = {
   sentinelRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
+/** O sentinela de scroll infinito e o botão manual "carregar mais" no fim do feed. */
 export function FeedLoadMore({
   hasMore,
   isFetchingNextPage,
@@ -24,6 +25,7 @@ export function FeedLoadMore({
 
   return (
     <>
+      {/* o sentinela dispara o carregamento automático quando entra no ecrã */}
       <div ref={sentinelRef} className="flex justify-center py-6">
         {isFetchingNextPage ? (
           <div className="border border-[var(--color-veil)]/5 bg-[var(--color-veil)]/2.5 shadow-none rounded-[1.25rem] flex flex-col items-center gap-3 px-4 py-3">

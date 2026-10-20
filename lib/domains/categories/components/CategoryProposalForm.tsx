@@ -78,7 +78,7 @@ function ProposalFields({
   );
 }
 
-/** Form to propose a new official category; it only sends while proposals are open. */
+/** Formulário para propor uma nova categoria oficial; só envia enquanto as propostas estão abertas. */
 export function CategoryProposalForm({
   canPropose,
   eventId,

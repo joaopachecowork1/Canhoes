@@ -24,7 +24,7 @@ type ImageLightboxProps = {
   createdAtUtc?: string;
 };
 
-/** Index of the shown image, moved by arrows, keys and swipes; starts at `initialIndex`. */
+/** Índice da imagem mostrada, movido por setas, teclas e gestos de deslize; começa em `initialIndex`. */
 function useLightboxNavigation({
   initialIndex,
   onClose,
@@ -66,6 +66,7 @@ function useLightboxNavigation({
   };
 }
 
+/** Bloqueia o scroll da página enquanto o visualizador está aberto e repõe-no ao fechar. */
 function useBodyScrollLock() {
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -76,6 +77,7 @@ function useBodyScrollLock() {
   }, []);
 }
 
+/** Legenda com o autor e a data, no canto do visualizador. */
 function AuthorCaption({ authorName, createdAtUtc }: Readonly<{ authorName: string; createdAtUtc?: string }>) {
   return (
     <div className="absolute left-4 bottom-4 z-10 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 bg-black/35 px-3 py-2 text-xs text-[var(--text-secondary)] backdrop-blur-sm">
@@ -89,6 +91,7 @@ function AuthorCaption({ authorName, createdAtUtc }: Readonly<{ authorName: stri
   );
 }
 
+/** Pontos de navegação; cada um salta para a imagem respetiva. */
 function LightboxDots({
   currentIndex,
   onSelect,
@@ -101,6 +104,7 @@ function LightboxDots({
           key={index}
           type="button"
           onClick={(event) => {
+            // evita que o clique chegue ao fundo, que fecha o visualizador
             event.stopPropagation();
             onSelect(index);
           }}
@@ -122,6 +126,7 @@ function LightboxDots({
   );
 }
 
+/** Seta para a imagem anterior ou seguinte. */
 function LightboxArrow({ direction, onClick }: Readonly<{ direction: "previous" | "next"; onClick: () => void }>) {
   const isPrevious = direction === "previous";
   const Icon = isPrevious ? ChevronLeft : ChevronRight;
@@ -140,13 +145,14 @@ function LightboxArrow({ direction, onClick }: Readonly<{ direction: "previous" 
   );
 }
 
-/** Full-screen viewer for a post's images; mounted only while open, so each open starts fresh. */
+/** Visualizador de ecrã inteiro das imagens de um post; só é montado enquanto aberto, para cada abertura começar de novo. */
 export function ImageLightbox({ images, open, ...dialogProps }: Readonly<ImageLightboxProps>) {
   const safeImages = images.filter(Boolean);
   if (!open || safeImages.length === 0) return null;
   return <LightboxDialog images={safeImages} {...dialogProps} />;
 }
 
+/** O diálogo em si, renderizado num portal sobre o `body`. */
 function LightboxDialog({
   images: safeImages,
   initialIndex,
@@ -170,6 +176,7 @@ function LightboxDialog({
       aria-label={copy.dialogLabel}
       tabIndex={-1}
     >
+      {/* o fundo clicável fecha o visualizador */}
       <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
 
       <button

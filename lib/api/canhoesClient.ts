@@ -2,6 +2,7 @@
 
 import messages from "@/messages/pt.json";
 
+/** Erro de um pedido à API, com o estado HTTP e o corpo da resposta em `details`. */
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -13,12 +14,15 @@ export class ApiError extends Error {
   }
 }
 
+/** Opções do `fetch` mais as nossas: devolver erro em 401/403 num GET e desligar a partilha de GETs iguais. */
 type CanhoesRequestInit = RequestInit & {
   canhoes?: { throwOnUnauthorized?: boolean; skipDeduplication?: boolean };
 };
 
+// GETs em curso por caminho, para pedidos iguais partilharem a mesma promessa.
 const pendingGets = new Map<string, Promise<unknown>>();
 
+/** Tira espaços, barras iniciais e o prefixo `api/` para o caminho ficar relativo a `/api`. */
 function normalizePath(path: string) {
   return path
     .trim()
@@ -26,6 +30,7 @@ function normalizePath(path: string) {
     .replace(/^api\//, "");
 }
 
+/** Lê o corpo da resposta: JSON quando possível, senão texto; vazio ou 204 dá undefined. */
 async function readBody(response: Response) {
   if (response.status === 204) return undefined;
   const text = await response.text();
@@ -37,8 +42,10 @@ async function readBody(response: Response) {
   }
 }
 
+// Passado este tempo o pedido é abortado.
 const REQUEST_TIMEOUT_MS = 10_000;
 
+/** Cabeçalhos do pedido: JSON por defeito, exceto em FormData (o browser põe o boundary). */
 function buildHeaders(requestInit: RequestInit) {
   const headers = new Headers(requestInit.headers);
   if (!headers.has("Content-Type") && !(requestInit.body instanceof FormData)) {
@@ -47,16 +54,18 @@ function buildHeaders(requestInit: RequestInit) {
   return headers;
 }
 
+/** 401 e 403 indicam falta de sessão ou de permissão. */
 const isAuthStatus = (status: number) => status === 401 || status === 403;
 
+/** A mensagem do corpo de erro, ou o texto do estado HTTP. */
 function readErrorMessage(body: unknown, response: Response) {
   if (typeof body === "object" && body && "message" in body) return String(body.message);
   return response.statusText || "Request failed";
 }
 
-/** An aborted request means our timeout fired; anything else is rethrown as is. */
+/** Um pedido abortado significa que o nosso timeout disparou; qualquer outro erro passa como está. */
 function toTimeoutError(error: unknown) {
-  // Checked by name: the DOMException class differs between realms (browser, Node, jsdom).
+  // Verifica-se pelo nome: a classe DOMException difere entre ambientes (browser, Node, jsdom).
   if (error instanceof Error && error.name === "AbortError") {
     return new ApiError(messages.common.requestTimeout, 408);
   }
@@ -64,9 +73,9 @@ function toTimeoutError(error: unknown) {
 }
 
 /**
- * Calls `/api/<path>` and returns the parsed JSON. Errors throw `ApiError`, except 401 and 403 on a GET,
- * which return null unless `throwOnUnauthorized` is set.
- * Identical GETs in flight are shared, so components can load the same data without care.
+ * Chama `/api/<path>` e devolve o JSON lido. Os erros lançam `ApiError`, exceto 401 e 403 num GET,
+ * que devolvem null a não ser que `throwOnUnauthorized` esteja ativo.
+ * GETs iguais em curso são partilhados, por isso os componentes podem pedir os mesmos dados sem cuidados.
  */
 export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {}): Promise<T> {
   const { canhoes, ...requestInit } = init;
@@ -77,6 +86,7 @@ export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {
   const key = method === "GET" && !canhoes?.skipDeduplication ? normalized : null;
   if (key && pendingGets.has(key)) return pendingGets.get(key) as Promise<T>;
 
+  // Só os GETs são partilhados; uma escrita nunca reaproveita outro pedido.
   const request = (async () => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -91,12 +101,13 @@ export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {
       const body = await readBody(response);
       if (response.ok) return body as T;
 
-      // A refused read shows an empty screen, but a refused write must never look like it worked.
+      // Uma leitura recusada mostra um ecrã vazio, mas uma escrita recusada nunca pode parecer que correu bem.
       if (isAuthStatus(response.status) && method === "GET" && !canhoes?.throwOnUnauthorized) return null as T;
       throw new ApiError(readErrorMessage(body, response), response.status, body);
     } catch (error) {
       throw toTimeoutError(error);
     } finally {
+      // Limpa o timeout e liberta o GET partilhado, tenha corrido bem ou mal.
       clearTimeout(timeout);
       if (key) pendingGets.delete(key);
     }

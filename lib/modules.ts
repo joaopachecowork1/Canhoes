@@ -4,24 +4,26 @@ import { Award, Gift, Heart, Medal, Ruler, ScrollText, Sticker, Trophy, Vote } f
 import type { AdminModuleKey } from "@/lib/api/types";
 import messages from "@/messages/pt.json";
 
+/** Uma área do evento visível aos membros, com o seu texto, ligação e ícone. */
 export type CanhoesModule = {
   key: AdminModuleKey;
-  /** Short name, used in the dock, the menu and the admin list. */
+  /** Nome curto, usado na dock, no menu e na lista do admin. */
   label: string;
   href: string;
   icon: LucideIcon;
-  /** One line on what members do there, shown in the menu. */
+  /** Uma linha sobre o que os membros fazem ali, mostrada no menu. */
   description: string;
-  /** The area whose pages this one shares in the menu: stickers sit under nominations, measures under categories. */
+  /** A área sob a qual esta aparece no menu: stickers ficam sob nomeações, medidas sob categorias. */
   inMenuUnder?: AdminModuleKey;
-  /** When the phase opens it (`resolveMemberModules`), shown in the admin area. */
+  /** Quando a fase a abre (`resolveMemberModules`), mostrado na área de administração. */
   opensIn: string;
 };
 
 /**
- * Every member-facing area (one icon each, used everywhere the area appears) of an edition, in navigation order: the first two open ones go to
- * the dock and the rest to the menu, so the area of the current phase (ballot, gala) comes
- * first. Admin screens, the shell and the module gates all read labels and links from here.
+ * Todas as áreas de uma edição visíveis aos membros (um ícone cada, usado onde quer que a área apareça),
+ * por ordem de navegação: as duas primeiras abertas vão para a dock e as restantes para o menu, por isso
+ * a área da fase atual (boletim, gala) vem primeiro. Os ecrãs de admin, a shell e as guardas de área
+ * leem daqui os nomes e as ligações.
  */
 export const CANHOES_MODULES: readonly CanhoesModule[] = [
   {
@@ -100,6 +102,7 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
   },
 ];
 
+/** As mesmas áreas indexadas pela chave, para procurar uma área sem percorrer a lista. */
 export const CANHOES_MODULE_BY_KEY = Object.fromEntries(
   CANHOES_MODULES.map((module) => [module.key, module]),
 ) as Record<AdminModuleKey, CanhoesModule>;

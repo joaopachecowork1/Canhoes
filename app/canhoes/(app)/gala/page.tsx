@@ -3,6 +3,7 @@ import { CanhoesGalaModule } from "@/lib/domains/gala/components/CanhoesGalaModu
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, PublicCategoryResultDto } from "@/lib/api/types";
 
+/** Página da gala: pré-carrega os resultados públicos por categoria. */
 export default async function GalaPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const initialResults = activeContext

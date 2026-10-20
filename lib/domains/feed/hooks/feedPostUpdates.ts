@@ -2,12 +2,14 @@ import type { EventFeedPostFullDto, HubCommentDto } from "@/lib/api/types";
 import { HEART_REACTION } from "@/lib/reactions";
 
 /*
- * Optimistic changes to one post, applied to the cached feed before the server answers.
- * Up- and downvotes cancel each other, like the server does.
+ * Alterações otimistas a uma publicação, aplicadas ao feed em cache antes de o servidor responder.
+ * Gostos e não-gostos anulam-se mutuamente, tal como no servidor.
  */
 
+// Soma ou subtrai um a um contador, sem nunca ficar abaixo de zero.
 const step = (count: number, isAdding: boolean) => Math.max(0, count + (isAdding ? 1 : -1));
 
+/** Cópia da lista com o valor presente ou ausente, sem duplicados. */
 function toggleInSet(values: readonly string[], value: string, isOn: boolean) {
   const next = new Set(values);
   if (isOn) next.add(value);
@@ -15,10 +17,10 @@ function toggleInSet(values: readonly string[], value: string, isOn: boolean) {
   return Array.from(next);
 }
 
-/** The post after the user toggles an emoji reaction; a heart also counts as a like and cancels a downvote. */
+/** A publicação depois de o utilizador alternar uma reação com emoji; um coração conta também como gosto e anula um não-gosto. */
 export function applyPostReaction(post: EventFeedPostFullDto, emoji: string): EventFeedPostFullDto {
   const isHeart = emoji === HEART_REACTION;
-  // The backend tracks hearts as likes, so `likedByMe` is the source of truth for them.
+  // O backend regista corações como gostos, por isso `likedByMe` é a fonte de verdade para eles.
   const wasActive = isHeart ? post.likedByMe : post.myReactions.includes(emoji);
 
   const updated: EventFeedPostFullDto = {
@@ -38,12 +40,12 @@ export function applyPostReaction(post: EventFeedPostFullDto, emoji: string): Ev
   };
 }
 
-/** The server's answer to a like wins over the optimistic guess. */
+/** A resposta do servidor a um gosto prevalece sobre o palpite otimista. */
 export function applyServerLike(post: EventFeedPostFullDto, liked: boolean): EventFeedPostFullDto {
   return { ...post, likedByMe: liked, myReactions: toggleInSet(post.myReactions, HEART_REACTION, liked) };
 }
 
-/** The post after the user toggles their downvote; a downvote cancels a like. */
+/** A publicação depois de o utilizador alternar o seu não-gosto; um não-gosto anula um gosto. */
 export function applyDownvote(post: EventFeedPostFullDto): EventFeedPostFullDto {
   const wasDownvoted = post.downvotedByMe;
   const cancelsLike = !wasDownvoted && post.likedByMe;
@@ -56,9 +58,9 @@ export function applyDownvote(post: EventFeedPostFullDto): EventFeedPostFullDto 
   };
 }
 
-/** The server's answer to a downvote wins over the optimistic guess. */
+/** A resposta do servidor a um não-gosto prevalece sobre o palpite otimista. */
 export function applyServerDownvote(post: EventFeedPostFullDto, downvoted: boolean): EventFeedPostFullDto {
-  // Only a change of state moves the count; the optimistic step may already have made it.
+  // Só uma mudança de estado mexe na contagem; o passo otimista pode já a ter feito.
   const isChange = downvoted !== post.downvotedByMe;
   return {
     ...post,
@@ -67,7 +69,7 @@ export function applyServerDownvote(post: EventFeedPostFullDto, downvoted: boole
   };
 }
 
-/** Voting for the same option again removes the vote; another option moves it. */
+/** Votar na mesma opção outra vez retira o voto; votar noutra move-o. */
 export function applyPollVote(post: EventFeedPostFullDto, optionId: string): EventFeedPostFullDto {
   const poll = post.poll;
   if (!poll) return post;
@@ -88,7 +90,7 @@ export function applyPollVote(post: EventFeedPostFullDto, optionId: string): Eve
   return { ...post, poll: { ...poll, myOptionId: isRemoving ? null : optionId, options, totalVotes } };
 }
 
-/** The comment after the user toggles an emoji reaction. */
+/** O comentário depois de o utilizador alternar uma reação com emoji. */
 export function applyCommentReaction(comment: HubCommentDto, emoji: string): HubCommentDto {
   const wasActive = comment.myReactions.includes(emoji);
   return {
@@ -98,7 +100,7 @@ export function applyCommentReaction(comment: HubCommentDto, emoji: string): Hub
   };
 }
 
-/** The post with one comment more or less, never below zero. */
+/** A publicação com mais um ou menos um comentário, nunca abaixo de zero. */
 export function changeCommentCount(post: EventFeedPostFullDto, delta: 1 | -1): EventFeedPostFullDto {
   return { ...post, commentCount: step(post.commentCount, delta === 1) };
 }

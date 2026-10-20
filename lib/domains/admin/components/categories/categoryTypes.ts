@@ -13,16 +13,19 @@ const copy = messages.admin.categoryRules;
 
 type CategoryKind = typeof CATEGORY_KIND.NOMINEE | typeof CATEGORY_KIND.USER_VOTE;
 
+/** Texto mostrado ao utilizador para cada tipo de categoria. */
 export const CATEGORY_KIND_LABELS: Record<number, string> = {
   [CATEGORY_KIND.NOMINEE]: messages.categories.CategoryProposalForm.kindNominees,
   [CATEGORY_KIND.USER_VOTE]: messages.categories.CategoryProposalForm.kindMember,
 };
 
+/** Valores do campo "tipo" no formulário (texto), traduzidos depois para `CATEGORY_KIND`. */
 export const CATEGORY_KIND_FORM_LABELS = {
   STICKER: "Sticker",
   USER_VOTE: "UserVote",
 } as const;
 
+/** Estado do formulário de categoria; tudo em texto, como vem dos campos. */
 export type CategoryFormState = {
   description: string;
   isActive: boolean;
@@ -33,6 +36,7 @@ export type CategoryFormState = {
   voteRules: string;
 };
 
+/** Quanto uma categoria já está em uso e se pode ser apagada (com o motivo, se não puder). */
 export type CategoryUsage = {
   canDelete: boolean;
   deleteReason: string | null;
@@ -40,8 +44,10 @@ export type CategoryUsage = {
   voteCount: number;
 };
 
+/** Estado da gaveta do editor: criar uma nova ou editar uma existente. */
 export type CategorySheetState = { mode: "create" } | { category: AwardCategoryDto; mode: "edit" };
 
+/** Formulário vazio para uma categoria nova, já com a próxima ordem. */
 export function buildInitialCategoryForm(sortOrder: number): CategoryFormState {
   return {
     description: "",
@@ -54,6 +60,7 @@ export function buildInitialCategoryForm(sortOrder: number): CategoryFormState {
   };
 }
 
+/** Preenche o formulário com os dados de uma categoria existente. */
 export function buildCategoryForm(category: AwardCategoryDto): CategoryFormState {
   return {
     description: category.description ?? "",
@@ -69,20 +76,24 @@ export function buildCategoryForm(category: AwardCategoryDto): CategoryFormState
   };
 }
 
+/** Aparar o texto; vazio passa a `null`. */
 function normalizeOptionalText(value: string): string | null {
   const normalizedValue = value.trim();
   return normalizedValue.length > 0 ? normalizedValue : null;
 }
 
+/** Lê a ordem como inteiro; `null` se não for um número. */
 function parseSortOrder(value: string): number | null {
   const parsedValue = Number.parseInt(value, 10);
   return Number.isFinite(parsedValue) ? parsedValue : null;
 }
 
+/** Converte o tipo do formulário no tipo da API; qualquer valor desconhecido é "nomeados". */
 function parseCategoryKind(value: string): CategoryKind {
   return value === CATEGORY_KIND_FORM_LABELS.USER_VOTE ? CATEGORY_KIND.USER_VOTE : CATEGORY_KIND.NOMINEE;
 }
 
+/** Corpo comum a criar e editar; a pergunta e as regras de voto só existem nas categorias de voto em membros. */
 function buildCategoryPayload(form: Readonly<CategoryFormState>) {
   const kind = parseCategoryKind(form.kind);
 
@@ -96,10 +107,12 @@ function buildCategoryPayload(form: Readonly<CategoryFormState>) {
   };
 }
 
+/** Corpo do pedido para criar uma categoria a partir do formulário. */
 export function buildCreateCategoryPayload(form: Readonly<CategoryFormState>): CreateAwardCategoryRequest {
   return buildCategoryPayload(form);
 }
 
+/** Corpo do pedido para editar uma categoria a partir do formulário (inclui `isActive`). */
 export function buildUpdateCategoryPayload(form: Readonly<CategoryFormState>): UpdateAwardCategoryRequest {
   return {
     ...buildCategoryPayload(form),
@@ -107,18 +120,20 @@ export function buildUpdateCategoryPayload(form: Readonly<CategoryFormState>): U
   };
 }
 
+/** Texto "N nomeados" no singular ou plural; `null` quando não há nenhum. */
 function formatKnownDependencyCount(count: number, variants: Readonly<{ one: string; other: string }>): string | null {
   if (count === 0) return null;
   return formatMessage(count === 1 ? variants.one : variants.other, { count });
 }
 
 /**
- * Determines whether the UI can offer deletion. The API remains authoritative
- * because associations may change between this summary and the delete request.
+ * Decide se a UI pode oferecer apagar a categoria. A API continua a ser a autoridade,
+ * porque as associações podem mudar entre este resumo e o pedido de apagar.
  */
 export function buildCategoryUsage(category: AwardCategoryDto, nomineeCount: number, voteCount: number): CategoryUsage {
   const dependencyCount = nomineeCount + voteCount;
 
+  // com nomeados ou votos, apagar fica bloqueado e o motivo lista o que existe
   if (dependencyCount > 0) {
     const dependencies = [
       formatKnownDependencyCount(nomineeCount, { one: copy.nomineeOne, other: copy.nomineeOther }),
@@ -133,6 +148,7 @@ export function buildCategoryUsage(category: AwardCategoryDto, nomineeCount: num
     };
   }
 
+  // as categorias de voto em membros são protegidas mesmo sem uso
   if (category.kind === CATEGORY_KIND.USER_VOTE) {
     return {
       canDelete: false,
@@ -150,13 +166,14 @@ export function buildCategoryUsage(category: AwardCategoryDto, nomineeCount: num
   };
 }
 
-/** Catalog order: sort order first, then name. */
+/** Ordem do catálogo: primeiro a ordem definida, depois o nome. */
 export function sortCategories(categories: AwardCategoryDto[]) {
   return [...categories].sort(
     (left, right) => (left.sortOrder ?? 0) - (right.sortOrder ?? 0) || left.name.localeCompare(right.name, "pt-PT"),
   );
 }
 
+/** Conta ocorrências por id de categoria, ignorando valores vazios. */
 function countByCategory(categoryIds: (string | null)[]) {
   const counts = new Map<string, number>();
   for (const categoryId of categoryIds) {
@@ -165,7 +182,7 @@ function countByCategory(categoryIds: (string | null)[]) {
   return counts;
 }
 
-/** Nominees, votes and whether each category may be deleted. */
+/** Para cada categoria, quantos nomeados e votos tem e se pode ser apagada. */
 export function buildCategoryUsageById(
   categories: AwardCategoryDto[],
   nominations: Pick<AdminNomineeDto, "categoryId">[],

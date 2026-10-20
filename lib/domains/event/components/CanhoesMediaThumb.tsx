@@ -15,7 +15,7 @@ type CanhoesMediaThumbProps = {
 };
 
 /**
- * Miniatura de media (imagem ou ícone de fallback).
+ * Miniatura de media (imagem ou ícone de recurso).
  */
 export function CanhoesMediaThumb({
   alt,

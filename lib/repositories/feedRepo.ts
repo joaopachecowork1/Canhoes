@@ -1,6 +1,7 @@
 import { canhoesFetch } from "@/lib/api/canhoesClient";
 import type * as T from "@/lib/api/types";
 
+// Põe os ficheiros num `FormData` sob o campo `files`, como a rota de uploads espera.
 function toFormData(files: File[]) {
   const formData = new FormData();
   for (const file of files) {
@@ -9,6 +10,7 @@ function toFormData(files: File[]) {
   return formData;
 }
 
+/** Chamadas do mural: publicações, comentários, reações, sondagens, imagens e moderação. */
 export const feedRepo = {
   getPosts: (eventId: string, params: { skip: number; take: number }) =>
     canhoesFetch<T.PagedResult<T.EventFeedPostFullDto>>(

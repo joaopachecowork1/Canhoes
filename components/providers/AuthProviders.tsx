@@ -5,7 +5,7 @@ import { SessionProvider } from "next-auth/react";
 
 import { AuthProvider } from "@/components/providers/AuthContext";
 
-/** Without `session`, the client fetches it; with one (from the server), the first render is already signed in. */
+/** Sem `session`, o cliente vai buscá-la; com uma (vinda do servidor), o primeiro render já aparece autenticado. */
 export function AuthProviders({
   session,
   isDevLoginAvailable,

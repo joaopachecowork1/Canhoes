@@ -3,10 +3,11 @@ import type { AdminVotesPagedDto, PagedResult, AdminCategoryResultDto } from "@/
 import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { loadUsersById } from "@/lib/usersById";
 
-/* What the admin sees of the voting: every individual vote and the official results so far. */
+/* O que o admin vê da votação: cada voto individual e os resultados oficiais até agora. */
 
-/** Nominee votes of the event, most recently changed first, with category, nominee and voter names. */
+/** Votos em nomeados do evento, os alterados há menos tempo primeiro, com os nomes da categoria, do nomeado e de quem votou. */
 export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): Promise<AdminVotesPagedDto> {
+  // Os votos pertencem a categorias; filtra-se por elas para ficar só neste evento.
   const categoryIds = (
     await prisma.awardCategory.findMany({
       where: { eventId },
@@ -27,6 +28,7 @@ export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): 
     take,
   });
 
+  // Nomes de categorias, nomeados e votantes carregados de uma vez para a página.
   const catIds = [...new Set(pagedVotes.map((v) => v.categoryId))];
   const nomineeIds = [...new Set(pagedVotes.map((v) => v.nomineeId))];
   const [categories, nominees, userMap] = await Promise.all([
@@ -37,6 +39,7 @@ export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): 
       (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
     ),
   ]);
+
   const catMap = new Map(categories.map((c) => [c.id, c.name]));
   const nomMap = new Map(nominees.map((n) => [n.id, n.title]));
 
@@ -57,10 +60,12 @@ export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): 
   };
 }
 
+/** Um voto numa pessoa (categorias de pessoas). */
 type UserVoteRow = { categoryId: string; voterUserId: string; targetUserId: string };
+/** Uma linha de resultado de uma categoria. */
 type NomineeResult = AdminCategoryResultDto["nominees"][number];
 
-/** Votes of one category per voted member, most voted first, with the names of who voted. */
+/** Votos de uma categoria por membro votado, o mais votado primeiro, com os nomes de quem votou. */
 function tallyCategory(votes: UserVoteRow[], nameOf: (userId: string) => string): NomineeResult[] {
   const byTarget = new Map<string, string[]>();
   for (const vote of votes) {
@@ -77,7 +82,7 @@ function tallyCategory(votes: UserVoteRow[], nameOf: (userId: string) => string)
     .sort((left, right) => right.voteCount - left.voteCount);
 }
 
-/** Display name (else email) of each user, for labelling votes. */
+/** Nome (ou email) de cada utilizador, para etiquetar os votos. */
 async function getUserNames(userIds: string[]) {
   const users = await loadUsersById(userIds, (where) =>
     prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
@@ -85,12 +90,13 @@ async function getUserNames(userIds: string[]) {
   return (userId: string) => users.get(userId)?.displayName ?? users.get(userId)?.email ?? "Unknown";
 }
 
-/** Official results per category so far, for the admin, at any phase (members only see them in RESULTS). */
+/** Resultados oficiais por categoria até agora, para o admin, em qualquer fase (os membros só os veem em RESULTS). */
 export async function getAdminOfficialResultsPaged(
   eventId: string,
   skip = 0,
   take = 50,
 ): Promise<PagedResult<AdminCategoryResultDto>> {
+  // Só as categorias de pessoas têm votos em utilizadores.
   const where = { eventId, kind: CATEGORY_KIND.USER_VOTE };
   const [members, categories, total] = await Promise.all([
     prisma.eventMember.count({ where: { eventId } }),
@@ -107,6 +113,7 @@ export async function getAdminOfficialResultsPaged(
       userVotes.filter((vote) => vote.categoryId === category.id),
       nameOf,
     );
+    // A participação é o total de votos a dividir pelo número de membros.
     const totalVotes = nominees.reduce((sum, nominee) => sum + nominee.voteCount, 0);
     return {
       categoryId: category.id,

@@ -1,7 +1,7 @@
 /**
- * An error that a route handler turns into a `{ code, message }` JSON response with `status`
- * (see `apiRoute`). Domain errors that callers can act on extend it, so services stay free of
- * response handling.
+ * Erro que um route handler converte numa resposta JSON `{ code, message }` com `status`
+ * (ver `apiRoute`). Os erros de domínio que o cliente pode tratar estendem-no, para que os
+ * serviços não tenham de lidar com respostas.
  */
 export class HttpError extends Error {
   constructor(
@@ -15,17 +15,17 @@ export class HttpError extends Error {
   }
 }
 
-/** A 400 for input the route cannot accept, with optional details for the client. */
+/** Um 400 para input que a rota não aceita, com detalhes opcionais para o cliente. */
 export function badRequest(message: string, details?: unknown) {
   return new HttpError(400, "VALIDATION_ERROR", message, details);
 }
 
-/** A 401 for a request without a session. */
+/** Um 401 para um pedido sem sessão. */
 export function unauthorized() {
   return new HttpError(401, "UNAUTHORIZED", "Authentication required.");
 }
 
-/** A 404 for a resource that does not exist in this event (or that the user may not see). */
+/** Um 404 para um recurso que não existe neste evento (ou que o utilizador não pode ver). */
 export function notFound(message: string) {
   return new HttpError(404, "NOT_FOUND", message);
 }

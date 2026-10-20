@@ -33,6 +33,7 @@ type UseHubFeedPostActionsArgs = {
 
 type PostUpdater = (post: EventFeedPostFullDto) => EventFeedPostFullDto;
 
+/** Regista o erro e mostra um toast com a mensagem do servidor ou o texto de recurso. */
 function reportFeedError(
   action: string,
   error: unknown,
@@ -42,7 +43,7 @@ function reportFeedError(
   toast.error(getErrorMessage(error, fallback));
 }
 
-/** Reads and writes the cached feed of one event. */
+/** Altera o feed em cache de um evento e devolve o estado anterior, para servir de rollback. */
 function useFeedCache(queryClient: QueryClient, eventId: string | null) {
   return useCallback(
     (update: (feed: FeedInfiniteData | undefined) => FeedInfiniteData | undefined) => {
@@ -57,8 +58,8 @@ function useFeedCache(queryClient: QueryClient, eventId: string | null) {
 }
 
 /**
- * Applies `optimistic` to the cached post, sends `request`, then lets the server answer win
- * (`fromServer`). On failure the post goes back to how it was and the error becomes a toast.
+ * Aplica `optimistic` à publicação em cache, envia `request` e deixa a resposta do servidor prevalecer
+ * (`fromServer`). Em caso de falha a publicação volta ao que era e o erro vira um toast.
  */
 function useOptimisticPostAction(queryClient: QueryClient, eventId: string | null) {
   const updateFeed = useFeedCache(queryClient, eventId);
@@ -83,6 +84,7 @@ function useOptimisticPostAction(queryClient: QueryClient, eventId: string | nul
     }) => {
       if (!eventId) return false;
 
+      // Guarda a publicação tal como estava antes da alteração otimista, para o rollback.
       const previousPost = findPostInFeed(
         updateFeed((feed) => updatePostInFeed(feed, postId, optimistic)),
         postId,
@@ -90,9 +92,12 @@ function useOptimisticPostAction(queryClient: QueryClient, eventId: string | nul
 
       try {
         const result = await request(eventId);
+
+        // O servidor é a verdade: corrige o palpite otimista com o que ele devolveu.
         if (fromServer) updateFeed((feed) => updatePostInFeed(feed, postId, fromServer(result)));
         return true;
       } catch (error) {
+        // Rollback: só esta publicação volta atrás; o resto do feed mantém o que mudou entretanto.
         if (previousPost) updateFeed((feed) => updatePostInFeed(feed, postId, () => previousPost));
         reportFeedError(action, error, { context, fallback: fallbackError });
         return false;
@@ -102,6 +107,7 @@ function useOptimisticPostAction(queryClient: QueryClient, eventId: string | nul
   );
 }
 
+/** Reagir e não-gostar de uma publicação, ambos otimistas; devolve também `runOptimistic` para outras ações. */
 function usePostVotes(queryClient: QueryClient, eventId: string | null) {
   const runOptimistic = useOptimisticPostAction(queryClient, eventId);
 
@@ -114,6 +120,7 @@ function usePostVotes(queryClient: QueryClient, eventId: string | null) {
         fallbackError: copy.reactionError,
         optimistic: (post) => applyPostReaction(post, emoji),
         postId,
+        // Corações vão pelo endpoint de gostos (devolve o estado final); os outros emojis não devolvem nada.
         request: async (id) => {
           if (isHeart) return feedRepo.togglePostLike(id, postId);
           await feedRepo.togglePostReaction(id, postId, emoji);
@@ -144,6 +151,7 @@ function usePostVotes(queryClient: QueryClient, eventId: string | null) {
   return { toggleReaction, toggleDownvote, runOptimistic };
 }
 
+/** Ações de admin: fixar (com a resposta do servidor), mover fixadas (refetch) e apagar (otimista com rollback). */
 function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
   const updateFeed = useFeedCache(queryClient, eventId);
 
@@ -153,6 +161,8 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
 
       try {
         const { pinned, pinnedOrder } = await feedRepo.adminPinPost(eventId, postId);
+
+        // Reordena as fixadas localmente com o resultado do servidor.
         updateFeed((feed) =>
           sortPinnedPosts(updatePostInFeed(feed, postId, (post) => ({ ...post, isPinned: pinned, pinnedOrder }))),
         );
@@ -169,6 +179,8 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
 
       try {
         await feedRepo.adminMovePinnedPost(eventId, postId, direction);
+
+        // A nova ordem só o servidor a conhece, por isso recarrega-se o feed.
         await queryClient.invalidateQueries({ queryKey: queryKeys.hubPosts(eventId) });
       } catch (error) {
         reportFeedError("adminMovePinned", error, { context: { direction, postId }, fallback: copy.movePinnedError });
@@ -181,6 +193,7 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
     async (postId: string) => {
       if (!eventId) return;
 
+      // Cancela pedidos em curso para uma resposta atrasada não repor a publicação apagada.
       await queryClient.cancelQueries({ queryKey: queryKeys.hubPosts(eventId) });
       const previousFeed = updateFeed((feed) => removePostFromFeed(feed, postId));
 
@@ -188,6 +201,7 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
         await feedRepo.adminDeletePost(eventId, postId);
         toast.success(copy.postRemoved);
       } catch (error) {
+        // Rollback: repõe o feed anterior inteiro.
         queryClient.setQueryData(queryKeys.hubPosts(eventId), previousFeed);
         reportFeedError("adminDelete", error, { context: { postId }, fallback: copy.deleteError });
       }
@@ -198,7 +212,7 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
   return { adminPin, adminMovePinned, adminDelete };
 }
 
-/** Reactions, downvotes, poll votes, pins and deletes on feed posts, applied optimistically and rolled back on failure. */
+/** Reações, não-gostos, votos em sondagens, fixar e apagar publicações do feed, aplicados de forma otimista e revertidos em caso de falha. */
 export function useHubFeedPostActions({ eventId, queryClient }: Readonly<UseHubFeedPostActionsArgs>) {
   const { toggleReaction, toggleDownvote, runOptimistic } = usePostVotes(queryClient, eventId);
   const { adminPin, adminMovePinned, adminDelete } = useAdminPostActions(queryClient, eventId);

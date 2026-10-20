@@ -19,14 +19,14 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.secretSanta.CanhoesSecretSantaModule;
 
-/** Where the wishlist button goes: the wishlist while it is open, else back to the event. */
+/** Para onde vai o botão da wishlist: a wishlist enquanto está aberta, senão de volta ao evento. */
 function getWishlistLink(isWishlistOpen: boolean) {
   return isWishlistOpen
     ? { href: CANHOES_MODULE_BY_KEY.wishlist.href, label: copy.openWishlist }
     : { href: "/canhoes", label: messages.common.backToEvent };
 }
 
-/** Amigo secreto page: who you give a present to, once the draw is revealed, and their wishlist. */
+/** Página do amigo secreto: a quem ofereces um presente, depois de o sorteio ser revelado, e a wishlist dessa pessoa. */
 export function CanhoesSecretSantaModule({
   initialContext,
   initialSecretSantaOverview,

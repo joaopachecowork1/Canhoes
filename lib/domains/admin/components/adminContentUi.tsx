@@ -2,10 +2,11 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-/** Paper surface for admin cards; `Card` merges it over its own defaults. */
+/** Superfície "papel" dos cartões de admin; o `Card` junta-a por cima dos seus estilos por omissão. */
 export const ADMIN_CONTENT_CARD_CLASS =
   "border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-card)]";
 
+/** Painel suave para mostrar detalhes dentro de um cartão ou gaveta de admin. */
 export function AdminDetailPanel({ children, className }: Readonly<{ children: ReactNode; className?: string }>) {
   return (
     <div
@@ -19,6 +20,7 @@ export function AdminDetailPanel({ children, className }: Readonly<{ children: R
   );
 }
 
+/** Botão de largura total para escolher um item de uma lista; `selected` realça o escolhido. */
 export function AdminSelectableButton({
   children,
   className,

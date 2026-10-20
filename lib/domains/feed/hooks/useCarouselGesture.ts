@@ -6,12 +6,13 @@ const SWIPE_THRESHOLD_PX = 50;
 const DRAG_START_PX = 10;
 
 /**
- * Current slide plus touch handlers: a mostly horizontal swipe past 50px changes slide. The slide
- * stays inside `totalSlides`, also when slides are removed, without syncing state in an effect.
+ * Slide atual mais os handlers de toque: um gesto sobretudo horizontal além de 50px muda de slide. O slide
+ * fica sempre dentro de `totalSlides`, mesmo se slides forem removidos, sem sincronizar estado num effect.
  */
 export function useCarouselGesture(totalSlides: number) {
   const lastIndex = Math.max(totalSlides - 1, 0);
   const [storedIndex, setStoredIndex] = useState(0);
+  // O índice guardado pode ficar fora do intervalo se houver menos slides; o valor derivado é limitado.
   const currentIndex = Math.min(storedIndex, lastIndex);
   const setCurrentIndex = useCallback(
     (update: SetStateAction<number>) =>
@@ -31,6 +32,7 @@ export function useCarouselGesture(totalSlides: number) {
     isDragging.current = false;
   };
 
+  // Só conta como arrastar se o movimento for sobretudo horizontal, para não roubar o scroll vertical.
   const handleTouchMove = (event: TouchEvent) => {
     const deltaX = Math.abs(event.touches[0].clientX - touchStartX.current);
     const deltaY = Math.abs(event.touches[0].clientY - touchStartY.current);

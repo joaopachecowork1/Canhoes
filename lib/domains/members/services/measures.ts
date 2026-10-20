@@ -2,9 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { ProposalStatusSchema } from "@/lib/zod/common";
 import type { GalaMeasureDto, MeasureProposalDto } from "@/lib/api/types";
 
-/* Gala measures: the approved list and proposals members make. Route guards decide who may call each one. */
+/* Medidas da gala: a lista oficial e as propostas dos membros. As guardas das rotas decidem quem pode chamar cada função. */
 
-/** Official gala measures of the event, newest first. */
+/** Medidas oficiais da gala do evento, das mais recentes para as mais antigas. */
 export async function getMeasures(eventId: string): Promise<GalaMeasureDto[]> {
   const measures = await prisma.galaMeasure.findMany({
     where: { eventId },
@@ -19,12 +19,13 @@ export async function getMeasures(eventId: string): Promise<GalaMeasureDto[]> {
   }));
 }
 
-/** Records a measure proposal as `pending`, for the admin to moderate. */
+/** Regista uma proposta de medida como `pending`, para o admin moderar. */
 export async function createMeasureProposal(
   eventId: string,
   userId: string,
   text: string,
 ): Promise<MeasureProposalDto> {
+  // Nasce sempre pendente: só o admin a aprova.
   const proposal = await prisma.measureProposal.create({
     data: {
       eventId,

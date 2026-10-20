@@ -8,8 +8,10 @@ import type {
   PagedResult,
 } from "@/lib/api/types";
 
+/** Página do amigo secreto: pré-carrega o resumo do sorteio e a wishlist no servidor. */
 export default async function AmigoSecretoPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
+  // As duas leituras são independentes, por isso correm em paralelo.
   const [initialOverview, initialWishlistData] = activeContext
     ? await Promise.all([
         canhoesServerFetch<EventSecretSantaOverviewDto>(`events/${activeContext.event.id}/secret-santa/overview`),

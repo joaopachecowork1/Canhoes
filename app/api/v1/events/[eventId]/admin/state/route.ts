@@ -10,8 +10,13 @@ const stateSchema = z.object({
   moduleVisibility: z.record(z.string(), z.boolean()).optional(),
 });
 
+/** PUT /v1/events/:eventId/admin/state: atualiza a visibilidade de nomeações, resultados e áreas */
 export const PUT = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
+  // Só administradores.
   await requireAdmin();
+
+  // Valida o corpo do pedido.
   const changes = await readJson(request, stateSchema);
+
   return json(await updateAdminState(eventId, changes));
 });

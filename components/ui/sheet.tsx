@@ -7,18 +7,22 @@ import { XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import messages from "@/messages/pt.json";
 
+/** Painel deslizante (Radix Dialog): raiz. */
 function Sheet({ ...props }: Readonly<React.ComponentProps<typeof SheetPrimitive.Root>>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
+/** Botão que fecha o painel. */
 function SheetClose({ ...props }: React.ComponentProps<typeof SheetPrimitive.Close>) {
   return <SheetPrimitive.Close data-slot="sheet-close" {...props} />;
 }
 
+/** Monta o painel fora da árvore, no fim do `body`. */
 function SheetPortal({ ...props }: Readonly<React.ComponentProps<typeof SheetPrimitive.Portal>>) {
   return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
 }
 
+/** Fundo desfocado por trás do painel. */
 function SheetOverlay({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
   return (
     <SheetPrimitive.Overlay
@@ -33,6 +37,7 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
   );
 }
 
+/** O painel em si, a deslizar de `side` (em baixo no telemóvel), com botão de fechar. */
 function SheetContent({
   className,
   children,
@@ -70,10 +75,12 @@ function SheetContent({
   );
 }
 
+/** Cabeçalho do painel (título e descrição). */
 function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="sheet-header" className={cn("flex flex-col gap-1.5 px-4 pt-5", className)} {...props} />;
 }
 
+/** Título do painel. */
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
@@ -84,6 +91,7 @@ function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPr
   );
 }
 
+/** Descrição do painel. */
 function SheetDescription({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Description>) {
   return (
     <SheetPrimitive.Description

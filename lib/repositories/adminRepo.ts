@@ -1,6 +1,7 @@
 import { canhoesFetch } from "@/lib/api/canhoesClient";
 import type * as T from "@/lib/api/types";
 
+/** Chamadas da administração à API do evento (fase, categorias, propostas, nomeações, votos, amigo secreto). */
 export const adminRepo = {
   getBootstrap: (eventId: string) => canhoesFetch<T.EventAdminBootstrapDto>(`/v1/events/${eventId}/admin/bootstrap`),
 

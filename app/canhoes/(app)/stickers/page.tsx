@@ -4,6 +4,7 @@ import { CanhoesStickerSubmitModule } from "@/lib/domains/stickers/components/Ca
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, AwardCategoryDto, NomineeDto, PagedResult } from "@/lib/api/types";
 
+/** Página dos stickers: pré-carrega as categorias e os nomeados aprovados. */
 export default async function StickersPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const [initialCategories, initialNominees] = activeContext

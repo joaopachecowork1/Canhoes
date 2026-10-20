@@ -3,15 +3,17 @@
 import React, { createContext, useContext, useMemo, useCallback, useEffect, useRef, useState } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 
+/** O utilizador autenticado, como a UI o vê. */
 export type AuthUser = {
   id: string;
   email: string;
   name?: string;
   isAdmin: boolean;
-  /** Palette key of the member's colour. */
+  /** Chave da paleta com a cor do membro. */
   color?: string;
 };
 
+/** O que o contexto de autenticação expõe aos componentes. */
 type AuthContextType = {
   user: AuthUser | null;
   isLogged: boolean;
@@ -26,15 +28,17 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/** Para onde voltar depois do login: o `callbackUrl` do pedido, só se for dentro de `/canhoes`. */
 function currentCallbackUrl() {
   if (typeof window === "undefined") return "/canhoes";
   const requested = new URLSearchParams(window.location.search).get("callbackUrl");
   return requested?.startsWith("/canhoes") ? requested : "/canhoes";
 }
 
+// Marca na sessão do browser que o utilizador saiu, para o login de dev não o voltar a autenticar sozinho.
 const SKIP_DEV_AUTO_LOGIN_KEY = "skipDevAutoLogin";
 
-// These only call NextAuth, so they are module functions: stable without useCallback.
+// Estas só chamam o NextAuth, por isso são funções de módulo: estáveis sem `useCallback`.
 function loginGoogle() {
   void signIn("google", { callbackUrl: currentCallbackUrl() });
 }
@@ -53,7 +57,7 @@ function logout() {
   void signOut({ callbackUrl: "/canhoes/login", redirect: true });
 }
 
-/** Outside production, signs in once with the development provider unless the user logged out. */
+/** Fora de produção, entra uma vez com o provider de desenvolvimento, a não ser que o utilizador tenha saído. */
 function useDevAutoLogin({
   isDevLoginAvailable,
   status,
@@ -71,6 +75,7 @@ function useDevAutoLogin({
       return;
     }
 
+    // Só uma tentativa por montagem, para um login falhado não entrar em ciclo.
     autoLoginAttempted.current = true;
     setIsPending(true);
     setHasFailed(false);
@@ -90,6 +95,7 @@ function useDevAutoLogin({
   return { isPending, hasFailed };
 }
 
+/** Fornece o utilizador, o estado de carregamento e as ações de login/logout a toda a app. */
 export function AuthProvider({
   isDevLoginAvailable,
   children,
@@ -100,7 +106,7 @@ export function AuthProvider({
 
   const isDevAuthBypass = session?.authMode === "development";
 
-  // The NextAuth `jwt` callback re-reads the user from the database, so the session is the profile.
+  // O callback `jwt` do NextAuth relê o utilizador da base de dados, por isso a sessão é o perfil.
   const sessionUser = isLoggedIn ? session?.user : undefined;
   const user = useMemo<AuthUser | null>(() => {
     if (!sessionUser) return null;
@@ -114,11 +120,12 @@ export function AuthProvider({
     };
   }, [sessionUser]);
 
-  /** Re-runs the `jwt` callback, which re-reads `isAdmin` and the name from the database. */
+  /** Volta a correr o callback `jwt`, que relê `isAdmin` e o nome da base de dados. */
   const refreshProfile = useCallback(async () => {
     await updateSession();
   }, [updateSession]);
 
+  // Continua a carregar enquanto o login de dev automático ainda pode acontecer, para não piscar o ecrã de login.
   const isLoading =
     status === "loading" ||
     autoLogin.isPending ||
@@ -142,12 +149,14 @@ export function AuthProvider({
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/** Lê o contexto de autenticação; só funciona dentro de um `AuthProvider`. */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
   return ctx;
 }
 
+/** Diz se o utilizador atual é admin. */
 export function useIsAdmin() {
   const { user } = useAuth();
   return Boolean(user?.isAdmin);

@@ -6,11 +6,12 @@ import type { EventActiveContextDto } from "@/lib/api/types";
 import { eventRepo } from "@/lib/repositories/eventRepo";
 import { queryKeys } from "@/lib/queryKeys";
 
-/** The active event and the user's overview of it, shared by the shell and every page. */
+/** O evento ativo e o resumo do utilizador sobre ele, partilhados pelo shell e por todas as páginas. */
 export function useEventOverview(initialContext?: EventActiveContextDto | null) {
   const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: queryKeys.eventOverview,
     queryFn: () => eventRepo.getActiveContext(),
+    // O contexto vem do servidor no primeiro render, por isso a navegação não pisca vazia.
     initialData: initialContext ?? undefined,
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
@@ -21,6 +22,7 @@ export function useEventOverview(initialContext?: EventActiveContextDto | null) 
     await refetch();
   }, [refetch]);
 
+  // Normaliza o erro para `Error`, que é o que a UI espera.
   let resolvedError: Error | null = null;
   if (error instanceof Error) {
     resolvedError = error;

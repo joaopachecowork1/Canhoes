@@ -11,9 +11,7 @@ const TONE_PANEL_CLASS: Record<EmptyStateTone, string> = {
   social: "",
 };
 
-/**
- * Empty state with icon, title, optional description and action.
- */
+/** Estado vazio com ícone, título e, opcionalmente, descrição e ação. */
 export function EmptyState({
   action,
   className,

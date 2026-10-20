@@ -38,6 +38,7 @@ type HubFeedListProps = {
   sentinelRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
+/** Um post da lista; memoizado para que só re-renderize quando os seus próprios dados mudam. */
 const HubFeedListItem = memo(function HubFeedListItem({
   post,
   index,
@@ -112,6 +113,7 @@ const HubFeedListItem = memo(function HubFeedListItem({
   );
 });
 
+/** A lista de posts do feed, com estado vazio e botão/sentinela de "carregar mais". */
 export const HubFeedList = memo(function HubFeedList({
   posts,
   remainingPostsCount,

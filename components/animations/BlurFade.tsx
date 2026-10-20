@@ -11,9 +11,7 @@ interface BlurFadeProps {
 }
 
 /**
- * BlurFade + Staggered Scroll Animation
- *
- * Animação de entrada dos cards ao fazer scroll (mockup reference):
+ * Animação de entrada dos cards ao fazer scroll, escalonada por `delay`:
  * - Fade in (opacity 0 → 1)
  * - Blur out (blur 8px → 0)
  * - Slide up (translateY 16px → 0)
@@ -39,6 +37,7 @@ export const BlurFade = React.memo(function BlurFade({
     const element = ref.current;
     if (!element) return;
 
+    // Dispara uma única vez: depois de visível deixa de observar.
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

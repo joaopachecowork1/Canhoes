@@ -1,19 +1,20 @@
 import { personColorVar } from "@/lib/personColors";
 import { cn } from "@/lib/utils";
 
+/** Classes de tamanho do cromo. */
 const SIZE_CLASS = {
   sm: "size-8 rounded-lg border-2 text-xs",
   md: "size-10 rounded-[0.625rem] border-[3px] text-sm",
   lg: "size-16 rounded-xl border-4 text-xl",
 } as const;
 
-/** First letters of the first and last word, upper-cased ("Ana Silva" → "AS"). */
+/** Primeiras letras da primeira e da última palavra, em maiúsculas ("Ana Silva" → "AS"). */
 function initialsOf(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
   return ((words[0]?.[0] ?? "") + (words.length > 1 ? (words.at(-1)?.[0] ?? "") : "")).toUpperCase() || "?";
 }
 
-/** A member's cromo: their photo or initials inside a frame of their own colour. */
+/** O cromo de um membro: a foto ou as iniciais dentro de uma moldura da sua cor. */
 export function PersonCromo({
   name,
   color,

@@ -5,13 +5,13 @@ import type { EventFeedPostFullDto, PagedResult } from "@/lib/api/types";
 export type FeedPageData = {
   posts: EventFeedPostFullDto[];
   nextCursor: number | null;
-  /** Posts on the server when this page was fetched. */
+  /** Total de publicações no servidor quando esta página foi pedida. */
   total: number;
 };
 
 export type FeedInfiniteData = InfiniteData<FeedPageData, number>;
 
-/** One page of the infinite feed from an API page, dropping malformed posts. */
+/** Converte uma página da API numa página do feed infinito, descartando publicações malformadas. */
 export function toFeedPage(result: PagedResult<EventFeedPostFullDto>): FeedPageData {
   return {
     posts: (Array.isArray(result.items) ? result.items : []).filter((post): post is EventFeedPostFullDto =>
@@ -22,7 +22,7 @@ export function toFeedPage(result: PagedResult<EventFeedPostFullDto>): FeedPageD
   };
 }
 
-/** Posts on the server that are not loaded yet; the last page has the freshest total. */
+/** Publicações no servidor que ainda não foram carregadas; a última página tem o total mais recente. */
 export function countRemainingPosts(feed: InfiniteData<FeedPageData> | undefined): number {
   if (!feed || feed.pages.length === 0) return 0;
 
@@ -31,11 +31,12 @@ export function countRemainingPosts(feed: InfiniteData<FeedPageData> | undefined
   return Math.max(total - loadedCount, 0);
 }
 
-/** The feed without the given post, on every loaded page. */
+/** O feed sem a publicação dada, em todas as páginas carregadas. */
 export function removePostFromFeed<TFeed extends InfiniteData<FeedPageData>>(
   feed: TFeed | undefined,
   postId: string,
 ): TFeed | undefined {
+  // Se o post não está carregado devolve o mesmo objeto, para não provocar um novo render.
   const isPostLoaded = feed?.pages.some((page) => page.posts.some((post) => post.id === postId));
   if (!feed || !isPostLoaded) return feed;
 
@@ -49,12 +50,12 @@ export function removePostFromFeed<TFeed extends InfiniteData<FeedPageData>>(
   };
 }
 
-/** The loaded post with this id, if any page has it. */
+/** A publicação carregada com este id, se alguma página a tiver. */
 export function findPostInFeed(feed: FeedInfiniteData | undefined, postId: string) {
   return feed?.pages.flatMap((page) => page.posts).find((post) => post.id === postId);
 }
 
-/** Replaces one post wherever it is loaded; the rest of the feed keeps its identity. */
+/** Substitui uma publicação onde estiver carregada; o resto do feed mantém a identidade dos objetos. */
 export function updatePostInFeed(
   feed: FeedInfiniteData | undefined,
   postId: string,
@@ -73,7 +74,7 @@ export function updatePostInFeed(
 
 const lastPinned = (post: EventFeedPostFullDto) => post.pinnedOrder ?? Number.MAX_SAFE_INTEGER;
 
-/** Pinned posts first, by pin order, then newest first; each page is sorted on its own. */
+/** Publicações fixadas primeiro, pela ordem de fixação, depois as mais recentes; cada página é ordenada por si. */
 export function sortPinnedPosts(feed: FeedInfiniteData | undefined): FeedInfiniteData | undefined {
   if (!feed) return feed;
 
@@ -81,6 +82,7 @@ export function sortPinnedPosts(feed: FeedInfiniteData | undefined): FeedInfinit
     ...feed,
     pages: feed.pages.map((page) => ({
       ...page,
+      // Cópia antes de ordenar: nunca se muta a cache do React Query.
       posts: [...page.posts].sort(
         (left, right) =>
           Number(Boolean(right.isPinned)) - Number(Boolean(left.isPinned)) ||

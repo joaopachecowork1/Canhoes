@@ -30,7 +30,7 @@ type NominationsQueryData = { nominations: AdminNomineeDto[] };
 const copy = messages.admin.useAdminNominations;
 const NO_CATEGORY = "none";
 
-/** A moderation write: updates the pending list in place, toasts, then refreshes the counters. */
+/** Escrita de moderação: atualiza a lista pendente no local, avisa e depois refresca os contadores. */
 function useModerationMutation<TVariables>({
   errorMessage,
   mutationFn,
@@ -46,6 +46,8 @@ function useModerationMutation<TVariables>({
 }>) {
   return useMutation({
     mutationFn,
+    // Atualiza a cache só depois de o servidor confirmar (sem atualização otimista, logo sem rollback);
+    // o item sai da lista pendente já, e as queries relacionadas são invalidadas a seguir.
     onSuccess: async (_data, variables) => {
       updateCache(variables);
       toast.success(successMessage);
@@ -57,6 +59,7 @@ function useModerationMutation<TVariables>({
   });
 }
 
+/** Edições locais da lista de nomeações pendentes na cache (remover e mudar de categoria). */
 function useNominationCache(nominationsQueryKey: readonly unknown[]) {
   const queryClient = useQueryClient();
 
@@ -76,6 +79,7 @@ function useNominationCache(nominationsQueryKey: readonly unknown[]) {
   };
 }
 
+/** Aprovar, rejeitar e mudar a categoria de uma nomeação, partilhando a mesma invalidação. */
 function useNominationMutations(
   queryEventId: string,
   nominationsQueryKey: readonly unknown[],
@@ -83,6 +87,7 @@ function useNominationMutations(
 ) {
   const queryClient = useQueryClient();
   const cache = useNominationCache(nominationsQueryKey);
+  // O contador de pendentes e as categorias (nº de nomeações) mudam com qualquer moderação.
   const invalidateRelated = () =>
     Promise.all([
       queryClient.invalidateQueries({ queryKey: getPendingSummaryQueryKey(queryEventId) }),
@@ -104,6 +109,7 @@ function useNominationMutations(
     invalidateRelated,
   });
   const setCategory = useModerationMutation({
+    // "none" é o valor do seletor para "sem categoria"; a API espera `null`.
     mutationFn: ({ nomineeId, categoryId }: { nomineeId: string; categoryId: string }) =>
       adminRepo.setNominationCategory(queryEventId, nomineeId, {
         categoryId: categoryId === NO_CATEGORY ? null : categoryId,
@@ -118,7 +124,7 @@ function useNominationMutations(
   return { approve, reject, setCategory, isPending: approve.isPending || reject.isPending || setCategory.isPending };
 }
 
-/** Pending nominations and categories for the moderation queue, with approve, reject and move-to-category mutations. */
+/** Nomeações pendentes e categorias da fila de moderação, com as mutações de aprovar, rejeitar e mudar de categoria. */
 export function useAdminNominations(eventId: string | null) {
   const queryClient = useQueryClient();
   const queryEventId = eventId ?? "";
@@ -137,6 +143,7 @@ export function useAdminNominations(eventId: string | null) {
     enabled: Boolean(eventId),
     queryFn: () => adminRepo.getNominationsPaged(queryEventId, NOMINATIONS_PAGE, NOMINATIONS_PAGE_SIZE, "pending"),
     queryKey: nominationsQueryKey,
+    // Só vai buscar de 30 em 30 s enquanto houver pendentes, para apanhar novas propostas dos membros.
     refetchInterval: (query) => (query.state.data?.nominations.length ? 30_000 : false),
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 2,
@@ -146,6 +153,7 @@ export function useAdminNominations(eventId: string | null) {
 
   return {
     categories: categoriesQuery.data ?? [],
+    // useMemo mantém a referência do array vazio estável entre renders.
     nominations: useMemo(() => nominationsQuery.data?.nominations ?? [], [nominationsQuery.data]),
     error: nominationsQuery.error ?? categoriesQuery.error,
     isLoading: categoriesQuery.isLoading || nominationsQuery.isLoading,

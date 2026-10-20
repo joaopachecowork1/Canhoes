@@ -10,6 +10,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.app.CanhoesError;
 
+/** Fronteira de erro das páginas autenticadas: regista o erro e oferece tentar de novo, voltar ao evento ou recarregar. */
 export default function CanhoesError({
   error,
   reset,
@@ -34,7 +35,7 @@ export default function CanhoesError({
           <Button onClick={() => reset()}>{messages.common.retry}</Button>
           <Button
             variant="outline"
-            // A full reload discards the client state that crashed.
+            // Um recarregamento completo descarta o estado do cliente que falhou.
             // eslint-disable-next-line @next/next/no-location-assign-relative-destination
             onClick={() => globalThis.location.assign("/canhoes")}
           >

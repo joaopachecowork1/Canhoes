@@ -1,12 +1,12 @@
-// A type-only import: the Docker image runs a global Prisma CLI, where "prisma/config" does not resolve.
+// Importa só o tipo: a imagem Docker usa um Prisma CLI global, onde "prisma/config" não resolve.
 import type { PrismaConfig } from "prisma/config";
 
-// Prisma 7 no longer reads .env by itself. Load it when there is one (local development); in
-// Docker and CI the variables come from the environment, which a .env never overrides.
+// O Prisma 7 já não lê o .env sozinho. Carrega-o quando existe (desenvolvimento local); no
+// Docker e na CI as variáveis vêm do ambiente, que um .env nunca sobrepõe.
 try {
   process.loadEnvFile(".env");
 } catch {
-  // No .env file.
+  // Sem ficheiro .env.
 }
 
 export default {
@@ -16,7 +16,7 @@ export default {
     seed: "tsx prisma/seed.mjs",
   },
   datasource: {
-    // `prisma generate` needs no database, so a missing URL only fails the commands that connect.
+    // `prisma generate` não precisa de base de dados, por isso um URL em falta só falha nos comandos que ligam.
     url: process.env.DATABASE_URL ?? "",
   },
 } satisfies PrismaConfig;

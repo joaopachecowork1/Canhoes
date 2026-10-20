@@ -11,7 +11,7 @@ import { queryKeys } from "@/lib/queryKeys";
 const copy = messages.admin.AdminMembersSection;
 const QUERY_OPTIONS = { refetchOnWindowFocus: false, staleTime: 1000 * 60 * 2 } as const;
 
-/** Members and secret santa state of the edition, and the admin switch per member. */
+/** Membros e estado do amigo secreto da edição, e o interruptor de admin por membro. */
 export function useAdminMembers(eventId: string | null) {
   const queryClient = useQueryClient();
   const { user, refreshProfile } = useAuth();
@@ -34,12 +34,15 @@ export function useAdminMembers(eventId: string | null) {
 
   const roleMutation = useMutation({
     mutationFn: async (member: { id: string; isAdmin: boolean }) => {
+      // Retirar o próprio admin pede confirmação; `null` devolvido cancela sem pedido nem aviso.
       const isSelfDemotion = member.id === user?.id && member.isAdmin;
       if (isSelfDemotion && !window.confirm(copy.selfDemotionConfirm)) return null;
       return adminRepo.setMemberAdmin(id, member.id, { isAdmin: !member.isAdmin, confirmSelfDemotion: isSelfDemotion });
     },
     onSuccess: async (result) => {
       if (!result) return;
+
+      // Recarrega a lista e o perfil: o utilizador pode ter mudado o seu próprio papel.
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.admin.members(eventId) }),
         refreshProfile(),

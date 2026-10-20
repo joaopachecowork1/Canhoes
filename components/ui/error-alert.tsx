@@ -5,8 +5,10 @@ import messages from "@/messages/pt.json";
 
 import { Button } from "@/components/ui/button";
 
+/** Tom do alerta: `danger` para falhas, `official` e `social` para as áreas respetivas. */
 type ErrorAlertTone = "danger" | "official" | "social";
 
+/** Propriedades do `ErrorAlert`. */
 type ErrorAlertProps = {
   actionLabel?: string;
   className?: string;
@@ -16,6 +18,7 @@ type ErrorAlertProps = {
   title?: string;
 };
 
+/** Classes de cor de cada parte do alerta (borda, ícone, título, corpo e ação) por tom. */
 const TONE_CLASSES: Record<
   ErrorAlertTone,
   { border: string; icon: string; title: string; body: string; action: string }

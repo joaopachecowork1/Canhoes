@@ -5,7 +5,7 @@ import { eventRepo } from "@/lib/repositories/eventRepo";
 import type { EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 import { queryKeys } from "@/lib/queryKeys";
 
-/** What the page shows: the person you give to (once assigned) and their wishlist items. */
+/** O que a página mostra: a pessoa a quem se dá (depois do sorteio) e os itens da sua wishlist. */
 function toSecretSantaView(overview: EventSecretSantaOverviewDto | undefined, wishlistItems: EventWishlistItemDto[]) {
   if (!overview) return { hasDraw: false, assignedUser: null, assignedWishlistItems: [], myWishlistItemCount: 0 };
 
@@ -18,7 +18,7 @@ function toSecretSantaView(overview: EventSecretSantaOverviewDto | undefined, wi
   };
 }
 
-/** The user's secret santa assignment and the wishlist of the person they give to. */
+/** A atribuição do amigo secreto do utilizador e a wishlist da pessoa a quem dá. */
 export function useSecretSanta(
   eventId?: string,
   initialOverview?: EventSecretSantaOverviewDto | null,
@@ -34,9 +34,11 @@ export function useSecretSanta(
     queryFn: () => eventRepo.getSecretSantaOverview(eventId ?? ""),
     enabled: !!eventId,
     staleTime: 1000 * 60 * 5,
+    // Os dados iniciais vêm do servidor e evitam um primeiro pedido.
     initialData: initialOverview ?? undefined,
   });
 
+  // A wishlist só é pedida depois de haver atribuição: antes disso não há a quem pertencer.
   const hasAssignment = Boolean(overview?.hasAssignment);
   const { data: wishlistData } = useQuery({
     queryKey: queryKeys.secretSantaWishlist(eventId),

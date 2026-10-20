@@ -3,6 +3,7 @@
 import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from "lucide-react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
+/** Avisos (toasts) com as cores do tema escuro, no topo do ecrã. */
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner

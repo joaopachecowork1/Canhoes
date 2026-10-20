@@ -14,7 +14,7 @@ const copy = messages.stickers.StickerFeedList;
 const ITEM_CLASS =
   "group relative overflow-hidden rounded-[var(--radius-lg-token)] border border-[var(--border-paper)] bg-[var(--bg-paper)] shadow-[var(--shadow-paper)] transition duration-200 ease-out hover:shadow-[var(--shadow-paper-soft)] mb-6";
 
-/** "Agora mesmo", "5h", or the day and month for older stickers. */
+/** "Agora mesmo", "5h", ou o dia e o mês para stickers mais antigos. */
 function relativeTimeLabel(dateString: string) {
   const date = new Date(dateString);
   const hours = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60));
@@ -61,7 +61,7 @@ function StickerFeedCard({ sticker }: { sticker: NomineeDto }) {
   );
 }
 
-/** Approved stickers, one card each. */
+/** Os stickers aprovados, um cartão por sticker. */
 export function StickerFeedList({ stickers }: { stickers: NomineeDto[] }) {
   if (stickers.length === 0) {
     return <EmptyState icon={Inbox} title={copy.emptyTitle} description={copy.emptyDescription} />;

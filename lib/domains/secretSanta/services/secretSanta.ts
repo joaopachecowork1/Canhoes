@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import type { EventSecretSantaOverviewDto, EventUserDto } from "@/lib/api/types";
 
-/* What a member sees of the Secret Santa: who they give a present to, once the admin revealed the draw. */
+/* O que o membro vê do Amigo Secreto: a quem dá o presente, depois de o admin revelar o sorteio. */
 
-/** The user's Secret Santa assignment and wishlist counts; empty until the admin reveals the draw. */
+/** A atribuição do Amigo Secreto do utilizador e a contagem de desejos; vazia até o admin revelar o sorteio. */
 export async function getOverview(eventId: string, userId: string): Promise<EventSecretSantaOverviewDto> {
   const eventCode = await getEventCode(eventId);
 
-  // Members only see a draw once the admin revealed (locked) it.
+  // Os membros só veem um sorteio depois de o admin o revelar (bloquear).
   const latestDraw = await prisma.secretSantaDraw.findFirst({
     where: { eventCode, isLocked: true },
     orderBy: { createdAtUtc: "desc" },
@@ -23,6 +23,7 @@ export async function getOverview(eventId: string, userId: string): Promise<Even
     };
   }
 
+  // A pessoa a quem este utilizador dá o presente.
   const assignment = await prisma.secretSantaAssignment.findFirst({
     where: { drawId: latestDraw.id, giverUserId: userId },
   });
@@ -53,6 +54,7 @@ export async function getOverview(eventId: string, userId: string): Promise<Even
   };
 }
 
+/** O código do evento no sorteio (guardado no estado do evento), ou o próprio id do evento. */
 async function getEventCode(eventId: string): Promise<string> {
   const state = await prisma.canhoesEventState.findUnique({
     where: { eventId },
@@ -61,6 +63,7 @@ async function getEventCode(eventId: string): Promise<string> {
   return state?.secretSantaEventCode ?? eventId;
 }
 
+/** Quantos itens o utilizador tem na sua lista de desejos. */
 async function countMyWishlistItems(eventId: string, userId: string): Promise<number> {
   return prisma.wishlistItem.count({ where: { eventId, userId } });
 }

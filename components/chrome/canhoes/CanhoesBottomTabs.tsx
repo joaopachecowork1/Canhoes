@@ -7,6 +7,7 @@ import { Dock, type DockItem } from "@/components/ui/dock-two";
 import { areaColorVar, HOME_NAV_ITEM, MENU_NAV_ITEM, type CanhoesNavItem } from "./canhoesNavigation";
 import messages from "@/messages/pt.json";
 
+/** Um separador do dock: o item de navegação, se está ativo e o que fazer ao tocar. */
 export type CanhoesBottomTabEntry = {
   item: CanhoesNavItem;
   isActive?: boolean;
@@ -21,7 +22,7 @@ type CanhoesBottomTabsProps = {
   showCompose?: boolean;
 };
 
-/** The fixed dock at the bottom: left tabs, the Post button in the middle, right tabs. */
+/** O dock fixo em baixo: separadores à esquerda, o botão Post ao meio e separadores à direita. */
 export function CanhoesBottomTabs({
   isComposeOpen,
   leftItems,
@@ -39,6 +40,7 @@ export function CanhoesBottomTabs({
     onClick: onCompose,
   };
 
+  // O botão Post fica ao meio, entre os separadores da esquerda e da direita.
   const items = [
     ...leftItems.map(toDockItem),
     ...(showCompose ? [composeItem] : []),
@@ -58,7 +60,7 @@ export function CanhoesBottomTabs({
   );
 }
 
-/** The area the tab leads to sets its active colour; the mural is the home tab. */
+/** Converte um separador num item do dock: a área para onde leva define a cor ativa; o mural é o separador inicial. */
 function toDockItem(entry: CanhoesBottomTabEntry): DockItem {
   const areaId = entry.item.id === HOME_NAV_ITEM.id ? "feed" : entry.item.id;
   return {

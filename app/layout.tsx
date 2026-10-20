@@ -5,8 +5,8 @@ import AppProviders from "@/components/providers/AppProviders";
 
 import "./globals.css";
 
-// The fonts are committed (Google Fonts' latin files), so the build never depends on reaching
-// Google: a failed font download used to break `next build` in CI and on the server.
+// As fontes estão no repositório (ficheiros latin do Google Fonts), por isso o build nunca depende de
+// aceder ao Google: um download falhado já chegou a partir o `next build` na CI e no servidor.
 const barlowCondensed = localFont({
   src: [
     { path: "./fonts/barlow-condensed-600-latin.woff2", weight: "600" },
@@ -26,6 +26,7 @@ const atkinson = localFont({
   display: "swap",
 });
 
+// Base dos URLs absolutos dos metadados (Open Graph, ícones).
 const metadataBaseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
@@ -50,14 +51,16 @@ export const metadata: Metadata = {
   },
 };
 
+/** `viewportFit: cover` deixa a app ocupar o ecrã todo; as margens seguras tratam-se em CSS. */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
 };
 
+/** Layout de raiz: fontes, metadados e providers globais. */
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  // The font variables live on <html> so the :root tokens (--font-display, --font-body) can read them.
+  // As variáveis das fontes ficam no <html> para os tokens de `:root` (--font-display, --font-body) as poderem ler.
   return (
     <html
       lang="pt"

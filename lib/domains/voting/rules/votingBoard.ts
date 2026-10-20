@@ -1,6 +1,6 @@
 import type { CastOfficialVoteRequest, EventVotingBoardDto, EventVotingCategoryDto } from "@/lib/api/types";
 
-/** The ballot after a vote, before the server confirms it. */
+/** O boletim depois de um voto, antes de o servidor o confirmar. */
 export function applyVoteSelection(board: EventVotingBoardDto, vote: CastOfficialVoteRequest): EventVotingBoardDto {
   return {
     ...board,
@@ -10,7 +10,7 @@ export function applyVoteSelection(board: EventVotingBoardDto, vote: CastOfficia
   };
 }
 
-/** How much of the ballot is filled in. */
+/** Quanto do boletim já está preenchido. */
 export function getVotingProgress(categories: EventVotingCategoryDto[]) {
   const total = categories.length;
   const voted = categories.filter((category) => Boolean(category.myOptionId)).length;

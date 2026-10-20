@@ -5,12 +5,14 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "@/lib/utils";
 
+/** Diálogo de confirmação modal (Radix): raiz, gatilho e portal. */
 const AlertDialog = AlertDialogPrimitive.Root;
 
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
 
 const AlertDialogPortal = AlertDialogPrimitive.Portal;
 
+/** Fundo escurecido por trás do diálogo. */
 function AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {
   return (
     <AlertDialogPrimitive.Overlay
@@ -23,6 +25,7 @@ function AlertDialogOverlay({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
+/** Caixa centrada do diálogo, com animação de entrada e saída. */
 function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
   return (
     <AlertDialogPortal>
@@ -38,18 +41,22 @@ function AlertDialogContent({ className, ...props }: React.ComponentProps<typeof
   );
 }
 
+/** Cabeçalho do diálogo (título e descrição). */
 const AlertDialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col space-y-2 text-center sm:text-left", className)} {...props} />
 );
 
+/** Rodapé do diálogo com os botões; empilhados no telemóvel, em linha a partir de `sm`. */
 const AlertDialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)} {...props} />
 );
 
+/** Título do diálogo. */
 function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
   return <AlertDialogPrimitive.Title className={cn("text-lg font-semibold", className)} {...props} />;
 }
 
+/** Texto explicativo do diálogo. */
 function AlertDialogDescription({
   className,
   ...props
@@ -57,6 +64,7 @@ function AlertDialogDescription({
   return <AlertDialogPrimitive.Description className={cn("text-sm", className)} {...props} />;
 }
 
+/** Botão que confirma a ação do diálogo. */
 function AlertDialogAction({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
   return (
     <AlertDialogPrimitive.Action
@@ -69,6 +77,7 @@ function AlertDialogAction({ className, ...props }: React.ComponentProps<typeof 
   );
 }
 
+/** Botão que cancela e fecha o diálogo. */
 function AlertDialogCancel({ className, ...props }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
   return (
     <AlertDialogPrimitive.Cancel

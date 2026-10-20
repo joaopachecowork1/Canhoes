@@ -25,7 +25,7 @@ type PostAdminActionsProps = {
   onAdminDelete?: () => void;
 };
 
-/** One button that opens the admin's actions on a post (pin, reorder pinned posts, delete) in a bottom sheet. */
+/** Um botão que abre, numa folha inferior, as ações do admin sobre um post (fixar, reordenar fixados, apagar). */
 function PostAdminActions({
   isPinned,
   onAdminPin,
@@ -34,6 +34,7 @@ function PostAdminActions({
   onAdminDelete,
 }: Readonly<PostAdminActionsProps>) {
   const [isOpen, setIsOpen] = useState(false);
+  // fecha a folha antes de executar a ação
   const run = (action?: () => void) => () => {
     setIsOpen(false);
     action?.();
@@ -90,6 +91,7 @@ function PostAdminActions({
   );
 }
 
+/** Cabeçalho de um post: autor, número, hora relativa e, para admins, o menu de ações. */
 export function PostHeader({
   authorName,
   authorColor,

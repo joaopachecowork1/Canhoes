@@ -22,12 +22,14 @@ type AdminCategoryNomineeResult = {
   voterNames: string[];
 };
 
+/** Cor do texto da participação: vermelha abaixo de 50%, âmbar abaixo de 80%, verde acima. */
 function getParticipationClass(rate: number) {
   if (rate < 0.5) return "text-[var(--person-coral)]";
   if (rate < 0.8) return "text-[var(--person-amber)]";
   return "text-[var(--moss-glow)]";
 }
 
+/** Cor da barra e ícone (medalha) conforme a posição: 1.º prémio, 2.º e 3.º medalha, os restantes sem ícone. */
 function getRankMeta(index: number) {
   if (index === 0) {
     return {
@@ -60,6 +62,7 @@ function getRankMeta(index: number) {
   };
 }
 
+/** Barra com os votos de um nomeado e a sua percentagem do total da categoria. */
 function ResultsNomineeBar({
   nominee,
   index,
@@ -88,6 +91,7 @@ function ResultsNomineeBar({
   );
 }
 
+/** Lista de quem votou em cada nomeado. */
 function ResultsVotersList({
   nominees,
 }: Readonly<{
@@ -105,11 +109,13 @@ function ResultsVotersList({
   );
 }
 
+/** Converte uma taxa entre 0 e 1 em percentagem inteira. */
 const toPercent = (rate: number) => Math.round(rate * 100);
 
-/** Mounted per category (keyed by its id), so the voters list starts hidden for each one. */
+/** Detalhe de uma categoria; é montado por categoria (chave = id), por isso a lista de votantes começa escondida em cada uma. */
 function ResultsCategoryDetails({ category }: Readonly<{ category: AdminCategoryResultDto }>) {
   const [isVotersVisible, setIsVotersVisible] = useState(false);
+  // mais votados primeiro
   const sortedNominees = [...category.nominees].sort((left, right) => right.voteCount - left.voteCount);
   const ToggleIcon = isVotersVisible ? ChevronUp : ChevronDown;
 
@@ -140,6 +146,7 @@ function ResultsCategoryDetails({ category }: Readonly<{ category: AdminCategory
   );
 }
 
+/** Gaveta com o detalhe dos resultados de uma categoria; fica fechada quando `category` é `null`. */
 export function ResultsCategoryDrawer({
   category,
   memberCount,

@@ -17,13 +17,13 @@ type RankedNominee = PublicCategoryResultDto["top"][number];
 /** "1 voto" / "4 votos". */
 export const formatVotes = (count: number) => formatCount(count, messages.common.vote, messages.common.votes);
 
-/** The nominee's picture; without one there is no frame at all, since an empty frame reads as a failed load. */
+/** A fotografia do nomeado; sem ela não há moldura, porque uma moldura vazia parece uma falha de carregamento. */
 function WinnerPicture({ nominee }: Readonly<{ nominee: RankedNominee }>) {
   if (!nominee.imageUrl) return null;
   return <CanhoesMediaThumb alt={nominee.title} src={nominee.imageUrl} frameClassName="size-20 rounded-2xl" />;
 }
 
-/** The category's winner, large and in gold, with the whole name on as many lines as it needs. */
+/** O vencedor da categoria, em grande e a dourado, com o nome inteiro em tantas linhas quantas precisar. */
 function WinnerBlock({ nominee }: Readonly<{ nominee: RankedNominee }>) {
   return (
     <div className="flex items-start gap-4 rounded-2xl border border-canhoes-gold/50 bg-canhoes-gold/10 p-3">
@@ -54,7 +54,7 @@ function RunnerUpRow({ nominee, place }: Readonly<{ nominee: RankedNominee; plac
   );
 }
 
-/** One category's result: the winner first and the next places underneath, smaller. */
+/** O resultado de uma categoria: o vencedor primeiro e os lugares seguintes por baixo, mais pequenos. */
 export function GalaCategoryResult({ categoryResult }: Readonly<{ categoryResult: PublicCategoryResultDto }>) {
   const [winner, ...runnersUp] = categoryResult.top;
 

@@ -23,6 +23,7 @@ type SecretSantaAdminProps = {
   onRefresh: () => Promise<void>;
 };
 
+/** Painel com um número em destaque (membros, atribuições) e uma nota. */
 function StatPanel({
   hint,
   icon: Icon,
@@ -41,7 +42,7 @@ function StatPanel({
   );
 }
 
-/** Whether the draw is still hidden from members (and can be repeated) or already revealed. */
+/** Se o sorteio ainda está escondido dos membros (e pode repetir-se) ou já foi revelado. */
 function DrawStatus({ isLocked }: Readonly<{ isLocked: boolean }>) {
   return (
     <div className="rounded-[var(--radius-lg-token)] border border-[var(--moss)]/20 bg-[var(--moss)]/5 p-4">
@@ -58,6 +59,7 @@ function DrawStatus({ isLocked }: Readonly<{ isLocked: boolean }>) {
   );
 }
 
+/** Ações do admin sobre o sorteio (sortear, repetir, revelar), cada uma com confirmação quando é destrutiva. */
 function useSecretSantaActions({ eventId, state, onRefresh }: Readonly<SecretSantaAdminProps>) {
   const drawMutation = useAdminMutation({
     mutationFn: (payload?: unknown) => adminRepo.drawSecretSanta(eventId, payload),
@@ -74,16 +76,19 @@ function useSecretSantaActions({ eventId, state, onRefresh }: Readonly<SecretSan
     isDrawing: drawMutation.isPending,
     isBusy: drawMutation.isPending || revealMutation.isPending,
     handleDraw: () => {
+      // repetir o sorteio apaga o anterior, por isso pede confirmação
       if (state.hasDraw && !confirm(copy.redrawConfirm)) return;
       drawMutation.mutate({});
     },
     handleReveal: () => {
+      // revelar é definitivo: depois disso o sorteio já não se repete
       if (!confirm(copy.revealConfirm)) return;
       revealMutation.mutate();
     },
   };
 }
 
+/** Botões de sortear/repetir, revelar e sincronizar. */
 function DrawActions({
   actions,
   canDraw,
@@ -134,10 +139,11 @@ function DrawActions({
   );
 }
 
+/** Cartão do amigo secreto no admin: estado do sorteio e ações para sortear e revelar. */
 export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
   const { state, onRefresh } = props;
   const actions = useSecretSantaActions(props);
-  // A locked draw is a revealed one: members see it and it can no longer be repeated.
+  // um sorteio bloqueado é um sorteio revelado: os membros veem-no e já não se pode repetir
   const isLocked = state.isLocked;
   const canDraw = state.memberCount >= MIN_MEMBERS_FOR_DRAW && !isLocked;
 

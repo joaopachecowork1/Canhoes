@@ -11,19 +11,21 @@ import type {
 import { loadUsersById } from "@/lib/usersById";
 
 /*
- * The members' side of the awards: the voting board, casting a vote and proposing new categories.
- * A vote counts only inside the active voting phase's dates (`isVotingOpen` in `eventRules.ts`).
+ * O lado dos membros nos prémios: o quadro de votação, votar e propor novas categorias.
+ * Um voto só conta dentro das datas da fase de votação ativa (`isVotingOpen` em `eventRules.ts`).
  */
 
+/** O voto registado: a categoria e a opção escolhida. */
 type EventVoteDto = {
   categoryId: string;
   selectionId: string;
 };
 
+/** Campos mínimos de um membro e de um utilizador usados para montar as opções. */
 type MemberRow = { userId: string; role: string };
 type UserName = { displayName: string | null; email: string };
 
-/** Options of a person category: the event's non-admin members, by name. */
+/** Opções de uma categoria de pessoas: os membros do evento que não são admins, por nome. */
 function toMemberOptions(members: MemberRow[], users: Map<string, UserName>): EventVoteOptionDto[] {
   const labelOf = (userId: string) => users.get(userId)?.displayName ?? users.get(userId)?.email ?? "Unknown";
   return members
@@ -32,7 +34,7 @@ function toMemberOptions(members: MemberRow[], users: Map<string, UserName>): Ev
     .sort((left, right) => left.label.localeCompare(right.label));
 }
 
-/** Options of a nominee category: its approved nominations. */
+/** Opções de uma categoria de nomeados: as suas nomeações aprovadas. */
 function toNomineeOptions(
   nominees: { id: string; title: string; categoryId: string | null }[],
   categoryId: string,
@@ -43,11 +45,12 @@ function toNomineeOptions(
 }
 
 /**
- * The voting board: every active category with its options and the user's current choice. Nominee
- * categories offer their approved nominations; person categories (`CATEGORY_KIND.USER_VOTE`) offer the
- * event's non-admin members.
+ * O quadro de votação: cada categoria ativa com as suas opções e a escolha atual do utilizador. As
+ * categorias de nomeados oferecem as nomeações aprovadas; as de pessoas (`CATEGORY_KIND.USER_VOTE`)
+ * oferecem os membros do evento que não são admins.
  */
 export async function getVotingBoard(eventId: string, userId: string): Promise<EventVotingBoardDto | null> {
+  // Dados do evento carregados em paralelo.
   const [event, votingPhase, categories, nominees, members] = await Promise.all([
     prisma.event.findUnique({ where: { id: eventId } }),
     prisma.eventPhase.findFirst({ where: { eventId, type: "VOTING", isActive: true } }),
@@ -57,6 +60,7 @@ export async function getVotingBoard(eventId: string, userId: string): Promise<E
   ]);
   if (!event) return null;
 
+  // Nomes dos membros e os votos já dados por este utilizador.
   const [memberUserMap, nomineeVotes, userVotes] = await Promise.all([
     loadUsersById(
       members.map((m) => m.userId),
@@ -72,6 +76,7 @@ export async function getVotingBoard(eventId: string, userId: string): Promise<E
     }),
   ]);
 
+  // Escolha atual por categoria.
   const nomineeVoteMap = new Map(nomineeVotes.map((v) => [v.categoryId, v.nomineeId]));
   const userVoteMap = new Map(userVotes.map((v) => [v.categoryId, v.targetUserId]));
 
@@ -89,6 +94,7 @@ export async function getVotingBoard(eventId: string, userId: string): Promise<E
     };
   });
 
+  // Só se pode votar dentro da fase de votação ativa.
   const canVote = isVotingOpen(votingPhase, new Date());
 
   return {
@@ -98,18 +104,22 @@ export async function getVotingBoard(eventId: string, userId: string): Promise<E
   };
 }
 
+/** Os ids das categorias, para filtrar os votos. */
 function categoryIds(categories: { id: string }[]): string[] {
   return categories.map((c) => c.id);
 }
 
+/** Códigos de erro de voto que o cliente sabe tratar. */
 type VoteErrorCode = "VOTING_CLOSED" | "CATEGORY_NOT_FOUND" | "INVALID_SELECTION";
 
+// Estado HTTP e mensagem de cada erro.
 const VOTE_ERRORS: Record<VoteErrorCode, { status: number; message: string }> = {
   VOTING_CLOSED: { status: 409, message: "A votação não está aberta." },
   CATEGORY_NOT_FOUND: { status: 404, message: "Esta categoria não existe ou não está ativa." },
   INVALID_SELECTION: { status: 400, message: "Esta opção não pertence à categoria." },
 };
 
+/** Erro de voto, com estado HTTP, código e mensagem em português. */
 class VoteError extends HttpError {
   constructor(override readonly code: VoteErrorCode) {
     super(VOTE_ERRORS[code].status, code, VOTE_ERRORS[code].message);
@@ -118,9 +128,9 @@ class VoteError extends HttpError {
 }
 
 /**
- * Records (or changes) the user's vote in a category. Only inside the active voting phase's dates,
- * and only for an option the voting board offers: an approved nominee of that category, or a
- * non-admin member for person categories.
+ * Regista (ou altera) o voto do utilizador numa categoria. Só dentro das datas da fase de votação
+ * ativa e só para uma opção que o quadro oferece: um nomeado aprovado dessa categoria, ou um
+ * membro que não seja admin nas categorias de pessoas.
  */
 export async function castVote(
   eventId: string,
@@ -128,16 +138,19 @@ export async function castVote(
   categoryId: string,
   selectionId: string,
 ): Promise<EventVoteDto> {
+  // 1. A votação tem de estar aberta.
   const votingPhase = await prisma.eventPhase.findFirst({
     where: { eventId, type: "VOTING", isActive: true },
   });
   if (!isVotingOpen(votingPhase, new Date())) throw new VoteError("VOTING_CLOSED");
 
+  // 2. A categoria tem de existir neste evento e estar ativa.
   const category = await prisma.awardCategory.findFirst({
     where: { id: categoryId, eventId, isActive: true },
   });
   if (!category) throw new VoteError("CATEGORY_NOT_FOUND");
 
+  // 3. Valida a opção e grava (upsert: um voto por pessoa e categoria, voltar a votar substitui).
   if (category.kind === CATEGORY_KIND.USER_VOTE) {
     const target = await prisma.eventMember.findUnique({
       where: { eventId_userId: { eventId, userId: selectionId } },
@@ -167,12 +180,13 @@ export async function castVote(
   return { categoryId, selectionId };
 }
 
-/** Records a proposal for a new category as `pending`, for the admin to moderate. */
+/** Regista a proposta de uma nova categoria como `pending`, para o admin moderar. */
 export async function createProposal(
   eventId: string,
   userId: string,
   { name, description, kind }: { name: string; description?: string | null; kind?: number },
 ): Promise<EventProposalDto> {
+  // Nasce sempre pendente: só o admin a aprova.
   const proposal = await prisma.categoryProposal.create({
     data: {
       eventId,

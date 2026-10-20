@@ -8,7 +8,7 @@ import {
   readModuleSwitches,
 } from "@/lib/domains/event/rules/eventRules";
 
-/** The inputs of `eventRules` for one event, read from its phases and `CanhoesEventState`. */
+/** Os dados de entrada de `eventRules` para um evento, lidos das fases e do `CanhoesEventState`. */
 export async function getEventRulesState(eventId: string): Promise<EventRulesState> {
   const [activePhase, state] = await Promise.all([
     prisma.eventPhase.findFirst({ where: { eventId, isActive: true }, select: { type: true } }),
@@ -22,7 +22,7 @@ export async function getEventRulesState(eventId: string): Promise<EventRulesSta
   };
 }
 
-/** Whether the user belongs to the event. Admin rights come from `User.isAdmin`, not from membership. */
+/** Indica se o utilizador pertence ao evento. Os direitos de admin vêm de `User.isAdmin`, não da participação. */
 export async function isEventMember(eventId: string, userId: string) {
   const member = await prisma.eventMember.findUnique({
     where: { eventId_userId: { eventId, userId } },
@@ -32,16 +32,17 @@ export async function isEventMember(eventId: string, userId: string) {
 }
 
 /**
- * The event as one user sees it: active phase, what they may do, and which modules are open
- * in this phase. `modules` is the same for admins and members, so an admin's
- * navigation matches the group's; admins still open any module (the gates let them through)
- * and reach the closed ones from the admin area.
+ * O evento como um utilizador o vê: fase ativa, o que pode fazer e que áreas estão abertas
+ * nesta fase. `modules` é igual para admins e membros, para a navegação do admin coincidir com
+ * a do grupo; os admins continuam a abrir qualquer área (as guardas deixam-nos passar) e
+ * chegam às fechadas pela área de admin.
  */
 export async function getEventOverview(
   eventId: string,
   userId: string,
   isAdmin: boolean,
 ): Promise<EventOverviewDto | null> {
+  // Evento inexistente: quem chama trata como 404.
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) return null;
 
@@ -51,6 +52,7 @@ export async function getEventOverview(
     getEventRulesState(eventId),
   ]);
 
+  // Admins podem sempre; membros dependem da fase ativa.
   const permissions: EventPermissionsDto = {
     isAdmin,
     canSubmitProposal: isAdmin || (isMember && canSubmitProposals(rules)),
@@ -65,13 +67,14 @@ export async function getEventOverview(
   };
 }
 
-/** The overview of the active event (the most recent one if several are active), or null when none is. */
+/** O overview do evento ativo (o mais recente se houver vários ativos), ou null quando não há nenhum. */
 export async function getActiveEventContext(userId: string, isAdmin: boolean): Promise<EventActiveContextDto | null> {
   const activeEvent = await prisma.event.findFirst({
     where: { isActive: true },
     orderBy: { createdAtUtc: "desc" },
   });
   if (!activeEvent) return null;
+
   const overview = await getEventOverview(activeEvent.id, userId, isAdmin);
   return overview ? { event: toEventSummary(activeEvent), overview } : null;
 }

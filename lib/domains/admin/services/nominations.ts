@@ -6,13 +6,16 @@ import type { AdminNomineeDto, AdminNomineesPagedDto } from "@/lib/api/types";
 import { loadUsersById } from "@/lib/usersById";
 
 /*
- * Moderation of nominations (and stickers, which are nominations with `submissionKind: "stickers"`).
- * Only approved nominations reach the members' pages and the voting board.
+ * Moderação das nomeações (e dos cromos, que são nomeações com `submissionKind: "stickers"`).
+ * Só as nomeações aprovadas chegam às páginas dos membros e ao quadro de votação.
  */
 
+/** Uma alteração do admin: mudar de categoria ou decidir (aprovar/rejeitar). */
 type NominationChange = { categoryId: string | null } | { status: "approved" | "rejected" };
+/** Quem submeteu a nomeação, se ainda existir. */
 type Submitter = { displayName: string | null; email: string } | null | undefined;
 
+/** Converte uma nomeação no DTO de admin, com o nome de quem a submeteu. */
 function toAdminNomineeDto(nominee: Nominee, submitter: Submitter): AdminNomineeDto {
   return {
     id: nominee.id,
@@ -25,12 +28,13 @@ function toAdminNomineeDto(nominee: Nominee, submitter: Submitter): AdminNominee
   };
 }
 
-/** Applies one admin change to a nomination of this event; null when it does not exist here. */
+/** Aplica uma alteração do admin a uma nomeação deste evento; null quando não existe aqui. */
 async function updateNomination(
   eventId: string,
   nomineeId: string,
   change: NominationChange,
 ): Promise<AdminNomineeDto | null> {
+  // Confirma que a nomeação é deste evento antes de a alterar.
   const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId }, select: { id: true } });
   if (!nominee) return null;
 
@@ -42,34 +46,36 @@ async function updateNomination(
   return toAdminNomineeDto(updated, submitter);
 }
 
-/** Moves a nomination to another category, or out of any category with `null`. */
+/** Move uma nomeação para outra categoria, ou para fora de qualquer categoria com `null`. */
 export function setNominationCategory(eventId: string, nomineeId: string, categoryId?: string | null) {
   return updateNomination(eventId, nomineeId, { categoryId: categoryId ?? null });
 }
 
-/** Approves a nomination: it shows up for members and on its category's voting board. */
+/** Aprova uma nomeação: passa a aparecer aos membros e no quadro de votação da sua categoria. */
 export function approveNomination(eventId: string, nomineeId: string) {
   return updateNomination(eventId, nomineeId, { status: "approved" });
 }
 
-/** Rejects a nomination: it disappears for members and from the voting board. */
+/** Rejeita uma nomeação: deixa de aparecer aos membros e no quadro de votação. */
 export function rejectNomination(eventId: string, nomineeId: string) {
   return updateNomination(eventId, nomineeId, { status: "rejected" });
 }
 
-/** Nominations of the event for the moderation list, newest first, with the submitter's name. */
+/** Nomeações do evento para a lista de moderação, das mais recentes para as mais antigas, com o nome de quem as submeteu. */
 export async function getAdminNominationsPaged(
   eventId: string,
   status?: string | null,
   skip = 0,
   take = 50,
 ): Promise<AdminNomineesPagedDto> {
+  // Sem estado, lista todas.
   const where = status ? { eventId, status } : { eventId };
   const [total, nominees] = await Promise.all([
     prisma.nominee.count({ where }),
     prisma.nominee.findMany({ where, orderBy: { createdAtUtc: "desc" }, skip, take }),
   ]);
 
+  // Nomes de quem submeteu, numa só query.
   const submitterById = await loadUsersById(
     nominees.map((nominee) => nominee.submittedByUserId),
     (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),

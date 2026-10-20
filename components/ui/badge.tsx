@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/** Variantes visuais da etiqueta (`Badge`): cor de fundo, contorno e texto. */
 const badgeVariants = cva(
   "inline-flex min-h-7 items-center justify-center rounded-full border px-3 py-1 font-[family-name:var(--font-mono)] text-xs font-bold uppercase tracking-[0.12em] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--moss)] focus:ring-offset-0",
   {
@@ -29,6 +30,7 @@ const badgeVariants = cva(
 
 type BadgeProps = React.ComponentProps<"div"> & VariantProps<typeof badgeVariants>;
 
+/** Etiqueta pequena em maiúsculas para estados e contagens. */
 function Badge({ className, variant, ...props }: BadgeProps) {
   return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
 }

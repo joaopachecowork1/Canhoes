@@ -2,6 +2,7 @@ import { CanhoesOfficialVotingModule } from "@/lib/domains/voting/components/Can
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, EventVotingBoardDto } from "@/lib/api/types";
 
+/** Página da votação oficial: pré-carrega o quadro de votação do evento ativo. */
 export default async function VotingPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const initialBoard = activeContext

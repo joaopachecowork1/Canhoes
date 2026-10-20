@@ -1,6 +1,6 @@
 /**
- * Fills `{name}` placeholders in a message from messages/pt.json. Unknown placeholders stay as
- * they are, so a typo shows up on screen instead of silently disappearing.
+ * Preenche os marcadores `{nome}` de uma mensagem de messages/pt.json. Os marcadores desconhecidos
+ * ficam como estão, para um erro de escrita aparecer no ecrã em vez de desaparecer em silêncio.
  */
 export function formatMessage(template: string, values: Readonly<Record<string, string | number>>) {
   return template.replaceAll(/\{(\w+)\}/g, (placeholder, name: string) =>

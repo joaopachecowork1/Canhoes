@@ -17,6 +17,7 @@ type ComposePollEditorProps = {
   question: string;
 };
 
+/** O editor da sondagem: pergunta e opções, que podem ser adicionadas e removidas. */
 export function ComposePollEditor({
   disabled,
   maxOptions,

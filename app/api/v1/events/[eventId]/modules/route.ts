@@ -25,9 +25,14 @@ const moduleVisibilitySchema = z
 
 const updateModulesSchema = z.object({ modules: moduleVisibilitySchema }).strict();
 
+/** PATCH /v1/events/:eventId/modules: mostra ou esconde áreas do evento */
 export const PATCH = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
+  // Só administradores.
   const admin = await requireAdmin();
+
+  // Valida o corpo do pedido.
   const { modules } = await readJson(request, updateModulesSchema);
+
   await updateEventModules(eventId, modules);
 
   const overview = await getEventOverview(eventId, admin.id, admin.isAdmin);

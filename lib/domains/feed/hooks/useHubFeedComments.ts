@@ -18,6 +18,7 @@ type UseHubFeedCommentsArgs = {
   queryClient: QueryClient;
 };
 
+/** Regista o erro e mostra um toast com a mensagem do servidor ou o texto de recurso. */
 function reportCommentError(
   action: string,
   error: unknown,
@@ -27,6 +28,7 @@ function reportCommentError(
   toast.error(getErrorMessage(error, fallback));
 }
 
+// Estado local por publicação; `eventId` identifica a que evento pertence.
 type CommentDraftState = {
   eventId: string | null;
   openComments: Record<string, boolean>;
@@ -42,19 +44,20 @@ const emptyDrafts = (eventId: string | null): CommentDraftState => ({
 });
 
 /**
- * Per post: whether its comments are open, the unsent reply and which comment it answers.
- * The state belongs to one event: switching event starts from empty, without an effect.
+ * Por publicação: se os comentários estão abertos, a resposta por enviar e a que comentário responde.
+ * O estado pertence a um evento: mudar de evento recomeça vazio, sem effect.
  */
 function useCommentDrafts(eventId: string | null) {
   const [stored, setStored] = useState<CommentDraftState>(() => emptyDrafts(eventId));
   const state = stored.eventId === eventId ? stored : emptyDrafts(eventId);
 
-  // Callbacks read the latest drafts without being recreated on every keystroke.
+  // Os callbacks leem os rascunhos mais recentes sem serem recriados a cada tecla.
   const stateRef = useRef(state);
   useEffect(() => {
     stateRef.current = state;
   });
 
+  // Descarta o estado de outro evento antes de aplicar a mudança.
   const update = useCallback(
     (change: (current: CommentDraftState) => Partial<CommentDraftState>) =>
       setStored((previous) => {
@@ -80,7 +83,7 @@ function useCommentDrafts(eventId: string | null) {
     [update],
   );
 
-  /** After a reply is sent: clear it and keep the thread open to show it. */
+  /** Depois de enviar uma resposta: limpa-a e mantém a conversa aberta para a mostrar. */
   const markSent = useCallback(
     (postId: string) =>
       update((current) => ({
@@ -100,6 +103,7 @@ function useToggleCommentReaction({ eventId, queryClient }: Readonly<UseHubFeedC
     async (postId: string, commentId: string, emoji: string) => {
       if (!eventId) return;
 
+      // Atualização otimista: a reação aparece já na cache dos comentários.
       queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), (prev) =>
         (prev ?? []).map((comment) => (comment.id === commentId ? applyCommentReaction(comment, emoji) : comment)),
       );
@@ -107,6 +111,7 @@ function useToggleCommentReaction({ eventId, queryClient }: Readonly<UseHubFeedC
       try {
         await feedRepo.toggleCommentReaction(eventId, postId, commentId, emoji);
       } catch (error) {
+        // Rollback por refetch: em vez de guardar o estado anterior, volta a pedir os comentários ao servidor.
         void queryClient.invalidateQueries({ queryKey: queryKeys.hubComments(postId) });
         reportCommentError("toggleCommentReaction", error, {
           context: { commentId, emoji, postId },
@@ -118,11 +123,12 @@ function useToggleCommentReaction({ eventId, queryClient }: Readonly<UseHubFeedC
   );
 }
 
-/** Comments of feed posts: open threads, reply drafts, and optimistic add, react and delete that roll back on failure. */
+/** Comentários das publicações do feed: conversas abertas, rascunhos de resposta e reagir/apagar otimistas com rollback em caso de falha. */
 export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeedCommentsArgs>) {
   const drafts = useCommentDrafts(eventId);
   const { stateRef, markSent } = drafts;
 
+  // Ajusta o contador de comentários da publicação na cache do feed (+1 ou -1).
   const updateCommentCount = useCallback(
     (postId: string, delta: 1 | -1) => {
       queryClient.setQueryData<FeedInfiniteData>(queryKeys.hubPosts(eventId), (feed) =>
@@ -138,6 +144,7 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
       const text = (stateRef.current.commentDrafts[postId] ?? "").trim();
       if (!text) return;
 
+      // Não é otimista: espera pelo servidor, porque o comentário novo precisa do id e dos dados reais.
       try {
         const newComment = await feedRepo.createComment(eventId, postId, {
           text,
@@ -165,10 +172,12 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
     async (postId: string, commentId: string) => {
       if (!eventId) return;
 
+      // Guarda a lista atual para o rollback; se o comentário nem está na cache, não há nada a apagar.
       const previous = queryClient.getQueryData<HubCommentDto[]>(queryKeys.hubComments(postId)) ?? [];
       const remaining = previous.filter((comment) => comment.id !== commentId);
       if (remaining.length === previous.length) return;
 
+      // Remove já da lista e do contador, antes da resposta do servidor.
       queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), remaining);
       updateCommentCount(postId, -1);
 
@@ -176,6 +185,7 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
         await feedRepo.deleteComment(eventId, postId, commentId);
         toast.success(copy.commentRemoved);
       } catch (error) {
+        // Rollback: repõe a lista e o contador como estavam.
         queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), previous);
         updateCommentCount(postId, 1);
         reportCommentError("deleteComment", error, { context: { commentId, postId }, fallback: copy.deleteError });

@@ -20,6 +20,7 @@ import { queryKeys } from "@/lib/queryKeys";
 const copy = messages.admin.AdminOfficialResultsSection;
 const EMPTY_ADMIN_CATEGORY_RESULTS: AdminCategoryResultDto[] = [];
 
+/** Botão de uma categoria na lista de resultados, com o total de votos e a participação. */
 function ResultsCategoryButton({
   category,
   isSelected,
@@ -52,6 +53,7 @@ function ResultsCategoryButton({
   );
 }
 
+/** Cabeçalho da secção, com a hora da última atualização quando existe. */
 function ResultsHeader({ refreshedAt }: Readonly<{ refreshedAt: string | null }>) {
   return (
     <Card className={ADMIN_CONTENT_CARD_CLASS}>
@@ -68,6 +70,7 @@ function ResultsHeader({ refreshedAt }: Readonly<{ refreshedAt: string | null }>
   );
 }
 
+/** Carrega os resultados oficiais por categoria; só corre para admins com um evento ativo. */
 function useOfficialResults(eventId: string | null, isAdmin: boolean) {
   const queryEventId = eventId ?? "";
   return useQuery<AdminCategoryResultDto[]>({
@@ -80,6 +83,7 @@ function useOfficialResults(eventId: string | null, isAdmin: boolean) {
   });
 }
 
+/** Secção do admin com os resultados oficiais: lista de categorias e gaveta de detalhe da escolhida. */
 export function AdminOfficialResultsSection({
   eventId,
   memberCount,
@@ -88,9 +92,11 @@ export function AdminOfficialResultsSection({
   memberCount: number;
 }>) {
   const isAdmin = useIsAdmin();
+
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const resultsQuery = useOfficialResults(eventId, isAdmin);
   const resultCategories = resultsQuery.data ?? EMPTY_ADMIN_CATEGORY_RESULTS;
+  // a categoria escolhida deriva do id, para refletir sempre os dados mais recentes
   const selectedCategory = resultCategories.find((category) => category.categoryId === selectedCategoryId) ?? null;
 
   if (!isAdmin) return <AdminStateMessage tone="warning">{copy.adminsOnly}</AdminStateMessage>;

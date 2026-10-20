@@ -1,9 +1,9 @@
-// Baseline hardening for every response; a CSP needs a nonce setup and is left for later.
+// Cabeçalhos de segurança base em todas as respostas; uma CSP exige nonces e fica para mais tarde.
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  // Production only: the dev server is HTTPS too, and HSTS on `localhost` would pin every port of it to HTTPS for a year.
+  // Só em produção: o servidor de desenvolvimento também é HTTPS, e o HSTS em `localhost` prenderia todas as portas a HTTPS durante um ano.
   ...(process.env.NODE_ENV === "production" ? [{ key: "Strict-Transport-Security", value: "max-age=31536000" }] : []),
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 ];
@@ -15,6 +15,7 @@ const nextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
+  // `/uploads/*` é servido pela rota da API, que lê do disco.
   async rewrites() {
     return [
       {

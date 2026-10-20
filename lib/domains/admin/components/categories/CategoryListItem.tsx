@@ -12,10 +12,11 @@ import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { CATEGORY_KIND_LABELS, type CategoryUsage } from "./categoryTypes";
 
 const copy = messages.admin.CategoryListItem;
+
 const CATEGORY_ITEM_CLASS =
   "w-full min-h-11 rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-4 py-3 text-left transition-colors hover:bg-[var(--bg-paper-soft)]";
 
-/** One category in the admin catalog; tapping it opens the editor. */
+/** Uma categoria do catálogo de admin; tocar abre o editor. */
 export function CategoryListItem({
   category,
   onEdit,

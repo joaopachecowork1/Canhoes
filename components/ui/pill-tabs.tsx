@@ -6,6 +6,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/** Um separador: etiqueta, ícone e contagem opcionais; com `href` é uma ligação, sem ele um botão. */
 export type PillTabItem = {
   badge?: string | number;
   href?: string;
@@ -14,6 +15,7 @@ export type PillTabItem = {
   label: string;
 };
 
+/** Propriedades do `PillTabs`. */
 type PillTabsProps = {
   activeId: string;
   className?: string;
@@ -42,6 +44,7 @@ const BADGE_ACTIVE_CLASS = "bg-[var(--on-person)] text-[var(--color-text-primary
 const BADGE_IDLE_CLASS =
   "border border-[var(--color-border-strong)] bg-[var(--color-veil)]/8 text-[var(--color-text-muted)]";
 
+/** Centra o separador ativo na faixa com scroll horizontal quando ele muda. */
 function useScrollActiveIntoView(activeId: string) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -66,6 +69,7 @@ function useScrollActiveIntoView(activeId: string) {
   return scrollRef;
 }
 
+/** Conteúdo de um separador: ícone, etiqueta e contagem. */
 function PillTabContent({
   isActive,
   item,
@@ -90,6 +94,7 @@ function PillTabContent({
   );
 }
 
+/** Um separador: ligação se tiver `href`, botão caso contrário. */
 function PillTab({
   isActive,
   item,
@@ -140,9 +145,9 @@ function PillTab({
 }
 
 /**
- * Unified pill-style tab component.
- * Supports both button clicks (onSelect) and link navigation (item.href).
- * Used across Admin, Content Tabs, and Segment Tabs.
+ * Separadores em forma de pílula, num componente único.
+ * Aceitam cliques (`onSelect`) e navegação por ligação (`item.href`).
+ * Usados no Admin, nos separadores de conteúdo e nos de segmento.
  */
 export function PillTabs({
   activeId,

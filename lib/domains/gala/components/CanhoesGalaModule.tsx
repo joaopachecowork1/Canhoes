@@ -62,7 +62,7 @@ function GalaResults({
   if (isLoading) return <GalaLoadingState />;
   const hasNoRanking = resultsByCategory.every((categoryResult) => categoryResult.top.length === 0);
 
-  // A failed refetch keeps the results already on screen under the error.
+  // Um refetch falhado mantém no ecrã os resultados já carregados, por baixo do erro.
   return (
     <>
       {errorMessage ? (
@@ -96,7 +96,7 @@ function GalaResults({
   );
 }
 
-/** Gala page: the top results of each category, open in the RESULTS phase. */
+/** Página da gala: os primeiros classificados de cada categoria, aberta na fase RESULTS. */
 export function CanhoesGalaModule({
   initialContext,
   initialResults,

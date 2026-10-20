@@ -36,6 +36,7 @@ function MeasuresLoadingState() {
   );
 }
 
+// Tamanho mínimo (sem espaços nas pontas) para a proposta não ser só ruído.
 const MIN_MEASURE_LENGTH = 5;
 
 function getSubmitLabel(isSubmitting: boolean, isProposalPhase: boolean) {
@@ -43,7 +44,7 @@ function getSubmitLabel(isSubmitting: boolean, isProposalPhase: boolean) {
   return isProposalPhase ? copy.submit : copy.proposalsClosed;
 }
 
-/** The form to propose a measure; it only sends while proposals are open. */
+/** Formulário para propor uma medida; só envia enquanto as propostas estão abertas. */
 function MeasureProposalForm({
   eventId,
   isProposalPhase,
@@ -103,6 +104,7 @@ function MeasureProposalForm({
   );
 }
 
+/** Estados da lista de medidas: erro, a carregar, vazia ou com resultados. */
 function MeasureList({
   errorMessage,
   isLoading,
@@ -142,18 +144,19 @@ function MeasureList({
   );
 }
 
+/** Carrega as medidas aprovadas do evento. */
 function useMeasures(eventId: string | null, initialData: GalaMeasureDto[] | undefined) {
   return useQuery({
     queryKey: queryKeys.measures(eventId),
     queryFn: () => awardsRepo.getMeasures(eventId ?? ""),
     enabled: !!eventId,
-    // An empty server list is not worth seeding: it would hide the first fetch's loading state.
+    // Não vale a pena semear uma lista vazia do servidor: esconderia o estado de carregamento do primeiro fetch.
     initialData: initialData?.length ? initialData : undefined,
     staleTime: 1000 * 60 * 2,
   });
 }
 
-/** Medidas page: the approved gala rules and the form to propose one. */
+/** Página das Medidas: as regras aprovadas da gala e o formulário para propor uma. */
 export function CanhoesMeasuresModule({
   initialData,
   initialContext,

@@ -29,6 +29,7 @@ type CanhoesAdminModuleProps = {
   initialContext?: EventActiveContextDto | null;
 };
 
+/** Conta as nomeações por rever (pedido de uma só linha, só interessa o total). */
 function usePendingNominationCount(eventId: string | null) {
   return useQuery({
     enabled: !!eventId,
@@ -40,6 +41,7 @@ function usePendingNominationCount(eventId: string | null) {
   });
 }
 
+/** Regista no log do cliente o erro de arranque do admin, com o estado e detalhes quando vêm da API. */
 function useLogBootstrapError(error: unknown) {
   useEffect(() => {
     if (!error) return;
@@ -55,6 +57,7 @@ function useLogBootstrapError(error: unknown) {
   }, [error]);
 }
 
+/** Aviso de erro de carregamento do admin, com botão para tentar de novo. */
 function AdminLoadError({ error, onRetry }: Readonly<{ error: unknown; onRetry: () => void }>) {
   return (
     <AdminStateMessage
@@ -78,6 +81,7 @@ function AdminLoadError({ error, onRetry }: Readonly<{ error: unknown; onRetry: 
 type Bootstrap = ReturnType<typeof useAdminBootstrap>;
 type Proposals = ReturnType<typeof useAdminProposals>;
 
+/** Escolhe o conteúdo da secção ativa; o conteúdo é a secção por omissão. */
 function AdminSectionView({
   bootstrap,
   content,
@@ -122,6 +126,7 @@ function AdminSectionView({
   );
 }
 
+/** Módulo do admin: cabeçalho, erro de arranque e a secção escolhida (conteúdo, membros ou evento). */
 export default function CanhoesAdminModule({
   section,
   initialEventId,
@@ -129,6 +134,7 @@ export default function CanhoesAdminModule({
 }: Readonly<CanhoesAdminModuleProps>) {
   const { event: activeEvent, refresh: refreshOverview } = useEventOverview(initialContext);
   const queryClient = useQueryClient();
+  // o evento do servidor (SSR) serve até o overview carregar
   const resolvedEventId = activeEvent?.id ?? initialEventId ?? null;
   const eventId = activeEvent?.id ?? null;
   const bootstrap = useAdminBootstrap(resolvedEventId);
@@ -138,6 +144,7 @@ export default function CanhoesAdminModule({
   const loading = bootstrap.loading || proposalsLoading || pendingCountLoading;
 
   const handleRefresh = useCallback(async () => {
+    // invalida as queries do admin e o overview em paralelo
     await Promise.all([
       ...queryKeys.admin.afterWrite(resolvedEventId).map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       refreshOverview(),

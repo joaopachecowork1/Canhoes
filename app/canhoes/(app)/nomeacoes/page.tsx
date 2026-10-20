@@ -3,6 +3,7 @@ import { CanhoesNominationsModule } from "@/lib/domains/voting/components/Canhoe
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, AwardCategoryDto, PagedResult } from "@/lib/api/types";
 
+/** Página das nomeações: pré-carrega as categorias onde se pode nomear. */
 export default async function NominationsPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const categoriesPage = activeContext

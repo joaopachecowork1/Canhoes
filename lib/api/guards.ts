@@ -6,11 +6,12 @@ import { authOptions } from "@/lib/domains/auth/services/auth";
 import { getEventRulesState, isEventMember } from "@/lib/domains/event/services/event";
 import { canSubmitProposals, resolveMemberModules } from "@/lib/domains/event/rules/eventRules";
 
+/** O utilizador da sessão, com o que as guardas precisam de saber. */
 export type SessionUser = { id: string; isAdmin: boolean };
 
 /**
- * The signed-in user, or a 401. The NextAuth `jwt` callback re-reads the user from the
- * database on every request, so `isAdmin` is always current.
+ * O utilizador com sessão, ou um 401. O callback `jwt` do NextAuth relê o utilizador da
+ * base de dados em cada pedido, por isso `isAdmin` está sempre atual.
  */
 export async function requireUser(): Promise<SessionUser> {
   const session = await getServerSession(authOptions);
@@ -20,7 +21,7 @@ export async function requireUser(): Promise<SessionUser> {
   return { id: session.user.id, isAdmin: Boolean(session.user.isAdmin) };
 }
 
-/** The signed-in user, who must be an admin; 401 without a session, 403 for members. */
+/** O utilizador com sessão, que tem de ser admin; 401 sem sessão, 403 para membros. */
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireUser();
   if (!user.isAdmin) {
@@ -29,7 +30,7 @@ export async function requireAdmin(): Promise<SessionUser> {
   return user;
 }
 
-/** Admins always pass; everyone else has to be a member of the event. */
+/** Os admins passam sempre; os restantes têm de ser membros do evento. */
 export async function requireEventAccess(eventId: string, user: SessionUser): Promise<void> {
   if (user.isAdmin) return;
   if (!(await isEventMember(eventId, user.id))) {
@@ -37,19 +38,22 @@ export async function requireEventAccess(eventId: string, user: SessionUser): Pr
   }
 }
 
-/** Event access plus the module being open for members in the current phase (see `eventRules`). */
+/** Acesso ao evento mais a área estar aberta aos membros na fase atual (ver `eventRules`). */
 export async function requireModule(eventId: string, user: SessionUser, module: AdminModuleKey): Promise<void> {
   await requireEventAccess(eventId, user);
   if (user.isAdmin) return;
+
+  // A mesma regra de fase que o overview mostra na UI, aplicada aqui no servidor.
   if (!resolveMemberModules(await getEventRulesState(eventId))[module]) {
     throw new HttpError(403, "MODULE_DISABLED", "Module not available.");
   }
 }
 
-/** Event access plus proposals being open (category proposals, nominations, stickers, measures). */
+/** Acesso ao evento mais as propostas estarem abertas (categorias, nomeações, cromos, medidas). */
 export async function requireProposalsOpen(eventId: string, user: SessionUser): Promise<void> {
   await requireEventAccess(eventId, user);
   if (user.isAdmin) return;
+
   if (!canSubmitProposals(await getEventRulesState(eventId))) {
     throw new HttpError(409, "PROPOSALS_CLOSED", "Proposals are closed in this phase.");
   }

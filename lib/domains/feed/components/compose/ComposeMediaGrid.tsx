@@ -11,6 +11,7 @@ type ComposeMediaGridProps = {
   onRemove: (index: number) => void;
 };
 
+/** A grelha de pré-visualização das imagens escolhidas, com mover e remover. */
 export function ComposeMediaGrid({ files, maxFiles, previewUrls, onMove, onRemove }: Readonly<ComposeMediaGridProps>) {
   if (files.length === 0) return null;
   const composeCopy = messages.feed.compose;

@@ -9,8 +9,8 @@ import { usePathScopedOpen } from "./usePathScopedOpen";
 const PRELOAD_DELAY_MS = 1200;
 
 /**
- * Open state of the compose sheet. It closes on navigation and when the feed closes, opens on
- * `OPEN_COMPOSE_SHEET_EVENT`, and its code is preloaded so the first tap on Post is instant.
+ * Estado aberto/fechado da folha de publicar. Fecha ao navegar e quando o feed fecha, abre com
+ * `OPEN_COMPOSE_SHEET_EVENT`, e o seu código é pré-carregado para o primeiro toque em Publicar ser instantâneo.
  */
 export function useComposeSheet({
   canCompose,
@@ -22,8 +22,10 @@ export function useComposeSheet({
   useEffect(() => {
     if (!canCompose) return;
 
+    // Outras partes da app pedem a abertura por evento global, sem importar este hook.
     const handleOpenCompose = () => setIsOpen(true);
     globalThis.addEventListener(OPEN_COMPOSE_SHEET_EVENT, handleOpenCompose);
+    // Pré-carrega com atraso para não competir com o carregamento inicial da página.
     const timeoutId = globalThis.setTimeout(() => void preload(), PRELOAD_DELAY_MS);
 
     return () => {

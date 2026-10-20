@@ -2,9 +2,7 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Painel base com estilo "surface" para contentores de UI.
- */
+/** Painel base com estilo "surface" para contentores de UI. */
 function Card({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -18,9 +16,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/**
- * Cabeçalho do Card com suporte para grelha automática e ações.
- */
+/** Cabeçalho do Card, com grelha automática e lugar para ações. */
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -34,18 +30,14 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/**
- * Título do Card estilizado como heading-3.
- */
+/** Título do Card, estilizado como heading-3. */
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div data-slot="card-title" className={cn("heading-3 text-[var(--color-text-primary)]", className)} {...props} />
   );
 }
 
-/**
- * Descrição do Card estilizada como body-small.
- */
+/** Descrição do Card, estilizada como body-small. */
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -56,16 +48,12 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/**
- * Conteúdo principal do Card com padding responsivo.
- */
+/** Conteúdo principal do Card, com padding responsivo. */
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-slot="card-content" className={cn("px-4 pb-4 sm:px-6 sm:pb-6", className)} {...props} />;
 }
 
-/**
- * Rodapé do Card, geralmente para ações secundárias ou metadados.
- */
+/** Rodapé do Card, para ações secundárias ou metadados. */
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

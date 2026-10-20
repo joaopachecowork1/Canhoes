@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 import type { AwardCategoryDto, EventCategoryDto, PagedResult } from "@/lib/api/types";
 
 /*
- * Award categories. `kind` says what members vote for: 0 = an approved nomination of the category,
- * 1 = a person of the event (`CATEGORY_KIND.USER_VOTE`).
+ * Categorias dos prémios. `kind` diz em que os membros votam: 0 = uma nomeação aprovada da categoria,
+ * 1 = uma pessoa do evento (`CATEGORY_KIND.USER_VOTE`).
  */
 
-/** Active categories of an event, in display order (the member-facing list). */
+/** Categorias ativas de um evento, pela ordem de apresentação (a lista que os membros veem). */
 export async function getActiveCategories(
   eventId: string,
   skip: number,
@@ -35,9 +35,10 @@ export async function getActiveCategories(
   };
 }
 
+/** Uma categoria tal como vem da BD. */
 type CategoryRow = Prisma.AwardCategoryGetPayload<object>;
 
-/** The admin's view of a category. `voteRules` is free text stored in a JSON column. */
+/** A vista de admin de uma categoria. `voteRules` é texto livre guardado numa coluna JSON. */
 function toCategoryDto(category: CategoryRow): AwardCategoryDto {
   return {
     id: category.id,
@@ -51,12 +52,12 @@ function toCategoryDto(category: CategoryRow): AwardCategoryDto {
   };
 }
 
-/** Trimmed text, `null` when cleared, `undefined` (left unchanged) when not sent. */
+/** Texto sem espaços nas pontas, `null` quando apagado, `undefined` (fica como está) quando não foi enviado. */
 function trimmedOrNull(value: string | null | undefined) {
   return value === undefined ? undefined : (value?.trim() ?? null);
 }
 
-/** Every category of the event, active or not, for the admin. */
+/** Todas as categorias do evento, ativas ou não, para o admin. */
 export async function getAdminCategories(eventId: string): Promise<AwardCategoryDto[]> {
   const categories = await prisma.awardCategory.findMany({
     where: { eventId },
@@ -65,7 +66,7 @@ export async function getAdminCategories(eventId: string): Promise<AwardCategory
   return categories.map(toCategoryDto);
 }
 
-/** Creates an active category; without `sortOrder` it goes to the end of the list. */
+/** Cria uma categoria ativa; sem `sortOrder` vai para o fim da lista. */
 export async function createCategory(
   eventId: string,
   data: {
@@ -77,6 +78,7 @@ export async function createCategory(
     voteRules?: string | null;
   },
 ): Promise<AwardCategoryDto> {
+  // A maior ordem atual, para a nova categoria ficar a seguir.
   const maxSort = await prisma.awardCategory.aggregate({
     where: { eventId },
     _max: { sortOrder: true },
@@ -97,7 +99,7 @@ export async function createCategory(
   return toCategoryDto(category);
 }
 
-/** Updates the given fields of a category of this event; null when it does not exist here. */
+/** Atualiza os campos indicados de uma categoria deste evento; null quando não existe aqui. */
 export async function updateCategory(
   eventId: string,
   categoryId: string,
@@ -114,7 +116,7 @@ export async function updateCategory(
   const existing = await prisma.awardCategory.findFirst({ where: { id: categoryId, eventId } });
   if (!existing) return null;
 
-  // Prisma leaves `undefined` fields untouched, so only what the admin sent changes.
+  // O Prisma deixa os campos `undefined` como estão, por isso só muda o que o admin enviou.
   const updated = await prisma.awardCategory.update({
     where: { id: categoryId },
     data: {
@@ -130,11 +132,12 @@ export async function updateCategory(
   return toCategoryDto(updated);
 }
 
-/** Deletes a category of this event; false when it does not exist here. */
+/** Apaga uma categoria deste evento; false quando não existe aqui ou ainda tem nomeados ou votos. */
 export async function deleteCategory(eventId: string, categoryId: string): Promise<boolean> {
   const existing = await prisma.awardCategory.findFirst({ where: { id: categoryId, eventId } });
   if (!existing) return false;
 
+  // Uma categoria com nomeados ou votos não se apaga, para não perder dados.
   const hasDependents = await Promise.all([
     prisma.nominee.count({ where: { eventId, categoryId } }),
     prisma.vote.count({ where: { categoryId } }),

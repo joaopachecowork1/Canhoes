@@ -4,14 +4,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-// A disabled button with a box turns into a flat grey one; the variants without a box (ghost, link) just dim.
+// Um botão desativado com caixa passa a cinzento plano; as variantes sem caixa (ghost, link) só ficam esbatidas.
 const DISABLED_BOX =
   "disabled:border-[var(--color-border)] disabled:bg-[var(--color-veil)]/8 disabled:text-[var(--color-text-muted)]";
 const DISABLED_DIM = "disabled:opacity-50";
 
 /**
- * Configurações de variantes visuais para o componente Button.
- * Inclui estados como default, primary, destructive, outline, secondary, ghost, link e glow.
+ * Variantes visuais e tamanhos do `Button`: default, primary, destructive, outline, secondary, ghost, link e glow.
+ * Todos têm pelo menos 44px de altura, para serem fáceis de tocar.
  */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md-token)] text-sm font-medium transition duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-none disabled:shadow-none [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98] min-h-[44px]",

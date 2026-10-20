@@ -19,6 +19,7 @@ export const MAX_HEIGHT_BY_ASPECT = {
 const ARROW_CLASS =
   "absolute top-1/2 z-10 -translate-y-1/2 rounded-full border border-[var(--border-subtle)] bg-[var(--color-panel)]/50 p-1.5 text-[var(--text-primary)] opacity-0 shadow-lg transition group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-35";
 
+/** Aviso mostrado no lugar de uma imagem que falhou a carregar. */
 function MediaFallback() {
   return (
     <div className="flex min-h-48 w-full flex-col items-center justify-center gap-2 bg-[var(--bg-deep)] px-4 text-center">
@@ -29,6 +30,7 @@ function MediaFallback() {
   );
 }
 
+/** Uma imagem da galeria, ou o aviso de falha se não carregou. */
 export function CarouselImage({
   alt,
   isEager,
@@ -58,7 +60,7 @@ export function CarouselImage({
         loading={isEager ? "eager" : "lazy"}
         decoding="async"
         sizes={IMAGE_SIZES}
-        // An address that is not ours (older posts, the demo seed) is not in next.config.mjs, so it is shown as it is.
+        // um endereço que não é nosso (posts antigos, seed de demonstração) não está em next.config.mjs, por isso mostra-se tal como está
         unoptimized={!absMediaUrl(url).startsWith("/")}
         className="cursor-pointer object-contain transition-opacity hover:opacity-90"
         onError={onError}
@@ -68,6 +70,7 @@ export function CarouselImage({
   );
 }
 
+/** Setas anterior/seguinte e o contador "n / total" sobre a galeria. */
 export function CarouselControls({
   currentIndex,
   onNext,
@@ -111,6 +114,7 @@ export function CarouselControls({
   );
 }
 
+/** Pontos por baixo da galeria; cada um salta para a imagem respetiva. */
 export function CarouselDots({
   currentIndex,
   media,
@@ -141,6 +145,7 @@ export function CarouselDots({
   );
 }
 
+/** A faixa horizontal com todas as imagens, deslocada para mostrar a atual. */
 export function CarouselTrack({
   currentIndex,
   failedMedia,
@@ -172,7 +177,7 @@ export function CarouselTrack({
             alt={formatMessage(copy.slideAlt, { number: index + 1, total: media.length })}
             isFailed={Boolean(failedMedia[url])}
             isPriority={isPriority && index === 0}
-            // The neighbours load early so a swipe never shows an empty slide.
+            // as vizinhas carregam cedo para um deslize nunca mostrar um espaço vazio
             isEager={(isPriority && index === 0) || Math.abs(index - currentIndex) === 1}
             onError={() => onError(url)}
             onClick={() => onImageClick?.(index)}

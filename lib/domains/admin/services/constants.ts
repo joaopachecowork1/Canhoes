@@ -1,8 +1,8 @@
 import type { EventPhaseDto, EventSummaryDto } from "@/lib/api/types";
 
-/* Constants and DTO mappers shared by the admin and event services. */
+/* Conversores para DTO partilhados pelos serviços de admin e de evento. */
 
-/** The API shape of an event phase. */
+/** A forma de uma fase do evento na API. */
 export function toPhaseDto(phase: { id: string; type: string; isActive: boolean }): EventPhaseDto {
   return {
     id: phase.id,
@@ -11,7 +11,7 @@ export function toPhaseDto(phase: { id: string; type: string; isActive: boolean 
   };
 }
 
-/** The API shape of an event in lists: id, name and whether it is the active one. */
+/** A forma de um evento nas listas da API: id, nome e se é o ativo. */
 export function toEventSummary(event: { id: string; name: string; isActive: boolean }): EventSummaryDto {
   return { id: event.id, name: event.name, isActive: event.isActive };
 }

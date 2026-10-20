@@ -6,7 +6,7 @@ import { logger } from "@/lib/logger";
 import { ProposalStatusSchema } from "@/lib/zod/common";
 
 /**
- * Building blocks for route handlers in `app/api`.
+ * Peças para construir os route handlers em `app/api`.
  *
  *   export const GET = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
  *     const user = await requireUser();
@@ -14,21 +14,23 @@ import { ProposalStatusSchema } from "@/lib/zod/common";
  *     return json(await listSomething(eventId, skip, take));
  *   });
  *
- * Handlers throw an `HttpError` (lib/api/httpError) to stop with an error response; `apiRoute`
- * turns it into `{ code, message }` JSON. Anything else that is thrown becomes a logged 500.
+ * Os handlers lançam um `HttpError` (lib/api/httpError) para parar com uma resposta de erro; o
+ * `apiRoute` converte-o em JSON `{ code, message }`. Qualquer outro erro lançado vira um 500 registado.
  *
- * Every request is logged with its method, path, status and duration (see `logRequest`), and gets an
- * `X-Request-Id` header. A 500 carries the same id in its body, so a failure a user reports can be
- * found in the server log with `docker compose logs web | grep <id>`.
+ * Cada pedido é registado com método, caminho, estado e duração (ver `logRequest`) e recebe o
+ * cabeçalho `X-Request-Id`. Um 500 leva o mesmo id no corpo, para que uma falha reportada por um
+ * utilizador se encontre no log do servidor com `docker compose logs web | grep <id>`.
  */
 
+/** Contexto que o Next passa a um route handler: os parâmetros da rota chegam como promessa. */
 type RouteContext<Params> = { params: Promise<Params> };
 
-/** Wraps a route handler: resolves its params, logs the request with a `requestId` and turns errors into JSON responses (`HttpError` keeps its status, anything else is a logged 500). */
+/** Envolve um route handler: resolve os parâmetros, regista o pedido com um `requestId` e converte erros em respostas JSON (`HttpError` mantém o estado, o resto é um 500 registado). */
 export function apiRoute<Params = Record<string, never>>(
   handler: (request: NextRequest, params: Params) => Promise<Response>,
 ) {
   return async (request: NextRequest, context: RouteContext<Params>) => {
+    // Id curto, suficiente para encontrar o pedido no log.
     const requestId = crypto.randomUUID().slice(0, 8);
     const startedAt = Date.now();
 
@@ -39,13 +41,16 @@ export function apiRoute<Params = Record<string, never>>(
       response = toErrorResponse(error, requestId);
     }
 
+    // Devolve o id também no cabeçalho, para sucesso e erro.
     response.headers.set("X-Request-Id", requestId);
     logRequest(request, response.status, { requestId, durationMs: Date.now() - startedAt });
     return response;
   };
 }
 
+/** Converte um erro lançado pelo handler na resposta JSON de erro. */
 function toErrorResponse(error: unknown, requestId: string) {
+  // Erro esperado: o cliente recebe o código e a mensagem (e os detalhes, se existirem).
   if (error instanceof HttpError) {
     const body =
       error.details === undefined
@@ -54,6 +59,7 @@ function toErrorResponse(error: unknown, requestId: string) {
     return NextResponse.json(body, { status: error.status });
   }
 
+  // Erro inesperado: fica no log com o requestId e o cliente só vê uma mensagem genérica.
   logger.error("Unhandled API error", error, { requestId });
   return NextResponse.json(
     { code: "UNHANDLED_SERVER_ERROR", message: "Unexpected server error.", requestId },
@@ -62,8 +68,8 @@ function toErrorResponse(error: unknown, requestId: string) {
 }
 
 /**
- * Successful reads (feed pages, images) are `debug`, so the default `info` level shows only writes
- * and failures; LOG_LEVEL=debug shows every request.
+ * Os GET bem-sucedidos (páginas do feed, imagens) são `debug`, por isso o nível `info` por defeito
+ * mostra só escritas e falhas; com LOG_LEVEL=debug aparecem todos os pedidos.
  */
 function logRequest(request: NextRequest, status: number, context: { requestId: string; durationMs: number }) {
   const message = `${request.method} ${request.nextUrl.pathname} ${status}`;
@@ -72,17 +78,17 @@ function logRequest(request: NextRequest, status: number, context: { requestId: 
   else logger.debug(message, context);
 }
 
-/** A JSON response with the given status (200 by default). */
+/** Uma resposta JSON com o estado indicado (200 por defeito). */
 export function json(body: unknown, status = 200) {
   return NextResponse.json(body, { status });
 }
 
-/** An empty 204 response, for writes that return nothing. */
+/** Uma resposta 204 vazia, para escritas que não devolvem nada. */
 export function noContent() {
   return new NextResponse(null, { status: 204 });
 }
 
-/** Parses the JSON body with `schema`. Malformed JSON or invalid input becomes a 400. */
+/** Lê o corpo JSON e valida-o com `schema`. JSON mal formado ou input inválido dá um 400. */
 export async function readJson<T>(request: Request, schema: ZodType<T>): Promise<T> {
   let body: unknown;
   try {
@@ -92,13 +98,15 @@ export async function readJson<T>(request: Request, schema: ZodType<T>): Promise
   }
 
   const parsed = schema.safeParse(body);
+
+  // A mensagem do primeiro problema vai para o cliente; o resto segue em `details`.
   if (!parsed.success) {
     throw badRequest(parsed.error.issues[0]?.message ?? "Invalid input.", parsed.error.flatten());
   }
   return parsed.data;
 }
 
-/** The uploaded file in form field `field`, or a 400 when it is missing or empty. */
+/** O ficheiro enviado no campo `field` do formulário, ou um 400 quando falta ou está vazio. */
 export async function readFormFile(request: Request, field = "file"): Promise<File> {
   const file = (await request.formData()).get(field);
   if (!(file instanceof File) || file.size <= 0) {
@@ -107,9 +115,10 @@ export async function readFormFile(request: Request, field = "file"): Promise<Fi
   return file;
 }
 
+/** Valores por defeito e máximo de `take` para `readPaging`. */
 type PagingOptions = { defaultTake?: number; maxTake?: number };
 
-/** `skip`/`take` from the query string: missing or invalid values fall back to the defaults, `take` is capped. */
+/** `skip`/`take` do query string: valores em falta ou inválidos usam os defeitos e `take` tem um teto. */
 export function readPaging(request: NextRequest, { defaultTake = 50, maxTake = 200 }: PagingOptions = {}) {
   const params = request.nextUrl.searchParams;
   const skip = parseInteger(params.get("skip")) ?? 0;
@@ -120,7 +129,7 @@ export function readPaging(request: NextRequest, { defaultTake = 50, maxTake = 2
   };
 }
 
-/** The optional `?status=` filter of an admin list: one of pending, approved or rejected, or null when absent (400 for anything else). */
+/** O filtro opcional `?status=` de uma lista de admin: pending, approved ou rejected, ou null se ausente (400 para o resto). */
 export function readStatusFilter(request: NextRequest) {
   const status = request.nextUrl.searchParams.get("status");
   if (!status) return null;
@@ -129,6 +138,7 @@ export function readStatusFilter(request: NextRequest) {
   return parsed.data;
 }
 
+/** Converte para inteiro, ou null quando falta ou não é um número. */
 function parseInteger(value: string | null) {
   if (value === null) return null;
   const parsed = Number.parseInt(value, 10);

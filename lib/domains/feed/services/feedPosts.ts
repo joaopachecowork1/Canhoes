@@ -5,10 +5,11 @@ import { PERSON_COLORS } from "@/lib/personColors";
 import { loadUsersById } from "@/lib/usersById";
 
 /*
- * Feed ("mural") posts: the paged list, creating a post with images and a poll, pinning and
- * deleting. Reactions are in `feedReactions.ts`, comments in `feedComments.ts`.
+ * Posts do feed ("mural"): a lista paginada, criar um post com imagens e sondagem, fixar e
+ * apagar. As reações estão em `feedReactions.ts` e os comentários em `feedComments.ts`.
  */
 
+// Os campos de um post necessários para montar o DTO do feed.
 const POST_SELECT = {
   id: true,
   eventId: true,
@@ -22,6 +23,7 @@ const POST_SELECT = {
   number: true,
 } as const;
 
+/** Um post tal como vem da BD, com os campos de POST_SELECT. */
 type PostRow = {
   id: string;
   eventId: string;
@@ -34,9 +36,10 @@ type PostRow = {
   createdAtUtc: Date;
   number: number;
 };
+/** Uma sondagem com opções e votos, como `loadPostDetails` a devolve. */
 type PollRow = Awaited<ReturnType<typeof loadPostDetails>>["polls"][number];
 
-/** Authors, comment counts, downvotes, reactions and polls of these posts, in one query each. */
+/** Autores, contagem de comentários, votos negativos, reações e sondagens destes posts, numa query cada. */
 async function loadPostDetails(postIds: string[], authorIds: string[]) {
   const [authors, comments, downvotes, reactions, polls] = await Promise.all([
     loadUsersById(authorIds, (where) =>
@@ -56,7 +59,7 @@ async function loadPostDetails(postIds: string[], authorIds: string[]) {
   return { authors, comments, downvotes, reactions, polls };
 }
 
-/** Reaction counts per emoji and the emojis this user reacted with. */
+/** Contagem de reações por emoji e os emojis com que este utilizador reagiu. */
 function countReactions(reactions: { userId: string; emoji: string }[], userId: string) {
   const reactionCounts: Record<string, number> = {};
   const myReactions: string[] = [];
@@ -67,7 +70,7 @@ function countReactions(reactions: { userId: string; emoji: string }[], userId: 
   return { reactionCounts, myReactions };
 }
 
-/** A poll with its vote counts and this user's choice. */
+/** Uma sondagem com a contagem de votos e a escolha deste utilizador. */
 function toPollDto(poll: PollRow, userId: string) {
   return {
     question: poll.question,
@@ -81,8 +84,9 @@ function toPollDto(poll: PollRow, userId: string) {
   };
 }
 
-/** The feed DTOs of these posts as this user sees them (a heart is a like). */
+/** Os DTOs do feed destes posts como este utilizador os vê (um coração é um gosto). */
 async function toFeedPosts(rows: PostRow[], userId: string): Promise<EventFeedPostFullDto[]> {
+  // Carrega os detalhes de todos os posts de uma vez e indexa-os por post, em vez de uma query por post.
   const postIds = rows.map((row) => row.id);
   const details = await loadPostDetails(postIds, [...new Set(rows.map((row) => row.authorUserId))]);
   const { authors } = details;
@@ -123,7 +127,7 @@ async function toFeedPosts(rows: PostRow[], userId: string): Promise<EventFeedPo
   });
 }
 
-/** One page of the event's feed for this user: pinned posts first, then newest, with author, counts, the user's reactions and poll results. */
+/** Uma página do feed do evento para este utilizador: fixados primeiro, depois os mais recentes, com autor, contagens, reações do utilizador e resultados das sondagens. */
 export async function getFeedPosts(
   eventId: string,
   userId: string,
@@ -131,6 +135,8 @@ export async function getFeedPosts(
   take = 15,
 ): Promise<PagedResult<EventFeedPostFullDto>> {
   const where = { eventId };
+
+  // Fixados primeiro (pela sua ordem), depois os mais recentes.
   const [total, rows] = await Promise.all([
     prisma.hubPost.count({ where }),
     prisma.hubPost.findMany({
@@ -145,7 +151,7 @@ export async function getFeedPosts(
   return { items: await toFeedPosts(rows, userId), total, skip, take, hasMore: skip + take < total };
 }
 
-/** Creates a post (and its poll) and links the images the author uploaded for it. */
+/** Cria um post (e a sua sondagem) e associa-lhe as imagens que o autor enviou. */
 export async function createFeedPost(
   eventId: string,
   userId: string,
@@ -157,8 +163,9 @@ export async function createFeedPost(
     pollOptions?: string[] | null;
   },
 ): Promise<EventFeedPostFullDto> {
+  // Tudo numa transação: post, sondagem e imagens ficam juntos ou não ficam.
   const post = await prisma.$transaction(async (tx) => {
-    // Locks the event's row so two posts created at once cannot take the same number.
+    // Bloqueia a linha do evento para dois posts criados ao mesmo tempo não ficarem com o mesmo número.
     await tx.$queryRaw`SELECT "Id" FROM "Events" WHERE "Id" = ${eventId} FOR UPDATE`;
     const { _max } = await tx.hubPost.aggregate({ where: { eventId }, _max: { number: true } });
     const p = await tx.hubPost.create({
@@ -173,6 +180,7 @@ export async function createFeedPost(
       },
     });
 
+    // Sondagem opcional, com as opções pela ordem recebida.
     if (data.pollQuestion) {
       await tx.hubPostPoll.create({
         data: {
@@ -188,6 +196,7 @@ export async function createFeedPost(
       });
     }
 
+    // Só liga imagens que este autor enviou e que ainda não pertencem a nenhum post.
     const mediaUrls = data.mediaUrls ?? (data.mediaUrl ? [data.mediaUrl] : []);
     if (mediaUrls.length > 0) {
       await tx.hubPostMedia.updateMany({
@@ -203,7 +212,7 @@ export async function createFeedPost(
   return created;
 }
 
-/** Deletes a post of this event and its uploaded images; false when it does not exist. */
+/** Apaga um post deste evento e as suas imagens; false quando não existe. */
 export async function deleteFeedPost(eventId: string, postId: string): Promise<boolean> {
   const post = await prisma.hubPost.findFirst({
     where: { id: postId, eventId },
@@ -211,14 +220,16 @@ export async function deleteFeedPost(eventId: string, postId: string): Promise<b
   });
   if (!post) return false;
 
+  // Apaga primeiro o post e só depois os ficheiros, para nunca ficar um post a apontar para imagens que já não existem.
   await prisma.hubPost.delete({ where: { id: postId } });
   await Promise.all(post.media.map((media) => deleteUpload(media.url)));
   return true;
 }
 
+/** Número máximo de imagens por post. */
 export const MAX_IMAGES_PER_POST = 4;
 
-/** Stores images for a future post and records them, so the post can reference their URLs. */
+/** Guarda imagens para um post futuro e regista-as, para o post poder referenciar os URLs. */
 export async function saveFeedImages(eventId: string, userId: string, files: File[]) {
   const uploads = await Promise.all(files.map((file) => saveUpload(file, ["feed", eventId])));
   await prisma.hubPostMedia.createMany({

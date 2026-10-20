@@ -5,6 +5,7 @@ import * as SwitchPrimitive from "@radix-ui/react-switch";
 
 import { cn } from "@/lib/utils";
 
+/** Interruptor ligado/desligado (Radix). */
 function Switch({
   className,
   size = "default",

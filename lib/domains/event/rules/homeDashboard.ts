@@ -1,6 +1,7 @@
 import type { EventModulesDto, EventPhaseDto } from "@/lib/api/types";
 import { CANHOES_MODULES, type CanhoesModule } from "@/lib/modules";
 
+// Área que é o "próximo passo" em cada fase.
 const PHASE_MODULES: Record<string, string> = {
   DRAW: "secretSanta",
   PROPOSALS: "nominees",
@@ -8,11 +9,12 @@ const PHASE_MODULES: Record<string, string> = {
   RESULTS: "gala",
 };
 
+// Número máximo de atalhos mostrados além do próximo passo.
 const SHORTCUT_COUNT = 3;
 
 /**
- * The home dashboard's "next step" (the open area of the active phase, else the wishlist) and up to
- * three other open areas as shortcuts. The mural is the home itself, so it is never a shortcut.
+ * O "próximo passo" do painel inicial (a área aberta da fase ativa, senão a wishlist) e até três
+ * outras áreas abertas como atalhos. O mural é a própria página inicial, por isso nunca é atalho.
  */
 export function pickDashboardModules(
   modules: EventModulesDto,

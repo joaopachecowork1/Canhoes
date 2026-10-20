@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
 /**
- * Parse post text into title and body (Reddit-style).
+ * Divide o texto de uma publicação em título e corpo (ao estilo Reddit).
  *
- * If the text contains a newline, the first line becomes the title
- * and the rest becomes the body. Otherwise, the entire text is the body.
+ * Se o texto tiver uma mudança de linha, a primeira linha é o título
+ * e o resto é o corpo. Caso contrário, o texto todo é o corpo.
  */
 export function parsePostText(text: string | undefined | null) {
   if (!text?.trim()) return { title: null, body: null };
@@ -12,10 +12,10 @@ export function parsePostText(text: string | undefined | null) {
   const lines = text.trim().split(/\r?\n/);
   const firstLine = lines[0]?.trim() ?? "";
 
-  // If there's only one line, treat it all as body (no title)
+  // Com uma só linha, é tudo corpo (sem título)
   if (lines.length === 1) return { title: null, body: text.trim() };
 
-  // First line is title, rest is body
+  // A primeira linha é o título, o resto é o corpo
   const body = lines.slice(1).join("\n").trim();
   return {
     title: firstLine,
@@ -24,7 +24,7 @@ export function parsePostText(text: string | undefined | null) {
 }
 
 /**
- * Format relative time (Reddit-style: "2h", "3d", "1mo").
+ * Formata o tempo relativo ao estilo Reddit ("2h", "3d", "1mo").
  */
 function formatRelativeTime(utcString: string): string {
   const then = new Date(utcString).getTime();
@@ -41,8 +41,7 @@ function formatRelativeTime(utcString: string): string {
 }
 
 /**
- * Hook that returns a live-updating relative time string.
- * Updates every 60 seconds.
+ * Devolve o tempo relativo de uma data, atualizado a cada 60 segundos.
  */
 export function useRelativeTime(utcString: string): string {
   const [, setTick] = useState(0);

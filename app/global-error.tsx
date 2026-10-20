@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { logFrontendError } from "@/lib/errors";
 
 /**
- * Root-level error boundary for the entire app.
- * Catches errors that crash the root layout (fonts, providers, etc).
- * Unlike route-level `error.tsx`, this is the last line of defence.
+ * Fronteira de erro de topo de toda a app.
+ * Apanha os erros que rebentam o layout de raiz (fontes, providers, etc.).
+ * Ao contrário do `error.tsx` de cada rota, é a última linha de defesa.
  */
 export default function GlobalError({
   error,
@@ -44,7 +44,7 @@ export default function GlobalError({
             </Button>
             <Button
               variant="ghost"
-              // The root layout crashed, so the router cannot be trusted: do a full reload.
+              // O layout de raiz falhou, por isso não se pode confiar no router: recarrega tudo.
               // eslint-disable-next-line @next/next/no-location-assign-relative-destination
               onClick={() => globalThis.location.assign("/canhoes")}
             >

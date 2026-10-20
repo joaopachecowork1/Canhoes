@@ -15,6 +15,7 @@ import { getCategoryName } from "./nominationRules";
 
 const copy = messages.admin.AdminNominationsView;
 
+/** Conteúdo da gaveta: data e autor, mover de categoria, aprovar e rejeitar. */
 function NominationDetails({
   categories,
   isMutationPending,
@@ -30,6 +31,7 @@ function NominationDetails({
   onMove: (categoryId: string) => void;
   onReject: () => void;
 }>) {
+  // o id serve de nome quando a nomeação não tem título
   const nominationName = nomination.title || nomination.id;
 
   return (
@@ -88,7 +90,7 @@ function NominationDetails({
   );
 }
 
-/** One pending nomination: who sent it, move it to another category, approve or reject. */
+/** Uma nomeação pendente: quem a enviou, mover para outra categoria, aprovar ou rejeitar. */
 export function NominationDrawer({
   categories,
   isMutationPending,

@@ -1,6 +1,7 @@
 import { canhoesFetch } from "@/lib/api/canhoesClient";
 import type * as T from "@/lib/api/types";
 
+/** Chamadas dos prémios: categorias, nomeações, votação, resultados, medidas e propostas. */
 export const awardsRepo = {
   getCategories: (eventId: string, skip = 0, take = 50) =>
     canhoesFetch<T.PagedResult<T.AwardCategoryDto>>(`/v1/events/${eventId}/categories?skip=${skip}&take=${take}`),

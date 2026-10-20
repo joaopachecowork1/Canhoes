@@ -83,7 +83,7 @@ function ShortcutGrid({ modules }: Readonly<{ modules: CanhoesModule[] }>) {
 }
 
 export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiveContextDto | null }>) {
-  // The shortcuts repeat the dock and the menu, so they start folded; the choice is remembered in this browser.
+  // Os atalhos repetem a dock e o menu, por isso começam recolhidos; a escolha fica guardada neste browser.
   const [isExpanded, setIsExpanded] = useStoredFlag(SHORTCUTS_EXPANDED_STORAGE_KEY, false);
   const { nextStep, shortcuts } = pickDashboardModules(
     context?.overview.modules ?? {},

@@ -44,7 +44,7 @@ function CategoriesLoadingState() {
 }
 
 function CategoryRow({ category, index }: Readonly<{ category: AwardCategoryDto; index: number }>) {
-  // The fade-in animation staggers rows by this index (see app/globals.css).
+  // A animação de entrada desfasa as linhas por este índice (ver app/globals.css).
   const style: CSSProperties & Record<"--item-index", number> = { "--item-index": index };
 
   return (
@@ -106,7 +106,7 @@ function matchesSearch(category: AwardCategoryDto, searchTerm: string) {
   return `${category.name} ${category.description ?? ""}`.toLowerCase().includes(searchTerm);
 }
 
-/** Categorias page: the edition's categories and the form to propose a new one. */
+/** Página das Categorias: as categorias da edição e o formulário para propor uma nova. */
 export function CanhoesCategoriesModule({
   initialContext,
   initialCategories,

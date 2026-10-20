@@ -20,6 +20,7 @@ import { PostVoteBar } from "./PostVoteBar";
 
 const copy = messages.feed.HubPostCard;
 
+// carregados sob pedido (sem SSR) para aliviar o bundle inicial do feed
 const LazyHubPostComments = dynamic(
   () => import("./HubPostComments").then((module) => ({ default: module.HubPostComments })),
   {
@@ -82,6 +83,7 @@ type PostCommentsSectionProps = Pick<
   | "setReplyingTo"
 >;
 
+/** O botão com a contagem que abre e fecha os comentários. */
 function CommentToggleButton({
   count,
   isOpen,
@@ -105,7 +107,7 @@ function CommentToggleButton({
   );
 }
 
-/** The collapsible thread under a post; it scrolls into view when opened. */
+/** A conversa recolhível por baixo de um post; desloca-se para a vista quando aberta. */
 function PostCommentsSection({ post, openComments, ...commentProps }: Readonly<PostCommentsSectionProps>) {
   const commentsRef = useRef<HTMLDivElement>(null);
 
@@ -136,6 +138,7 @@ function PostCommentsSection({ post, openComments, ...commentProps }: Readonly<P
   );
 }
 
+/** Estado do visualizador de imagens: se está aberto e em que imagem. */
 function useLightbox() {
   const [isOpen, setIsOpen] = useState(false);
   const [index, setIndex] = useState(0);
@@ -148,6 +151,7 @@ function useLightbox() {
   return { isOpen, index, handleOpen, handleClose: () => setIsOpen(false) };
 }
 
+/** Um post do feed: cabeçalho, texto, imagens, sondagem, votos e comentários. */
 function HubPostCardComponent({
   post,
   index,
@@ -234,10 +238,12 @@ function HubPostCardComponent({
   );
 }
 
+/** Marcador de posição enquanto as imagens carregam. */
 function FeedMediaFallback() {
   return <div className="skeleton-shimmer h-64 w-full rounded-[var(--radius-md-token)]" />;
 }
 
+/** Marcador de posição enquanto a sondagem carrega. */
 function FeedPollFallback() {
   return <div className="skeleton-shimmer h-32 w-full rounded-[var(--radius-md-token)]" />;
 }

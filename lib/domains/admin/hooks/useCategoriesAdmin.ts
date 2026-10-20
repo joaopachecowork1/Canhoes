@@ -30,7 +30,7 @@ const EMPTY_ADMIN_VOTES: AdminVoteAuditRowDto[] = [];
 const EMPTY_NOMINATIONS: AdminNomineeDto[] = [];
 const QUERY_OPTIONS = { refetchOnWindowFocus: false, staleTime: 1000 * 60 * 2 } as const;
 
-/** Categories plus the nominees and votes that decide whether each one may be deleted. */
+/** Categorias mais as nomeações e votos que decidem se cada uma pode ser apagada. */
 function useCategoryQueries(eventId: string | null) {
   const enabled = Boolean(eventId);
   const id = eventId ?? "";
@@ -74,6 +74,7 @@ function useCategoryQueries(eventId: string | null) {
   };
 }
 
+/** Criar, editar e apagar categorias; cada uma invalida as categorias e depois chama `onDone`. */
 function useCategoryMutations(eventId: string | null, onDone: () => Promise<void>) {
   const queryClient = useQueryClient();
   const id = eventId ?? "";
@@ -103,14 +104,15 @@ function useCategoryMutations(eventId: string | null, onDone: () => Promise<void
 }
 
 /**
- * Provides category data, mutation state and editor actions to the admin UI.
- * The pure DTO/form and deletion rules are kept in categoryTypes.
+ * Dá à UI de admin os dados das categorias, o estado das mutações e as ações do editor.
+ * As regras puras de DTO, formulário e eliminação ficam em categoryTypes.
  */
 export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promise<void>) {
   const [sheetState, setSheetState] = useState<CategorySheetState | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AwardCategoryDto | null>(null);
   const [form, setForm] = useState<CategoryFormState>(() => buildInitialCategoryForm(1));
   const queries = useCategoryQueries(eventId);
+  // Depois de gravar ou apagar, fecha a folha e o diálogo antes de avisar o pai.
   const mutations = useCategoryMutations(eventId, async () => {
     setDeleteTarget(null);
     setSheetState(null);
@@ -133,6 +135,7 @@ export function useCategoriesAdmin(eventId: string | null, onUpdate: () => Promi
     deleteTarget,
     form,
     patchForm: (patch: Partial<CategoryFormState>) => setForm((current) => ({ ...current, ...patch })),
+    // A nova categoria fica na última posição.
     openCreateSheet: () => {
       setForm(buildInitialCategoryForm(queries.sortedCategories.length + 1));
       setSheetState({ mode: "create" });

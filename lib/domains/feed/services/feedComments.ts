@@ -6,11 +6,12 @@ import { PERSON_COLORS } from "@/lib/personColors";
 import { assertPostInEvent } from "./feedAccess";
 import { loadUsersById } from "@/lib/usersById";
 
-/* Comments of feed posts: the thread, replies, emoji reactions and deleting. */
+/* Comentários dos posts do feed: a conversa, as respostas, as reações com emoji e o apagar. */
 
-/** A comment as the route addresses it: event, post and comment ids from the URL. */
+/** Um comentário tal como a rota o endereça: ids do evento, do post e do comentário vindos do URL. */
 export type CommentRef = { eventId: string; postId: string; commentId: string };
 
+/** Lança 404 se o comentário não pertencer a este post e evento. */
 async function assertCommentInPost({ eventId, postId, commentId }: CommentRef) {
   const comment = await prisma.hubPostComment.findFirst({
     where: { id: commentId, postId, post: { eventId } },
@@ -19,7 +20,7 @@ async function assertCommentInPost({ eventId, postId, commentId }: CommentRef) {
   if (!comment) throw notFound("Comment not found.");
 }
 
-/** The post's comments, oldest first, with author names and the user's reactions. */
+/** Os comentários do post, dos mais antigos para os mais recentes, com os nomes dos autores e as reações do utilizador. */
 export async function getPostComments(eventId: string, postId: string, userId: string): Promise<HubCommentDto[]> {
   await assertPostInEvent(eventId, postId);
   const comments = await prisma.hubPostComment.findMany({
@@ -30,12 +31,14 @@ export async function getPostComments(eventId: string, postId: string, userId: s
     },
   });
 
+  // Autores carregados de uma só vez.
   const commentUserMap = await loadUsersById(
     comments.map((c) => c.userId),
     (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, color: true } }),
   );
 
   return comments.map((c) => {
+    // Conta as reações por emoji e separa as do utilizador atual.
     const reactionCounts: Record<string, number> = {};
     const myReactions: string[] = [];
     for (const r of c.reactions) {
@@ -58,13 +61,14 @@ export async function getPostComments(eventId: string, postId: string, userId: s
   });
 }
 
-/** Adds a comment, optionally replying to another comment of the same post. */
+/** Acrescenta um comentário, opcionalmente em resposta a outro comentário do mesmo post. */
 export async function createComment(
   eventId: string,
   postId: string,
   userId: string,
   { text, replyToId }: { text: string; replyToId?: string | null },
 ): Promise<HubCommentDto> {
+  // O post e o comentário a que se responde têm de ser deste evento.
   await assertPostInEvent(eventId, postId);
   if (replyToId) await assertCommentInPost({ eventId, postId, commentId: replyToId });
 
@@ -73,6 +77,7 @@ export async function createComment(
     prisma.user.findUnique({ where: { id: userId }, select: { displayName: true, color: true } }),
   ]);
 
+  // Um comentário novo ainda não tem reações.
   return {
     id: comment.id,
     postId: comment.postId,
@@ -87,7 +92,7 @@ export async function createComment(
   };
 }
 
-/** Deletes a comment of this post; only its author or an admin may. False when not found or not allowed. */
+/** Apaga um comentário deste post; só o autor ou um admin pode. Devolve false se não existir ou não for permitido. */
 export async function deleteComment(
   { eventId, postId, commentId }: CommentRef,
   user: { id: string; isAdmin: boolean },
@@ -99,7 +104,7 @@ export async function deleteComment(
   return true;
 }
 
-/** Adds or removes one emoji reaction of the user on a comment. */
+/** Põe ou tira uma reação com emoji do utilizador num comentário. */
 export async function toggleCommentReaction(ref: CommentRef, userId: string, emoji: string): Promise<void> {
   await assertCommentInPost(ref);
   const { commentId } = ref;

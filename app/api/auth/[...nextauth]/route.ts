@@ -2,7 +2,8 @@ import NextAuth from "next-auth";
 
 import { authOptions } from "@/lib/domains/auth/services/auth";
 
-// Behind a proxy or tunnel, set AUTH_TRUST_HOST=true so NextAuth builds URLs from the forwarded host.
+// Atrás de um proxy ou túnel, define AUTH_TRUST_HOST=true para o NextAuth construir os URLs a partir do host reencaminhado.
 const handler = NextAuth(authOptions);
 
+/** GET e POST /api/auth/*: todas as rotas do NextAuth (login, callbacks, sessão). */
 export { handler as GET, handler as POST };

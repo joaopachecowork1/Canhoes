@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+/** `variant` define a moldura (página, painel ou cartão); `tone` a cor (normal, aviso ou erro). */
 type AdminStateMessageProps = {
   action?: ReactNode;
   children: ReactNode;
@@ -22,6 +23,7 @@ const TONE_CLASSES: Record<NonNullable<AdminStateMessageProps["tone"]>, string> 
   error: "border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 text-[var(--ink-primary)]",
 };
 
+/** Mensagem de estado do admin (a carregar, vazio, erro), com uma ação opcional por baixo. */
 export function AdminStateMessage({
   action,
   children,

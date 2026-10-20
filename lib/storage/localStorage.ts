@@ -3,7 +3,9 @@ import path from "node:path";
 
 import { HttpError } from "@/lib/api/httpError";
 
+// Tamanho máximo de uma imagem: 10 MB.
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+// Tipos de imagem aceites e a extensão com que são guardados.
 const ALLOWED_TYPES: Record<string, string> = {
   "image/jpeg": ".jpg",
   "image/png": ".png",
@@ -11,7 +13,7 @@ const ALLOWED_TYPES: Record<string, string> = {
   "image/webp": ".webp",
 };
 
-// The first bytes of each format, so a file cannot pass as an image just by claiming a type. WebP also has "WEBP" at byte 8.
+// Os primeiros bytes de cada formato, para um ficheiro não passar por imagem só por declarar um tipo. O WebP tem também "WEBP" no byte 8.
 const SIGNATURES: Record<string, number[]> = {
   "image/jpeg": [0xff, 0xd8, 0xff],
   "image/png": [0x89, 0x50, 0x4e, 0x47],
@@ -20,25 +22,27 @@ const SIGNATURES: Record<string, number[]> = {
 };
 const WEBP_MARK = [0x57, 0x45, 0x42, 0x50];
 
+/** Confirma que o conteúdo começa com os bytes do formato declarado. */
 function hasImageSignature(type: string, bytes: Uint8Array) {
   const startsRight = SIGNATURES[type]?.every((byte, index) => bytes[index] === byte);
   return Boolean(startsRight) && (type !== "image/webp" || WEBP_MARK.every((byte, index) => bytes[8 + index] === byte));
 }
 
-/** A rejected upload (type, size or path). Becomes a 400 in route handlers. */
+/** Um upload recusado (tipo, tamanho ou caminho). Nos route handlers vira um 400. */
 export class UploadValidationError extends HttpError {
   constructor(message: string) {
     super(400, "VALIDATION_ERROR", message);
   }
 }
 
-// Resolved at runtime; the ignore comment stops Turbopack from tracing the whole project into the build.
+// Resolvido em runtime; o comentário de ignorar impede o Turbopack de incluir o projeto inteiro no build.
 function storageRoot() {
   return path.resolve(
     /*turbopackIgnore: true*/ process.env.UPLOADS_DIR || path.join(process.cwd(), ".data", "uploads"),
   );
 }
 
+/** Junta os segmentos à pasta de uploads e recusa qualquer caminho que saia dela (por ex. com `..`). */
 function safePath(segments: string[]) {
   const root = storageRoot();
   const target = path.resolve(root, ...segments);
@@ -48,8 +52,9 @@ function safePath(segments: string[]) {
   return target;
 }
 
-/** Stores an image (JPEG, PNG, GIF or WebP, up to 10 MB) under `UPLOADS_DIR` and returns its public `/uploads/...` URL. */
+/** Guarda uma imagem (JPEG, PNG, GIF ou WebP, até 10 MB) em `UPLOADS_DIR` e devolve o URL público `/uploads/...`. */
 export async function saveUpload(file: File, folders: string[]) {
+  // Validação: tipo declarado, tamanho e assinatura real do conteúdo.
   const extension = ALLOWED_TYPES[file.type];
   if (!extension) throw new UploadValidationError("Unsupported image type.");
   if (file.size <= 0 || file.size > MAX_UPLOAD_BYTES) {
@@ -59,9 +64,11 @@ export async function saveUpload(file: File, folders: string[]) {
   const content = new Uint8Array(await file.arrayBuffer());
   if (!hasImageSignature(file.type, content)) throw new UploadValidationError("The file is not a valid image.");
 
+  // Nome aleatório e pastas limpas de tudo o que não seja letra, número, _ ou -.
   const fileName = `${crypto.randomUUID().replaceAll("-", "")}${extension}`;
   const cleanFolders = folders.map((segment) => segment.replace(/[^a-zA-Z0-9_-]/g, ""));
   const target = safePath([...cleanFolders, fileName]);
+  // Escreve primeiro num ficheiro temporário e renomeia no fim, para nunca se ler um ficheiro a meio.
   const temporary = `${target}.${crypto.randomUUID()}.tmp`;
   await mkdir(path.dirname(target), { recursive: true });
   await writeFile(temporary, content, { flag: "wx" });
@@ -75,7 +82,7 @@ export async function saveUpload(file: File, folders: string[]) {
   };
 }
 
-/** Reads a stored upload and its content type; the path cannot leave `UPLOADS_DIR`. */
+/** Lê um upload guardado e o seu tipo de conteúdo; o caminho não pode sair de `UPLOADS_DIR`. */
 export async function readUpload(segments: string[]) {
   const physicalPath = safePath(segments);
   const extension = path.extname(physicalPath).toLowerCase();
@@ -84,7 +91,7 @@ export async function readUpload(segments: string[]) {
   return { buffer: await readFile(physicalPath), contentType };
 }
 
-/** Deletes a stored upload by its `/uploads/...` URL; other URLs and missing files are ignored. */
+/** Apaga um upload pelo seu URL `/uploads/...`; outros URLs e ficheiros inexistentes são ignorados. */
 export async function deleteUpload(url: string) {
   const prefix = "/uploads/";
   if (!url.startsWith(prefix)) return;

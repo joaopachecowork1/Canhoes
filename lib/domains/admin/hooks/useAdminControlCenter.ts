@@ -12,18 +12,18 @@ import messages from "@/messages/pt.json";
 const copy = messages.admin.useAdminControlCenter;
 
 export type AdminModuleItem = CanhoesModule & {
-  /** The admin switch: off hides the module in every phase. */
+  /** O interruptor do admin: desligado esconde a área em todas as fases. */
   isEnabled: boolean;
-  /** Whether members see it right now (switch and phase together). */
+  /** Se os membros a veem neste momento (interruptor e fase em conjunto). */
   isOpenNow: boolean;
 };
 
-/** "event", "phase", "proposals" or a module key: the control currently saving. */
+/** "event", "phase", "proposals" ou a chave de uma área: o controlo que está a gravar. */
 type SavingKey = "event" | "phase" | "proposals" | AdminModuleKey;
 
 /**
- * State and actions of the admin "Evento" tab: active event, phase, the proposals switch and
- * the per-module switches. Every action saves, then `onRefresh` reloads the admin state.
+ * Estado e ações do separador "Evento" do admin: evento ativo, fase, interruptor das propostas e
+ * interruptores por área. Cada ação grava e depois `onRefresh` recarrega o estado do admin.
  */
 export function useAdminControlCenter(
   eventId: string | null,
@@ -32,6 +32,7 @@ export function useAdminControlCenter(
 ) {
   const [savingKey, setSavingKey] = useState<SavingKey | null>(null);
 
+  // Grava, recarrega o estado e avisa; `savingKey` marca o controlo ocupado até ao fim, com ou sem erro.
   async function save(
     key: SavingKey,
     action: () => Promise<unknown>,
@@ -82,6 +83,7 @@ export function useAdminControlCenter(
     });
   };
 
+  // Sem estado carregado, uma área conta como ligada (é o valor por defeito no servidor).
   const moduleItems: AdminModuleItem[] = CANHOES_MODULES.map((module) => ({
     ...module,
     isEnabled: state?.moduleVisibility[module.key] ?? true,

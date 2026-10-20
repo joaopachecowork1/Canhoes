@@ -10,17 +10,19 @@ export type DisplayComment = HubCommentDto & {
 };
 
 /**
- * Reconstructs reply relationships so comments can be rendered in thread order.
- * Replies whose parent is not present remain top-level comments.
+ * Reconstrói as relações de resposta para os comentários poderem ser mostrados em ordem de conversa.
+ * Respostas cujo pai não existe ficam como comentários de topo.
  */
 export function buildCommentTree(flatComments: HubCommentDto[]): CommentNode[] {
   const commentsById = new Map<string, CommentNode>();
   const rootComments: CommentNode[] = [];
 
+  // primeiro indexa todos, para a ordem dos comentários não importar ao ligar pais e filhos
   flatComments.forEach((comment) => {
     commentsById.set(comment.id, { ...comment, children: [] });
   });
 
+  // depois liga cada comentário ao pai
   flatComments.forEach((comment) => {
     const commentNode = commentsById.get(comment.id);
     const parentNode = comment.replyToId ? commentsById.get(comment.replyToId) : undefined;
@@ -36,8 +38,8 @@ export function buildCommentTree(flatComments: HubCommentDto[]): CommentNode[] {
 }
 
 /**
- * Flattens a comment tree for the virtualized list while retaining indentation.
- * The depth cap keeps deeply nested conversations readable on small screens.
+ * Achata a árvore de comentários para a lista virtualizada, mantendo a indentação.
+ * O limite de profundidade mantém conversas muito aninhadas legíveis em ecrãs pequenos.
  */
 export function flattenCommentTree(commentTree: CommentNode[], nestingLevel = 0): DisplayComment[] {
   return commentTree.flatMap((comment) => [

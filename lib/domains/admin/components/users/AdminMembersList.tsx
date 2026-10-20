@@ -5,7 +5,7 @@ import { formatMessage } from "@/lib/messages";
 import messages from "@/messages/pt.json";
 import { Switch } from "@/components/ui/switch";
 
-/** The event's members, one per row, with a switch that makes them admin. */
+/** Os membros do evento, um por linha, com um interruptor que os torna admin. */
 export function AdminMembersList({
   isPendingRoleChange,
   members,

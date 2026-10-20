@@ -16,6 +16,7 @@ import { useCanhoesShellNavigation } from "./useCanhoesShellNavigation";
 import { useComposeSheet } from "./useComposeSheet";
 import { usePathScopedOpen } from "./usePathScopedOpen";
 
+// Também serve de pré-carga: o hook `useComposeSheet` chama-o antes de o sheet abrir.
 const loadCanhoesComposeSheet = () =>
   import("@/lib/domains/feed/components/compose/CanhoesComposeSheet").then((module) => ({
     default: module.CanhoesComposeSheet,
@@ -26,6 +27,7 @@ const LazyCanhoesComposeSheet = dynamic(loadCanhoesComposeSheet, {
   ssr: false,
 });
 
+/** Atualiza o título do separador do browser com a página atual e o nome do evento. */
 function useDocumentTitle(pageTitle: string, eventName: string | undefined) {
   useEffect(() => {
     const suffix = eventName?.trim() || messages.shell.CanhoesChrome.documentTitleFallback;
@@ -34,8 +36,8 @@ function useDocumentTitle(pageTitle: string, eventName: string | undefined) {
 }
 
 /**
- * The layout of every signed-in page: header (brand, page title, phase, logout, menu), the page,
- * the dock, and the menu and compose sheets. Navigation rules live in `canhoesNavigation.ts`.
+ * O layout de todas as páginas autenticadas: cabeçalho (marca, título da página, fase, logout, menu),
+ * a página, o dock e os sheets do menu e de escrita. As regras de navegação vivem em `canhoesNavigation.ts`.
  */
 export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();

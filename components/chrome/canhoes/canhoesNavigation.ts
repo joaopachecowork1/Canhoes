@@ -8,34 +8,37 @@ import messages from "@/messages/pt.json";
 const copy = messages.shell.canhoesNavigation;
 
 /*
- * What the shell links to. The dock has Mural, the first two open areas, Post and, on the right,
- * Admin (admins) or Menu (members); the menu sheet lists every other open area. Which areas are
- * open comes from `overview.modules`, which follows the active phase for admins and members alike.
+ * Para onde a moldura da app liga. O dock tem Mural, as duas primeiras áreas abertas, Post e, à direita,
+ * Admin (admins) ou Menu (membros); o menu lista as restantes áreas abertas. As áreas abertas vêm de
+ * `overview.modules`, que segue a fase ativa, igual para admins e membros.
  */
 
+/** Uma ligação de navegação (dock ou menu). */
 export type CanhoesNavItem = {
   id: string;
   label: string;
   href: string;
   icon: LucideIcon;
   description?: string;
-  /** Other paths that count as being on this item (the pages grouped under it). */
+  /** Outros caminhos que contam como estar neste item (as páginas agrupadas debaixo dele). */
   alsoActiveFor?: string[];
 };
 
+/** Título e cor da página atual, para o cabeçalho. */
 export type CanhoesPageContext = {
   title: string;
   description?: string;
-  /** The area's tab colour (`--area-*` in app/globals.css), the same in header and dock. */
+  /** A cor do separador da área (`--area-*` em app/globals.css), igual no cabeçalho e no dock. */
   areaColor: string;
 };
 
-/** CSS colour of an area's tab: `secretSanta` reads `--area-secret-santa`. */
+/** Cor CSS do separador de uma área: `secretSanta` lê `--area-secret-santa`. */
 export function areaColorVar(areaId: string) {
   const kebab = areaId.replaceAll(/[A-Z]/g, (letter) => "-" + letter.toLowerCase());
   return `var(--area-${kebab})`;
 }
 
+/** O mural, separador inicial do dock. */
 export const HOME_NAV_ITEM: CanhoesNavItem = {
   id: "home",
   label: copy.homeLabel,
@@ -44,6 +47,7 @@ export const HOME_NAV_ITEM: CanhoesNavItem = {
   description: copy.homeDescription,
 };
 
+/** A área de administração, no dock dos admins. */
 export const ADMIN_NAV_ITEM: CanhoesNavItem = {
   id: "admin",
   label: copy.adminLabel,
@@ -52,6 +56,7 @@ export const ADMIN_NAV_ITEM: CanhoesNavItem = {
   description: copy.adminDescription,
 };
 
+/** O botão que abre o menu, no dock dos membros. */
 export const MENU_NAV_ITEM: CanhoesNavItem = {
   id: "menu",
   label: messages.shell.common.menu,
@@ -59,12 +64,13 @@ export const MENU_NAV_ITEM: CanhoesNavItem = {
   icon: Menu,
 };
 
+// Quantas áreas cabem no dock ao lado do mural e do Post.
 const DOCK_AREA_COUNT = 2;
 
-/** Open member areas, in registry order; the mural is the home tab and never counted here. */
+/** Áreas abertas para os membros, pela ordem do registo; o mural é o separador inicial e não conta aqui. */
 function getOpenAreas(modules: EventModulesDto | null | undefined): CanhoesNavItem[] {
   if (!modules) return [];
-  // A grouped page (stickers, measures) is reached from its parent's tabs; on its own only when the parent is closed.
+  // Uma página agrupada (stickers, medidas) chega-se pelos separadores da página-mãe; sozinha só quando a mãe está fechada.
   const isListed = (module: (typeof CANHOES_MODULES)[number]) =>
     module.key !== "feed" && modules[module.key] && !(module.inMenuUnder && modules[module.inMenuUnder]);
   return CANHOES_MODULES.filter(isListed).map((module) => ({
@@ -79,7 +85,7 @@ function getOpenAreas(modules: EventModulesDto | null | undefined): CanhoesNavIt
   }));
 }
 
-/** Splits the open areas between the dock and the menu sheet. */
+/** Reparte as áreas abertas entre o dock e o menu. */
 export function getNavigation(modules: EventModulesDto | null | undefined) {
   const openAreas = getOpenAreas(modules);
   return {
@@ -88,7 +94,7 @@ export function getNavigation(modules: EventModulesDto | null | undefined) {
   };
 }
 
-/** Title and tone for the header, from the longest matching link. */
+/** Título e cor para o cabeçalho, a partir da ligação que corresponde ao caminho. */
 export function getPageContext(pathname: string | null): CanhoesPageContext {
   const pages = [
     ADMIN_NAV_ITEM,

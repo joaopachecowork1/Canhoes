@@ -22,7 +22,7 @@ type CanhoesHeaderProps = {
   userLabel: string;
 };
 
-/** The menu button: areas that do not fit in the dock, the member's colour and logout. */
+/** O botão do menu: abre as áreas que não cabem no dock, a cor do membro e o logout. */
 function MenuButton({ isMenuOpen, onOpenMenu }: Readonly<Pick<CanhoesHeaderProps, "isMenuOpen" | "onOpenMenu">>) {
   return (
     <Button
@@ -39,7 +39,7 @@ function MenuButton({ isMenuOpen, onOpenMenu }: Readonly<Pick<CanhoesHeaderProps
   );
 }
 
-/** Sticky album cover: brand and edition, the phase and the member's own cromo. The page names itself. */
+/** Capa de álbum fixa no topo: marca e edição, a fase e o cromo do próprio membro. A página dá o próprio título. */
 export function CanhoesHeader({
   event,
   isLoading,
@@ -49,7 +49,7 @@ export function CanhoesHeader({
   userColor,
   userLabel,
 }: Readonly<CanhoesHeaderProps>) {
-  // The edition is often named after the app; saying it twice under the logo adds nothing.
+  // A edição costuma ter o nome da app; dizê-lo duas vezes por baixo do logótipo não acrescenta nada.
   const editionName = event?.name && event.name !== messages.common.appName ? event.name : undefined;
 
   return (

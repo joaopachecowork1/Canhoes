@@ -4,9 +4,9 @@ import { useAuth } from "@/components/providers/AuthContext";
 import { resolveAdminStatus } from "@/lib/domains/auth/rules/adminStatus";
 
 /**
- * Unified admin status hook.
+ * Estado de admin unificado do utilizador atual.
  *
- * The session is the only source of truth: the NextAuth `jwt` callback re-reads `isAdmin` from the database.
+ * A sessão é a única fonte de verdade: o callback `jwt` do NextAuth relê `isAdmin` da base de dados.
  */
 export function useAdminStatus() {
   const { isLogged, loading, user } = useAuth();

@@ -10,14 +10,14 @@ type CanhoesModuleHeaderProps = {
   badgeLabel?: ReactNode;
   badgeVariant?: ComponentProps<typeof Badge>["variant"];
   description: string;
-  /** The area this page belongs to; its icon is the one the dock and the menu show. */
+  /** A área a que esta página pertence; o ícone é o que a dock e o menu mostram. */
   module: AdminModuleKey | "admin";
   title: string;
 };
 
 /**
- * Cabeçalho padrão para módulos do evento Canhões.
- * Inclui o ícone da área, título, descrição e uma badge opcional de estado.
+ * Cabeçalho padrão dos módulos do evento Canhões.
+ * Inclui o ícone da área, o título, a descrição e um selo de estado opcional.
  */
 export function CanhoesModuleHeader({
   badgeLabel,

@@ -15,6 +15,7 @@ const INDENT_PX = 32;
 const GUTTER_PX = 12;
 const BRANCH_PX = 16;
 
+/** As linhas que ligam uma resposta ao comentário a que responde. */
 function ThreadLines({ indentLevel, offset }: Readonly<{ indentLevel: number; offset: number }>) {
   if (indentLevel === 0) return null;
   const left = `${offset - BRANCH_PX}px`;
@@ -26,7 +27,7 @@ function ThreadLines({ indentLevel, offset }: Readonly<{ indentLevel: number; of
   );
 }
 
-/** One comment in the thread, indented under the one it answers. */
+/** Um comentário da conversa, indentado por baixo daquele a que responde. */
 export function CommentThreadItem({
   avatarImage,
   comment,

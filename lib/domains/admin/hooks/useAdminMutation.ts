@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/errors";
 import messages from "@/messages/pt.json";
 
-/** An admin write that toasts its outcome. */
+/** Escrita de admin que avisa o resultado com um toast; `onSuccess` serve para invalidar queries. */
 export function useAdminMutation<TData, TVariables = void>({
   mutationFn,
   onSuccess,

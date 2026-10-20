@@ -3,8 +3,8 @@
 import { useState } from "react";
 
 /**
- * Open/closed state that closes by itself on navigation: when the pathname changes it resets
- * during render ("adjusting state when a prop changes"), so going back to the old path stays closed.
+ * Estado aberto/fechado que fecha sozinho ao navegar: quando o `pathname` muda, repõe-se
+ * durante o render ("ajustar estado quando uma prop muda"), por isso voltar ao caminho antigo continua fechado.
  */
 export function usePathScopedOpen(pathname: string | null) {
   const [isOpen, setIsOpen] = useState(false);

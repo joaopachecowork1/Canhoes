@@ -4,7 +4,7 @@ import { PillTabs } from "@/components/ui/pill-tabs";
 import type { AdminModuleKey, EventModulesDto } from "@/lib/api/types";
 import { CANHOES_MODULE_BY_KEY, CANHOES_MODULES } from "@/lib/modules";
 
-/** Links between the open pages of one area (nominations and stickers, categories and measures); nothing when there is only one. */
+/** Ligações entre as páginas abertas de uma área (nomeações e stickers, categorias e medidas); nada quando só há uma. */
 export function AreaTabs({
   current,
   modules,

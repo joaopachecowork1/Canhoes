@@ -13,7 +13,7 @@ const SIZE_CLASS: Record<NonNullable<CanhoesBrandIconProps["size"]>, string> = {
   lg: "size-16 rounded-2xl p-1 text-4xl",
 };
 
-/** The Canhões mark on its own: a cromo with every member's colour around the letter C. */
+/** A marca dos Canhões sozinha: um cromo com a cor de cada membro à volta da letra C. */
 export function CanhoesBrandIcon({ className, size = "md" }: Readonly<CanhoesBrandIconProps>) {
   return (
     <div

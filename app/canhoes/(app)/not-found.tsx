@@ -9,6 +9,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.app.CanhoesNotFound;
 
+/** Página 404 das áreas autenticadas, com atalhos para voltar ao evento ou à página anterior. */
 export default function CanhoesNotFound() {
   const router = useRouter();
 

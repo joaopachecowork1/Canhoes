@@ -35,6 +35,7 @@ type AdminNominationsViewProps = Readonly<{
   isMutationPending: boolean;
 }>;
 
+/** Seletor para filtrar as nomeações por categoria. */
 function CategoryFilter({
   categories,
   onChange,
@@ -59,6 +60,7 @@ function CategoryFilter({
   );
 }
 
+/** Lista de nomeações; a escolhida fica realçada. */
 function NominationList({
   categories,
   nominations,
@@ -98,6 +100,7 @@ function NominationList({
   );
 }
 
+/** Pede confirmação antes de rejeitar uma nomeação. */
 function RejectNominationDialog({
   isOpen,
   onCancel,
@@ -119,6 +122,7 @@ function RejectNominationDialog({
   );
 }
 
+/** Vista de moderação das nomeações: filtro por categoria, lista, gaveta de detalhe e confirmação de rejeição. */
 export function AdminNominationsView({
   categories,
   nominations,
@@ -135,10 +139,12 @@ export function AdminNominationsView({
     () => filterAndSortNominations(nominations, categoryFilter),
     [categoryFilter, nominations],
   );
+  // a escolhida deriva do id na lista filtrada; se o filtro a esconder, a gaveta fecha
   const selectedNomination = filteredNominations.find((nomination) => nomination.id === selectedNominationId);
 
   const handleConfirmReject = () => {
     if (!rejectingNominationId) return;
+    // só fecha o diálogo e a gaveta depois de a rejeição ter sucesso
     rejectNomination(rejectingNominationId, {
       onSuccess: () => {
         setRejectingNominationId(null);

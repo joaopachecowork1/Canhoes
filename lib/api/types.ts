@@ -1,47 +1,54 @@
+/** Um evento nas listas: id, nome e se é o ativo. */
 export type EventSummaryDto = {
   id: string;
   name: string;
   isActive: boolean;
 };
 
+/** Uma fase do evento (PROPOSALS, VOTING, ...) e se está ativa. */
 export type EventPhaseDto = {
   id: string;
   type: string;
   isActive: boolean;
 };
 
+/** O que o utilizador pode fazer no evento na fase atual. */
 export type EventPermissionsDto = {
   isAdmin: boolean;
   canSubmitProposal: boolean;
   canVote: boolean;
 };
 
+/** Para cada área (por chave), se está aberta. */
 export type EventModulesDto = Record<string, boolean>;
 
-/** The active event as the shell sees it: phase, what the user may do and which areas are open. */
+/** O evento ativo como a shell o vê: fase, o que o utilizador pode fazer e que áreas estão abertas. */
 export type EventOverviewDto = {
   event: EventSummaryDto;
   activePhase: EventPhaseDto | null;
   permissions: EventPermissionsDto;
-  /** Areas open in the active phase (`resolveMemberModules`), the same for admins and members. */
+  /** Áreas abertas na fase ativa (`resolveMemberModules`), iguais para admins e membros. */
   modules: EventModulesDto;
 };
 
+/** Uma pessoa referida por outro DTO (por ex. a quem se dá o presente). */
 export type EventUserDto = {
   id: string;
   name: string;
   role: string;
 };
 
+/** Um membro como o resto do grupo o vê. */
 export type PublicUserDto = {
   id: string;
   email: string;
   displayName: string | null;
   isAdmin: boolean;
-  /** Palette key of the member's colour (lib/personColors.ts). */
+  /** Chave da paleta com a cor do membro (lib/personColors.ts). */
   color: string;
 };
 
+/** Um item da lista de desejos de um membro. */
 export type EventWishlistItemDto = {
   id: string;
   userId: string;
@@ -53,6 +60,7 @@ export type EventWishlistItemDto = {
   updatedAtUtc: string;
 };
 
+/** O que o membro vê do Amigo Secreto: se há sorteio, a quem dá o presente e quantos desejos tem. */
 export type EventSecretSantaOverviewDto = {
   eventId: string;
   hasDraw: boolean;
@@ -61,12 +69,14 @@ export type EventSecretSantaOverviewDto = {
   myWishlistItemCount: number;
 };
 
+/** Uma opção de uma sondagem do feed, com os seus votos. */
 type EventFeedPollOptionDto = {
   id: string;
   text: string;
   voteCount: number;
 };
 
+/** Uma sondagem do feed com os resultados e a escolha do utilizador. */
 export type EventFeedPollDto = {
   question: string;
   options: EventFeedPollOptionDto[];
@@ -74,6 +84,7 @@ export type EventFeedPollDto = {
   totalVotes: number;
 };
 
+/** Uma categoria de prémios como os membros a veem. */
 export type EventCategoryDto = {
   id: string;
   eventId: string;
@@ -83,12 +94,13 @@ export type EventCategoryDto = {
   description: string | null;
 };
 
+/** Um post do feed completo: autor, imagens, contagens, reações do utilizador e sondagem. */
 export type EventFeedPostFullDto = {
   id: string;
   eventId: string;
   authorUserId: string;
   authorName: string;
-  /** Palette key of the author's colour. */
+  /** Chave da paleta com a cor do autor. */
   authorColor: string;
   postNumber: number;
   text: string;
@@ -107,6 +119,7 @@ export type EventFeedPostFullDto = {
   poll: EventFeedPollDto | null;
 };
 
+/** Corpo do pedido para criar um post do feed. */
 export type CreateEventFeedPostRequest = {
   text: string;
   mediaUrl?: string | null;
@@ -115,11 +128,13 @@ export type CreateEventFeedPostRequest = {
   pollOptions?: string[] | null;
 };
 
+/** O evento ativo com o respetivo overview. */
 export type EventActiveContextDto = {
   event: EventSummaryDto;
   overview: EventOverviewDto;
 };
 
+/** Uma proposta de categoria devolvida logo após ser criada. */
 export type EventProposalDto = {
   id: string;
   eventId: string;
@@ -129,8 +144,10 @@ export type EventProposalDto = {
   status: string;
 };
 
+/** Estado de moderação de uma proposta ou nomeação. */
 type ProposalStatus = "pending" | "approved" | "rejected";
 
+/** Uma proposta de categoria na lista de moderação. */
 export type CategoryProposalDto = {
   id: string;
   name: string;
@@ -140,6 +157,7 @@ export type CategoryProposalDto = {
   createdAtUtc: string;
 };
 
+/** Uma proposta de medida da gala. */
 export type MeasureProposalDto = {
   id: string;
   text: string;
@@ -147,6 +165,7 @@ export type MeasureProposalDto = {
   createdAtUtc: string;
 };
 
+/** Uma medida oficial da gala. */
 export type GalaMeasureDto = {
   id: string;
   text: string;
@@ -154,6 +173,7 @@ export type GalaMeasureDto = {
   createdAtUtc: string;
 };
 
+/** Uma nomeação (ou cromo) com a sua imagem e estado. */
 export type NomineeDto = {
   id: string;
   categoryId: string | null;
@@ -163,15 +183,16 @@ export type NomineeDto = {
   createdAtUtc: string;
 };
 
-/** One of the user's own nominations, as the nominations page shows it (one per category). */
+/** Uma nomeação do próprio utilizador, como a página de nomeações a mostra (uma por categoria). */
 export type MyNominationDto = {
   categoryId: string | null;
   status: ProposalStatus;
-  /** Null while the nomination is still being sent. */
+  /** Null enquanto a nomeação ainda está a ser enviada. */
   nomineeId: string | null;
   nomineeTitle: string;
 };
 
+/** Uma nomeação na lista de moderação, com o nome de quem a submeteu. */
 export type AdminNomineeDto = {
   id: string;
   categoryId: string | null;
@@ -182,14 +203,17 @@ export type AdminNomineeDto = {
   submittedByName: string;
 };
 
+/** Totais para os indicadores dos separadores de admin. */
 export type AdminListCountsDto = {
   membersTotal: number;
   categoriesTotal: number;
   officialResultsCategoriesCount: number;
 };
 
+/** Interruptor de cada área (por chave) definido pelo admin. */
 export type EventAdminModuleVisibilityDto = Record<string, boolean>;
 
+/** O estado do evento no painel de admin: fase, interruptores e áreas efetivamente abertas. */
 export type EventAdminStateDto = {
   eventId: string;
   activePhase: EventPhaseDto | null;
@@ -199,6 +223,7 @@ export type EventAdminStateDto = {
   effectiveModules: EventModulesDto;
 };
 
+/** A vista de admin do Amigo Secreto: código, sorteio, se está revelado e contagens. */
 export type EventAdminSecretSantaStateDto = {
   eventId: string;
   eventCode: string;
@@ -209,12 +234,14 @@ export type EventAdminSecretSantaStateDto = {
   assignmentCount: number;
 };
 
+/** Uma opção votável (um nomeado ou uma pessoa). */
 export type EventVoteOptionDto = {
   id: string;
   label: string;
   imageUrl: string | null;
 };
 
+/** Uma categoria no quadro de votação, com as opções e o voto atual do utilizador. */
 export type EventVotingCategoryDto = {
   id: string;
   title: string;
@@ -225,12 +252,14 @@ export type EventVotingCategoryDto = {
   myOptionId: string | null;
 };
 
+/** O quadro de votação: se se pode votar e as categorias. */
 export type EventVotingBoardDto = {
   eventId: string;
   canVote: boolean;
   categories: EventVotingCategoryDto[];
 };
 
+/** Os resultados públicos de uma categoria: total de votos e os primeiros lugares. */
 export type PublicCategoryResultDto = {
   categoryId: string;
   categoryName: string;
@@ -243,11 +272,13 @@ export type PublicCategoryResultDto = {
   }>;
 };
 
+/** Corpo do pedido para votar numa categoria. */
 export type CastOfficialVoteRequest = {
   categoryId: string;
   selectionId: string;
 };
 
+/** A vista de admin de uma categoria de prémios. */
 export type AwardCategoryDto = {
   id: string;
   name: string;
@@ -259,6 +290,7 @@ export type AwardCategoryDto = {
   voteRules: string | null;
 };
 
+/** Corpo do pedido para criar uma categoria. */
 export type CreateAwardCategoryRequest = {
   name: string;
   sortOrder: number | null;
@@ -268,8 +300,10 @@ export type CreateAwardCategoryRequest = {
   voteRules: string | null;
 };
 
+/** Corpo do pedido para atualizar uma categoria: só os campos enviados mudam. */
 export type UpdateAwardCategoryRequest = Partial<CreateAwardCategoryRequest> & { isActive?: boolean };
 
+/** Os resultados de uma categoria para o admin, com a taxa de participação e quem votou em quem. */
 export type AdminCategoryResultDto = {
   categoryId: string;
   categoryName: string;
@@ -280,17 +314,19 @@ export type AdminCategoryResultDto = {
     title: string;
     imageUrl: string | null;
     voteCount: number;
-    /** Display names of the members who voted for this one. */
+    /** Nomes dos membros que votaram neste. */
     voterNames: string[];
   }>;
 };
 
+/** Tudo o que o painel de admin carrega de uma vez. */
 export type EventAdminBootstrapDto = {
   events: EventSummaryDto[];
   state: EventAdminStateDto;
   counts: AdminListCountsDto;
 };
 
+/** Uma página de resultados com o total e se há mais. */
 export type PagedResult<T> = {
   items: T[];
   total: number;
@@ -299,6 +335,7 @@ export type PagedResult<T> = {
   hasMore: boolean;
 };
 
+/** Um voto individual na auditoria de admin. */
 export type AdminVoteAuditRowDto = {
   categoryId: string;
   categoryName: string;
@@ -309,6 +346,7 @@ export type AdminVoteAuditRowDto = {
   updatedAtUtc: string;
 };
 
+/** Uma página de votos individuais para o admin. */
 export type AdminVotesPagedDto = {
   total: number;
   votes: AdminVoteAuditRowDto[];
@@ -317,6 +355,7 @@ export type AdminVotesPagedDto = {
   hasMore: boolean;
 };
 
+/** Uma página de nomeações para moderação. */
 export type AdminNomineesPagedDto = {
   total: number;
   nominations: AdminNomineeDto[];
@@ -325,15 +364,17 @@ export type AdminNomineesPagedDto = {
   hasMore: boolean;
 };
 
+/** As chaves das áreas (módulos) que o admin pode ligar ou desligar. */
 export type AdminModuleKey =
   "feed" | "nominees" | "categories" | "secretSanta" | "wishlist" | "voting" | "stickers" | "measures" | "gala";
 
+/** Um comentário de um post do feed, com as reações. */
 export type HubCommentDto = {
   id: string;
   postId: string;
   userId: string;
   userName: string;
-  /** Palette key of the commenter's colour. */
+  /** Chave da paleta com a cor de quem comentou. */
   userColor: string;
   text: string;
   createdAtUtc: string;

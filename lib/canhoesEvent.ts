@@ -1,9 +1,9 @@
 import messages from "@/messages/pt.json";
 
+/** Nome do evento do browser que abre a folha de criar publicação. */
 export const OPEN_COMPOSE_SHEET_EVENT = "canhoes:openCompose";
 
-// --- Phase helpers ---
-/** The Portuguese name of a phase type (`DRAW`, `PROPOSALS`, `VOTING`, `RESULTS`) for the UI. */
+/** O nome em português de uma fase (`DRAW`, `PROPOSALS`, `VOTING`, `RESULTS`) para mostrar na UI. */
 export function getPhaseLabel(phaseType?: string | null) {
   switch (phaseType) {
     case "DRAW":

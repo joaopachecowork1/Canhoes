@@ -3,6 +3,7 @@ import { CanhoesWishlistModule } from "@/lib/domains/wishlist/components/Canhoes
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, PublicUserDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 
+/** Página da wishlist: pré-carrega os membros e os itens de todos. */
 export default async function WishlistPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const [initialMembers, initialWishlistData] = activeContext

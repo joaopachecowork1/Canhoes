@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 import { OPEN_COMPOSE_SHEET_EVENT } from "@/lib/canhoesEvent";
 import messages from "@/messages/pt.json";
 
-/** An empty album slot that opens the composer, the same one as the dock's Post button. */
+/** Um espaço vazio do álbum que abre o compositor, o mesmo do botão "Publicar" da barra inferior. */
 export function FeedComposeSlot() {
   return (
     <button

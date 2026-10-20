@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 
-/* Finding or creating the database user behind a sign-in. */
+/* Encontrar ou criar o utilizador da base de dados por trás de um login. */
 
+/** O utilizador resolvido para um login. */
 export type ResolvedUser = {
   id: string;
   email: string;
@@ -11,14 +12,15 @@ export type ResolvedUser = {
 };
 
 /**
- * The user with this external id or email, created as a non-admin when there is none. The display
- * name follows the latest sign-in.
+ * O utilizador com este id externo ou email, criado como não-admin quando não existe. O nome
+ * apresentado acompanha o último login.
  */
 export async function resolveUser(
   externalId: string,
   email: string,
   displayName: string | null,
 ): Promise<ResolvedUser> {
+  // Procura por id externo ou por email, para ligar contas do mesmo email.
   const existing = await prisma.user.findFirst({
     where: {
       OR: [{ externalId }, { email }],
@@ -26,6 +28,7 @@ export async function resolveUser(
   });
 
   if (existing) {
+    // Atualiza o nome quando o fornecedor devolve um diferente.
     if (displayName && existing.displayName !== displayName) {
       await prisma.user.update({
         where: { id: existing.id },
@@ -41,6 +44,7 @@ export async function resolveUser(
     };
   }
 
+  // Utilizador novo: nunca nasce admin.
   const user = await prisma.user.create({
     data: {
       externalId,
@@ -59,7 +63,7 @@ export async function resolveUser(
   };
 }
 
-/** The development login's user, made admin on the way (only reachable outside production). */
+/** O utilizador do login de desenvolvimento, promovido a admin se preciso (só acessível fora de produção). */
 export async function resolveDevelopmentAdmin(
   externalId: string,
   email: string,

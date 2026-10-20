@@ -14,9 +14,9 @@ import messages from "@/messages/pt.json";
 const copy = messages.shell.CanhoesMenuSheet;
 
 /**
- * Bottom sheet with the open areas that do not fit in the dock. Opaque on purpose, so the page
- * behind never competes with the links. Admins also get a link to every area, closed ones
- * included, which lives in the admin area.
+ * Bottom sheet com as áreas abertas que não cabem no dock. Opaco de propósito, para a página
+ * por trás nunca competir com as ligações. Os admins têm ainda uma ligação para todas as áreas,
+ * as fechadas incluídas, que vive na área de administração.
  */
 export function CanhoesMenuSheet({
   isAdmin,
@@ -85,6 +85,7 @@ export function CanhoesMenuSheet({
               description: copy.welcomeAgainDescription,
             }}
             isActive={false}
+            // Voltar a mostrar as boas-vindas é só limpar a flag guardada.
             onSelect={() => {
               setIsWelcomeDismissed(false);
               onOpenChange(false);
@@ -103,6 +104,7 @@ export function CanhoesMenuSheet({
   );
 }
 
+/** Botão de terminar sessão, com o mesmo aspeto das ligações do menu. */
 function LogoutButton({ onLogout }: Readonly<{ onLogout: () => void }>) {
   return (
     <button
@@ -118,6 +120,7 @@ function LogoutButton({ onLogout }: Readonly<{ onLogout: () => void }>) {
   );
 }
 
+/** Uma linha do menu: ícone na cor da área, nome, descrição opcional e seta. */
 function MenuLink({
   isActive,
   item,

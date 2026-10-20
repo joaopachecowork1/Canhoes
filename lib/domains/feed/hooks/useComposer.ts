@@ -19,26 +19,29 @@ const EMPTY_POLL_OPTIONS = ["", ""];
 
 type MediaDraft = { file: File; previewUrl: string };
 
+// Liberta as URLs de pré-visualização (`blob:`) para o browser largar a memória das imagens.
 const revoke = (media: MediaDraft[]) => media.forEach(({ previewUrl }) => URL.revokeObjectURL(previewUrl));
 
 /**
- * The picked images with their preview URLs. A URL is created when its file is added and
- * revoked when it is removed, on reset and on unmount, so no effect has to keep them in sync.
+ * As imagens escolhidas com os seus URLs de pré-visualização. O URL é criado quando o ficheiro é adicionado e
+ * libertado quando é removido, no reset e ao desmontar, para nenhum effect ter de os manter sincronizados.
  */
 function useMediaDraft() {
   const [media, setMedia] = useState<MediaDraft[]>([]);
-  // The handlers read and write this, never the render, so URLs are made and revoked once each.
+  // Os handlers lêem e escrevem aqui, nunca o render, por isso cada URL é criado e libertado uma só vez.
   const mediaRef = useRef<MediaDraft[]>([]);
 
+  // Ao desmontar liberta o que sobrou.
   useEffect(() => () => revoke(mediaRef.current), []);
 
+  // Liberta só os URLs das entradas que saem da lista; as que ficam mantêm o seu URL.
   const commit = useCallback((next: MediaDraft[]) => {
     revoke(mediaRef.current.filter((entry) => !next.includes(entry)));
     mediaRef.current = next;
     setMedia(next);
   }, []);
 
-  /** Takes the new full list of files, keeping the URLs of files already there. */
+  /** Recebe a nova lista completa de ficheiros, mantendo os URLs dos que já lá estavam. */
   const setFiles = useCallback(
     (files: File[]) =>
       commit(
@@ -61,6 +64,7 @@ function useMediaDraft() {
   return { media, setFiles, removeFile, moveFile };
 }
 
+/** O rascunho da sondagem: pergunta e opções (entre o mínimo e o máximo permitidos). */
 function usePollDraft() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [question, setQuestion] = useState("");
@@ -89,7 +93,7 @@ function usePollDraft() {
   return { isEnabled, setIsEnabled, question, setQuestion, options, changeOption, addOption, removeOption, reset };
 }
 
-/** Why an incoming file is refused, or null when it may be added. */
+/** Porque é que um ficheiro recebido é recusado, ou null quando pode ser adicionado. */
 function getFileRejection(file: File) {
   if (!isAcceptedImage(file)) return copy.unsupportedFormat;
   if (file.size > MAX_FILE_BYTES) return `${copy.fileTooLargeLabel} ${MAX_FILE_MB}MB`;
@@ -97,8 +101,8 @@ function getFileRejection(file: File) {
 }
 
 /**
- * Adds picked images to `currentFiles`: skips duplicates and unsupported or oversized files (with
- * a toast), stops at the limit and shrinks large photos for a quicker upload.
+ * Junta as imagens escolhidas a `currentFiles`: salta duplicados e ficheiros não suportados ou demasiado grandes
+ * (com um toast), pára no limite e reduz fotos grandes para o envio ser mais rápido.
  */
 async function prepareFiles(currentFiles: File[], fileList: FileList) {
   const nextFiles = [...currentFiles];
@@ -129,13 +133,14 @@ async function prepareFiles(currentFiles: File[], fileList: FileList) {
   return nextFiles;
 }
 
-/** The draft of a mural post: text, up to four images and an optional poll. */
+/** O rascunho de uma publicação do mural: texto, até quatro imagens e uma sondagem opcional. */
 export function useComposer() {
   const [text, setText] = useState("");
   const { media, setFiles, removeFile, moveFile } = useMediaDraft();
   const files = media.map((entry) => entry.file);
   const poll = usePollDraft();
 
+  // Ficheiros em sequência (não em paralelo) para respeitar o limite e a ordem escolhida.
   const addFiles = useCallback(
     async (fileList: FileList | null) => {
       if (!fileList) return;

@@ -6,6 +6,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.app.ForbiddenPage;
 
+/** Página de acesso negado para quem não tem permissões de admin. */
 export default function ForbiddenPage() {
   return (
     <div className="mx-auto flex min-h-[70svh] max-w-lg items-center px-4">

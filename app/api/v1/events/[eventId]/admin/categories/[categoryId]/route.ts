@@ -17,16 +17,24 @@ const updateCategorySchema = z.object({
 
 type CategoryParams = { eventId: string; categoryId: string };
 
+/** PUT /v1/events/:eventId/admin/categories/:categoryId: atualiza uma categoria */
 export const PUT = apiRoute<CategoryParams>(async (request, { eventId, categoryId }) => {
+  // Só administradores.
   await requireAdmin();
+
+  // Valida o corpo do pedido.
   const changes = await readJson(request, updateCategorySchema);
+
   const updated = await updateCategory(eventId, categoryId, changes);
   if (!updated) throw notFound("Category not found.");
   return json(updated);
 });
 
+/** DELETE /v1/events/:eventId/admin/categories/:categoryId: apaga uma categoria sem nomeados nem votos */
 export const DELETE = apiRoute<CategoryParams>(async (_request, { eventId, categoryId }) => {
+  // Só administradores.
   await requireAdmin();
+
   const deleted = await deleteCategory(eventId, categoryId);
   if (!deleted) {
     throw new HttpError(409, "CONFLICT", "Category has dependent nominees or votes and cannot be deleted.");

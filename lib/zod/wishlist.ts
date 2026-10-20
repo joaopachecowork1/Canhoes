@@ -1,8 +1,9 @@
 import { z } from "zod";
 
+/** Valida um item da lista de desejos; o link, se existir, tem de ser http(s). */
 export const CreateWishlistItemSchema = z.object({
   title: z.string().min(1, "Title is required").max(256),
-  // Shown as a link, so only web addresses: a stored `javascript:` link would run in the app's origin for whoever clicks it.
+  // É mostrado como link, por isso só endereços web: um link `javascript:` guardado correria na origem da app para quem clicasse.
   url: z
     .string()
     .trim()

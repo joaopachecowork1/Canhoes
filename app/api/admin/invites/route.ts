@@ -12,8 +12,13 @@ const inviteSchema = z.object({
     .transform((eventId) => eventId?.trim() || null),
 });
 
+/** POST /admin/invites: cria um convite para um email, opcionalmente ligado a um evento */
 export const POST = apiRoute(async (request) => {
+  // Só administradores.
   const admin = await requireAdmin();
+
+  // Valida o corpo do pedido.
   const { email, eventId } = await readJson(request, inviteSchema);
+
   return json(await createInvitation({ email, eventId, invitedByUserId: admin.id }));
 });

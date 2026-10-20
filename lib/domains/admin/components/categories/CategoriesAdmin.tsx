@@ -23,14 +23,17 @@ import { type CategoryUsage } from "./categoryTypes";
 const copy = messages.admin.CategoriesAdmin;
 const NO_USAGE: CategoryUsage = { canDelete: false, deleteReason: null, nomineeCount: 0, voteCount: 0 };
 
+// o nome do tipo coincide com o do componente, mas vive só no espaço dos tipos
 type CategoriesAdmin = ReturnType<typeof useCategoriesAdmin>;
 
+/** Resumo do catálogo: quantas categorias ativas, inativas e de voto em membros. */
 function getCatalogSummary(categories: AwardCategoryDto[]) {
   const active = categories.filter((category) => category.isActive).length;
   const userVote = categories.filter((category) => category.kind === CATEGORY_KIND.USER_VOTE).length;
   return formatMessage(copy.summary, { active, inactive: categories.length - active, userVote });
 }
 
+/** Cartão com o catálogo de categorias e o botão para criar uma nova. */
 function CategoryCatalog({ admin }: Readonly<{ admin: CategoriesAdmin }>) {
   const { sortedCategories, isLoading } = admin;
 
@@ -81,8 +84,8 @@ function CategoryCatalog({ admin }: Readonly<{ admin: CategoriesAdmin }>) {
 }
 
 /**
- * Coordinates the official category catalog. Data loading and mutations live
- * in the domain hook; this component owns the admin view composition.
+ * Coordena o catálogo oficial de categorias. O carregamento de dados e as escritas vivem
+ * no hook do domínio; este componente só compõe a vista de admin.
  */
 export function CategoriesAdmin({
   eventId,
@@ -90,6 +93,7 @@ export function CategoriesAdmin({
 }: Readonly<{ eventId: string | null; onUpdate: () => Promise<void> }>) {
   const admin = useCategoriesAdmin(eventId, onUpdate);
   const { sheetState, queryError } = admin;
+  // categoria aberta no editor (só no modo de edição)
   const editedCategory = sheetState?.mode === "edit" ? sheetState.category : null;
 
   useEffect(() => {

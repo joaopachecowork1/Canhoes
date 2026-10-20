@@ -35,7 +35,7 @@ const VARIANT_CLASSES = {
 } as const;
 
 /**
- * Card base para funcionalidades dos módulos.
+ * Cartão base das funcionalidades dos módulos.
  * Unifica o estilo visual de "official voting", "nominations", etc.
  *
  * @param children - Conteúdo principal do card.

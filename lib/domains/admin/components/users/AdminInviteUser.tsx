@@ -13,8 +13,10 @@ import { adminRepo } from "@/lib/repositories/adminRepo";
 import messages from "@/messages/pt.json";
 
 const copy = messages.admin.AdminInviteUser;
+// tempo até o ícone de "copiado" voltar ao normal
 const COPIED_RESET_MS = 3000;
 
+/** Mostra o link de convite gerado, com botão para o copiar. */
 function InviteLinkResult({ inviteUrl }: Readonly<{ inviteUrl: string }>) {
   const [isCopied, setIsCopied] = useState(false);
 
@@ -45,6 +47,7 @@ function InviteLinkResult({ inviteUrl }: Readonly<{ inviteUrl: string }>) {
   );
 }
 
+/** Formulário para gerar um link de convite para um email; o link aparece por baixo para copiar. */
 export function AdminInviteUser({ eventId }: { eventId: string }) {
   const [email, setEmail] = useState("");
   const [isInviting, setIsInviting] = useState(false);
@@ -58,6 +61,7 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
     setInviteUrl(null);
     try {
       const result = await adminRepo.inviteUser({ email, eventId });
+      // a API devolve só o caminho; junta a origem para o link ficar completo
       setInviteUrl(window.location.origin + result.inviteUrl);
       toast.success(copy.generated);
       setEmail("");

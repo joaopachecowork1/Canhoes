@@ -15,6 +15,7 @@ import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.feed.HubPostComments;
 
+/** O texto com o número de comentários ("sem comentários", singular ou plural). */
 function getCommentCountLabel(count: number) {
   if (count === 0) return copy.noComments;
   return formatMessage(count === 1 ? copy.commentCountOne : copy.commentCountOther, { count });
@@ -38,7 +39,7 @@ type HubPostCommentsProps = {
   setReplyingTo: (postId: string, commentId: string | null) => void;
 };
 
-/** Loads a post's comments while its thread is open, oldest first, nested under their parents. */
+/** Carrega os comentários de um post enquanto a conversa está aberta, do mais antigo para o mais recente e aninhados sob os pais. */
 function usePostComments(eventId: string, postId: string, isOpen: boolean) {
   const { data: fetchedComments } = useQuery({
     queryKey: queryKeys.hubComments(postId),
@@ -48,6 +49,7 @@ function usePostComments(eventId: string, postId: string, isOpen: boolean) {
     gcTime: 5 * 60 * 1000,
   });
 
+  // a árvore precisa dos pais antes dos filhos, por isso ordena por data
   const loadedComments = (fetchedComments ?? []).filter(Boolean);
   const sortedComments = [...loadedComments].sort((left, right) =>
     String(left.createdAtUtc).localeCompare(String(right.createdAtUtc)),
@@ -56,6 +58,7 @@ function usePostComments(eventId: string, postId: string, isOpen: boolean) {
   return { loadedComments, displayComments: flattenCommentTree(buildCommentTree(sortedComments)) };
 }
 
+/** Cabeçalho da conversa: contagem de comentários e botão para fechar. */
 function CommentsHeader({ commentCount, onClose }: Readonly<{ commentCount: number; onClose: () => void }>) {
   return (
     <div className="flex items-center justify-between gap-3 mb-4">
@@ -78,6 +81,7 @@ function CommentsHeader({ commentCount, onClose }: Readonly<{ commentCount: numb
   );
 }
 
+/** A conversa de um post: lista de comentários em árvore e a caixa para comentar. */
 export function HubPostComments({
   postId,
   postAuthorName,
@@ -103,7 +107,7 @@ export function HubPostComments({
 
   const handleReply = (commentId: string) => {
     setReplyingTo(postId, commentId);
-    // Wait for the reply banner to render before moving focus to the box.
+    // espera que o aviso de resposta seja desenhado antes de passar o foco para a caixa
     setTimeout(() => document.getElementById(getCommentInputId(postId))?.focus({ preventScroll: false }), 50);
   };
 

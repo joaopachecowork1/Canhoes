@@ -4,6 +4,7 @@ import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+/** Cria o cliente do TanStack Query com os valores por defeito de cache e de repetição. */
 function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -11,19 +12,20 @@ function createQueryClient() {
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
         retry: 1,
-        staleTime: 60_000, // 1 minute - reduces backend load
-        gcTime: 5 * 60 * 1000, // 5 minutes - keeps data in memory longer
+        staleTime: 60_000, // 1 minuto: poupa pedidos ao servidor
+        gcTime: 5 * 60 * 1000, // 5 minutos: mantém os dados em memória mais tempo
         networkMode: "online",
       },
       mutations: {
-        retry: 0, // Don't retry mutations to avoid duplicate writes
+        retry: 0, // Não repete escritas, para não as duplicar
       },
     },
   });
 }
 
+/** Providers globais do cliente: TanStack Query e os avisos (toasts). */
 export default function AppProviders({ children }: Readonly<{ children: React.ReactNode }>) {
-  // One client per component instance: a module-level client would be shared by every SSR request.
+  // Um cliente por instância do componente: um cliente ao nível do módulo seria partilhado por todos os pedidos SSR.
   const [client] = React.useState(createQueryClient);
 
   return (

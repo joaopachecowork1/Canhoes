@@ -5,6 +5,7 @@ import { FeedSkeleton } from "@/components/ui/FeedSkeleton";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
 import type { EventActiveContextDto, GalaMeasureDto } from "@/lib/api/types";
 
+/** Carregado a pedido, para as medidas não pesarem nas outras páginas. */
 const CanhoesMeasuresModule = dynamic(
   () =>
     import("@/lib/domains/measures/components/CanhoesMeasuresModule").then((m) => ({
@@ -13,6 +14,7 @@ const CanhoesMeasuresModule = dynamic(
   { loading: () => <FeedSkeleton /> },
 );
 
+/** Página das medidas da gala: pré-carrega a lista de medidas do evento ativo. */
 export default async function MeasuresPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const initialData = activeContext

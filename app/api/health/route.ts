@@ -3,10 +3,12 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+/** GET /api/health: verifica a ligação à base de dados, para a health check do contentor. */
 export async function GET() {
   const start = Date.now();
 
   try {
+    // Uma query trivial chega para provar que a base de dados responde.
     await prisma.$queryRaw`SELECT 1`;
 
     return NextResponse.json({
@@ -16,7 +18,7 @@ export async function GET() {
       responseTimeMs: Date.now() - start,
     });
   } catch {
-    // 503 so the container health check and the host's load balancer see the outage.
+    // 503 para a health check do contentor e o balanceador do anfitrião verem a falha.
     return NextResponse.json(
       {
         status: "degraded",

@@ -16,6 +16,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.admin.CategoryDeleteDialog;
 
+/** Diálogo de confirmação para apagar uma categoria; fica fechado quando `target` é `null`. */
 export function CategoryDeleteDialog({
   isPending,
   onCancel,

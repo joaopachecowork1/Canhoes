@@ -6,11 +6,13 @@ import type { EventActiveContextDto, EventFeedPostFullDto, PagedResult } from "@
 import { toFeedPage } from "@/lib/domains/feed/hooks/feedInfiniteData";
 import { CanhoesHomeDashboard } from "@/lib/domains/event/components/CanhoesHomeDashboard";
 
+/** Mural carregado a pedido, com esqueleto enquanto não chega. */
 const HubFeedModule = dynamic(
   () => import("@/lib/domains/feed/components/HubFeedModule").then((module) => ({ default: module.HubFeedModule })),
   { loading: () => <FeedSkeleton /> },
 );
 
+/** Página inicial: painel do evento e mural, com a primeira página de posts já carregada no servidor. */
 export default async function CanhoesPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const firstPage = activeContext

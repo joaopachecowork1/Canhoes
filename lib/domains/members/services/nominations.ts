@@ -3,8 +3,9 @@ import { ProposalStatusSchema } from "@/lib/zod/common";
 import { deleteUpload, saveUpload } from "@/lib/storage/localStorage";
 import type { MyNominationDto, NomineeDto } from "@/lib/api/types";
 
-/* Nominations and stickers: what a member submitted, what is approved, and nominee images. Route guards decide who may call each one. */
+/* Nomeações e cromos: o que o membro submeteu, o que está aprovado e as imagens dos nomeados. As guardas das rotas decidem quem pode chamar cada função. */
 
+/** Os campos de um nomeado que o DTO precisa. */
 type NomineeRow = {
   id: string;
   categoryId: string | null;
@@ -14,6 +15,7 @@ type NomineeRow = {
   createdAtUtc: Date;
 };
 
+/** Converte um nomeado da BD no DTO da API. */
 function toNomineeDto(nominee: NomineeRow): NomineeDto {
   return {
     id: nominee.id,
@@ -25,7 +27,7 @@ function toNomineeDto(nominee: NomineeRow): NomineeDto {
   };
 }
 
-/** The user's nominations in the event, the newest per category (stickers are not nominations). */
+/** Nomeações do utilizador no evento, a mais recente por categoria (os cromos não são nomeações). */
 export async function getMyNominations(eventId: string, userId: string): Promise<MyNominationDto[]> {
   const nominees = await prisma.nominee.findMany({
     where: { eventId, submittedByUserId: userId, submissionKind: "nominees" },
@@ -41,7 +43,7 @@ export async function getMyNominations(eventId: string, userId: string): Promise
   }));
 }
 
-/** Approved nominations of the event, newest first. */
+/** Nomeações aprovadas do evento, das mais recentes para as mais antigas. */
 export async function getApprovedNominees(eventId: string): Promise<NomineeDto[]> {
   const nominees = await prisma.nominee.findMany({
     where: { eventId, status: "approved" },
@@ -51,12 +53,13 @@ export async function getApprovedNominees(eventId: string): Promise<NomineeDto[]
   return nominees.map(toNomineeDto);
 }
 
-/** Records a nomination (or a sticker, with `kind: "stickers"`) as `pending`, for the admin to moderate. */
+/** Regista uma nomeação (ou um cromo, com `kind: "stickers"`) como `pending`, para o admin moderar. */
 export async function createNomination(
   eventId: string,
   userId: string,
   data: { title: string; categoryId?: string | null; kind?: string | null; targetUserId?: string | null },
 ): Promise<NomineeDto> {
+  // Nasce sempre pendente e sem imagem; a imagem é enviada depois.
   const nominee = await prisma.nominee.create({
     data: {
       eventId,
@@ -72,13 +75,14 @@ export async function createNomination(
   return toNomineeDto(nominee);
 }
 
-/** Stores a new image for a nominee its submitter (or an admin) owns; the previous upload is removed. */
+/** Guarda uma nova imagem para um nomeado do próprio autor (ou de um admin); o upload anterior é apagado. */
 export async function replaceNomineeImage(
   eventId: string,
   nomineeId: string,
   user: { id: string; isAdmin: boolean },
   file: File,
 ): Promise<NomineeDto | null> {
+  // Só o autor ou um admin pode mudar a imagem; devolve null se não existir ou não for permitido.
   const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId } });
   if (!nominee || (nominee.submittedByUserId !== user.id && !user.isAdmin)) return null;
 
@@ -87,6 +91,7 @@ export async function replaceNomineeImage(
     where: { id: nomineeId },
     data: { imageUrl: upload.url },
   });
+  // Só apaga a imagem antiga depois de a nova estar gravada, para nunca ficar sem imagem.
   if (nominee.imageUrl) await deleteUpload(nominee.imageUrl);
 
   return toNomineeDto(updated);

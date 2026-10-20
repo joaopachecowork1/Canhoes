@@ -59,7 +59,7 @@ type CanhoesWishlistModuleProps = {
 
 type Wishlist = ReturnType<typeof useCanhoesWishlist>;
 
-/** Tabs per member and the selected member's list. */
+/** Separadores por membro e a lista do membro selecionado. */
 function WishlistMembers({ wishlist, userId }: Readonly<{ wishlist: Wishlist; userId: string | null }>) {
   return (
     <div className="space-y-3">
@@ -102,7 +102,7 @@ function WishlistContent({ wishlist, userId }: Readonly<{ wishlist: Wishlist; us
   return <EmptyState icon={Inbox} title={copy.emptyTitle} description={copy.emptyDescription} />;
 }
 
-/** Wishlist page: your own list to edit and every other member's list to read. */
+/** Página da wishlist: a tua lista para editar e a de cada outro membro para ler. */
 export function CanhoesWishlistModule({
   initialContext,
   initialMembers,

@@ -12,18 +12,20 @@ import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.shell.PersonColorPicker;
 
-/** The palette as a row of swatches; picking one saves it and refreshes the session. */
+/** A paleta como uma fila de amostras; escolher uma grava-a e atualiza a sessão. */
 export function PersonColorPicker() {
   const { user, refreshProfile } = useAuth();
   const queryClient = useQueryClient();
   const save = useMutation({
     mutationFn: (color: PersonColor) => authRepo.setMyColor(color),
     onSuccess: async () => {
+      // Primeiro a sessão (o cromo do cabeçalho), depois as queries que mostram a cor de cada pessoa.
       await refreshProfile();
       await queryClient.invalidateQueries({ predicate: (query) => queryKeys.colorRoots.includes(query.queryKey[0]) });
     },
     onError: (error) => toast.error(getErrorMessage(error, copy.saveError)),
   });
+  // Enquanto grava, mostra já a cor escolhida em vez de esperar pela sessão.
   const selected = save.isPending ? save.variables : user?.color;
 
   return (

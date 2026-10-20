@@ -9,6 +9,7 @@ const ADMIN_TAB_ITEMS = ADMIN_SECTIONS.map((section) => ({
   href: `/canhoes/admin/${section.id}`,
 }));
 
+/** Separadores de navegação entre as secções do admin; cada um é uma ligação para a sua rota. */
 export function AdminRouteTabs({ activeId }: Readonly<{ activeId: AdminSectionId }>) {
   return (
     <PillTabs

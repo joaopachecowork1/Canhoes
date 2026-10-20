@@ -6,14 +6,17 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/** Lista de escolha (Radix): raiz. */
 function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root data-slot="select" {...props} />;
 }
 
+/** Mostra o valor escolhido dentro do gatilho. */
 function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.Value>) {
   return <SelectPrimitive.Value data-slot="select-value" {...props} />;
 }
 
+/** Botão que abre a lista, com seta e altura mínima de 44px. */
 function SelectTrigger({
   className,
   size = "default",
@@ -40,6 +43,7 @@ function SelectTrigger({
   );
 }
 
+/** Painel flutuante com as opções e botões de scroll. */
 function SelectContent({
   className,
   children,
@@ -77,6 +81,7 @@ function SelectContent({
   );
 }
 
+/** Uma opção da lista, com visto na escolhida. */
 function SelectItem({ className, children, ...props }: React.ComponentProps<typeof SelectPrimitive.Item>) {
   return (
     <SelectPrimitive.Item
@@ -97,6 +102,7 @@ function SelectItem({ className, children, ...props }: React.ComponentProps<type
   );
 }
 
+/** Botão que faz scroll para cima quando a lista é comprida. */
 function SelectScrollUpButton({ className, ...props }: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {
   return (
     <SelectPrimitive.ScrollUpButton
@@ -109,6 +115,7 @@ function SelectScrollUpButton({ className, ...props }: React.ComponentProps<type
   );
 }
 
+/** Botão que faz scroll para baixo quando a lista é comprida. */
 function SelectScrollDownButton({
   className,
   ...props

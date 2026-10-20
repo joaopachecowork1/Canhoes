@@ -4,7 +4,7 @@ import { PersonCromo } from "@/components/ui/person-cromo";
 import { useEventMembers } from "@/lib/domains/event/hooks/useEventMembers";
 import messages from "@/messages/pt.json";
 
-/** The group's cromos in a horizontal strip, each member in their own colour. */
+/** Os cromos do grupo numa faixa horizontal, cada membro na sua cor. */
 export function MemberCromoStrip({ eventId }: Readonly<{ eventId: string | null }>) {
   const { data: members = [] } = useEventMembers(eventId);
 

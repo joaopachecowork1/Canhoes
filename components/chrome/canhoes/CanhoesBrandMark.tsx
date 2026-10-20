@@ -10,7 +10,7 @@ type CanhoesBrandMarkProps = {
   subtitle?: string;
 };
 
-/** Logo plus the app name, as shown in the header. */
+/** Logótipo mais o nome da app, como aparece no cabeçalho. */
 export function CanhoesBrandMark({
   className,
   compact = false,
