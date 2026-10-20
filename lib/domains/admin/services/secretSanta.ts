@@ -29,9 +29,7 @@ export async function getAdminSecretSantaState(eventId: string): Promise<EventAd
 
   const [memberCount, assignmentCount] = await Promise.all([
     prisma.eventMember.count({ where: { eventId } }),
-    latestDraw
-      ? prisma.secretSantaAssignment.count({ where: { drawId: latestDraw.id } })
-      : Promise.resolve(0),
+    latestDraw ? prisma.secretSantaAssignment.count({ where: { drawId: latestDraw.id } }) : Promise.resolve(0),
   ]);
 
   return {
@@ -66,7 +64,7 @@ const secureRandom = () => crypto.randomInt(0, 2 ** 32) / 2 ** 32;
 export async function executeSecretSantaDraw(
   eventId: string,
   createdByUserId: string,
-  eventCode?: string
+  eventCode?: string,
 ): Promise<EventAdminSecretSantaStateDto> {
   const code = eventCode?.trim() || (await getEventCode(eventId));
 
@@ -76,11 +74,17 @@ export async function executeSecretSantaDraw(
   if (new Set(members.map((member) => member.userId)).size < 2) {
     throw new SecretSantaDrawError("NOT_ENOUGH_PARTICIPANTS");
   }
-  const pairs = drawSecretSanta(members.map((member) => member.userId), secureRandom);
+  const pairs = drawSecretSanta(
+    members.map((member) => member.userId),
+    secureRandom,
+  );
 
   await prisma.$transaction(async (tx) => {
     // Checked again inside the transaction: a reveal may have landed since the check above.
-    const previousDraws = await tx.secretSantaDraw.findMany({ where: { eventCode: code }, select: { id: true, isLocked: true } });
+    const previousDraws = await tx.secretSantaDraw.findMany({
+      where: { eventCode: code },
+      select: { id: true, isLocked: true },
+    });
     if (previousDraws.some((previousDraw) => previousDraw.isLocked)) throw new SecretSantaDrawError("DRAW_REVEALED");
     await tx.secretSantaAssignment.deleteMany({ where: { drawId: { in: previousDraws.map((draw) => draw.id) } } });
     await tx.secretSantaDraw.deleteMany({ where: { eventCode: code } });

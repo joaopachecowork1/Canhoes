@@ -26,11 +26,17 @@ describe("readPaging", () => {
   });
 
   it("falls back to the defaults for values that are not numbers", () => {
-    expect(readPaging(new NextRequest(`${BASE_URL}?skip=abc&take=x`), { defaultTake: 15 })).toEqual({ skip: 0, take: 15 });
+    expect(readPaging(new NextRequest(`${BASE_URL}?skip=abc&take=x`), { defaultTake: 15 })).toEqual({
+      skip: 0,
+      take: 15,
+    });
   });
 
   it("clamps negative skip and out-of-range take", () => {
-    expect(readPaging(new NextRequest(`${BASE_URL}?skip=-5&take=5000`), { maxTake: 50 })).toEqual({ skip: 0, take: 50 });
+    expect(readPaging(new NextRequest(`${BASE_URL}?skip=-5&take=5000`), { maxTake: 50 })).toEqual({
+      skip: 0,
+      take: 50,
+    });
     expect(readPaging(new NextRequest(`${BASE_URL}?take=0`))).toEqual({ skip: 0, take: 1 });
   });
 });

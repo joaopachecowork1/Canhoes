@@ -16,10 +16,12 @@ describe("useEventMembers", () => {
       http.get("*/api/v1/events/event-1/members", () => {
         requests += 1;
         return HttpResponse.json([member()]);
-      })
+      }),
     );
     const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    const wrapper = ({ children }: { children: ReactNode }) => <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
 
     const first = renderHook(() => useEventMembers("event-1"), { wrapper });
     const second = renderHook(() => useEventMembers("event-1"), { wrapper });

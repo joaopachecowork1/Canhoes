@@ -10,7 +10,13 @@ const DAY_MS = 86_400_000;
 async function invite(email: string, { eventId = null as string | null, expiresInMs = DAY_MS } = {}) {
   const admin = await createUser({ isAdmin: true });
   return prisma.userInvitation.create({
-    data: { email, token: `token-${email}`, invitedByUserId: admin.id, expiresAtUtc: new Date(Date.now() + expiresInMs), eventId },
+    data: {
+      email,
+      token: `token-${email}`,
+      invitedByUserId: admin.id,
+      expiresAtUtc: new Date(Date.now() + expiresInMs),
+      eventId,
+    },
   });
 }
 
@@ -45,7 +51,11 @@ describe("Google sign-in", () => {
     const member = await createUser();
     await addMember((await createEvent()).id, member.id);
 
-    expect(await authorizeGoogleSignIn({ email: admin.email, externalId: admin.externalId, displayName: null })).toBe(true);
-    expect(await authorizeGoogleSignIn({ email: member.email, externalId: member.externalId, displayName: null })).toBe(true);
+    expect(await authorizeGoogleSignIn({ email: admin.email, externalId: admin.externalId, displayName: null })).toBe(
+      true,
+    );
+    expect(await authorizeGoogleSignIn({ email: member.email, externalId: member.externalId, displayName: null })).toBe(
+      true,
+    );
   });
 });

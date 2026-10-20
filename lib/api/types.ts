@@ -325,16 +325,8 @@ export type AdminNomineesPagedDto = {
   hasMore: boolean;
 };
 
-export type AdminModuleKey = 
-  | "feed"
-  | "nominees"
-  | "categories"
-  | "secretSanta"
-  | "wishlist"
-  | "voting"
-  | "stickers"
-  | "measures"
-  | "gala";
+export type AdminModuleKey =
+  "feed" | "nominees" | "categories" | "secretSanta" | "wishlist" | "voting" | "stickers" | "measures" | "gala";
 
 export type HubCommentDto = {
   id: string;

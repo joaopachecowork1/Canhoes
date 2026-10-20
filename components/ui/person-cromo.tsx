@@ -20,7 +20,13 @@ export function PersonCromo({
   image,
   size = "md",
   className,
-}: Readonly<{ name: string; color?: string | null; image?: string | null; size?: keyof typeof SIZE_CLASS; className?: string }>) {
+}: Readonly<{
+  name: string;
+  color?: string | null;
+  image?: string | null;
+  size?: keyof typeof SIZE_CLASS;
+  className?: string;
+}>) {
   const frame = personColorVar(color);
   return (
     <span
@@ -28,7 +34,7 @@ export function PersonCromo({
       className={cn(
         "flex shrink-0 items-center justify-center overflow-hidden bg-[var(--page)] font-[family-name:var(--font-display)] font-extrabold shadow-[var(--shadow-elevation-sm)]",
         SIZE_CLASS[size],
-        className
+        className,
       )}
       style={{ borderColor: frame, color: frame }}
     >

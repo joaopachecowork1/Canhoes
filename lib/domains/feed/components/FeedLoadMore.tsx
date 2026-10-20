@@ -36,9 +36,7 @@ export function FeedLoadMore({
       </div>
 
       {!isFetchingNextPage ? (
-        <div
-          className="animate-fade-in flex justify-center py-2"
-        >
+        <div className="animate-fade-in flex justify-center py-2">
           <button
             type="button"
             onClick={onLoadMore}
@@ -52,4 +50,3 @@ export function FeedLoadMore({
     </>
   );
 }
-

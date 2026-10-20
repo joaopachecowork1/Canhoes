@@ -26,7 +26,12 @@ interface BlurFadeProps {
  * </BlurFade>
  * ```
  */
-export const BlurFade = React.memo(function BlurFade({ children, delay = 0, className, threshold = 0.1 }: BlurFadeProps) {
+export const BlurFade = React.memo(function BlurFade({
+  children,
+  delay = 0,
+  className,
+  threshold = 0.1,
+}: BlurFadeProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = React.useState(false);
 
@@ -44,7 +49,7 @@ export const BlurFade = React.memo(function BlurFade({ children, delay = 0, clas
       {
         threshold,
         rootMargin: "50px",
-      }
+      },
     );
 
     observer.observe(element);
@@ -65,4 +70,3 @@ export const BlurFade = React.memo(function BlurFade({ children, delay = 0, clas
     </div>
   );
 });
-

@@ -12,8 +12,13 @@ import { server } from "@/tests/component/server";
 
 import { CanhoesWishlistModule } from "./CanhoesWishlistModule";
 
-
-const member = (id: string, displayName: string): PublicUserDto => ({ id, displayName, email: `${id}@canhoes.pt`, isAdmin: false, color: "teal" });
+const member = (id: string, displayName: string): PublicUserDto => ({
+  id,
+  displayName,
+  email: `${id}@canhoes.pt`,
+  isAdmin: false,
+  color: "teal",
+});
 const item = (id: string, userId: string, title: string): EventWishlistItemDto => ({
   id,
   userId,
@@ -31,7 +36,7 @@ function renderWishlist() {
       initialContext={makeEventContext({ modules: { wishlist: true } })}
       initialMembers={[member("rui", "Rui"), member("ana", "Ana")]}
       initialWishlistItems={[item("i1", "ana", "Livro"), item("i2", "rui", "Bola")]}
-    />
+    />,
   );
 }
 
@@ -62,7 +67,7 @@ describe("CanhoesWishlistModule", () => {
           { ...item("i1", "ana", "Seguro"), url: "https://loja.pt/x" },
           { ...item("i2", "ana", "Velho"), url: "javascript:alert(1)" },
         ]}
-      />
+      />,
     );
     expect(screen.getAllByRole("link", { name: "Abrir link" })).toHaveLength(1);
   });
@@ -90,7 +95,7 @@ describe("CanhoesWishlistModule", () => {
         await recorder.capture(request);
         return HttpResponse.json(item("i3", "ana", "Caneca"), { status: 201 });
       }),
-      apiRoute("get", "events/event-1/wishlist", paged([item("i1", "ana", "Livro"), item("i3", "ana", "Caneca")]))
+      apiRoute("get", "events/event-1/wishlist", paged([item("i1", "ana", "Livro"), item("i3", "ana", "Caneca")])),
     );
     renderWishlist();
 
@@ -112,7 +117,7 @@ describe("CanhoesWishlistModule", () => {
         return HttpResponse.json(item("i3", "ana", "Caneca"), { status: 201 });
       }),
       apiRoute("post", "events/event-1/wishlist/i3/image", { message: "Imagem inválida." }, 400),
-      apiRoute("get", "events/event-1/wishlist", paged([item("i3", "ana", "Caneca")]))
+      apiRoute("get", "events/event-1/wishlist", paged([item("i3", "ana", "Caneca")])),
     );
     renderWishlist();
 

@@ -2,10 +2,7 @@ import type { Nominee } from "@/lib/generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { ProposalStatusSchema } from "@/lib/zod/common";
-import type {
-  AdminNomineeDto,
-  AdminNomineesPagedDto,
-} from "@/lib/api/types";
+import type { AdminNomineeDto, AdminNomineesPagedDto } from "@/lib/api/types";
 import { loadUsersById } from "@/lib/usersById";
 
 /*
@@ -32,7 +29,7 @@ function toAdminNomineeDto(nominee: Nominee, submitter: Submitter): AdminNominee
 async function updateNomination(
   eventId: string,
   nomineeId: string,
-  change: NominationChange
+  change: NominationChange,
 ): Promise<AdminNomineeDto | null> {
   const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId }, select: { id: true } });
   if (!nominee) return null;
@@ -65,7 +62,7 @@ export async function getAdminNominationsPaged(
   eventId: string,
   status?: string | null,
   skip = 0,
-  take = 50
+  take = 50,
 ): Promise<AdminNomineesPagedDto> {
   const where = status ? { eventId, status } : { eventId };
   const [total, nominees] = await Promise.all([
@@ -75,7 +72,7 @@ export async function getAdminNominationsPaged(
 
   const submitterById = await loadUsersById(
     nominees.map((nominee) => nominee.submittedByUserId),
-    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
+    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
   );
 
   return {

@@ -10,7 +10,10 @@ export const signOut: Mock = vi.fn(async () => undefined);
 export const updateSession: Mock = vi.fn(async () => sessionState.data);
 
 export function signInAs({ id = "ana", name = "Ana", email = "ana@canhoes.pt", isAdmin = false, color = "teal" } = {}) {
-  sessionState.data = { user: { id, name, email, isAdmin, color }, expires: "2099-01-01T00:00:00.000Z" } satisfies Session;
+  sessionState.data = {
+    user: { id, name, email, isAdmin, color },
+    expires: "2099-01-01T00:00:00.000Z",
+  } satisfies Session;
   sessionState.status = "authenticated";
 }
 

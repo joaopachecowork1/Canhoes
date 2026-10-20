@@ -18,6 +18,8 @@ describe("next.config security headers", () => {
   });
 
   it("always sends the other hardening headers", async () => {
-    expect(await loadHeaders("development")).toEqual(expect.arrayContaining(["X-Content-Type-Options", "X-Frame-Options"]));
+    expect(await loadHeaders("development")).toEqual(
+      expect.arrayContaining(["X-Content-Type-Options", "X-Frame-Options"]),
+    );
   });
 });

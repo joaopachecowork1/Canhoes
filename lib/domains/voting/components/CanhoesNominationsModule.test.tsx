@@ -19,13 +19,16 @@ function serveNominations({ mine = [], approved = [] }: { mine?: MyNominationDto
   server.use(
     apiRoute("get", `${NOMINATIONS}/my-status`, mine),
     apiRoute("get", `${NOMINATIONS}/approved`, approved),
-    apiRoute("get", "events/event-1/categories", paged(categories))
+    apiRoute("get", "events/event-1/categories", paged(categories)),
   );
 }
 
 function renderNominations(phaseType = "PROPOSALS") {
   return renderWithProviders(
-    <CanhoesNominationsModule initialCategories={categories} initialContext={makeEventContext({ phaseType, modules: { nominees: true } })} />
+    <CanhoesNominationsModule
+      initialCategories={categories}
+      initialContext={makeEventContext({ phaseType, modules: { nominees: true } })}
+    />,
   );
 }
 
@@ -34,7 +37,10 @@ const titleInput = () => screen.getByPlaceholderText("Ex.: Nome da pessoa ou ite
 describe("CanhoesNominationsModule", () => {
   it("shows the approved nominations of the selected category only", async () => {
     serveNominations({
-      approved: [nominee({ id: "n1", categoryId: "cat-1", title: "Ana" }), nominee({ id: "n2", categoryId: "cat-2", title: "Praia" })],
+      approved: [
+        nominee({ id: "n1", categoryId: "cat-1", title: "Ana" }),
+        nominee({ id: "n2", categoryId: "cat-2", title: "Praia" }),
+      ],
     });
     renderNominations();
 
@@ -72,15 +78,21 @@ describe("CanhoesNominationsModule", () => {
         return HttpResponse.json(nominee({ id: "nominee-new", title: "Rui", status: "pending" }));
       }),
       http.get(`*/api/v1/${NOMINATIONS}/my-status`, () =>
-        HttpResponse.json(recorder.requests.length > 0 ? [{ categoryId: "cat-1", status: "pending", nomineeId: "nominee-new", nomineeTitle: "Rui" }] : [])
-      )
+        HttpResponse.json(
+          recorder.requests.length > 0
+            ? [{ categoryId: "cat-1", status: "pending", nomineeId: "nominee-new", nomineeTitle: "Rui" }]
+            : [],
+        ),
+      ),
     );
     renderNominations();
 
     await userEvent.type(await screen.findByPlaceholderText("Ex.: Nome da pessoa ou item"), " Rui ");
     await userEvent.click(screen.getByRole("button", { name: "Enviar nomeação" }));
 
-    expect(await screen.findByText("Nomeação enviada! Aparece na votação assim que um admin der o OK.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Nomeação enviada! Aparece na votação assim que um admin der o OK."),
+    ).toBeInTheDocument();
     expect(recorder.requests[0]?.body).toEqual({ categoryId: "cat-1", title: "Rui" });
     expect(screen.getByText("À espera do OK de um admin")).toBeInTheDocument();
     expect(within(screen.getByRole("button", { name: /Canhão do Ano/ })).getByText("Enviado")).toBeInTheDocument();

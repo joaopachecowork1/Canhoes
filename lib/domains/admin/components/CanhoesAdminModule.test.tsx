@@ -28,25 +28,42 @@ import type { AdminSectionId } from "./adminSections";
 
 const ADMIN = "events/event-1/admin";
 
-function serveAdmin({ nominations = [adminNominee({ id: "nom-1", title: "O jantar" })] }: { nominations?: AdminNomineeDto[] } = {}) {
+function serveAdmin({
+  nominations = [adminNominee({ id: "nom-1", title: "O jantar" })],
+}: { nominations?: AdminNomineeDto[] } = {}) {
   server.use(
     // Every admin write refreshes the shell's overview too.
     apiRoute("get", "events/active/context", makeEventContext({ isAdmin: true })),
     apiRoute("get", `${ADMIN}/bootstrap`, adminBootstrap()),
     apiRoute("get", `${ADMIN}/category-proposals`, paged([categoryProposal({ id: "cp-1", name: "Melhor sticker" })])),
     apiRoute("get", `${ADMIN}/measure-proposals`, paged([measureProposal()])),
-    apiRoute("get", `${ADMIN}/nominations/paged`, { total: nominations.length, nominations, skip: 0, take: 50, hasMore: false }),
-    apiRoute("get", `${ADMIN}/categories`, [category(), category({ id: "cat-2", name: "Membro do ano", kind: 1, isActive: false })]),
-    apiRoute("get", `${ADMIN}/members/paged`, paged([member({ id: "ana", displayName: "Ana", isAdmin: true }), member({ id: "rui", displayName: "Rui" })])),
+    apiRoute("get", `${ADMIN}/nominations/paged`, {
+      total: nominations.length,
+      nominations,
+      skip: 0,
+      take: 50,
+      hasMore: false,
+    }),
+    apiRoute("get", `${ADMIN}/categories`, [
+      category(),
+      category({ id: "cat-2", name: "Membro do ano", kind: 1, isActive: false }),
+    ]),
+    apiRoute(
+      "get",
+      `${ADMIN}/members/paged`,
+      paged([member({ id: "ana", displayName: "Ana", isAdmin: true }), member({ id: "rui", displayName: "Rui" })]),
+    ),
     apiRoute("get", `${ADMIN}/secret-santa/state`, secretSantaState()),
     apiRoute("get", `${ADMIN}/votes/paged`, { total: 1, votes: [vote()], skip: 0, take: 1000, hasMore: false }),
-    apiRoute("get", `${ADMIN}/official-results/paged`, paged([officialResult()]))
+    apiRoute("get", `${ADMIN}/official-results/paged`, paged([officialResult()])),
   );
 }
 
 function renderAdmin(section: AdminSectionId = "conteudo") {
   signInAs({ id: "ana", name: "Ana", isAdmin: true });
-  return renderWithProviders(<CanhoesAdminModule section={section} initialContext={makeEventContext({ isAdmin: true })} />);
+  return renderWithProviders(
+    <CanhoesAdminModule section={section} initialContext={makeEventContext({ isAdmin: true })} />,
+  );
 }
 
 describe("CanhoesAdminModule — page header", () => {
@@ -85,7 +102,7 @@ describe("CanhoesAdminModule — content queue", () => {
       http.post(`*/api/v1/${ADMIN}/nominations/nom-1/approve`, async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json(adminNominee({ id: "nom-1", status: "approved" }));
-      })
+      }),
     );
     renderAdmin();
 
@@ -98,7 +115,9 @@ describe("CanhoesAdminModule — content queue", () => {
 
   it("rejects a nomination after confirming", async () => {
     serveAdmin();
-    server.use(apiRoute("post", `${ADMIN}/nominations/nom-1/reject`, adminNominee({ id: "nom-1", status: "rejected" })));
+    server.use(
+      apiRoute("post", `${ADMIN}/nominations/nom-1/reject`, adminNominee({ id: "nom-1", status: "rejected" })),
+    );
     renderAdmin();
 
     await userEvent.click(await screen.findByRole("button", { name: /O jantar/ }));
@@ -115,7 +134,7 @@ describe("CanhoesAdminModule — content queue", () => {
       http.put(`*/api/v1/${ADMIN}/category-proposals/cp-1`, async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json(categoryProposal({ id: "cp-1", status: "approved" }));
-      })
+      }),
     );
     renderAdmin();
 
@@ -154,7 +173,7 @@ describe("CanhoesAdminModule — categories and results", () => {
       http.post(`*/api/v1/${ADMIN}/categories`, async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json(category({ id: "cat-3", name: "Revelação" }), { status: 201 });
-      })
+      }),
     );
     renderAdmin();
 
@@ -177,7 +196,7 @@ describe("CanhoesAdminModule — categories and results", () => {
       http.put(`*/api/v1/${ADMIN}/categories/cat-1`, async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json(category({ name: "Canhão Maior", isActive: false }));
-      })
+      }),
     );
     renderAdmin();
 
@@ -197,7 +216,7 @@ describe("CanhoesAdminModule — categories and results", () => {
     setNavigation({ pathname: "/canhoes/admin/conteudo", search: "view=categorias" });
     server.use(
       apiRoute("get", `${ADMIN}/categories`, [category(), category({ id: "cat-3", name: "Sem uso" })]),
-      apiRoute("delete", `${ADMIN}/categories/cat-3`, null, 204)
+      apiRoute("delete", `${ADMIN}/categories/cat-3`, null, 204),
     );
     renderAdmin();
 
@@ -259,7 +278,7 @@ describe("CanhoesAdminModule — members", () => {
       http.patch(`*/api/v1/${ADMIN}/members/rui/role`, async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json({ user: { id: "rui", isAdmin: true } });
-      })
+      }),
     );
     renderAdmin("membros");
 
@@ -289,7 +308,7 @@ describe("CanhoesAdminModule — members", () => {
     server.use(
       apiRoute("get", `${ADMIN}/secret-santa/state`, secretSantaState({ hasDraw: true, assignmentCount: 4 })),
       apiRoute("post", `${ADMIN}/secret-santa/draw`, secretSantaState({ hasDraw: true, assignmentCount: 4 })),
-      apiRoute("post", `${ADMIN}/secret-santa/reveal`, secretSantaState({ hasDraw: true, isLocked: true }))
+      apiRoute("post", `${ADMIN}/secret-santa/reveal`, secretSantaState({ hasDraw: true, isLocked: true })),
     );
     const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
     renderAdmin("membros");
@@ -308,10 +327,18 @@ describe("CanhoesAdminModule — members", () => {
 
   it("shows a revealed draw as locked", async () => {
     serveAdmin();
-    server.use(apiRoute("get", `${ADMIN}/secret-santa/state`, secretSantaState({ hasDraw: true, isLocked: true, assignmentCount: 4 })));
+    server.use(
+      apiRoute(
+        "get",
+        `${ADMIN}/secret-santa/state`,
+        secretSantaState({ hasDraw: true, isLocked: true, assignmentCount: 4 }),
+      ),
+    );
     renderAdmin("membros");
 
-    expect(await screen.findByText("O sorteio já foi revelado aos membros e não pode ser repetido.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("O sorteio já foi revelado aos membros e não pode ser repetido."),
+    ).toBeInTheDocument();
   });
 
   it("cannot draw with fewer than two members", async () => {
@@ -319,7 +346,9 @@ describe("CanhoesAdminModule — members", () => {
     server.use(apiRoute("get", `${ADMIN}/secret-santa/state`, secretSantaState({ memberCount: 1 })));
     renderAdmin("membros");
 
-    expect(await screen.findByText("São necessários pelo menos 2 membros para realizar o sorteio.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("São necessários pelo menos 2 membros para realizar o sorteio."),
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Realizar sorteio" })).toBeDisabled();
   });
 
@@ -341,7 +370,7 @@ describe("CanhoesAdminModule — event settings", () => {
       http.patch("*/api/v1/events/event-1/modules", async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json(makeEventContext().overview);
-      })
+      }),
     );
     renderAdmin("configuracoes");
 

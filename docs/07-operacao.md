@@ -22,6 +22,8 @@ Todas as variáveis estão em `.env.example`, que é o modelo para o `.env`.
 
 ```bash
 npm run dev                # app em http://localhost:3000/canhoes
+npm run format             # Prettier (largura 120) em todo o código
+npm run format:check       # o mesmo, só a verificar (o CI e o quality gate correm este)
 npm run lint               # ESLint
 npx tsc --noEmit           # tipos
 npm test                   # testes unitários (Vitest)
@@ -54,7 +56,7 @@ A cobertura mínima (linhas, statements, funções e branches) está em `vitest.
 
 ## Verificações locais
 
-`scripts/quality-gate.sh` corre as verificações do CI que não precisam de base de dados: lint, tipos, testes unitários e de componentes, e knip. Com `--cached` só volta a correr quando a árvore de trabalho mudou desde a última passagem (guarda o estado em `.git/quality-gate.pass`).
+`scripts/quality-gate.sh` corre as verificações do CI que não precisam de base de dados: formatação, lint, tipos, testes unitários e de componentes, e knip. Com `--cached` só volta a correr quando a árvore de trabalho mudou desde a última passagem (guarda o estado em `.git/quality-gate.pass`).
 
 O hook `scripts/git-hooks/pre-push` corre-o antes de cada push. Ativa-o uma vez por clone:
 
@@ -70,7 +72,7 @@ Numa emergência, `git push --no-verify` salta-o; o CI continua a bloquear o mer
 
 | Job | Passos |
 |---|---|
-| Lint, types, unit tests, knip, audit | `npm ci`, lint, `tsc`, testes unitários e de componentes, knip, `shellcheck` dos scripts, `npm audit --omit=dev` |
+| Lint, types, unit tests, knip, audit | `npm ci`, formatação, lint, `tsc`, testes unitários e de componentes, knip, `shellcheck` dos scripts, `npm audit --omit=dev` |
 | Integration and authorization tests | PostgreSQL 17 de serviço e `npm run test:coverage` (os três projetos de testes, com os mínimos de cobertura de `vitest.config.mjs`) |
 | Browser tests (Playwright) | PostgreSQL 17, migrations, seed e `npm run test:e2e` |
 | Local setup (Docker e Podman) | `db:up`, migrations, seed, testes de integração e `compose up --build` até `/api/health` responder |

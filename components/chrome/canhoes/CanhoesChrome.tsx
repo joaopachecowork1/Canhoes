@@ -37,9 +37,7 @@ function useDocumentTitle(pageTitle: string, eventName: string | undefined) {
  * The layout of every signed-in page: header (brand, page title, phase, logout, menu), the page,
  * the dock, and the menu and compose sheets. Navigation rules live in `canhoesNavigation.ts`.
  */
-export function CanhoesChrome({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export function CanhoesChrome({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
@@ -51,13 +49,7 @@ export function CanhoesChrome({
   const compose = useComposeSheet({ canCompose, pathname, preload: loadCanhoesComposeSheet });
   const [isMenuOpen, setIsMenuOpen] = usePathScopedOpen(pathname);
 
-  const {
-    bottomLeftEntries,
-    bottomRightEntries,
-    menuItems,
-    pageContext,
-    userLabel,
-  } = useCanhoesShellNavigation({
+  const { bottomLeftEntries, bottomRightEntries, menuItems, pageContext, userLabel } = useCanhoesShellNavigation({
     isAdmin,
     isMenuOpen,
     onNavigate: (href) => router.push(href),

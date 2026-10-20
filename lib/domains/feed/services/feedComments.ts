@@ -20,11 +20,7 @@ async function assertCommentInPost({ eventId, postId, commentId }: CommentRef) {
 }
 
 /** The post's comments, oldest first, with author names and the user's reactions. */
-export async function getPostComments(
-  eventId: string,
-  postId: string,
-  userId: string
-): Promise<HubCommentDto[]> {
+export async function getPostComments(eventId: string, postId: string, userId: string): Promise<HubCommentDto[]> {
   await assertPostInEvent(eventId, postId);
   const comments = await prisma.hubPostComment.findMany({
     where: { postId },
@@ -36,7 +32,7 @@ export async function getPostComments(
 
   const commentUserMap = await loadUsersById(
     comments.map((c) => c.userId),
-    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, color: true } })
+    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, color: true } }),
   );
 
   return comments.map((c) => {
@@ -67,7 +63,7 @@ export async function createComment(
   eventId: string,
   postId: string,
   userId: string,
-  { text, replyToId }: { text: string; replyToId?: string | null }
+  { text, replyToId }: { text: string; replyToId?: string | null },
 ): Promise<HubCommentDto> {
   await assertPostInEvent(eventId, postId);
   if (replyToId) await assertCommentInPost({ eventId, postId, commentId: replyToId });
@@ -94,7 +90,7 @@ export async function createComment(
 /** Deletes a comment of this post; only its author or an admin may. False when not found or not allowed. */
 export async function deleteComment(
   { eventId, postId, commentId }: CommentRef,
-  user: { id: string; isAdmin: boolean }
+  user: { id: string; isAdmin: boolean },
 ): Promise<boolean> {
   const comment = await prisma.hubPostComment.findFirst({ where: { id: commentId, postId, post: { eventId } } });
   if (!comment || (comment.userId !== user.id && !user.isAdmin)) return false;

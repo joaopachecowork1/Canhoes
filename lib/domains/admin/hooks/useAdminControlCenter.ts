@@ -28,11 +28,15 @@ type SavingKey = "event" | "phase" | "proposals" | AdminModuleKey;
 export function useAdminControlCenter(
   eventId: string | null,
   state: EventAdminStateDto | null,
-  onRefresh: () => Promise<void>
+  onRefresh: () => Promise<void>,
 ) {
   const [savingKey, setSavingKey] = useState<SavingKey | null>(null);
 
-  async function save(key: SavingKey, action: () => Promise<unknown>, { success, failure }: Readonly<{ success: string; failure: string }>) {
+  async function save(
+    key: SavingKey,
+    action: () => Promise<unknown>,
+    { success, failure }: Readonly<{ success: string; failure: string }>,
+  ) {
     setSavingKey(key);
     try {
       await action();
@@ -48,34 +52,34 @@ export function useAdminControlCenter(
 
   const handleActivateEvent = (nextEventId: string) => {
     if (!nextEventId || nextEventId === eventId) return;
-    void save("event", () => adminRepo.activateEvent(nextEventId), { success: copy.eventActivated, failure: copy.eventError });
+    void save("event", () => adminRepo.activateEvent(nextEventId), {
+      success: copy.eventActivated,
+      failure: copy.eventError,
+    });
   };
 
   const handleUpdatePhase = (phaseType: string) => {
     if (!eventId || phaseType === state?.activePhase?.type) return;
-    void save(
-      "phase",
-      () => adminRepo.updatePhase(eventId, { phaseType }),
-      { success: formatMessage(copy.phaseChanged, { phase: getPhaseLabel(phaseType) }), failure: copy.phaseError }
-    );
+    void save("phase", () => adminRepo.updatePhase(eventId, { phaseType }), {
+      success: formatMessage(copy.phaseChanged, { phase: getPhaseLabel(phaseType) }),
+      failure: copy.phaseError,
+    });
   };
 
   const handleProposalsOpen = (isOpen: boolean) => {
     if (!eventId) return;
-    void save(
-      "proposals",
-      () => adminRepo.updateAdminState(eventId, { nominationsVisible: isOpen }),
-      { success: isOpen ? copy.proposalsOpened : copy.proposalsClosed, failure: copy.saveError }
-    );
+    void save("proposals", () => adminRepo.updateAdminState(eventId, { nominationsVisible: isOpen }), {
+      success: isOpen ? copy.proposalsOpened : copy.proposalsClosed,
+      failure: copy.saveError,
+    });
   };
 
   const handleModuleToggle = (module: CanhoesModule, isEnabled: boolean) => {
     if (!eventId) return;
-    void save(
-      module.key,
-      () => adminRepo.updateModules(eventId, { [module.key]: isEnabled }),
-      { success: formatMessage(isEnabled ? copy.moduleOn : copy.moduleOff, { module: module.label }), failure: copy.saveError }
-    );
+    void save(module.key, () => adminRepo.updateModules(eventId, { [module.key]: isEnabled }), {
+      success: formatMessage(isEnabled ? copy.moduleOn : copy.moduleOff, { module: module.label }),
+      failure: copy.saveError,
+    });
   };
 
   const moduleItems: AdminModuleItem[] = CANHOES_MODULES.map((module) => ({

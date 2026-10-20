@@ -3,9 +3,7 @@ function normalizeMediaPath(path: string) {
 }
 
 function toUploadsProxyPath(pathname: string) {
-  return pathname.startsWith("/api/uploads/")
-    ? pathname
-    : `/api${pathname}`;
+  return pathname.startsWith("/api/uploads/") ? pathname : `/api${pathname}`;
 }
 
 /** Our own uploads go through the proxy however they were stored (absolute URL, `uploads/…`, `/uploads/…`); other addresses are kept. */

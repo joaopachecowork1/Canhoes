@@ -13,9 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 
-import {
-  ADMIN_CONTENT_CARD_CLASS,
-} from "../adminContentUi";
+import { ADMIN_CONTENT_CARD_CLASS } from "../adminContentUi";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
 import { useAdminControlCenter, type AdminModuleItem } from "../../hooks/useAdminControlCenter";
 import { formatMessage } from "@/lib/messages";
@@ -173,7 +171,7 @@ function ModuleRow({
           <span
             className={cn(
               "block text-sm",
-              module.isOpenNow ? "text-[var(--moss-glow)]" : "text-[var(--color-text-muted)]"
+              module.isOpenNow ? "text-[var(--moss-glow)]" : "text-[var(--color-text-muted)]",
             )}
           >
             {status}

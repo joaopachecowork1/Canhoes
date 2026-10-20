@@ -49,7 +49,7 @@ const allRoutes = await discoverRoutes();
 const protectedRoutes = allRoutes.filter(({ route }) => !PUBLIC_ROUTES.has(route));
 const eventRoutes = protectedRoutes.filter(({ route }) => route.startsWith("v1/events/[eventId]/"));
 const adminRoutes = protectedRoutes.filter(
-  ({ route }) => route.split("/").includes("admin") || ADMIN_ROUTES_OUTSIDE_ADMIN_FOLDER.has(route)
+  ({ route }) => route.split("/").includes("admin") || ADMIN_ROUTES_OUTSIDE_ADMIN_FOLDER.has(route),
 );
 
 type Handler = Parameters<typeof callRoute<Record<string, unknown>>>[0];
@@ -63,7 +63,10 @@ function paramValue(name: string, isCatchAll: boolean, eventId: string) {
 async function call({ route, method }: Route, eventId: string) {
   const handlers: Record<string, Handler> = await import(path.join(API_ROOT, route, "route.ts"));
   const params = Object.fromEntries(
-    [...route.matchAll(/\[(\.\.\.)?(\w+)\]/g)].map(([, spread, name]) => [name, paramValue(name, Boolean(spread), eventId)])
+    [...route.matchAll(/\[(\.\.\.)?(\w+)\]/g)].map(([, spread, name]) => [
+      name,
+      paramValue(name, Boolean(spread), eventId),
+    ]),
   );
   return callRoute(handlers[method], params, { method, body: method === "GET" ? undefined : {} });
 }
@@ -83,20 +86,29 @@ describe("authorization matrix", () => {
     expect(eventRoutes.length).toBeGreaterThan(45);
   });
 
-  it.each(protectedRoutes.map((route) => [label(route), route] as const))("%s rejects anonymous callers", async (_, route) => {
-    signInAs(null);
-    expect((await call(route, eventId)).status).toBe(401);
-  });
+  it.each(protectedRoutes.map((route) => [label(route), route] as const))(
+    "%s rejects anonymous callers",
+    async (_, route) => {
+      signInAs(null);
+      expect((await call(route, eventId)).status).toBe(401);
+    },
+  );
 
-  it.each(eventRoutes.map((route) => [label(route), route] as const))("%s rejects users outside the event", async (_, route) => {
-    signInAs(await createUser());
-    const response = await call(route, eventId);
-    expect(response.status).toBe(403);
-  });
+  it.each(eventRoutes.map((route) => [label(route), route] as const))(
+    "%s rejects users outside the event",
+    async (_, route) => {
+      signInAs(await createUser());
+      const response = await call(route, eventId);
+      expect(response.status).toBe(403);
+    },
+  );
 
-  it.each(adminRoutes.map((route) => [label(route), route] as const))("%s rejects members who are not admins", async (_, route) => {
-    signInAs(await createMember(eventId));
-    const response = await call(route, eventId);
-    expect(response.status).toBe(403);
-  });
+  it.each(adminRoutes.map((route) => [label(route), route] as const))(
+    "%s rejects members who are not admins",
+    async (_, route) => {
+      signInAs(await createMember(eventId));
+      const response = await call(route, eventId);
+      expect(response.status).toBe(403);
+    },
+  );
 });

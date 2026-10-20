@@ -26,16 +26,20 @@ function setup(eventId: string | null = "event-1") {
 describe("usePublishPost", () => {
   it("publishes the trimmed text and announces the new post to the feed", async () => {
     const recorder = recordRequests();
-    server.use(http.post(`*/api/v1/${EVENT}/posts`, async ({ request }) => {
-      await recorder.capture(request);
-      return HttpResponse.json(post({ id: "p9" }), { status: 201 });
-    }));
+    server.use(
+      http.post(`*/api/v1/${EVENT}/posts`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(post({ id: "p9" }), { status: 201 });
+      }),
+    );
     const onCreated = vi.fn();
     globalThis.addEventListener("hub:postCreated", onCreated);
     const { result } = setup();
 
     let published = false;
-    await act(async () => { published = await result.current.publish(draft()); });
+    await act(async () => {
+      published = await result.current.publish(draft());
+    });
 
     globalThis.removeEventListener("hub:postCreated", onCreated);
     expect(published).toBe(true);
@@ -48,15 +52,24 @@ describe("usePublishPost", () => {
     const recorder = recordRequests();
     server.use(
       apiRoute("post", `${EVENT}/uploads`, { files: [{ url: "/uploads/feed/a.png" }] }),
-      http.post(`*/api/v1/${EVENT}/posts`, async ({ request }) => { await recorder.capture(request); return HttpResponse.json(post(), { status: 201 }); })
+      http.post(`*/api/v1/${EVENT}/posts`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(post(), { status: 201 });
+      }),
     );
     const { result } = setup();
 
     await act(async () => {
-      await result.current.publish(draft({ files: [png], poll: { isEnabled: true, question: " Onde? ", options: ["Porto", " ", "Braga"] } }));
+      await result.current.publish(
+        draft({ files: [png], poll: { isEnabled: true, question: " Onde? ", options: ["Porto", " ", "Braga"] } }),
+      );
     });
 
-    expect(recorder.requests[0]?.body).toMatchObject({ mediaUrls: ["/uploads/feed/a.png"], pollQuestion: "Onde?", pollOptions: ["Porto", "Braga"] });
+    expect(recorder.requests[0]?.body).toMatchObject({
+      mediaUrls: ["/uploads/feed/a.png"],
+      pollQuestion: "Onde?",
+      pollOptions: ["Porto", "Braga"],
+    });
   });
 
   it("refuses an empty text, an unfinished poll and a missing event without calling the API", async () => {
@@ -65,7 +78,9 @@ describe("usePublishPost", () => {
 
     await act(async () => {
       expect(await withEvent.result.current.publish(draft({ text: "   " }))).toBe(false);
-      expect(await withEvent.result.current.publish(draft({ poll: { isEnabled: true, question: "Só?", options: ["Uma"] } }))).toBe(false);
+      expect(
+        await withEvent.result.current.publish(draft({ poll: { isEnabled: true, question: "Só?", options: ["Uma"] } })),
+      ).toBe(false);
       expect(await withoutEvent.result.current.publish(draft())).toBe(false);
     });
 
@@ -76,11 +91,18 @@ describe("usePublishPost", () => {
     server.use(apiRoute("post", `${EVENT}/uploads`, { files: [] }));
     const { result } = setup();
 
-    await act(async () => { expect(await result.current.publish(draft({ files: [png] }))).toBe(false); });
+    await act(async () => {
+      expect(await result.current.publish(draft({ files: [png] }))).toBe(false);
+    });
     expect(result.current.status).toBe("idle");
 
-    server.use(apiRoute("post", `${EVENT}/uploads`, { files: [{ url: "/uploads/feed/a.png" }] }), apiRoute("post", `${EVENT}/posts`, { message: "grande" }, 413));
-    await act(async () => { expect(await result.current.publish(draft({ files: [png] }))).toBe(false); });
+    server.use(
+      apiRoute("post", `${EVENT}/uploads`, { files: [{ url: "/uploads/feed/a.png" }] }),
+      apiRoute("post", `${EVENT}/posts`, { message: "grande" }, 413),
+    );
+    await act(async () => {
+      expect(await result.current.publish(draft({ files: [png] }))).toBe(false);
+    });
     expect((await screen.findAllByText(/Não foi possível|demasiado|grande/i)).length).toBeGreaterThan(0);
   });
 });

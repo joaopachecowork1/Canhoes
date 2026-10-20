@@ -19,7 +19,14 @@ import { toPhaseDto, toEventSummary } from "./constants";
  */
 
 /** The saved switches with their defaults: everything visible except results, no draw yet. */
-function readSwitches(state: { nominationsVisible: boolean; resultsVisible: boolean; hasSecretSantaDraw: boolean; moduleVisibilityJson: unknown } | null) {
+function readSwitches(
+  state: {
+    nominationsVisible: boolean;
+    resultsVisible: boolean;
+    hasSecretSantaDraw: boolean;
+    moduleVisibilityJson: unknown;
+  } | null,
+) {
   const saved = readModuleSwitches(state?.moduleVisibilityJson);
   return {
     nominationsVisible: state?.nominationsVisible ?? true,
@@ -27,7 +34,7 @@ function readSwitches(state: { nominationsVisible: boolean; resultsVisible: bool
     hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
     // A module never switched off is on.
     moduleVisibility: Object.fromEntries(
-      CANHOES_MODULES.map(({ key }) => [key, saved[key] ?? true])
+      CANHOES_MODULES.map(({ key }) => [key, saved[key] ?? true]),
     ) satisfies EventAdminModuleVisibilityDto,
   };
 }
@@ -57,7 +64,7 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
 /** Saves the admin's switches (nominations, results, modules); fields left out keep their value. */
 export async function updateAdminState(
   eventId: string,
-  data: { nominationsVisible?: boolean; resultsVisible?: boolean; moduleVisibility?: EventAdminModuleVisibilityDto }
+  data: { nominationsVisible?: boolean; resultsVisible?: boolean; moduleVisibility?: EventAdminModuleVisibilityDto },
 ): Promise<EventAdminStateDto> {
   // Prisma leaves `undefined` fields untouched, so a switch left out keeps its value.
   const changes = {
@@ -148,7 +155,7 @@ export async function activateEvent(eventId: string): Promise<EventSummaryDto | 
 /** Merges module switches into the saved ones, so a partial update leaves the other modules as they were. */
 export async function updateEventModules(
   eventId: string,
-  modules: Partial<EventAdminModuleVisibilityDto>
+  modules: Partial<EventAdminModuleVisibilityDto>,
 ): Promise<void> {
   const currentState = await prisma.canhoesEventState.findUnique({
     where: { eventId },
@@ -158,7 +165,13 @@ export async function updateEventModules(
 
   await prisma.canhoesEventState.upsert({
     where: { eventId },
-    create: { eventId, phase: "gala", nominationsVisible: true, resultsVisible: false, moduleVisibilityJson: nextModules },
+    create: {
+      eventId,
+      phase: "gala",
+      nominationsVisible: true,
+      resultsVisible: false,
+      moduleVisibilityJson: nextModules,
+    },
     update: { moduleVisibilityJson: nextModules },
   });
 }

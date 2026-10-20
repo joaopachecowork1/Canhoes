@@ -24,8 +24,65 @@ function getSubmitLabel(isSubmitting: boolean, canPropose: boolean) {
   return canPropose ? copy.submit : copy.closed;
 }
 
+/** Os campos da proposta: nome, tipo de categoria e descrição. */
+function ProposalFields({
+  description,
+  kind,
+  name,
+  onDescriptionChange,
+  onKindChange,
+  onNameChange,
+}: Readonly<{
+  description: string;
+  kind: string;
+  name: string;
+  onDescriptionChange: (value: string) => void;
+  onKindChange: (value: string) => void;
+  onNameChange: (value: string) => void;
+}>) {
+  return (
+    <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+      <div className="space-y-2">
+        <label htmlFor="category-name-input">{copy.nameLabel}</label>
+        <Input
+          id="category-name-input"
+          value={name}
+          onChange={(event) => onNameChange(event.target.value)}
+          placeholder={copy.namePlaceholder}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="category-kind-input">{copy.kindLabel}</label>
+        <Select value={kind} onValueChange={onKindChange}>
+          <SelectTrigger id="category-kind-input">
+            <SelectValue placeholder={copy.kindPlaceholder} />
+          </SelectTrigger>
+          <SelectContent className="z-[100]">
+            <SelectItem value="0">{copy.kindNominees}</SelectItem>
+            <SelectItem value="1">{copy.kindMember}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2 md:col-span-2">
+        <label htmlFor="category-desc-input">{copy.descriptionLabel}</label>
+        <Textarea
+          id="category-desc-input"
+          value={description}
+          onChange={(event) => onDescriptionChange(event.target.value)}
+          placeholder={copy.descriptionPlaceholder}
+        />
+      </div>
+    </div>
+  );
+}
+
 /** Form to propose a new official category; it only sends while proposals are open. */
-export function CategoryProposalForm({ canPropose, eventId }: Readonly<{ canPropose: boolean; eventId: string | undefined }>) {
+export function CategoryProposalForm({
+  canPropose,
+  eventId,
+}: Readonly<{ canPropose: boolean; eventId: string | undefined }>) {
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -68,35 +125,14 @@ export function CategoryProposalForm({ canPropose, eventId }: Readonly<{ canProp
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
-          <div className="space-y-2">
-            <label htmlFor="category-name-input">{copy.nameLabel}</label>
-            <Input id="category-name-input" value={name} onChange={(event) => setName(event.target.value)} placeholder={copy.namePlaceholder} />
-          </div>
-
-          <div className="space-y-2">
-            <label htmlFor="category-kind-input">{copy.kindLabel}</label>
-            <Select value={kind} onValueChange={setKind}>
-              <SelectTrigger id="category-kind-input">
-                <SelectValue placeholder={copy.kindPlaceholder} />
-              </SelectTrigger>
-              <SelectContent className="z-[100]">
-                <SelectItem value="0">{copy.kindNominees}</SelectItem>
-                <SelectItem value="1">{copy.kindMember}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <label htmlFor="category-desc-input">{copy.descriptionLabel}</label>
-            <Textarea
-              id="category-desc-input"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder={copy.descriptionPlaceholder}
-            />
-          </div>
-        </div>
+        <ProposalFields
+          description={description}
+          kind={kind}
+          name={name}
+          onDescriptionChange={setDescription}
+          onKindChange={setKind}
+          onNameChange={setName}
+        />
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p>{copy.reviewHint}</p>

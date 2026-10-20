@@ -1,10 +1,6 @@
 import { Prisma } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import type {
-  AwardCategoryDto,
-  EventCategoryDto,
-  PagedResult,
-} from "@/lib/api/types";
+import type { AwardCategoryDto, EventCategoryDto, PagedResult } from "@/lib/api/types";
 
 /*
  * Award categories. `kind` says what members vote for: 0 = an approved nomination of the category,
@@ -15,7 +11,7 @@ import type {
 export async function getActiveCategories(
   eventId: string,
   skip: number,
-  take: number
+  take: number,
 ): Promise<PagedResult<EventCategoryDto>> {
   const where = { eventId, isActive: true };
   const [categories, total] = await Promise.all([
@@ -72,7 +68,14 @@ export async function getAdminCategories(eventId: string): Promise<AwardCategory
 /** Creates an active category; without `sortOrder` it goes to the end of the list. */
 export async function createCategory(
   eventId: string,
-  data: { name: string; sortOrder?: number | null; kind: number; description?: string | null; voteQuestion?: string | null; voteRules?: string | null }
+  data: {
+    name: string;
+    sortOrder?: number | null;
+    kind: number;
+    description?: string | null;
+    voteQuestion?: string | null;
+    voteRules?: string | null;
+  },
 ): Promise<AwardCategoryDto> {
   const maxSort = await prisma.awardCategory.aggregate({
     where: { eventId },
@@ -98,7 +101,15 @@ export async function createCategory(
 export async function updateCategory(
   eventId: string,
   categoryId: string,
-  data: Partial<{ name: string; sortOrder: number; isActive: boolean; kind: number; description: string | null; voteQuestion: string | null; voteRules: string | null }>
+  data: Partial<{
+    name: string;
+    sortOrder: number;
+    isActive: boolean;
+    kind: number;
+    description: string | null;
+    voteQuestion: string | null;
+    voteRules: string | null;
+  }>,
 ): Promise<AwardCategoryDto | null> {
   const existing = await prisma.awardCategory.findFirst({ where: { id: categoryId, eventId } });
   if (!existing) return null;

@@ -24,7 +24,13 @@ import type {
 
 const CREATED_AT = "2026-10-01T10:00:00.000Z";
 
-export const paged = <T>(items: T[]): PagedResult<T> => ({ items, total: items.length, skip: 0, take: 50, hasMore: false });
+export const paged = <T>(items: T[]): PagedResult<T> => ({
+  items,
+  total: items.length,
+  skip: 0,
+  take: 50,
+  hasMore: false,
+});
 
 export const category = (overrides: Partial<AwardCategoryDto> = {}): AwardCategoryDto => ({
   id: "cat-1",
@@ -112,7 +118,9 @@ export const officialResult = (overrides: Partial<AdminCategoryResultDto> = {}):
   ...overrides,
 });
 
-export const secretSantaState = (overrides: Partial<EventAdminSecretSantaStateDto> = {}): EventAdminSecretSantaStateDto => ({
+export const secretSantaState = (
+  overrides: Partial<EventAdminSecretSantaStateDto> = {},
+): EventAdminSecretSantaStateDto => ({
   eventId: "event-1",
   eventCode: "CAN26",
   hasDraw: false,

@@ -4,10 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { BarChart2, FolderTree, Gavel } from "lucide-react";
 
 import { PillTabs } from "@/components/ui/pill-tabs";
-import type {
-  CategoryProposalDto,
-  MeasureProposalDto,
-} from "@/lib/api/types";
+import type { CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
 import { AdminNominationsSection } from "../nominations/AdminNominationsSection";
 import { AdminOfficialResultsSection } from "../AdminOfficialResultsSection";
 import { CategoriesAdmin } from "../categories/CategoriesAdmin";

@@ -15,7 +15,16 @@ import { signInAs } from "@/tests/component/session";
 import { useCanhoesWishlist } from "./useCanhoesWishlist";
 
 const EVENT = "events/event-1";
-const item = (id: string, userId = "ana") => ({ id, userId, userName: "Ana", title: `Item ${id}`, url: null, notes: null, imageUrl: null, createdAtUtc: "2026-10-01T10:00:00.000Z" });
+const item = (id: string, userId = "ana") => ({
+  id,
+  userId,
+  userName: "Ana",
+  title: `Item ${id}`,
+  url: null,
+  notes: null,
+  imageUrl: null,
+  createdAtUtc: "2026-10-01T10:00:00.000Z",
+});
 
 function setup({ hasEvent = true } = {}) {
   signInAs({ id: "ana", name: "Ana" });
@@ -33,8 +42,11 @@ function setup({ hasEvent = true } = {}) {
 
 function serveWishlist(items = [item("i1")]) {
   server.use(
-    apiRoute("get", `${EVENT}/members`, [member({ id: "ana", displayName: "Ana" }), member({ id: "rui", displayName: "Rui" })]),
-    apiRoute("get", `${EVENT}/wishlist`, paged(items))
+    apiRoute("get", `${EVENT}/members`, [
+      member({ id: "ana", displayName: "Ana" }),
+      member({ id: "rui", displayName: "Rui" }),
+    ]),
+    apiRoute("get", `${EVENT}/wishlist`, paged(items)),
   );
 }
 
@@ -51,7 +63,10 @@ describe("useCanhoesWishlist", () => {
   });
 
   it("says why the lists could not load", async () => {
-    server.use(apiRoute("get", `${EVENT}/members`, { message: "base em baixo" }, 500), apiRoute("get", `${EVENT}/wishlist`, paged([])));
+    server.use(
+      apiRoute("get", `${EVENT}/members`, { message: "base em baixo" }, 500),
+      apiRoute("get", `${EVENT}/wishlist`, paged([])),
+    );
     const { result } = setup();
 
     await waitFor(() => expect(result.current.errorMessage).toContain("base em baixo"));
@@ -60,7 +75,12 @@ describe("useCanhoesWishlist", () => {
   it("does not save a title that is too short", async () => {
     serveWishlist();
     const recorder = recordRequests();
-    server.use(http.post(`*/api/v1/${EVENT}/wishlist`, async ({ request }) => { await recorder.capture(request); return HttpResponse.json(item("new")); }));
+    server.use(
+      http.post(`*/api/v1/${EVENT}/wishlist`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(item("new"));
+      }),
+    );
     const { result } = setup();
     await waitFor(() => expect(result.current.members).toHaveLength(2));
 
@@ -75,8 +95,11 @@ describe("useCanhoesWishlist", () => {
     serveWishlist();
     const recorder = recordRequests();
     server.use(
-      http.post(`*/api/v1/${EVENT}/wishlist`, async ({ request }) => { await recorder.capture(request); return HttpResponse.json(item("new")); }),
-      apiRoute("post", `${EVENT}/wishlist/new/image`, {})
+      http.post(`*/api/v1/${EVENT}/wishlist`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(item("new"));
+      }),
+      apiRoute("post", `${EVENT}/wishlist/new/image`, {}),
     );
     const { result } = setup();
     await waitFor(() => expect(result.current.members).toHaveLength(2));
@@ -92,7 +115,9 @@ describe("useCanhoesWishlist", () => {
 
   it("keeps the item and says so when the delete fails", async () => {
     serveWishlist();
-    server.use(http.delete(`*/api/v1/${EVENT}/wishlist/i1`, () => HttpResponse.json({ message: "não deu" }, { status: 500 })));
+    server.use(
+      http.delete(`*/api/v1/${EVENT}/wishlist/i1`, () => HttpResponse.json({ message: "não deu" }, { status: 500 })),
+    );
     const { result } = setup();
     await waitFor(() => expect(result.current.wishlistItems).toHaveLength(1));
 

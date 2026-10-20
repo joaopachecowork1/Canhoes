@@ -28,26 +28,30 @@ export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteDat
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-    refetchInterval: () =>
-      typeof document !== "undefined" && document.visibilityState === "visible" ? 15_000 : false,
+    refetchInterval: () => (typeof document !== "undefined" && document.visibilityState === "visible" ? 15_000 : false),
   });
 
   const posts = useMemo(
     () => postsInfiniteQuery.data?.pages.flatMap((page) => page.posts) ?? [],
-    [postsInfiniteQuery.data]
+    [postsInfiniteQuery.data],
   );
 
-  const { openComments, commentDrafts, replyingTo, toggleComments, addComment, deleteComment, toggleCommentReaction, setCommentDraft, setReplyingTo } =
-    useHubFeedComments({ eventId, queryClient });
-
   const {
-    toggleReaction,
-    toggleDownvote,
-    votePoll,
-    adminPin,
-    adminMovePinned,
-    adminDelete,
-  } = useHubFeedPostActions({ eventId, queryClient });
+    openComments,
+    commentDrafts,
+    replyingTo,
+    toggleComments,
+    addComment,
+    deleteComment,
+    toggleCommentReaction,
+    setCommentDraft,
+    setReplyingTo,
+  } = useHubFeedComments({ eventId, queryClient });
+
+  const { toggleReaction, toggleDownvote, votePoll, adminPin, adminMovePinned, adminDelete } = useHubFeedPostActions({
+    eventId,
+    queryClient,
+  });
 
   const hasMorePosts = postsInfiniteQuery.hasNextPage ?? false;
   const isFetchingNextPage = postsInfiniteQuery.isFetchingNextPage;
@@ -71,7 +75,9 @@ export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteDat
   return {
     posts,
     remainingPostsCount: countRemainingPosts(postsInfiniteQuery.data),
-    errorMessage: postsInfiniteQuery.error ? getErrorMessage(postsInfiniteQuery.error, messages.feed.useHubFeed.loadError) : null,
+    errorMessage: postsInfiniteQuery.error
+      ? getErrorMessage(postsInfiniteQuery.error, messages.feed.useHubFeed.loadError)
+      : null,
     loading: postsInfiniteQuery.isLoading,
     hasMore: hasMorePosts,
     loadMore: loadMorePosts,

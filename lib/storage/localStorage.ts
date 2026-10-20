@@ -34,7 +34,9 @@ export class UploadValidationError extends HttpError {
 
 // Resolved at runtime; the ignore comment stops Turbopack from tracing the whole project into the build.
 function storageRoot() {
-  return path.resolve(/*turbopackIgnore: true*/ process.env.UPLOADS_DIR || path.join(process.cwd(), ".data", "uploads"));
+  return path.resolve(
+    /*turbopackIgnore: true*/ process.env.UPLOADS_DIR || path.join(process.cwd(), ".data", "uploads"),
+  );
 }
 
 function safePath(segments: string[]) {
@@ -77,8 +79,8 @@ export async function saveUpload(file: File, folders: string[]) {
 export async function readUpload(segments: string[]) {
   const physicalPath = safePath(segments);
   const extension = path.extname(physicalPath).toLowerCase();
-  const contentType = Object.entries(ALLOWED_TYPES).find(([, ext]) => ext === extension)?.[0]
-    ?? "application/octet-stream";
+  const contentType =
+    Object.entries(ALLOWED_TYPES).find(([, ext]) => ext === extension)?.[0] ?? "application/octet-stream";
   return { buffer: await readFile(physicalPath), contentType };
 }
 

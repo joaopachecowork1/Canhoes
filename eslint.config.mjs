@@ -108,7 +108,10 @@ const eslintConfig = defineConfig([
     // Visible UI text lives in messages/pt.json.
     files: ["app/canhoes/**/*.tsx", "components/**/*.tsx", "lib/domains/**/*.tsx"],
     rules: {
-      "react/jsx-no-literals": ["error", { allowedStrings: ["·", "—", "–", "/", "×", "•", "…", "%", "+", "-", ":", "(", ")"] }],
+      "react/jsx-no-literals": [
+        "error",
+        { allowedStrings: ["·", "—", "–", "/", "×", "•", "…", "%", "+", "-", ":", "(", ")"] },
+      ],
     },
   },
   {
@@ -143,7 +146,8 @@ const eslintConfig = defineConfig([
   },
   {
     // Declarations only: one DTO per API response; splitting it by size alone would not help.
-    files: ["lib/api/types.ts"],
+    // The seed is a linear list of demo rows, which reads better in one place.
+    files: ["lib/api/types.ts", "prisma/seed.mjs"],
     rules: { "max-lines": "off" },
   },
   {

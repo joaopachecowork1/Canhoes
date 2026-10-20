@@ -1,6 +1,11 @@
 "use client";
 
-import type { EventActiveContextDto, EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
+import type {
+  EventActiveContextDto,
+  EventSecretSantaOverviewDto,
+  EventWishlistItemDto,
+  PagedResult,
+} from "@/lib/api/types";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { useSecretSanta } from "@/lib/domains/secretSanta/hooks/useSecretSanta";
@@ -22,10 +27,14 @@ function getWishlistLink(isWishlistOpen: boolean) {
 }
 
 /** Amigo secreto page: who you give a present to, once the draw is revealed, and their wishlist. */
-export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOverview, initialWishlistData }: {
-    initialContext?: EventActiveContextDto | null;
-    initialSecretSantaOverview?: EventSecretSantaOverviewDto | null;
-    initialWishlistData?: PagedResult<EventWishlistItemDto> | null;
+export function CanhoesSecretSantaModule({
+  initialContext,
+  initialSecretSantaOverview,
+  initialWishlistData,
+}: {
+  initialContext?: EventActiveContextDto | null;
+  initialSecretSantaOverview?: EventSecretSantaOverviewDto | null;
+  initialWishlistData?: PagedResult<EventWishlistItemDto> | null;
 }) {
   const { event, overview, isLoading: isOverviewLoading } = useEventOverview(initialContext);
   const eventId = event?.id;
@@ -64,10 +73,7 @@ export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOve
       </div>
 
       {assignedUser ? (
-        <AssignedWishlistPanel
-          assignedUserName={assignedUser.name}
-          assignedWishlistItems={assignedWishlistItems}
-        />
+        <AssignedWishlistPanel assignedUserName={assignedUser.name} assignedWishlistItems={assignedWishlistItems} />
       ) : null}
     </div>
   );

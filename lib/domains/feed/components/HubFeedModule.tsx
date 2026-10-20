@@ -38,15 +38,13 @@ export function HubFeedModule({
   return <HubFeedModuleView state={state} />;
 }
 
-function HubFeedModuleView({
-  state,
-}: Readonly<{
-  state: ReturnType<typeof useHubFeedModuleState>;
-}>) {
+type HubFeedState = ReturnType<typeof useHubFeedModuleState>;
+
+/** A lista de posts, ligada ao estado do mural. */
+function HubFeedStateList({ state }: Readonly<{ state: HubFeedState }>) {
   const {
     posts,
     remainingPostsCount,
-    errorMessage,
     hasMore,
     isFetchingNextPage,
     openComments,
@@ -63,7 +61,6 @@ function HubFeedModuleView({
     adminPin,
     adminMovePinned,
     adminDelete,
-    refresh,
     currentUserId,
     currentUserImage,
     currentUserName,
@@ -71,10 +68,7 @@ function HubFeedModuleView({
     sentinelRef,
   } = state;
 
-  const handleRetry = useCallback(() => void refresh(), [refresh]);
-  const handleLoadMore = state.loadMore;
-
-  const feedList = (
+  return (
     <HubFeedList
       posts={posts}
       remainingPostsCount={remainingPostsCount}
@@ -88,7 +82,7 @@ function HubFeedModuleView({
       openComments={openComments}
       commentDrafts={commentDrafts}
       replyingTo={replyingTo}
-      onLoadMore={handleLoadMore}
+      onLoadMore={state.loadMore}
       onToggleReaction={toggleReaction}
       onToggleDownvote={toggleDownvote}
       onToggleComments={toggleComments}
@@ -103,14 +97,27 @@ function HubFeedModuleView({
       sentinelRef={sentinelRef}
     />
   );
+}
+
+function HubFeedModuleView({ state }: Readonly<{ state: HubFeedState }>) {
+  const { errorMessage, refresh } = state;
+  const handleRetry = useCallback(() => void refresh(), [refresh]);
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4 px-1 sm:px-0">
       <h1 className="sr-only">{copy.title}</h1>
       <MemberCromoStrip eventId={state.eventId} />
       <FeedComposeSlot />
-      {errorMessage ? <ErrorAlert title={copy.loadError} description={errorMessage} actionLabel={messages.common.retry} tone="social" onAction={handleRetry} /> : null}
-      {feedList}
+      {errorMessage ? (
+        <ErrorAlert
+          title={copy.loadError}
+          description={errorMessage}
+          actionLabel={messages.common.retry}
+          tone="social"
+          onAction={handleRetry}
+        />
+      ) : null}
+      <HubFeedStateList state={state} />
     </div>
   );
 }
@@ -123,7 +130,11 @@ function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: 
   const { event: activeEvent } = useEventOverview(initialContext);
   const eventId = activeEvent?.id ?? null;
   const feed = useHubFeed(eventId, initialData);
-  const sentinelRef = useFeedInfiniteScroll({ enabled: feed.hasMore, isFetchingNextPage: feed.isFetchingNextPage, onLoadMore: feed.loadMore });
+  const sentinelRef = useFeedInfiniteScroll({
+    enabled: feed.hasMore,
+    isFetchingNextPage: feed.isFetchingNextPage,
+    onLoadMore: feed.loadMore,
+  });
   const currentUserName = getSessionUserName(session?.user);
   const currentUserImage = session?.user?.image ?? null;
 

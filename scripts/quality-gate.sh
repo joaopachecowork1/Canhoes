@@ -1,5 +1,5 @@
 #!/bin/sh
-# The checks every change passes before it leaves the machine: lint, types, unit and component tests,
+# The checks every change passes before it leaves the machine: format, lint, types, unit and component tests,
 # dead code. The git pre-push hook and the Claude Code hooks run this script; CI runs the same checks
 # plus the integration tests and coverage. Prints only the failing step's output.
 #
@@ -26,6 +26,7 @@ run_step() {
   fi
 }
 
+run_step "format" npm run format:check --silent
 run_step "lint" npm run lint --silent
 run_step "types" npx tsc --noEmit
 run_step "unit tests" npm test --silent

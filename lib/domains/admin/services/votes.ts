@@ -1,24 +1,18 @@
 import { prisma } from "@/lib/prisma";
-import type {
-  AdminVotesPagedDto,
-  PagedResult,
-  AdminCategoryResultDto,
-} from "@/lib/api/types";
+import type { AdminVotesPagedDto, PagedResult, AdminCategoryResultDto } from "@/lib/api/types";
 import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { loadUsersById } from "@/lib/usersById";
 
 /* What the admin sees of the voting: every individual vote and the official results so far. */
 
 /** Nominee votes of the event, most recently changed first, with category, nominee and voter names. */
-export async function getAdminVotesPaged(
-  eventId: string,
-  skip = 0,
-  take = 50
-): Promise<AdminVotesPagedDto> {
-  const categoryIds = (await prisma.awardCategory.findMany({
-    where: { eventId },
-    select: { id: true },
-  })).map((c) => c.id);
+export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): Promise<AdminVotesPagedDto> {
+  const categoryIds = (
+    await prisma.awardCategory.findMany({
+      where: { eventId },
+      select: { id: true },
+    })
+  ).map((c) => c.id);
 
   const totalVotes = await prisma.vote.count({ where: { categoryId: { in: categoryIds } } });
 
@@ -29,7 +23,8 @@ export async function getAdminVotesPaged(
   const pagedVotes = await prisma.vote.findMany({
     where: { categoryId: { in: categoryIds } },
     orderBy: { updatedAtUtc: "desc" },
-    skip, take,
+    skip,
+    take,
   });
 
   const catIds = [...new Set(pagedVotes.map((v) => v.categoryId))];
@@ -37,7 +32,10 @@ export async function getAdminVotesPaged(
   const [categories, nominees, userMap] = await Promise.all([
     prisma.awardCategory.findMany({ where: { id: { in: catIds } }, select: { id: true, name: true } }),
     prisma.nominee.findMany({ where: { id: { in: nomineeIds } }, select: { id: true, title: true } }),
-    loadUsersById(pagedVotes.map((v) => v.userId), (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })),
+    loadUsersById(
+      pagedVotes.map((v) => v.userId),
+      (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
+    ),
   ]);
   const catMap = new Map(categories.map((c) => [c.id, c.name]));
   const nomMap = new Map(nominees.map((n) => [n.id, n.title]));
@@ -53,7 +51,8 @@ export async function getAdminVotesPaged(
       userName: userMap.get(v.userId)?.displayName ?? userMap.get(v.userId)?.email ?? "Unknown",
       updatedAtUtc: v.updatedAtUtc.toISOString(),
     })),
-    skip, take,
+    skip,
+    take,
     hasMore: skip + take < totalVotes,
   };
 }
@@ -80,7 +79,9 @@ function tallyCategory(votes: UserVoteRow[], nameOf: (userId: string) => string)
 
 /** Display name (else email) of each user, for labelling votes. */
 async function getUserNames(userIds: string[]) {
-  const users = await loadUsersById(userIds, (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }));
+  const users = await loadUsersById(userIds, (where) =>
+    prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
+  );
   return (userId: string) => users.get(userId)?.displayName ?? users.get(userId)?.email ?? "Unknown";
 }
 
@@ -88,7 +89,7 @@ async function getUserNames(userIds: string[]) {
 export async function getAdminOfficialResultsPaged(
   eventId: string,
   skip = 0,
-  take = 50
+  take = 50,
 ): Promise<PagedResult<AdminCategoryResultDto>> {
   const where = { eventId, kind: CATEGORY_KIND.USER_VOTE };
   const [members, categories, total] = await Promise.all([
@@ -102,7 +103,10 @@ export async function getAdminOfficialResultsPaged(
   const nameOf = await getUserNames([...new Set(userVotes.flatMap((vote) => [vote.voterUserId, vote.targetUserId]))]);
 
   const items = categories.map((category): AdminCategoryResultDto => {
-    const nominees = tallyCategory(userVotes.filter((vote) => vote.categoryId === category.id), nameOf);
+    const nominees = tallyCategory(
+      userVotes.filter((vote) => vote.categoryId === category.id),
+      nameOf,
+    );
     const totalVotes = nominees.reduce((sum, nominee) => sum + nominee.voteCount, 0);
     return {
       categoryId: category.id,

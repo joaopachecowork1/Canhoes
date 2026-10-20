@@ -26,7 +26,12 @@ type SubmitNominationArgs = {
  * One nomination per category: shows it as pending straight away, rolls back on failure and
  * uploads the optional image once the nominee exists.
  */
-export function useSubmitNomination({ categoryId, eventId, onNominationSubmitted, queryClient }: Readonly<SubmitNominationArgs>) {
+export function useSubmitNomination({
+  categoryId,
+  eventId,
+  onNominationSubmitted,
+  queryClient,
+}: Readonly<SubmitNominationArgs>) {
   const [title, setTitle] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [pendingLabel, setPendingLabel] = useState<string | null>(null);

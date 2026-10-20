@@ -15,7 +15,13 @@ import {
   updatePostInFeed,
   type FeedInfiniteData,
 } from "./feedInfiniteData";
-import { applyDownvote, applyPollVote, applyPostReaction, applyServerDownvote, applyServerLike } from "./feedPostUpdates";
+import {
+  applyDownvote,
+  applyPollVote,
+  applyPostReaction,
+  applyServerDownvote,
+  applyServerLike,
+} from "./feedPostUpdates";
 import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.feed.useHubFeedPostActions;
@@ -30,7 +36,7 @@ type PostUpdater = (post: EventFeedPostFullDto) => EventFeedPostFullDto;
 function reportFeedError(
   action: string,
   error: unknown,
-  { context, fallback }: Readonly<{ context: Record<string, unknown>; fallback: string }>
+  { context, fallback }: Readonly<{ context: Record<string, unknown>; fallback: string }>,
 ) {
   logFrontendError(`HubFeed.${action}`, error, context);
   toast.error(getErrorMessage(error, fallback));
@@ -46,7 +52,7 @@ function useFeedCache(queryClient: QueryClient, eventId: string | null) {
       queryClient.setQueryData<FeedInfiniteData>(queryKey, update);
       return previous;
     },
-    [queryClient, eventId]
+    [queryClient, eventId],
   );
 }
 
@@ -77,7 +83,10 @@ function useOptimisticPostAction(queryClient: QueryClient, eventId: string | nul
     }) => {
       if (!eventId) return false;
 
-      const previousPost = findPostInFeed(updateFeed((feed) => updatePostInFeed(feed, postId, optimistic)), postId);
+      const previousPost = findPostInFeed(
+        updateFeed((feed) => updatePostInFeed(feed, postId, optimistic)),
+        postId,
+      );
 
       try {
         const result = await request(eventId);
@@ -89,7 +98,7 @@ function useOptimisticPostAction(queryClient: QueryClient, eventId: string | nul
         return false;
       }
     },
-    [eventId, updateFeed]
+    [eventId, updateFeed],
   );
 }
 
@@ -114,7 +123,7 @@ function usePostVotes(queryClient: QueryClient, eventId: string | null) {
       });
       if (isDone) toast.success(copy.reactionUpdated);
     },
-    [runOptimistic]
+    [runOptimistic],
   );
 
   const toggleDownvote = useCallback(
@@ -129,7 +138,7 @@ function usePostVotes(queryClient: QueryClient, eventId: string | null) {
         fromServer: (result) => (post) => applyServerDownvote(post, result.downvoted),
       });
     },
-    [runOptimistic]
+    [runOptimistic],
   );
 
   return { toggleReaction, toggleDownvote, runOptimistic };
@@ -138,53 +147,59 @@ function usePostVotes(queryClient: QueryClient, eventId: string | null) {
 function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
   const updateFeed = useFeedCache(queryClient, eventId);
 
-  const adminPin = useCallback(async (postId: string) => {
-    if (!eventId) return;
+  const adminPin = useCallback(
+    async (postId: string) => {
+      if (!eventId) return;
 
-    try {
-      const { pinned, pinnedOrder } = await feedRepo.adminPinPost(eventId, postId);
-      updateFeed((feed) =>
-        sortPinnedPosts(updatePostInFeed(feed, postId, (post) => ({ ...post, isPinned: pinned, pinnedOrder })))
-      );
-    } catch (error) {
-      reportFeedError("adminPin", error, { context: { postId }, fallback: copy.pinError });
-    }
-  }, [eventId, updateFeed]);
+      try {
+        const { pinned, pinnedOrder } = await feedRepo.adminPinPost(eventId, postId);
+        updateFeed((feed) =>
+          sortPinnedPosts(updatePostInFeed(feed, postId, (post) => ({ ...post, isPinned: pinned, pinnedOrder }))),
+        );
+      } catch (error) {
+        reportFeedError("adminPin", error, { context: { postId }, fallback: copy.pinError });
+      }
+    },
+    [eventId, updateFeed],
+  );
 
-  const adminMovePinned = useCallback(async (postId: string, direction: "up" | "down") => {
-    if (!eventId) return;
+  const adminMovePinned = useCallback(
+    async (postId: string, direction: "up" | "down") => {
+      if (!eventId) return;
 
-    try {
-      await feedRepo.adminMovePinnedPost(eventId, postId, direction);
-      await queryClient.invalidateQueries({ queryKey: queryKeys.hubPosts(eventId) });
-    } catch (error) {
-      reportFeedError("adminMovePinned", error, { context: { direction, postId }, fallback: copy.movePinnedError });
-    }
-  }, [queryClient, eventId]);
+      try {
+        await feedRepo.adminMovePinnedPost(eventId, postId, direction);
+        await queryClient.invalidateQueries({ queryKey: queryKeys.hubPosts(eventId) });
+      } catch (error) {
+        reportFeedError("adminMovePinned", error, { context: { direction, postId }, fallback: copy.movePinnedError });
+      }
+    },
+    [queryClient, eventId],
+  );
 
-  const adminDelete = useCallback(async (postId: string) => {
-    if (!eventId) return;
+  const adminDelete = useCallback(
+    async (postId: string) => {
+      if (!eventId) return;
 
-    await queryClient.cancelQueries({ queryKey: queryKeys.hubPosts(eventId) });
-    const previousFeed = updateFeed((feed) => removePostFromFeed(feed, postId));
+      await queryClient.cancelQueries({ queryKey: queryKeys.hubPosts(eventId) });
+      const previousFeed = updateFeed((feed) => removePostFromFeed(feed, postId));
 
-    try {
-      await feedRepo.adminDeletePost(eventId, postId);
-      toast.success(copy.postRemoved);
-    } catch (error) {
-      queryClient.setQueryData(queryKeys.hubPosts(eventId), previousFeed);
-      reportFeedError("adminDelete", error, { context: { postId }, fallback: copy.deleteError });
-    }
-  }, [queryClient, eventId, updateFeed]);
+      try {
+        await feedRepo.adminDeletePost(eventId, postId);
+        toast.success(copy.postRemoved);
+      } catch (error) {
+        queryClient.setQueryData(queryKeys.hubPosts(eventId), previousFeed);
+        reportFeedError("adminDelete", error, { context: { postId }, fallback: copy.deleteError });
+      }
+    },
+    [queryClient, eventId, updateFeed],
+  );
 
   return { adminPin, adminMovePinned, adminDelete };
 }
 
 /** Reactions, downvotes, poll votes, pins and deletes on feed posts, applied optimistically and rolled back on failure. */
-export function useHubFeedPostActions({
-  eventId,
-  queryClient,
-}: Readonly<UseHubFeedPostActionsArgs>) {
+export function useHubFeedPostActions({ eventId, queryClient }: Readonly<UseHubFeedPostActionsArgs>) {
   const { toggleReaction, toggleDownvote, runOptimistic } = usePostVotes(queryClient, eventId);
   const { adminPin, adminMovePinned, adminDelete } = useAdminPostActions(queryClient, eventId);
 
@@ -201,7 +216,7 @@ export function useHubFeedPostActions({
         request: (id) => feedRepo.votePoll(id, postId, optionId),
       });
     },
-    [eventId, runOptimistic]
+    [eventId, runOptimistic],
   );
 
   return {

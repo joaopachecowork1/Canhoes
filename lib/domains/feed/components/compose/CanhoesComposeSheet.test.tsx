@@ -15,7 +15,9 @@ const POSTS = "*/api/v1/events/event-1/feed/posts";
 const png = (name = "foto.png") => new File(["png"], name, { type: "image/png" });
 
 function renderSheet() {
-  server.use(http.get("*/api/v1/events/active/context", () => HttpResponse.json(makeEventContext({ modules: { feed: true } }))));
+  server.use(
+    http.get("*/api/v1/events/active/context", () => HttpResponse.json(makeEventContext({ modules: { feed: true } }))),
+  );
   const onDone = vi.fn();
   const onOpenChange = vi.fn();
   const view = renderWithProviders(<CanhoesComposeSheet open onOpenChange={onOpenChange} onDone={onDone} />);
@@ -30,7 +32,7 @@ function capturePost() {
     http.post(POSTS, async ({ request }) => {
       sent.push(await request.json());
       return HttpResponse.json(post({ id: "new" }));
-    })
+    }),
   );
   return sent;
 }
@@ -79,7 +81,11 @@ describe("CanhoesComposeSheet", () => {
 
   it("uploads the picked images before creating the post", async () => {
     const sent = capturePost();
-    server.use(http.post("*/api/v1/events/event-1/feed/uploads", () => HttpResponse.json({ files: [{ url: "/uploads/1.png" }, { url: "/uploads/2.png" }] })));
+    server.use(
+      http.post("*/api/v1/events/event-1/feed/uploads", () =>
+        HttpResponse.json({ files: [{ url: "/uploads/1.png" }, { url: "/uploads/2.png" }] }),
+      ),
+    );
     const { fileInput } = renderSheet();
 
     await userEvent.upload(fileInput()!, [png("a.png"), png("b.png")]);
@@ -97,7 +103,9 @@ describe("CanhoesComposeSheet", () => {
   it("refuses files that are not images and lets you remove picked ones", async () => {
     const { fileInput } = renderSheet();
     await userEvent.upload(fileInput()!, [png()], { applyAccept: false });
-    await userEvent.upload(fileInput()!, [new File(["x"], "notas.txt", { type: "text/plain" })], { applyAccept: false });
+    await userEvent.upload(fileInput()!, [new File(["x"], "notas.txt", { type: "text/plain" })], {
+      applyAccept: false,
+    });
 
     expect(await screen.findByText("notas.txt: formato não suportado")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Remover imagem" }));
@@ -105,7 +113,11 @@ describe("CanhoesComposeSheet", () => {
   });
 
   it("explains when the images are too heavy to publish", async () => {
-    server.use(http.post("*/api/v1/events/event-1/feed/uploads", () => HttpResponse.json({ message: "Payload Too Large" }, { status: 413 })));
+    server.use(
+      http.post("*/api/v1/events/event-1/feed/uploads", () =>
+        HttpResponse.json({ message: "Payload Too Large" }, { status: 413 }),
+      ),
+    );
     const { fileInput } = renderSheet();
     await userEvent.upload(fileInput()!, [png()]);
     await userEvent.type(screen.getByPlaceholderText(/Escreve uma nota rápida/), "Pesado");

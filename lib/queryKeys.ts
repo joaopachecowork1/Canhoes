@@ -36,15 +36,23 @@ export const queryKeys = {
     measureProposals: (eventId: EventId) => ["admin", "proposals", eventId, "measures", "pending"] as const,
     categories: (eventId: EventId) => ["canhoes", "admin", eventId, "categories"] as const,
     nominationsAll: (eventId: EventId) => ["canhoes", "admin", eventId, "nominations", "all"] as const,
-    nominationsPendingCount: (eventId: EventId) => ["canhoes", "admin", eventId, "nominations", "pending-count"] as const,
-    nominationsPage: (eventId: EventId, page: number, pageSize: number) => ["canhoes", "admin", eventId, "nominations", page, pageSize, "pending"] as const,
+    nominationsPendingCount: (eventId: EventId) =>
+      ["canhoes", "admin", eventId, "nominations", "pending-count"] as const,
+    nominationsPage: (eventId: EventId, page: number, pageSize: number) =>
+      ["canhoes", "admin", eventId, "nominations", page, pageSize, "pending"] as const,
     votesAudit: (eventId: EventId) => ["canhoes", "admin", eventId, "votes-audit"] as const,
     officialResults: (eventId: EventId) => ["canhoes", "admin", eventId, "official-results"] as const,
     members: (eventId: EventId) => ["canhoes", "admin", eventId, "members"] as const,
-    membersPage: (eventId: EventId, skip: number, take: number) => ["canhoes", "admin", eventId, "members", skip, take] as const,
+    membersPage: (eventId: EventId, skip: number, take: number) =>
+      ["canhoes", "admin", eventId, "members", skip, take] as const,
     secretSantaState: (eventId: EventId) => ["canhoes", "admin", eventId, "secret-santa-state"] as const,
     /** What to invalidate after any admin write, so every tab of that event is fresh. */
     afterWrite: (eventId: EventId) =>
-      [["canhoes", "admin", eventId], ["adminBootstrap", eventId], ["admin", "proposals", eventId], ["eventMembers", eventId]] as const,
+      [
+        ["canhoes", "admin", eventId],
+        ["adminBootstrap", eventId],
+        ["admin", "proposals", eventId],
+        ["eventMembers", eventId],
+      ] as const,
   },
 };

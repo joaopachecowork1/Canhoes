@@ -24,7 +24,12 @@ const POSTS = "*/api/v1/events/event-1/feed/posts";
 function servePosts(posts: ReturnType<typeof post>[], { hasMore = false, total = posts.length } = {}) {
   server.use(
     http.get(POSTS, () => HttpResponse.json({ items: posts, total, skip: 0, take: 15, hasMore })),
-    http.get("*/api/v1/events/event-1/members", () => HttpResponse.json([member({ id: "ana", displayName: "Ana" }), member({ id: "rui", displayName: "Rui Costa", color: "pink" })]))
+    http.get("*/api/v1/events/event-1/members", () =>
+      HttpResponse.json([
+        member({ id: "ana", displayName: "Ana" }),
+        member({ id: "rui", displayName: "Rui Costa", color: "pink" }),
+      ]),
+    ),
   );
 }
 
@@ -116,7 +121,7 @@ describe("HubFeedModule", () => {
     const created = comment({ id: "comment-2", userId: "ana", userName: "Ana", text: "Também acho" });
     server.use(
       http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])),
-      http.post(`${POSTS}/post-1/comments`, () => HttpResponse.json(created))
+      http.post(`${POSTS}/post-1/comments`, () => HttpResponse.json(created)),
     );
     renderFeed();
 
@@ -136,7 +141,7 @@ describe("HubFeedModule", () => {
     servePosts([post({ commentCount: 1 })]);
     server.use(
       http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])),
-      http.delete(`${POSTS}/post-1/comments/comment-1`, () => new HttpResponse(null, { status: 204 }))
+      http.delete(`${POSTS}/post-1/comments/comment-1`, () => new HttpResponse(null, { status: 204 })),
     );
     renderFeed();
 
@@ -174,7 +179,7 @@ describe("HubFeedModule", () => {
         lastSkip = Number(new URL(request.url).searchParams.get("skip"));
         const items = lastSkip === 0 ? [post({ id: "p1", text: "Página 1" })] : [post({ id: "p2", text: "Página 2" })];
         return HttpResponse.json({ items, total: 16, skip: lastSkip, take: 15, hasMore: lastSkip === 0 });
-      })
+      }),
     );
     renderFeed();
 
@@ -220,7 +225,10 @@ describe("HubFeedModule", () => {
 
     it("keeps the reply when the comment is not published", async () => {
       servePosts([post({ commentCount: 1 })]);
-      server.use(http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])), refuse("post", "/post-1/comments"));
+      server.use(
+        http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])),
+        refuse("post", "/post-1/comments"),
+      );
       renderFeed();
 
       await userEvent.click(await screen.findByRole("button", { name: "1 comentários" }));
@@ -238,7 +246,10 @@ describe("HubFeedModule", () => {
     it("puts the comment back when it cannot be deleted", async () => {
       signInAs({ id: "rui", name: "Rui" });
       servePosts([post({ commentCount: 1 })]);
-      server.use(http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])), refuse("delete", "/post-1/comments/comment-1"));
+      server.use(
+        http.get(`${POSTS}/post-1/comments`, () => HttpResponse.json([comment()])),
+        refuse("delete", "/post-1/comments/comment-1"),
+      );
       renderFeed();
 
       await userEvent.click(await screen.findByRole("button", { name: "1 comentários" }));
@@ -250,7 +261,12 @@ describe("HubFeedModule", () => {
     });
 
     it("undoes a poll vote", async () => {
-      const poll = { question: "Quem ganha?", myOptionId: null, totalVotes: 0, options: [{ id: "o1", text: "Ana", voteCount: 0 }] };
+      const poll = {
+        question: "Quem ganha?",
+        myOptionId: null,
+        totalVotes: 0,
+        options: [{ id: "o1", text: "Ana", voteCount: 0 }],
+      };
       servePosts([post({ poll })]);
       server.use(refuse("post", "/post-1/poll/vote"));
       renderFeed();
@@ -280,13 +296,16 @@ describe("HubFeedModule", () => {
 
     it("moves a pinned post", async () => {
       signInAs({ isAdmin: true });
-      servePosts([post({ id: "post-1", text: "Um", isPinned: true, pinnedOrder: 0 }), post({ id: "post-2", text: "Dois", isPinned: true, pinnedOrder: 1 })]);
+      servePosts([
+        post({ id: "post-1", text: "Um", isPinned: true, pinnedOrder: 0 }),
+        post({ id: "post-2", text: "Dois", isPinned: true, pinnedOrder: 1 }),
+      ]);
       const directions: unknown[] = [];
       server.use(
         http.patch(`${POSTS}/post-2/pin`, async ({ request }) => {
           directions.push(await request.json());
           return HttpResponse.json({ success: true });
-        })
+        }),
       );
       renderFeed();
 

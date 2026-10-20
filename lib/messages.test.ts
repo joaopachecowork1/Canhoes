@@ -11,4 +11,3 @@ describe("formatMessage", () => {
     expect(formatMessage("Olá {name}", {})).toBe("Olá {name}");
   });
 });
-

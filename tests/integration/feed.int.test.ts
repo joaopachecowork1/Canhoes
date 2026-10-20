@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { GET as getComments, POST as postComment } from "@/app/api/v1/events/[eventId]/feed/posts/[postId]/comments/route";
+import {
+  GET as getComments,
+  POST as postComment,
+} from "@/app/api/v1/events/[eventId]/feed/posts/[postId]/comments/route";
 import { DELETE as deleteComment } from "@/app/api/v1/events/[eventId]/feed/posts/[postId]/comments/[commentId]/route";
 import { POST as reactToComment } from "@/app/api/v1/events/[eventId]/feed/posts/[postId]/comments/[commentId]/reactions/route";
 import { POST as downvotePost } from "@/app/api/v1/events/[eventId]/feed/posts/[postId]/downvote/route";
@@ -38,7 +41,11 @@ describe("feed posts", () => {
   it("creates a post with a poll and lists it with its author", async () => {
     const { event, ana } = await setupFeed();
 
-    const created = await postAs(ana, event.id, { text: "  Jantar?  ", pollQuestion: "Onde?", pollOptions: ["Tasca", "Pizza"] });
+    const created = await postAs(ana, event.id, {
+      text: "  Jantar?  ",
+      pollQuestion: "Onde?",
+      pollOptions: ["Tasca", "Pizza"],
+    });
 
     expect(created).toMatchObject({ text: "Jantar?", authorName: "Ana", poll: { question: "Onde?", totalVotes: 0 } });
     const feed = await readFeed(event.id);
@@ -50,7 +57,11 @@ describe("feed posts", () => {
     const { event, ana } = await setupFeed();
     signInAs(ana);
 
-    const response = await callRoute(createPost, { eventId: event.id }, { method: "POST", body: { text: "Foto", mediaUrls: ["https://tracker.example/pixel.png"] } });
+    const response = await callRoute(
+      createPost,
+      { eventId: event.id },
+      { method: "POST", body: { text: "Foto", mediaUrls: ["https://tracker.example/pixel.png"] } },
+    );
 
     expect(response.status).toBe(400);
   });
@@ -59,14 +70,25 @@ describe("feed posts", () => {
     const { event, ana } = await setupFeed();
     signInAs(ana);
 
-    const response = await callRoute(createPost, { eventId: event.id }, { method: "POST", body: { text: "Hm", pollQuestion: "?", pollOptions: ["Só"] } });
+    const response = await callRoute(
+      createPost,
+      { eventId: event.id },
+      { method: "POST", body: { text: "Hm", pollQuestion: "?", pollOptions: ["Só"] } },
+    );
     expect(response.status).toBe(400);
   });
 
   it("links the uploaded images of the author to the post", async () => {
     const { event, ana } = await setupFeed();
     await prisma.hubPostMedia.create({
-      data: { url: "/uploads/feed/a.jpg", originalFileName: "a.jpg", fileSizeBytes: BigInt(10), uploadedByUserId: ana.id, contentType: "image/jpeg", uploadedAtUtc: new Date() },
+      data: {
+        url: "/uploads/feed/a.jpg",
+        originalFileName: "a.jpg",
+        fileSizeBytes: BigInt(10),
+        uploadedByUserId: ana.id,
+        contentType: "image/jpeg",
+        uploadedAtUtc: new Date(),
+      },
     });
 
     const created = await postAs(ana, event.id, { text: "Foto", mediaUrls: ["/uploads/feed/a.jpg"] });
@@ -82,14 +104,31 @@ describe("feed posts", () => {
     await postAs(ana, event.id, { text: "Terceiro" });
 
     signInAs(admin);
-    expect((await callRoute(togglePin, { eventId: event.id, postId: first.id }, { method: "POST" })).body).toEqual({ pinned: true, pinnedOrder: 0 });
-    expect((await callRoute(togglePin, { eventId: event.id, postId: second.id }, { method: "POST" })).body).toEqual({ pinned: true, pinnedOrder: 1 });
+    expect((await callRoute(togglePin, { eventId: event.id, postId: first.id }, { method: "POST" })).body).toEqual({
+      pinned: true,
+      pinnedOrder: 0,
+    });
+    expect((await callRoute(togglePin, { eventId: event.id, postId: second.id }, { method: "POST" })).body).toEqual({
+      pinned: true,
+      pinnedOrder: 1,
+    });
     await callRoute(movePin, { eventId: event.id, postId: second.id }, { method: "PATCH", body: { direction: "up" } });
 
     expect((await readFeed(event.id)).items.map((post) => post.text)).toEqual(["Segundo", "Primeiro", "Terceiro"]);
 
-    expect((await callRoute(togglePin, { eventId: event.id, postId: second.id }, { method: "POST" })).body).toEqual({ pinned: false, pinnedOrder: null });
-    expect((await callRoute(movePin, { eventId: event.id, postId: second.id }, { method: "PATCH", body: { direction: "up" } })).status).toBe(404);
+    expect((await callRoute(togglePin, { eventId: event.id, postId: second.id }, { method: "POST" })).body).toEqual({
+      pinned: false,
+      pinnedOrder: null,
+    });
+    expect(
+      (
+        await callRoute(
+          movePin,
+          { eventId: event.id, postId: second.id },
+          { method: "PATCH", body: { direction: "up" } },
+        )
+      ).status,
+    ).toBe(404);
   });
 
   it("numbers posts by creation order, whatever their place in the list", async () => {
@@ -127,8 +166,12 @@ describe("feed posts", () => {
     const post = await postAs(ana, event.id, { text: "Apaga-me" });
 
     signInAs(admin);
-    expect((await callRoute(deletePost, { eventId: event.id, postId: post.id }, { method: "DELETE" })).status).toBe(204);
-    expect((await callRoute(deletePost, { eventId: event.id, postId: post.id }, { method: "DELETE" })).status).toBe(404);
+    expect((await callRoute(deletePost, { eventId: event.id, postId: post.id }, { method: "DELETE" })).status).toBe(
+      204,
+    );
+    expect((await callRoute(deletePost, { eventId: event.id, postId: post.id }, { method: "DELETE" })).status).toBe(
+      404,
+    );
     expect(await prisma.hubPost.count()).toBe(0);
   });
 });
@@ -144,7 +187,12 @@ describe("feed reactions", () => {
     expect((await readFeed(event.id)).items[0]).toMatchObject({ likeCount: 1, likedByMe: true, downvoteCount: 0 });
 
     await callRoute(downvotePost, params, { method: "POST" });
-    expect((await readFeed(event.id)).items[0]).toMatchObject({ likeCount: 0, likedByMe: false, downvoteCount: 1, downvotedByMe: true });
+    expect((await readFeed(event.id)).items[0]).toMatchObject({
+      likeCount: 0,
+      likedByMe: false,
+      downvoteCount: 1,
+      downvotedByMe: true,
+    });
 
     await callRoute(likePost, params, { method: "POST" });
     expect((await readFeed(event.id)).items[0]).toMatchObject({ likeCount: 1, downvoteCount: 0 });
@@ -171,7 +219,9 @@ describe("feed reactions", () => {
     const { event, ana } = await setupFeed();
     const otherEvent = await createEvent();
     const post = await postAs(ana, event.id, { text: "Aqui" });
-    await prisma.eventMember.create({ data: { eventId: otherEvent.id, userId: ana.id, role: "participant", joinedAtUtc: new Date() } });
+    await prisma.eventMember.create({
+      data: { eventId: otherEvent.id, userId: ana.id, role: "participant", joinedAtUtc: new Date() },
+    });
 
     const response = await callRoute(likePost, { eventId: otherEvent.id, postId: post.id }, { method: "POST" });
     expect(response.status).toBe(404);
@@ -192,8 +242,12 @@ describe("feed comments", () => {
     const { event, rui, params } = await setupPost();
 
     signInAs(rui);
-    const comment = (await callRoute(postComment, params, { method: "POST", body: { text: " Boa " } })).body as HubCommentDto;
-    const reply = await callRoute(postComment, params, { method: "POST", body: { text: "Resposta", replyToId: comment.id } });
+    const comment = (await callRoute(postComment, params, { method: "POST", body: { text: " Boa " } }))
+      .body as HubCommentDto;
+    const reply = await callRoute(postComment, params, {
+      method: "POST",
+      body: { text: "Resposta", replyToId: comment.id },
+    });
     await callRoute(reactToComment, { ...params, commentId: comment.id }, { method: "POST", body: { emoji: "fire" } });
 
     expect(reply.status).toBe(201);
@@ -211,16 +265,22 @@ describe("feed comments", () => {
     const { event, ana, rui, params } = await setupPost();
     const otherPost = await postAs(ana, event.id, { text: "Outro" });
     signInAs(rui);
-    const comment = (await callRoute(postComment, params, { method: "POST", body: { text: "Aqui" } })).body as HubCommentDto;
+    const comment = (await callRoute(postComment, params, { method: "POST", body: { text: "Aqui" } }))
+      .body as HubCommentDto;
 
-    const response = await callRoute(postComment, { eventId: event.id, postId: otherPost.id }, { method: "POST", body: { text: "Ali", replyToId: comment.id } });
+    const response = await callRoute(
+      postComment,
+      { eventId: event.id, postId: otherPost.id },
+      { method: "POST", body: { text: "Ali", replyToId: comment.id } },
+    );
     expect(response.status).toBe(404);
   });
 
   it("lets only the author or an admin delete a comment", async () => {
     const { ana, rui, admin, params } = await setupPost();
     signInAs(rui);
-    const comment = (await callRoute(postComment, params, { method: "POST", body: { text: "Meu" } })).body as HubCommentDto;
+    const comment = (await callRoute(postComment, params, { method: "POST", body: { text: "Meu" } }))
+      .body as HubCommentDto;
     const commentParams = { ...params, commentId: comment.id };
 
     signInAs(ana);

@@ -33,7 +33,7 @@ describe("CanhoesRegisterModule", () => {
       http.post("*/api/auth/register", async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json({ email: "ana@canhoes.pt", displayName: "Ana" }, { status: 201 });
-      })
+      }),
     );
     renderRegister();
 
@@ -47,7 +47,9 @@ describe("CanhoesRegisterModule", () => {
   });
 
   it("redirects to the login by itself after a few seconds", async () => {
-    server.use(http.post("*/api/auth/register", () => HttpResponse.json({ email: "a", displayName: "Ana" }, { status: 201 })));
+    server.use(
+      http.post("*/api/auth/register", () => HttpResponse.json({ email: "a", displayName: "Ana" }, { status: 201 })),
+    );
     vi.useFakeTimers({ shouldAdvanceTime: true });
     renderRegister();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
@@ -62,7 +64,11 @@ describe("CanhoesRegisterModule", () => {
   });
 
   it("shows the server's reason when the invitation is refused", async () => {
-    server.use(http.post("*/api/auth/register", () => HttpResponse.json({ code: "INVITATION_USED", message: "Este convite já foi usado." }, { status: 400 })));
+    server.use(
+      http.post("*/api/auth/register", () =>
+        HttpResponse.json({ code: "INVITATION_USED", message: "Este convite já foi usado." }, { status: 400 }),
+      ),
+    );
     renderRegister();
 
     await fillForm();

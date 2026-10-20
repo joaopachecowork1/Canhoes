@@ -25,9 +25,7 @@ export function AssignedWishlistPanel({
       </CardHeader>
       <CardContent className="space-y-3">
         {assignedWishlistItems.length === 0 ? (
-          <p className="body-small text-[var(--color-text-muted)]">
-            {copy.empty}
-          </p>
+          <p className="body-small text-[var(--color-text-muted)]">{copy.empty}</p>
         ) : (
           <div className="space-y-2">
             {assignedWishlistItems.map((wishlistItem) => (
@@ -39,7 +37,12 @@ export function AssignedWishlistPanel({
                     <p className="body-small line-clamp-2 text-[var(--color-text-muted)]">{wishlistItem.notes}</p>
                   ) : null}
                   {wishlistItem.url ? (
-                    <a href={wishlistItem.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm">
+                    <a
+                      href={wishlistItem.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-sm"
+                    >
                       <LinkIcon className="h-3.5 w-3.5" />
                       {copy.viewProduct}
                     </a>

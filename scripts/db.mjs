@@ -46,14 +46,22 @@ function run(command, args) {
 // Checked over TCP: on a new volume the image first runs a temporary server on the Unix socket only,
 // and a socket check would pass before the real server (the one published on 5433) is up.
 function isPostgresReady() {
-  const result = spawnSync(engine, ["exec", POSTGRES_CONTAINER, "pg_isready", "-h", "127.0.0.1", "-U", dbUser, "-d", dbName], { stdio: "ignore" });
+  const result = spawnSync(
+    engine,
+    ["exec", POSTGRES_CONTAINER, "pg_isready", "-h", "127.0.0.1", "-U", dbUser, "-d", dbName],
+    { stdio: "ignore" },
+  );
   return result.status === 0;
 }
 
 function ensureTestDatabase() {
   const testDatabase = `${dbName}_test`;
   const query = `SELECT 1 FROM pg_database WHERE datname = '${testDatabase}'`;
-  const result = spawnSync(engine, ["exec", POSTGRES_CONTAINER, "psql", "-h", "127.0.0.1", "-U", dbUser, "-d", dbName, "-tAc", query], { encoding: "utf8" });
+  const result = spawnSync(
+    engine,
+    ["exec", POSTGRES_CONTAINER, "psql", "-h", "127.0.0.1", "-U", dbUser, "-d", dbName, "-tAc", query],
+    { encoding: "utf8" },
+  );
   if (result.stdout.trim() === "1") return;
   run(engine, ["exec", POSTGRES_CONTAINER, "createdb", "-h", "127.0.0.1", "-U", dbUser, testDatabase]);
 }
@@ -100,7 +108,19 @@ function restore(backupFile) {
   const containerFile = "/tmp/canhoes-restore.dump";
 
   run(engine, ["cp", resolvedFile, `${POSTGRES_CONTAINER}:${containerFile}`]);
-  run(engine, ["exec", POSTGRES_CONTAINER, "pg_restore", "--clean", "--if-exists", "--no-owner", "-U", dbUser, "-d", dbName, containerFile]);
+  run(engine, [
+    "exec",
+    POSTGRES_CONTAINER,
+    "pg_restore",
+    "--clean",
+    "--if-exists",
+    "--no-owner",
+    "-U",
+    dbUser,
+    "-d",
+    dbName,
+    containerFile,
+  ]);
 }
 
 function baseline(flag) {

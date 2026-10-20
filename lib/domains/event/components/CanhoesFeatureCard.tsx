@@ -59,7 +59,13 @@ export function CanhoesFeatureCard({
   const variantClasses = VARIANT_CLASSES[variant];
 
   return (
-    <Card className={cn("shadow-[var(--shadow-card),inset_0_4px_0_var(--area,var(--moss))] transition-colors", className, variantClasses.card)}>
+    <Card
+      className={cn(
+        "shadow-[var(--shadow-card),inset_0_4px_0_var(--area,var(--moss))] transition-colors",
+        className,
+        variantClasses.card,
+      )}
+    >
       <CardHeader className={cn("pb-2", variantClasses.header)}>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className={cn("flex items-center gap-2", variantClasses.title)}>
@@ -71,15 +77,9 @@ export function CanhoesFeatureCard({
         {description ? <p className={cn("text-sm", variantClasses.description)}>{description}</p> : null}
       </CardHeader>
 
-      <CardContent className="space-y-3">
-        {children}
-      </CardContent>
+      <CardContent className="space-y-3">{children}</CardContent>
 
-      {footer ? (
-        <div className="px-6 pb-6 pt-0">
-          {footer}
-        </div>
-      ) : null}
+      {footer ? <div className="px-6 pb-6 pt-0">{footer}</div> : null}
     </Card>
   );
 }

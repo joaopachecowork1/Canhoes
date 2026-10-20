@@ -15,7 +15,7 @@ type Candidate = { title: string; imageUrl: string | null };
 export function rankCategory(
   category: { id: string; name: string },
   selectionIds: readonly string[],
-  candidates: ReadonlyMap<string, Candidate>
+  candidates: ReadonlyMap<string, Candidate>,
 ): PublicCategoryResultDto {
   const votesBySelection = new Map<string, number>();
   for (const selectionId of selectionIds) {
@@ -48,14 +48,14 @@ export async function getResults(eventId: string): Promise<PublicCategoryResultD
   ]);
   const users = await loadUsersById(
     members.map((member) => member.userId),
-    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
+    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
   );
 
   const people = new Map<string, Candidate>(
-    [...users.values()].map((user) => [user.id, { title: user.displayName ?? user.email, imageUrl: null }])
+    [...users.values()].map((user) => [user.id, { title: user.displayName ?? user.email, imageUrl: null }]),
   );
   const nomineeCandidates = new Map<string, Candidate>(
-    nominees.map((nominee) => [nominee.id, { title: nominee.title, imageUrl: nominee.imageUrl }])
+    nominees.map((nominee) => [nominee.id, { title: nominee.title, imageUrl: nominee.imageUrl }]),
   );
 
   return categories.map((category) =>
@@ -63,12 +63,12 @@ export async function getResults(eventId: string): Promise<PublicCategoryResultD
       ? rankCategory(
           category,
           userVotes.filter((vote) => vote.categoryId === category.id).map((vote) => vote.targetUserId),
-          people
+          people,
         )
       : rankCategory(
           category,
           nomineeVotes.filter((vote) => vote.categoryId === category.id).map((vote) => vote.nomineeId),
-          nomineeCandidates
-        )
+          nomineeCandidates,
+        ),
   );
 }

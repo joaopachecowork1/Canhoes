@@ -7,7 +7,7 @@ import type { Prisma } from "@/lib/generated/prisma/client";
  */
 export async function loadUsersById<Row extends { id: string }>(
   userIds: Iterable<string>,
-  query: (where: Prisma.UserWhereInput) => Promise<Row[]>
+  query: (where: Prisma.UserWhereInput) => Promise<Row[]>,
 ) {
   const ids = [...new Set(userIds)];
   if (ids.length === 0) return new Map<string, Row>();

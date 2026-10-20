@@ -3,7 +3,13 @@
 import { CheckCircle2, Flame, Loader2, Lock } from "lucide-react";
 import Link from "next/link";
 
-import type { CastOfficialVoteRequest, EventActiveContextDto, EventOverviewDto, EventVotingBoardDto, EventVotingCategoryDto } from "@/lib/api/types";
+import type {
+  CastOfficialVoteRequest,
+  EventActiveContextDto,
+  EventOverviewDto,
+  EventVotingBoardDto,
+  EventVotingCategoryDto,
+} from "@/lib/api/types";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { useCategorySelection } from "../hooks/useCategorySelection";
 import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmentTabs";
@@ -30,7 +36,10 @@ function OfficialVotingLoadingState() {
       <Skeleton className="h-10 rounded-full" />
       <div className="space-y-3 rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/88 p-3">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="space-y-2 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 p-3">
+          <div
+            key={index}
+            className="space-y-2 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 p-3"
+          >
             <Skeleton className="h-4 w-3/5 rounded" />
             <Skeleton className="h-3 w-2/5 rounded" />
           </div>
@@ -40,7 +49,11 @@ function OfficialVotingLoadingState() {
   );
 }
 
-function VotingProgressCard({ voted, total, percentage }: Readonly<{ voted: number; total: number; percentage: number }>) {
+function VotingProgressCard({
+  voted,
+  total,
+  percentage,
+}: Readonly<{ voted: number; total: number; percentage: number }>) {
   return (
     <Card>
       <CardContent className="space-y-3 py-4">
@@ -49,7 +62,10 @@ function VotingProgressCard({ voted, total, percentage }: Readonly<{ voted: numb
           <span className="font-[family-name:var(--font-mono)] text-[var(--ink-primary)]">{`${percentage}%`}</span>
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-[var(--moss)]/16">
-          <div className="h-full origin-left rounded-full bg-[var(--moss)] transition-transform duration-200" style={{ transform: `scaleX(${percentage / 100})` }} />
+          <div
+            className="h-full origin-left rounded-full bg-[var(--moss)] transition-transform duration-200"
+            style={{ transform: `scaleX(${percentage / 100})` }}
+          />
         </div>
       </CardContent>
     </Card>
@@ -81,7 +97,10 @@ function ClosedBallot({ overview }: Readonly<{ overview: EventOverviewDto | null
   return (
     <div className="space-y-4">
       <CanhoesModuleHeader module="voting" title={copy.title} description={copy.description} />
-      <BallotClosedState isOver={overview?.activePhase?.type === "RESULTS"} canNominate={Boolean(overview?.modules.nominees)} />
+      <BallotClosedState
+        isOver={overview?.activePhase?.type === "RESULTS"}
+        canNominate={Boolean(overview?.modules.nominees)}
+      />
     </div>
   );
 }
@@ -94,7 +113,13 @@ function BallotComplete() {
   );
 }
 
-export function CanhoesOfficialVotingModule({ initialData, initialContext }: { initialData?: EventVotingBoardDto; initialContext?: EventActiveContextDto | null }) {
+export function CanhoesOfficialVotingModule({
+  initialData,
+  initialContext,
+}: {
+  initialData?: EventVotingBoardDto;
+  initialContext?: EventActiveContextDto | null;
+}) {
   const { event, overview } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
   const { votingBoardQuery, castVoteMutation } = useOfficialVoting(eventId, initialData);
@@ -133,8 +158,11 @@ function OfficialBallot({
   castVoteMutation: ReturnType<typeof useOfficialVoting>["castVoteMutation"];
 }>) {
   const categories = board.categories;
-  const { selectedId: selectedCategoryId, setSelectedId: setSelectedCategoryId, selectedItem: selectedCategory } =
-    useCategorySelection(categories, (category) => category.id);
+  const {
+    selectedId: selectedCategoryId,
+    setSelectedId: setSelectedCategoryId,
+    selectedItem: selectedCategory,
+  } = useCategorySelection(categories, (category) => category.id);
   const progress = getVotingProgress(categories);
 
   return (
@@ -187,7 +215,7 @@ function VoteOptionButton({
         "flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border-2 px-4 py-2 text-left transition-colors disabled:cursor-not-allowed",
         isSelected
           ? "border-solid border-[var(--moss)] bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--shadow-elevation-sm)]"
-          : "border-dashed border-[var(--color-border-strong)] text-[var(--ink-primary)] hover:bg-[var(--bg-paper)] disabled:opacity-60"
+          : "border-dashed border-[var(--color-border-strong)] text-[var(--ink-primary)] hover:bg-[var(--bg-paper)] disabled:opacity-60",
       )}
     >
       <span className="min-w-0 truncate text-base font-semibold">{label}</span>
@@ -219,7 +247,9 @@ function OfficialVotingCategoryCard({
               label={option.label}
               isDisabled={!canVote || isBusy}
               isSelected={category.myOptionId === option.id}
-              isPending={isBusy && pendingPayload?.categoryId === category.id && pendingPayload.selectionId === option.id}
+              isPending={
+                isBusy && pendingPayload?.categoryId === category.id && pendingPayload.selectionId === option.id
+              }
               onClick={() => onVote({ categoryId: category.id, selectionId: option.id })}
             />
           ))}

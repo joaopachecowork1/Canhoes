@@ -3,8 +3,8 @@ import { configDefaults, defineConfig } from "vitest/config";
 
 // Integration tests run against a real PostgreSQL database whose name must end in "_test"
 // (checked in tests/integration/setup/globalSetup.ts, because every test file truncates it).
-const testDatabaseUrl = process.env.TEST_DATABASE_URL
-  ?? "postgresql://canhoes:canhoes_local@localhost:5433/canhoes_test?schema=public";
+const testDatabaseUrl =
+  process.env.TEST_DATABASE_URL ?? "postgresql://canhoes:canhoes_local@localhost:5433/canhoes_test?schema=public";
 
 export default defineConfig({
   resolve: {

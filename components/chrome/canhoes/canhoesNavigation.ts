@@ -73,7 +73,9 @@ function getOpenAreas(modules: EventModulesDto | null | undefined): CanhoesNavIt
     href: module.href,
     icon: module.icon,
     description: module.description,
-    alsoActiveFor: CANHOES_MODULES.filter((child) => child.inMenuUnder === module.key && modules[child.key]).map((child) => child.href),
+    alsoActiveFor: CANHOES_MODULES.filter((child) => child.inMenuUnder === module.key && modules[child.key]).map(
+      (child) => child.href,
+    ),
   }));
 }
 
@@ -97,9 +99,7 @@ export function getPageContext(pathname: string | null): CanhoesPageContext {
       href: module.href,
     })),
   ];
-  const page = pathname
-    ? pages.find(({ href }) => pathname === href || pathname.startsWith(`${href}/`))
-    : undefined;
+  const page = pathname ? pages.find(({ href }) => pathname === href || pathname.startsWith(`${href}/`)) : undefined;
 
   if (!page) {
     return { title: HOME_NAV_ITEM.label, description: HOME_NAV_ITEM.description, areaColor: areaColorVar("feed") };

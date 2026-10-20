@@ -9,7 +9,14 @@ const { event, overview } = makeEventContext();
 
 function renderHeader(eventName: string) {
   return render(
-    <CanhoesHeader event={{ ...event, name: eventName }} isLoading={false} isMenuOpen={false} onOpenMenu={() => {}} overview={overview} userLabel="Ana" />
+    <CanhoesHeader
+      event={{ ...event, name: eventName }}
+      isLoading={false}
+      isMenuOpen={false}
+      onOpenMenu={() => {}}
+      overview={overview}
+      userLabel="Ana"
+    />,
   );
 }
 

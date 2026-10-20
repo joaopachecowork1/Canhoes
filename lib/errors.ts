@@ -34,9 +34,7 @@ function readErrorCode(details: unknown) {
 }
 
 function isGenericErrorMessage(message: string) {
-  return /^(request failed|failed to fetch|internal server error)$/i.test(
-    message.trim()
-  );
+  return /^(request failed|failed to fetch|internal server error)$/i.test(message.trim());
 }
 
 function joinMessages(base: string, detail: string | null) {
@@ -55,7 +53,10 @@ function joinMessages(base: string, detail: string | null) {
 function getApiErrorMessage(error: ApiError, fallback: string, statusMessages?: Partial<Record<number, string>>) {
   const code = readErrorCode(error.details);
   const baseMessage =
-    (code ? CODE_MESSAGES[code] : null) ?? statusMessages?.[error.status] ?? DEFAULT_STATUS_MESSAGES[error.status] ?? fallback;
+    (code ? CODE_MESSAGES[code] : null) ??
+    statusMessages?.[error.status] ??
+    DEFAULT_STATUS_MESSAGES[error.status] ??
+    fallback;
   const detail = readErrorDetail(error.details) ?? (isGenericErrorMessage(error.message) ? null : error.message);
   return joinMessages(baseMessage, detail);
 }
@@ -65,12 +66,12 @@ export function getErrorMessage(error: unknown, fallback?: string): string;
 export function getErrorMessage(
   error: unknown,
   fallback: string,
-  statusMessages?: Partial<Record<number, string>>
+  statusMessages?: Partial<Record<number, string>>,
 ): string;
 export function getErrorMessage(
   error: unknown,
   fallback: string = messages.errors.fallback,
-  statusMessages?: Partial<Record<number, string>>
+  statusMessages?: Partial<Record<number, string>>,
 ) {
   if (error instanceof ApiError) return getApiErrorMessage(error, fallback, statusMessages);
 

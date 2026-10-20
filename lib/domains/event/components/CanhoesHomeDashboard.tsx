@@ -46,7 +46,10 @@ function NextStepCard({ module }: Readonly<{ module: CanhoesModule | undefined }
           <span className="block truncate text-sm text-[var(--text-secondary)]">{module.description}</span>
         </span>
       </span>
-      <ArrowUpRight className="h-5 w-5 shrink-0 text-[var(--moss-glow)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden />
+      <ArrowUpRight
+        className="h-5 w-5 shrink-0 text-[var(--moss-glow)] transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+        aria-hidden
+      />
     </Link>
   );
 }
@@ -82,7 +85,10 @@ function ShortcutGrid({ modules }: Readonly<{ modules: CanhoesModule[] }>) {
 export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiveContextDto | null }>) {
   // The shortcuts repeat the dock and the menu, so they start folded; the choice is remembered in this browser.
   const [isExpanded, setIsExpanded] = useStoredFlag(SHORTCUTS_EXPANDED_STORAGE_KEY, false);
-  const { nextStep, shortcuts } = pickDashboardModules(context?.overview.modules ?? {}, context?.overview.activePhase?.type);
+  const { nextStep, shortcuts } = pickDashboardModules(
+    context?.overview.modules ?? {},
+    context?.overview.activePhase?.type,
+  );
   const ToggleIcon = isExpanded ? ChevronUp : ChevronDown;
 
   return (

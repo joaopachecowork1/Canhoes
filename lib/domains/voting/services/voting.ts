@@ -33,7 +33,10 @@ function toMemberOptions(members: MemberRow[], users: Map<string, UserName>): Ev
 }
 
 /** Options of a nominee category: its approved nominations. */
-function toNomineeOptions(nominees: { id: string; title: string; categoryId: string | null }[], categoryId: string): EventVoteOptionDto[] {
+function toNomineeOptions(
+  nominees: { id: string; title: string; categoryId: string | null }[],
+  categoryId: string,
+): EventVoteOptionDto[] {
   return nominees
     .filter((nominee) => nominee.categoryId === categoryId)
     .map((nominee) => ({ id: nominee.id, label: nominee.title, imageUrl: null }));
@@ -44,10 +47,7 @@ function toNomineeOptions(nominees: { id: string; title: string; categoryId: str
  * categories offer their approved nominations; person categories (`CATEGORY_KIND.USER_VOTE`) offer the
  * event's non-admin members.
  */
-export async function getVotingBoard(
-  eventId: string,
-  userId: string
-): Promise<EventVotingBoardDto | null> {
+export async function getVotingBoard(eventId: string, userId: string): Promise<EventVotingBoardDto | null> {
   const [event, votingPhase, categories, nominees, members] = await Promise.all([
     prisma.event.findUnique({ where: { id: eventId } }),
     prisma.eventPhase.findFirst({ where: { eventId, type: "VOTING", isActive: true } }),
@@ -60,7 +60,7 @@ export async function getVotingBoard(
   const [memberUserMap, nomineeVotes, userVotes] = await Promise.all([
     loadUsersById(
       members.map((m) => m.userId),
-      (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
+      (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
     ),
     prisma.vote.findMany({
       where: { eventId, userId, categoryId: { in: categoryIds(categories) } },
@@ -126,7 +126,7 @@ export async function castVote(
   eventId: string,
   userId: string,
   categoryId: string,
-  selectionId: string
+  selectionId: string,
 ): Promise<EventVoteDto> {
   const votingPhase = await prisma.eventPhase.findFirst({
     where: { eventId, type: "VOTING", isActive: true },
@@ -171,7 +171,7 @@ export async function castVote(
 export async function createProposal(
   eventId: string,
   userId: string,
-  { name, description, kind }: { name: string; description?: string | null; kind?: number }
+  { name, description, kind }: { name: string; description?: string | null; kind?: number },
 ): Promise<EventProposalDto> {
   const proposal = await prisma.categoryProposal.create({
     data: {

@@ -44,7 +44,10 @@ function getSubmitLabel(isSubmitting: boolean, isProposalPhase: boolean) {
 }
 
 /** The form to propose a measure; it only sends while proposals are open. */
-function MeasureProposalForm({ eventId, isProposalPhase }: Readonly<{ eventId: string | null; isProposalPhase: boolean }>) {
+function MeasureProposalForm({
+  eventId,
+  isProposalPhase,
+}: Readonly<{ eventId: string | null; isProposalPhase: boolean }>) {
   const [proposalText, setProposalText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const canSubmitProposal = proposalText.trim().length >= MIN_MEASURE_LENGTH && isProposalPhase;
@@ -87,7 +90,11 @@ function MeasureProposalForm({ eventId, isProposalPhase }: Readonly<{ eventId: s
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p>{copy.pendingHint}</p>
-          <Button disabled={!canSubmitProposal || isSubmitting} onClick={() => void handleProposalSubmit()} aria-label={copy.submitLabel}>
+          <Button
+            disabled={!canSubmitProposal || isSubmitting}
+            onClick={() => void handleProposalSubmit()}
+            aria-label={copy.submitLabel}
+          >
             {getSubmitLabel(isSubmitting, isProposalPhase)}
           </Button>
         </div>
@@ -105,7 +112,12 @@ function MeasureList({
   return (
     <>
       {errorMessage ? (
-        <ErrorAlert title={copy.loadErrorTitle} description={errorMessage} actionLabel={messages.common.retry} onAction={onRetry} />
+        <ErrorAlert
+          title={copy.loadErrorTitle}
+          description={errorMessage}
+          actionLabel={messages.common.retry}
+          onAction={onRetry}
+        />
       ) : null}
 
       {isLoading && measures.length === 0 ? <MeasuresLoadingState /> : null}
@@ -119,7 +131,9 @@ function MeasureList({
           {measures.map((measure) => (
             <div key={measure.id} className="space-y-1 p-2.5">
               <p className="text-base font-semibold text-[var(--color-text-primary)]">{measure.text}</p>
-              <p className="text-xs text-[var(--color-text-muted)]">{new Date(measure.createdAtUtc).toLocaleString()}</p>
+              <p className="text-xs text-[var(--color-text-muted)]">
+                {new Date(measure.createdAtUtc).toLocaleString()}
+              </p>
             </div>
           ))}
         </div>
@@ -140,7 +154,13 @@ function useMeasures(eventId: string | null, initialData: GalaMeasureDto[] | und
 }
 
 /** Medidas page: the approved gala rules and the form to propose one. */
-export function CanhoesMeasuresModule({ initialData, initialContext }: { initialData?: GalaMeasureDto[]; initialContext?: EventActiveContextDto | null }) {
+export function CanhoesMeasuresModule({
+  initialData,
+  initialContext,
+}: {
+  initialData?: GalaMeasureDto[];
+  initialContext?: EventActiveContextDto | null;
+}) {
   const { overview, event } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
   const queryClient = useQueryClient();
@@ -150,15 +170,13 @@ export function CanhoesMeasuresModule({ initialData, initialContext }: { initial
 
   const phaseType = overview?.activePhase?.type;
   const searchTerm = search.trim().toLowerCase();
-  const filteredMeasures = searchTerm ? measures.filter((measure) => measure.text.toLowerCase().includes(searchTerm)) : measures;
+  const filteredMeasures = searchTerm
+    ? measures.filter((measure) => measure.text.toLowerCase().includes(searchTerm))
+    : measures;
 
   return (
     <div className="space-y-4">
-      <CanhoesModuleHeader
-        module="measures"
-        title={copy.title}
-        description={copy.description}
-      />
+      <CanhoesModuleHeader module="measures" title={copy.title} description={copy.description} />
 
       <MeasureProposalForm eventId={eventId} isProposalPhase={phaseType === "PROPOSALS"} />
 
@@ -168,7 +186,12 @@ export function CanhoesMeasuresModule({ initialData, initialContext }: { initial
         </CardHeader>
 
         <CardContent className="space-y-3">
-          <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={copy.searchPlaceholder} className="h-9" />
+          <Input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={copy.searchPlaceholder}
+            className="h-9"
+          />
           <MeasureList
             errorMessage={error ? getErrorMessage(error, copy.loadError) : null}
             isLoading={isLoading}

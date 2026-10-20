@@ -44,7 +44,11 @@ function useLogBootstrapError(error: unknown) {
   useEffect(() => {
     if (!error) return;
     if (error instanceof ApiError) {
-      logFrontendError("Admin.bootstrap", error, { endpoint: "admin-bootstrap", status: error.status, details: error.details });
+      logFrontendError("Admin.bootstrap", error, {
+        endpoint: "admin-bootstrap",
+        status: error.status,
+        details: error.details,
+      });
       return;
     }
     logFrontendError("Admin.bootstrap", error);
@@ -91,7 +95,15 @@ function AdminSectionView({
 }>) {
   if (section === "membros") return <AdminMembersSection eventId={eventId} onUpdate={onRefresh} loading={loading} />;
   if (section === "configuracoes") {
-    return <AdminControlCenter eventId={eventId} events={bootstrap.events} loading={loading} onRefresh={onRefresh} state={bootstrap.state} />;
+    return (
+      <AdminControlCenter
+        eventId={eventId}
+        events={bootstrap.events}
+        loading={loading}
+        onRefresh={onRefresh}
+        state={bootstrap.state}
+      />
+    );
   }
 
   const { summary } = bootstrap;
@@ -110,14 +122,19 @@ function AdminSectionView({
   );
 }
 
-export default function CanhoesAdminModule({ section, initialEventId, initialContext }: Readonly<CanhoesAdminModuleProps>) {
+export default function CanhoesAdminModule({
+  section,
+  initialEventId,
+  initialContext,
+}: Readonly<CanhoesAdminModuleProps>) {
   const { event: activeEvent, refresh: refreshOverview } = useEventOverview(initialContext);
   const queryClient = useQueryClient();
   const resolvedEventId = activeEvent?.id ?? initialEventId ?? null;
   const eventId = activeEvent?.id ?? null;
   const bootstrap = useAdminBootstrap(resolvedEventId);
   const { categoryProposals, measureProposals, isLoading: proposalsLoading } = useAdminProposals(resolvedEventId);
-  const { data: pendingNominationCount = 0, isLoading: pendingCountLoading } = usePendingNominationCount(resolvedEventId);
+  const { data: pendingNominationCount = 0, isLoading: pendingCountLoading } =
+    usePendingNominationCount(resolvedEventId);
   const loading = bootstrap.loading || proposalsLoading || pendingCountLoading;
 
   const handleRefresh = useCallback(async () => {

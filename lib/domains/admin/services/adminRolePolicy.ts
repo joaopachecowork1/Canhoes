@@ -10,9 +10,7 @@ export type AdminRoleChange = {
 };
 
 export type AdminRoleChangeErrorCode =
-  | "MEMBER_NOT_FOUND"
-  | "SELF_DEMOTION_CONFIRMATION_REQUIRED"
-  | "LAST_ADMIN_REQUIRED";
+  "MEMBER_NOT_FOUND" | "SELF_DEMOTION_CONFIRMATION_REQUIRED" | "LAST_ADMIN_REQUIRED";
 
 const ROLE_CHANGE_ERROR_MESSAGES: Record<AdminRoleChangeErrorCode, string> = {
   MEMBER_NOT_FOUND: "Este membro não pertence ao evento.",

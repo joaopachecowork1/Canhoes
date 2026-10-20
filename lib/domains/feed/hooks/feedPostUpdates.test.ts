@@ -49,7 +49,10 @@ describe("applyDownvote", () => {
   });
 
   it("removes an existing downvote", () => {
-    expect(applyDownvote(post({ downvotedByMe: true, downvoteCount: 1 }))).toMatchObject({ downvotedByMe: false, downvoteCount: 0 });
+    expect(applyDownvote(post({ downvotedByMe: true, downvoteCount: 1 }))).toMatchObject({
+      downvotedByMe: false,
+      downvoteCount: 0,
+    });
   });
 });
 

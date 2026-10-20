@@ -20,7 +20,11 @@ const copy = messages.event.EventModuleGate;
 const GATE_CARD_CLASS =
   "rounded-[var(--radius-lg-token)] border border-[var(--color-border)] bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] shadow-[var(--shadow-panel)]";
 
-function GateError({ error, moduleLabel, onRetry }: Readonly<{ error: Error | null; moduleLabel: string; onRetry: () => void }>) {
+function GateError({
+  error,
+  moduleLabel,
+  onRetry,
+}: Readonly<{ error: Error | null; moduleLabel: string; onRetry: () => void }>) {
   return (
     <Card className={GATE_CARD_CLASS}>
       <CardContent className="space-y-4 p-4 sm:p-5">
@@ -74,7 +78,13 @@ export function EventModuleGate({
 
   // Only the first fetch shows a loader; a background refetch keeps the page on screen.
   if (isLoading) {
-    return <Skeleton role="status" aria-label={copy.checkingAccess} className="h-56 w-full rounded-[var(--radius-lg-token)]" />;
+    return (
+      <Skeleton
+        role="status"
+        aria-label={copy.checkingAccess}
+        className="h-56 w-full rounded-[var(--radius-lg-token)]"
+      />
+    );
   }
 
   if (error || !event || !overview) {

@@ -12,9 +12,22 @@ async function createCategory(eventId: string, { kind = 0, name = "Melhor moment
   return prisma.awardCategory.create({ data: { eventId, name, sortOrder, kind, isActive: true } });
 }
 
-async function createNominee(eventId: string, categoryId: string, submittedByUserId: string, { status = "approved", title = "O jantar" } = {}) {
+async function createNominee(
+  eventId: string,
+  categoryId: string,
+  submittedByUserId: string,
+  { status = "approved", title = "O jantar" } = {},
+) {
   return prisma.nominee.create({
-    data: { eventId, categoryId, title, submissionKind: "text", imageUrl: `/uploads/${title}.png`, submittedByUserId, status },
+    data: {
+      eventId,
+      categoryId,
+      title,
+      submissionKind: "text",
+      imageUrl: `/uploads/${title}.png`,
+      submittedByUserId,
+      status,
+    },
   });
 }
 
@@ -53,17 +66,28 @@ describe("votes", () => {
     const { event, member } = await setupEvent(phase);
     const category = await createCategory(event.id);
     const nominee = await createNominee(event.id, category.id, member.id);
-    const response = await callRoute(postVote, { eventId: event.id }, { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } });
+    const response = await callRoute(
+      postVote,
+      { eventId: event.id },
+      { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } },
+    );
     expect(response.status).toBe(403);
     expect(await prisma.vote.count()).toBe(0);
   });
 
   it("are refused once the voting window has ended", async () => {
     const { event, member } = await setupEvent("VOTING");
-    await prisma.eventPhase.updateMany({ where: { eventId: event.id, type: "VOTING" }, data: { endDateUtc: new Date(Date.now() - 1000) } });
+    await prisma.eventPhase.updateMany({
+      where: { eventId: event.id, type: "VOTING" },
+      data: { endDateUtc: new Date(Date.now() - 1000) },
+    });
     const category = await createCategory(event.id);
     const nominee = await createNominee(event.id, category.id, member.id);
-    const response = await callRoute(postVote, { eventId: event.id }, { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } });
+    const response = await callRoute(
+      postVote,
+      { eventId: event.id },
+      { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } },
+    );
     expect(response).toMatchObject({ status: 409, body: { code: "VOTING_CLOSED" } });
   });
 
@@ -74,7 +98,11 @@ describe("votes", () => {
     const second = await createNominee(event.id, category.id, member.id, { title: "Segundo" });
 
     for (const nominee of [first, second]) {
-      const response = await callRoute(postVote, { eventId: event.id }, { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } });
+      const response = await callRoute(
+        postVote,
+        { eventId: event.id },
+        { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } },
+      );
       expect(response.status).toBe(200);
     }
     expect(await prisma.vote.findMany({ select: { nomineeId: true } })).toEqual([{ nomineeId: second.id }]);
@@ -93,10 +121,18 @@ describe("votes", () => {
     ];
 
     for (const nominee of invalid) {
-      const response = await callRoute(postVote, { eventId: event.id }, { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } });
+      const response = await callRoute(
+        postVote,
+        { eventId: event.id },
+        { method: "POST", body: { categoryId: category.id, selectionId: nominee.id } },
+      );
       expect(response).toMatchObject({ status: 400, body: { code: "INVALID_SELECTION" } });
     }
-    const crossEvent = await callRoute(postVote, { eventId: event.id }, { method: "POST", body: { categoryId: otherEventCategory.id, selectionId: invalid[2].id } });
+    const crossEvent = await callRoute(
+      postVote,
+      { eventId: event.id },
+      { method: "POST", body: { categoryId: otherEventCategory.id, selectionId: invalid[2].id } },
+    );
     expect(crossEvent).toMatchObject({ status: 404, body: { code: "CATEGORY_NOT_FOUND" } });
     expect(await prisma.vote.count()).toBe(0);
   });
@@ -107,9 +143,17 @@ describe("votes", () => {
     const colleague = await createMember(event.id, "Bruno");
     const outsider = await createUser();
 
-    const refused = await callRoute(postVote, { eventId: event.id }, { method: "POST", body: { categoryId: category.id, selectionId: outsider.id } });
+    const refused = await callRoute(
+      postVote,
+      { eventId: event.id },
+      { method: "POST", body: { categoryId: category.id, selectionId: outsider.id } },
+    );
     expect(refused.status).toBe(400);
-    const accepted = await callRoute(postVote, { eventId: event.id }, { method: "POST", body: { categoryId: category.id, selectionId: colleague.id } });
+    const accepted = await callRoute(
+      postVote,
+      { eventId: event.id },
+      { method: "POST", body: { categoryId: category.id, selectionId: colleague.id } },
+    );
     expect(accepted.status).toBe(200);
     expect(await prisma.userVote.count()).toBe(1);
   });
@@ -124,13 +168,24 @@ describe("results", () => {
   it("show nominee titles, images and vote counts, and member names", async () => {
     const { event, member } = await setupEvent("RESULTS");
     const nomineeCategory = await createCategory(event.id);
-    const personCategory = await createCategory(event.id, { kind: CATEGORY_KIND.USER_VOTE, name: "Pessoa do ano", sortOrder: 1 });
+    const personCategory = await createCategory(event.id, {
+      kind: CATEGORY_KIND.USER_VOTE,
+      name: "Pessoa do ano",
+      sortOrder: 1,
+    });
     const winner = await createNominee(event.id, nomineeCategory.id, member.id, { title: "Vencedor" });
     const bruno = await createMember(event.id, "Bruno");
     await prisma.vote.createMany({
-      data: [member.id, bruno.id].map((userId) => ({ eventId: event.id, categoryId: nomineeCategory.id, userId, nomineeId: winner.id })),
+      data: [member.id, bruno.id].map((userId) => ({
+        eventId: event.id,
+        categoryId: nomineeCategory.id,
+        userId,
+        nomineeId: winner.id,
+      })),
     });
-    await prisma.userVote.create({ data: { eventId: event.id, categoryId: personCategory.id, voterUserId: member.id, targetUserId: bruno.id } });
+    await prisma.userVote.create({
+      data: { eventId: event.id, categoryId: personCategory.id, voterUserId: member.id, targetUserId: bruno.id },
+    });
 
     const response = await callRoute(getResults, { eventId: event.id });
 

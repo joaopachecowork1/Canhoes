@@ -24,7 +24,15 @@ describe("PillTabs", () => {
   });
 
   it("renders links with the current page marked when items have an href", () => {
-    render(<PillTabs items={[{ id: "a", label: "Conteúdo", href: "/canhoes/admin/conteudo" }, { id: "b", label: "Membros", href: "/canhoes/admin/membros" }]} activeId="b" />);
+    render(
+      <PillTabs
+        items={[
+          { id: "a", label: "Conteúdo", href: "/canhoes/admin/conteudo" },
+          { id: "b", label: "Membros", href: "/canhoes/admin/membros" },
+        ]}
+        activeId="b"
+      />,
+    );
 
     expect(screen.getByRole("link", { name: "Membros" })).toHaveAttribute("aria-current", "page");
     expect(screen.getByRole("link", { name: "Conteúdo" })).not.toHaveAttribute("aria-current");

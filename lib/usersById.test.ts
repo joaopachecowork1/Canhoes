@@ -4,7 +4,10 @@ import { loadUsersById } from "./usersById";
 
 describe("loadUsersById", () => {
   it("asks once for each distinct id and returns the rows by id", async () => {
-    const query = vi.fn(async () => [{ id: "a", name: "Ana" }, { id: "b", name: "Rui" }]);
+    const query = vi.fn(async () => [
+      { id: "a", name: "Ana" },
+      { id: "b", name: "Rui" },
+    ]);
 
     const users = await loadUsersById(["a", "b", "a"], query);
 

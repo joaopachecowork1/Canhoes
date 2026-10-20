@@ -91,7 +91,7 @@ describe("category usage", () => {
     const usageById = buildCategoryUsageById(
       [sticker],
       [{ categoryId: "sticker" }, { categoryId: null }],
-      [{ categoryId: "sticker" }]
+      [{ categoryId: "sticker" }],
     );
     expect(usageById.sticker).toMatchObject({ nomineeCount: 1, voteCount: 1, canDelete: false });
   });

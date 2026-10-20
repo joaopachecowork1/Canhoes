@@ -13,14 +13,20 @@ import { CATEGORY_KIND_FORM_LABELS, CATEGORY_KIND_LABELS, type CategoryFormState
 const copy = messages.admin.CategoryFormFields;
 const LABEL_CLASS = "text-[var(--ink-secondary)]";
 
-type FieldsProps = Readonly<{ form: CategoryFormState; isBusy: boolean; onChange: (patch: Partial<CategoryFormState>) => void }>;
+type FieldsProps = Readonly<{
+  form: CategoryFormState;
+  isBusy: boolean;
+  onChange: (patch: Partial<CategoryFormState>) => void;
+}>;
 
 /** Question and rules, only for categories voted on members. */
 function UserVoteFields({ form, isBusy, onChange }: FieldsProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="category-vote-question" className={LABEL_CLASS}>{copy.voteQuestionLabel}</Label>
+        <Label htmlFor="category-vote-question" className={LABEL_CLASS}>
+          {copy.voteQuestionLabel}
+        </Label>
         <Input
           id="category-vote-question"
           value={form.voteQuestion}
@@ -30,7 +36,9 @@ function UserVoteFields({ form, isBusy, onChange }: FieldsProps) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="category-vote-rules" className={LABEL_CLASS}>{copy.voteRulesLabel}</Label>
+        <Label htmlFor="category-vote-rules" className={LABEL_CLASS}>
+          {copy.voteRulesLabel}
+        </Label>
         <Textarea
           id="category-vote-rules"
           value={form.voteRules}
@@ -49,7 +57,9 @@ export function CategoryFormFields({ form, isBusy, onChange }: FieldsProps) {
   return (
     <>
       <div className="space-y-2 pt-1">
-        <Label htmlFor="category-name" className={LABEL_CLASS}>{copy.nameLabel}</Label>
+        <Label htmlFor="category-name" className={LABEL_CLASS}>
+          {copy.nameLabel}
+        </Label>
         <Input
           id="category-name"
           value={form.name}
@@ -60,7 +70,9 @@ export function CategoryFormFields({ form, isBusy, onChange }: FieldsProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="category-description" className={LABEL_CLASS}>{copy.descriptionLabel}</Label>
+        <Label htmlFor="category-description" className={LABEL_CLASS}>
+          {copy.descriptionLabel}
+        </Label>
         <Textarea
           id="category-description"
           value={form.description}
@@ -78,13 +90,19 @@ export function CategoryFormFields({ form, isBusy, onChange }: FieldsProps) {
             <SelectValue placeholder={copy.kindPlaceholder} />
           </SelectTrigger>
           <SelectContent className="z-[100]">
-            <SelectItem value={CATEGORY_KIND_FORM_LABELS.STICKER}>{CATEGORY_KIND_LABELS[CATEGORY_KIND.NOMINEE]}</SelectItem>
-            <SelectItem value={CATEGORY_KIND_FORM_LABELS.USER_VOTE}>{CATEGORY_KIND_LABELS[CATEGORY_KIND.USER_VOTE]}</SelectItem>
+            <SelectItem value={CATEGORY_KIND_FORM_LABELS.STICKER}>
+              {CATEGORY_KIND_LABELS[CATEGORY_KIND.NOMINEE]}
+            </SelectItem>
+            <SelectItem value={CATEGORY_KIND_FORM_LABELS.USER_VOTE}>
+              {CATEGORY_KIND_LABELS[CATEGORY_KIND.USER_VOTE]}
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {form.kind === CATEGORY_KIND_FORM_LABELS.USER_VOTE ? <UserVoteFields form={form} isBusy={isBusy} onChange={onChange} /> : null}
+      {form.kind === CATEGORY_KIND_FORM_LABELS.USER_VOTE ? (
+        <UserVoteFields form={form} isBusy={isBusy} onChange={onChange} />
+      ) : null}
     </>
   );
 }

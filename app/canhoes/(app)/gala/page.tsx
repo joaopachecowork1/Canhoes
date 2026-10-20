@@ -1,4 +1,3 @@
-
 import { EventModuleGate } from "@/lib/domains/event/components/EventModuleGate";
 import { CanhoesGalaModule } from "@/lib/domains/gala/components/CanhoesGalaModule";
 import { canhoesServerFetch } from "@/lib/api/canhoesServerClient";
@@ -12,10 +11,7 @@ export default async function GalaPage() {
 
   return (
     <EventModuleGate moduleKey="gala">
-      <CanhoesGalaModule
-        initialContext={activeContext ?? undefined}
-        initialResults={initialResults ?? undefined}
-      />
+      <CanhoesGalaModule initialContext={activeContext ?? undefined} initialResults={initialResults ?? undefined} />
     </EventModuleGate>
   );
 }

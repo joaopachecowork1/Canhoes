@@ -6,11 +6,7 @@ import { assertPostInEvent } from "./feedAccess";
 /* What members do to a feed post: hearts (likes), downvotes, emoji reactions and poll votes. */
 
 /** Adds or removes the user's heart on a post; liking removes their downvote. */
-export async function toggleLike(
-  eventId: string,
-  postId: string,
-  userId: string
-): Promise<void> {
+export async function toggleLike(eventId: string, postId: string, userId: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostReaction.findFirst({
     where: { postId, userId, emoji: "heart" },
@@ -31,11 +27,7 @@ export async function toggleLike(
 }
 
 /** Adds or removes the user's downvote on a post; downvoting removes their heart. */
-export async function toggleDownvote(
-  eventId: string,
-  postId: string,
-  userId: string
-): Promise<void> {
+export async function toggleDownvote(eventId: string, postId: string, userId: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostDownvote.findFirst({
     where: { postId, userId },
@@ -56,12 +48,7 @@ export async function toggleDownvote(
 }
 
 /** Adds or removes one emoji reaction of the user on a post. */
-export async function toggleReaction(
-  eventId: string,
-  postId: string,
-  userId: string,
-  emoji: string
-): Promise<void> {
+export async function toggleReaction(eventId: string, postId: string, userId: string, emoji: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostReaction.findFirst({
     where: { postId, userId, emoji },
@@ -81,12 +68,7 @@ export async function toggleReaction(
 }
 
 /** Votes for a poll option; voting again for the same option removes the vote, another option replaces it. */
-export async function votePoll(
-  eventId: string,
-  postId: string,
-  userId: string,
-  optionId: string
-): Promise<void> {
+export async function votePoll(eventId: string, postId: string, userId: string, optionId: string): Promise<void> {
   await assertPostInEvent(eventId, postId);
   const option = await prisma.hubPostPollOption.findFirst({ where: { id: optionId, postId }, select: { id: true } });
   if (!option) throw notFound("Poll option not found.");

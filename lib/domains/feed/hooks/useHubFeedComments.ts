@@ -18,7 +18,11 @@ type UseHubFeedCommentsArgs = {
   queryClient: QueryClient;
 };
 
-function reportCommentError(action: string, error: unknown, { context, fallback }: Readonly<{ context: Record<string, unknown>; fallback: string }>) {
+function reportCommentError(
+  action: string,
+  error: unknown,
+  { context, fallback }: Readonly<{ context: Record<string, unknown>; fallback: string }>,
+) {
   logFrontendError(`HubFeed.${action}`, error, context);
   toast.error(getErrorMessage(error, fallback));
 }
@@ -30,7 +34,12 @@ type CommentDraftState = {
   replyingTo: Record<string, string | null>;
 };
 
-const emptyDrafts = (eventId: string | null): CommentDraftState => ({ eventId, openComments: {}, commentDrafts: {}, replyingTo: {} });
+const emptyDrafts = (eventId: string | null): CommentDraftState => ({
+  eventId,
+  openComments: {},
+  commentDrafts: {},
+  replyingTo: {},
+});
 
 /**
  * Per post: whether its comments are open, the unsent reply and which comment it answers.
@@ -52,20 +61,23 @@ function useCommentDrafts(eventId: string | null) {
         const current = previous.eventId === eventId ? previous : emptyDrafts(eventId);
         return { ...current, ...change(current) };
       }),
-    [eventId]
+    [eventId],
   );
 
   const toggleComments = useCallback(
-    (postId: string) => update(({ openComments }) => ({ openComments: { ...openComments, [postId]: !openComments[postId] } })),
-    [update]
+    (postId: string) =>
+      update(({ openComments }) => ({ openComments: { ...openComments, [postId]: !openComments[postId] } })),
+    [update],
   );
   const setCommentDraft = useCallback(
-    (postId: string, draft: string) => update(({ commentDrafts }) => ({ commentDrafts: { ...commentDrafts, [postId]: draft } })),
-    [update]
+    (postId: string, draft: string) =>
+      update(({ commentDrafts }) => ({ commentDrafts: { ...commentDrafts, [postId]: draft } })),
+    [update],
   );
   const setReplyingTo = useCallback(
-    (postId: string, commentId: string | null) => update(({ replyingTo }) => ({ replyingTo: { ...replyingTo, [postId]: commentId } })),
-    [update]
+    (postId: string, commentId: string | null) =>
+      update(({ replyingTo }) => ({ replyingTo: { ...replyingTo, [postId]: commentId } })),
+    [update],
   );
 
   /** After a reply is sent: clear it and keep the thread open to show it. */
@@ -76,10 +88,34 @@ function useCommentDrafts(eventId: string | null) {
         replyingTo: { ...current.replyingTo, [postId]: null },
         openComments: { ...current.openComments, [postId]: true },
       })),
-    [update]
+    [update],
   );
 
   return { ...state, stateRef, toggleComments, setCommentDraft, setReplyingTo, markSent };
+}
+
+/** Reage a um comentário de imediato e volta a pedir os comentários se o servidor recusar. */
+function useToggleCommentReaction({ eventId, queryClient }: Readonly<UseHubFeedCommentsArgs>) {
+  return useCallback(
+    async (postId: string, commentId: string, emoji: string) => {
+      if (!eventId) return;
+
+      queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), (prev) =>
+        (prev ?? []).map((comment) => (comment.id === commentId ? applyCommentReaction(comment, emoji) : comment)),
+      );
+
+      try {
+        await feedRepo.toggleCommentReaction(eventId, postId, commentId, emoji);
+      } catch (error) {
+        void queryClient.invalidateQueries({ queryKey: queryKeys.hubComments(postId) });
+        reportCommentError("toggleCommentReaction", error, {
+          context: { commentId, emoji, postId },
+          fallback: copy.reactionError,
+        });
+      }
+    },
+    [eventId, queryClient],
+  );
 }
 
 /** Comments of feed posts: open threads, reply drafts, and optimistic add, react and delete that roll back on failure. */
@@ -90,10 +126,10 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
   const updateCommentCount = useCallback(
     (postId: string, delta: 1 | -1) => {
       queryClient.setQueryData<FeedInfiniteData>(queryKeys.hubPosts(eventId), (feed) =>
-        updatePostInFeed(feed, postId, (post) => changeCommentCount(post, delta))
+        updatePostInFeed(feed, postId, (post) => changeCommentCount(post, delta)),
       );
     },
-    [eventId, queryClient]
+    [eventId, queryClient],
   );
 
   const addComment = useCallback(
@@ -103,10 +139,16 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
       if (!text) return;
 
       try {
-        const newComment = await feedRepo.createComment(eventId, postId, { text, replyToId: stateRef.current.replyingTo[postId] || null });
+        const newComment = await feedRepo.createComment(eventId, postId, {
+          text,
+          replyToId: stateRef.current.replyingTo[postId] || null,
+        });
         markSent(postId);
         if (newComment) {
-          queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), (prev) => [...(prev ?? []), newComment]);
+          queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), (prev) => [
+            ...(prev ?? []),
+            newComment,
+          ]);
         }
         updateCommentCount(postId, 1);
         toast.success(copy.commentPublished);
@@ -114,26 +156,10 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
         reportCommentError("addComment", error, { context: { postId }, fallback: copy.publishError });
       }
     },
-    [eventId, queryClient, stateRef, markSent, updateCommentCount]
+    [eventId, queryClient, stateRef, markSent, updateCommentCount],
   );
 
-  const toggleCommentReaction = useCallback(
-    async (postId: string, commentId: string, emoji: string) => {
-      if (!eventId) return;
-
-      queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), (prev) =>
-        (prev ?? []).map((comment) => (comment.id === commentId ? applyCommentReaction(comment, emoji) : comment))
-      );
-
-      try {
-        await feedRepo.toggleCommentReaction(eventId, postId, commentId, emoji);
-      } catch (error) {
-        void queryClient.invalidateQueries({ queryKey: queryKeys.hubComments(postId) });
-        reportCommentError("toggleCommentReaction", error, { context: { commentId, emoji, postId }, fallback: copy.reactionError });
-      }
-    },
-    [eventId, queryClient]
-  );
+  const toggleCommentReaction = useToggleCommentReaction({ eventId, queryClient });
 
   const deleteComment = useCallback(
     async (postId: string, commentId: string) => {
@@ -155,7 +181,7 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
         reportCommentError("deleteComment", error, { context: { commentId, postId }, fallback: copy.deleteError });
       }
     },
-    [eventId, queryClient, updateCommentCount]
+    [eventId, queryClient, updateCommentCount],
   );
 
   return {

@@ -34,7 +34,7 @@ export function EmptyState({
       className={cn(
         "border-2 border-dashed border-[var(--color-border-strong)] rounded-2xl relative flex flex-col items-center justify-center gap-4 px-6 py-10 text-center",
         TONE_PANEL_CLASS[tone],
-        className
+        className,
       )}
     >
       {Icon ? (

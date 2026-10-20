@@ -16,12 +16,14 @@ describe("VotesAudit", () => {
       http.get("*/api/v1/events/event-1/admin/votes/paged", () => {
         requests += 1;
         return HttpResponse.json({ total: 1, votes: [vote()], skip: 0, take: 1000, hasMore: false });
-      })
+      }),
     );
     const { queryClient } = renderWithProviders(<VotesAudit eventId="event-1" />);
     expect(await screen.findByText("Canhão do Ano")).toBeInTheDocument();
 
-    await Promise.all(queryKeys.admin.afterWrite("event-1").map((queryKey) => queryClient.invalidateQueries({ queryKey })));
+    await Promise.all(
+      queryKeys.admin.afterWrite("event-1").map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+    );
 
     await waitFor(() => expect(requests).toBe(2));
   });

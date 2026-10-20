@@ -60,7 +60,10 @@ function PendingNomination({ label }: Readonly<{ label: string | null }>) {
   );
 }
 
-function NominationForm({ isPhaseOpen, nomination }: Readonly<{ isPhaseOpen: boolean; nomination: ReturnType<typeof useSubmitNomination> }>) {
+function NominationForm({
+  isPhaseOpen,
+  nomination,
+}: Readonly<{ isPhaseOpen: boolean; nomination: ReturnType<typeof useSubmitNomination> }>) {
   const { title, setTitle, file, setFile, titleTrimmed, isValidTitle, mutation } = nomination;
 
   return (
@@ -78,7 +81,11 @@ function NominationForm({ isPhaseOpen, nomination }: Readonly<{ isPhaseOpen: boo
           <span>{formatMessage(copy.lengthHint, { min: NOMINATION_TITLE_MIN, max: NOMINATION_TITLE_MAX })}</span>
           <span className="font-[family-name:var(--font-mono)]">{`${titleTrimmed.length}/${NOMINATION_TITLE_MAX}`}</span>
         </div>
-        <CanhoesFileTrigger fileName={file?.name} onChange={setFile} placeholder={messages.wishlist.WishlistForm.imagePlaceholder} />
+        <CanhoesFileTrigger
+          fileName={file?.name}
+          onChange={setFile}
+          placeholder={messages.wishlist.WishlistForm.imagePlaceholder}
+        />
       </div>
       <Button
         type="button"
@@ -122,17 +129,23 @@ function ApprovedNomineesList({ nominees }: Readonly<{ nominees: NomineeDto[] }>
     <div className="space-y-2 pt-1">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-medium text-[var(--ink-primary)]">{copy.approvedTitle}</h2>
-        <span className="font-[family-name:var(--font-mono)] text-xs text-[var(--ink-muted)]">{formatCount(nominees.length, copy.approvedOne, copy.approvedOther)}</span>
+        <span className="font-[family-name:var(--font-mono)] text-xs text-[var(--ink-muted)]">
+          {formatCount(nominees.length, copy.approvedOne, copy.approvedOther)}
+        </span>
       </div>
       {nominees.length === 0 ? (
         <p className="text-sm text-[var(--ink-muted)]">{copy.noApproved}</p>
       ) : (
         <div className="space-y-2">
           {nominees.map((nominee) => (
-            <div key={nominee.id} className="flex min-h-12 items-center gap-2 rounded-xl border-2 border-[var(--moss)] bg-[var(--color-panel)] px-3 py-2.5 shadow-[var(--shadow-elevation-sm)]">
+            <div
+              key={nominee.id}
+              className="flex min-h-12 items-center gap-2 rounded-xl border-2 border-[var(--moss)] bg-[var(--color-panel)] px-3 py-2.5 shadow-[var(--shadow-elevation-sm)]"
+            >
               <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--moss-glow)]" aria-hidden />
               <span className="truncate text-base font-medium text-[var(--ink-primary)]">{nominee.title}</span>
-            </div>))}
+            </div>
+          ))}
         </div>
       )}
     </div>

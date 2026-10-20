@@ -12,7 +12,9 @@ describe("getErrorMessage", () => {
   describe("ApiError", () => {
     it("prefers the message for a known error code", () => {
       const error = new ApiError("x", 429, { code: "RATE_LIMIT_EXCEEDED" });
-      expect(getErrorMessage(error, "Falhou.")).toBe("Demasiados pedidos seguidos. Espera um pouco e tenta outra vez. x");
+      expect(getErrorMessage(error, "Falhou.")).toBe(
+        "Demasiados pedidos seguidos. Espera um pouco e tenta outra vez. x",
+      );
     });
 
     it("uses the caller's message for the status before the default one", () => {
@@ -45,7 +47,9 @@ describe("getErrorMessage", () => {
   });
 
   it("hints at the connection for a failed fetch", () => {
-    expect(getErrorMessage(new TypeError("Failed to fetch"), "Não deu.")).toBe("Não deu. Verifica a ligação ao servidor.");
+    expect(getErrorMessage(new TypeError("Failed to fetch"), "Não deu.")).toBe(
+      "Não deu. Verifica a ligação ao servidor.",
+    );
   });
 
   it("shows a plain error's message, or the fallback when it is blank", () => {

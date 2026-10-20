@@ -7,7 +7,11 @@ import { useComposer } from "./useComposer";
 vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 
 function fileList(files: File[]): FileList {
-  const list = { length: files.length, item: (index: number) => files[index] ?? null, [Symbol.iterator]: () => files.values() };
+  const list = {
+    length: files.length,
+    item: (index: number) => files[index] ?? null,
+    [Symbol.iterator]: () => files.values(),
+  };
   return Object.assign(list, files);
 }
 

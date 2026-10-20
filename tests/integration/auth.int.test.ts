@@ -33,7 +33,9 @@ describe("invitations", () => {
     expect(await bcrypt.compare("uma-password", user.passwordHash ?? "")).toBe(true);
     expect(await prisma.eventMember.count({ where: { eventId: event.id, userId: user.id } })).toBe(1);
 
-    expect((await callRoute(register, {}, { method: "POST", body: registration(token) })).body).toMatchObject({ code: "INVITATION_USED" });
+    expect((await callRoute(register, {}, { method: "POST", body: registration(token) })).body).toMatchObject({
+      code: "INVITATION_USED",
+    });
   });
 
   it("lets only one of two simultaneous registrations use the same invitation", async () => {
@@ -51,9 +53,15 @@ describe("invitations", () => {
     const { token } = await inviteAsAdmin("late@example.test");
     await prisma.userInvitation.update({ where: { token }, data: { expiresAtUtc: new Date(Date.now() - 1000) } });
 
-    expect((await callRoute(register, {}, { method: "POST", body: registration("nope") })).body).toMatchObject({ code: "INVALID_INVITATION" });
-    expect((await callRoute(register, {}, { method: "POST", body: registration(token) })).body).toMatchObject({ code: "INVITATION_EXPIRED" });
-    expect((await callRoute(register, {}, { method: "POST", body: { ...registration(token), password: "curta" } })).status).toBe(400);
+    expect((await callRoute(register, {}, { method: "POST", body: registration("nope") })).body).toMatchObject({
+      code: "INVALID_INVITATION",
+    });
+    expect((await callRoute(register, {}, { method: "POST", body: registration(token) })).body).toMatchObject({
+      code: "INVITATION_EXPIRED",
+    });
+    expect(
+      (await callRoute(register, {}, { method: "POST", body: { ...registration(token), password: "curta" } })).status,
+    ).toBe(400);
   });
 
   it("refuses to invite an email that already has an account, and replaces a previous invitation", async () => {
@@ -76,11 +84,20 @@ function credentialsProvider(id: string) {
 
 describe("email and password sign-in", () => {
   const authorize = (email: string, password: string, ip = "unknown") =>
-    credentialsProvider("credentials").options.authorize({ email, password }, { headers: { "x-forwarded-for": ip }, body: {}, method: "POST", query: {} });
+    credentialsProvider("credentials").options.authorize(
+      { email, password },
+      { headers: { "x-forwarded-for": ip }, body: {}, method: "POST", query: {} },
+    );
 
   it("accepts the right password for an email in any case, and refuses everything else", async () => {
     await prisma.user.create({
-      data: { email: "ana@example.test", externalId: "credentials:ana", displayName: "Ana", isAdmin: false, passwordHash: await bcrypt.hash("segredo123", 4) },
+      data: {
+        email: "ana@example.test",
+        externalId: "credentials:ana",
+        displayName: "Ana",
+        isAdmin: false,
+        passwordHash: await bcrypt.hash("segredo123", 4),
+      },
     });
     await createUser({ name: "Sem password" });
 
@@ -92,35 +109,50 @@ describe("email and password sign-in", () => {
 
   const createPasswordUser = async (email: string) =>
     prisma.user.create({
-      data: { email, externalId: `credentials:${email}`, displayName: email, isAdmin: false, passwordHash: await bcrypt.hash("segredo123", 4) },
+      data: {
+        email,
+        externalId: `credentials:${email}`,
+        displayName: email,
+        isAdmin: false,
+        passwordHash: await bcrypt.hash("segredo123", 4),
+      },
     });
 
   it("stops guessing passwords: after ten attempts from one IP even the right one is refused", async () => {
     await createPasswordUser("bia@example.test");
     // Different emails, so only the IP counter can be what stops the eleventh attempt.
-    for (let attempt = 0; attempt < 10; attempt++) await authorize(`palpite${attempt}@example.test`, "errada", "198.51.100.7");
+    for (let attempt = 0; attempt < 10; attempt++)
+      await authorize(`palpite${attempt}@example.test`, "errada", "198.51.100.7");
 
     expect(await authorize("bia@example.test", "segredo123", "198.51.100.7")).toBeNull();
-    expect(await authorize("bia@example.test", "segredo123", "198.51.100.8")).toMatchObject({ email: "bia@example.test" });
+    expect(await authorize("bia@example.test", "segredo123", "198.51.100.8")).toMatchObject({
+      email: "bia@example.test",
+    });
   });
 
   it("stops guessing one account's password even when every attempt claims a different IP", async () => {
     await createPasswordUser("carla@example.test");
     await createPasswordUser("duarte@example.test");
-    for (let attempt = 0; attempt < 10; attempt++) await authorize("Carla@example.test", "errada", `198.51.100.${100 + attempt}`);
+    for (let attempt = 0; attempt < 10; attempt++)
+      await authorize("Carla@example.test", "errada", `198.51.100.${100 + attempt}`);
 
     expect(await authorize("carla@example.test", "segredo123", "198.51.100.200")).toBeNull();
-    expect(await authorize("duarte@example.test", "segredo123", "198.51.100.201")).toMatchObject({ email: "duarte@example.test" });
+    expect(await authorize("duarte@example.test", "segredo123", "198.51.100.201")).toMatchObject({
+      email: "duarte@example.test",
+    });
   });
 
   it("does not spend a shared IP's budget on attempts already refused for their account", async () => {
     await createPasswordUser("elisa@example.test");
     await createPasswordUser("filipe@example.test");
-    for (let attempt = 0; attempt < 10; attempt++) await authorize("elisa@example.test", "errada", `198.51.100.${150 + attempt}`);
+    for (let attempt = 0; attempt < 10; attempt++)
+      await authorize("elisa@example.test", "errada", `198.51.100.${150 + attempt}`);
     // Twelve more against the locked account, all from the house's one address.
     for (let attempt = 0; attempt < 12; attempt++) await authorize("elisa@example.test", "errada", "198.51.100.210");
 
-    expect(await authorize("filipe@example.test", "segredo123", "198.51.100.210")).toMatchObject({ email: "filipe@example.test" });
+    expect(await authorize("filipe@example.test", "segredo123", "198.51.100.210")).toMatchObject({
+      email: "filipe@example.test",
+    });
   });
 });
 
@@ -133,7 +165,13 @@ describe("session tokens", () => {
   it("creates the user on the first Google sign-in and re-reads the admin flag on every request", async () => {
     const token = await jwt({ email: "nova@example.test", name: "Nova" }, googleAccount);
     const user = await prisma.user.findUniqueOrThrow({ where: { email: "nova@example.test" } });
-    expect(token).toMatchObject({ sub: user.id, dbUserId: user.id, externalId: "google-123", isAdmin: false, authMode: "google" });
+    expect(token).toMatchObject({
+      sub: user.id,
+      dbUserId: user.id,
+      externalId: "google-123",
+      isAdmin: false,
+      authMode: "google",
+    });
 
     await prisma.user.update({ where: { id: user.id }, data: { isAdmin: true } });
     expect(await jwt(token)).toMatchObject({ isAdmin: true });
@@ -141,13 +179,21 @@ describe("session tokens", () => {
 
   it("ties a credentials sign-in to its database user", async () => {
     const user = await createUser({ name: "Ana" });
-    const token = await jwt({ email: user.email }, { provider: "credentials", providerAccountId: user.id, type: "credentials" }, { id: user.id, email: user.email });
+    const token = await jwt(
+      { email: user.email },
+      { provider: "credentials", providerAccountId: user.id, type: "credentials" },
+      { id: user.id, email: user.email },
+    );
     expect(token).toMatchObject({ dbUserId: user.id, name: "Ana", authMode: "credentials" });
   });
 
   it("keeps a development sign-in tied to its user and labels the session", async () => {
     const user = await createUser({ isAdmin: true });
-    const token = await jwt({ email: user.email }, { provider: "development", providerAccountId: user.id, type: "credentials" }, { id: user.id, email: user.email });
+    const token = await jwt(
+      { email: user.email },
+      { provider: "development", providerAccountId: user.id, type: "credentials" },
+      { id: user.id, email: user.email },
+    );
     expect(token).toMatchObject({ dbUserId: user.id, isAdmin: true, authMode: "development" });
 
     const session = await authOptions.callbacks?.session?.({
@@ -162,7 +208,10 @@ describe("session tokens", () => {
 
   it("lets Google in only through the invitation policy", async () => {
     const signIn = (email: string | null, provider = "google") =>
-      authOptions.callbacks?.signIn?.({ user: { id: "x", email }, account: { provider, providerAccountId: "g-1", type: "oauth" } });
+      authOptions.callbacks?.signIn?.({
+        user: { id: "x", email },
+        account: { provider, providerAccountId: "g-1", type: "oauth" },
+      });
 
     expect(await signIn("ana@example.test", "credentials")).toBe(true);
     expect(await signIn(null)).toBe(false);
@@ -207,11 +256,17 @@ describe("resolving users", () => {
 
     const renamed = await resolveUser("other", "ana@example.test", "Ana");
     expect(renamed.id).toBe(created.id);
-    expect(await prisma.user.findUniqueOrThrow({ where: { id: created.id }, select: { displayName: true } })).toEqual({ displayName: "Ana" });
+    expect(await prisma.user.findUniqueOrThrow({ where: { id: created.id }, select: { displayName: true } })).toEqual({
+      displayName: "Ana",
+    });
   });
 
   it("makes the development user an admin", async () => {
-    expect(await resolveDevelopmentAdmin("dev:dev@example.test", "dev@example.test", "Dev")).toMatchObject({ isAdmin: true });
-    expect(await resolveDevelopmentAdmin("dev:dev@example.test", "dev@example.test", "Dev")).toMatchObject({ isAdmin: true });
+    expect(await resolveDevelopmentAdmin("dev:dev@example.test", "dev@example.test", "Dev")).toMatchObject({
+      isAdmin: true,
+    });
+    expect(await resolveDevelopmentAdmin("dev:dev@example.test", "dev@example.test", "Dev")).toMatchObject({
+      isAdmin: true,
+    });
   });
 });

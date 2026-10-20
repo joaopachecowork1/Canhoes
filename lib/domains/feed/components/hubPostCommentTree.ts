@@ -39,10 +39,7 @@ export function buildCommentTree(flatComments: HubCommentDto[]): CommentNode[] {
  * Flattens a comment tree for the virtualized list while retaining indentation.
  * The depth cap keeps deeply nested conversations readable on small screens.
  */
-export function flattenCommentTree(
-  commentTree: CommentNode[],
-  nestingLevel = 0
-): DisplayComment[] {
+export function flattenCommentTree(commentTree: CommentNode[], nestingLevel = 0): DisplayComment[] {
   return commentTree.flatMap((comment) => [
     {
       ...comment,

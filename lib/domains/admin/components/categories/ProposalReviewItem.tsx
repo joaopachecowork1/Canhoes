@@ -42,7 +42,13 @@ function ProposalActions({
   onDelete,
   onSave,
   title,
-}: Readonly<{ isDisabled: boolean; isBusy: boolean; onDelete: () => void; onSave: (status?: "approved" | "rejected") => void; title: string }>) {
+}: Readonly<{
+  isDisabled: boolean;
+  isBusy: boolean;
+  onDelete: () => void;
+  onSave: (status?: "approved" | "rejected") => void;
+  title: string;
+}>) {
   return (
     <div className="flex flex-col gap-2 border-t border-[var(--border-subtle)] pt-3 sm:flex-row sm:flex-wrap sm:justify-end">
       <Button variant="outline" disabled={isDisabled} onClick={() => onSave()}>
@@ -99,15 +105,18 @@ export function ProposalReviewItem({
         <span className="text-xs text-[var(--ink-muted)]">{createdAt}</span>
       </button>
 
-      <AdminDrawer open={isOpen} onOpenChange={setIsOpen} title={copy.drawerTitle} description={formatMessage(copy.receivedAt, { date: createdAt })}>
+      <AdminDrawer
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        title={copy.drawerTitle}
+        description={formatMessage(copy.receivedAt, { date: createdAt })}
+      >
         {fields.map((field) => {
           const id = `${proposal.id}-${field.key}`;
           const Control = field.multiline ? Textarea : Input;
           return (
             <div key={field.key} className="space-y-2">
-              <label htmlFor={id}>
-                {field.label}
-              </label>
+              <label htmlFor={id}>{field.label}</label>
               <Control
                 id={id}
                 value={draft[field.key]}

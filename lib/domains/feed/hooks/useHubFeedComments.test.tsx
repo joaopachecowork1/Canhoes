@@ -18,16 +18,22 @@ const commentsKey = queryKeys.hubComments("post-1");
 
 function setup(eventId: string | null = "event-1") {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const feed: FeedInfiniteData = { pages: [{ posts: [post({ commentCount: 1 })], nextCursor: null, total: 1 }], pageParams: [0] };
+  const feed: FeedInfiniteData = {
+    pages: [{ posts: [post({ commentCount: 1 })], nextCursor: null, total: 1 }],
+    pageParams: [0],
+  };
   queryClient.setQueryData(["hub-posts", "event-1"], feed);
   queryClient.setQueryData<HubCommentDto[]>(commentsKey, [comment({ id: "c1" })]);
   renderWithProviders(<div />); // the toaster that shows the messages
-  const hook = renderHook(({ id }) => useHubFeedComments({ eventId: id, queryClient }), { initialProps: { id: eventId } });
+  const hook = renderHook(({ id }) => useHubFeedComments({ eventId: id, queryClient }), {
+    initialProps: { id: eventId },
+  });
   return { queryClient, ...hook };
 }
 
 const cachedComments = (queryClient: QueryClient) => queryClient.getQueryData<HubCommentDto[]>(commentsKey) ?? [];
-const cachedCount = (queryClient: QueryClient) => queryClient.getQueryData<FeedInfiniteData>(["hub-posts", "event-1"])?.pages[0]?.posts[0]?.commentCount;
+const cachedCount = (queryClient: QueryClient) =>
+  queryClient.getQueryData<FeedInfiniteData>(["hub-posts", "event-1"])?.pages[0]?.posts[0]?.commentCount;
 
 describe("useHubFeedComments: drafts", () => {
   it("keeps one open thread, draft and reply target per post, and starts over for another event", () => {
@@ -38,7 +44,11 @@ describe("useHubFeedComments: drafts", () => {
       result.current.setCommentDraft("post-1", "Olá");
       result.current.setReplyingTo("post-1", "c1");
     });
-    expect(result.current).toMatchObject({ openComments: { "post-1": true }, commentDrafts: { "post-1": "Olá" }, replyingTo: { "post-1": "c1" } });
+    expect(result.current).toMatchObject({
+      openComments: { "post-1": true },
+      commentDrafts: { "post-1": "Olá" },
+      replyingTo: { "post-1": "c1" },
+    });
 
     act(() => result.current.toggleComments("post-1"));
     expect(result.current.openComments["post-1"]).toBe(false);
@@ -62,7 +72,11 @@ describe("useHubFeedComments: adding", () => {
 
     expect(cachedComments(queryClient).map((entry) => entry.id)).toEqual(["c1", "c2"]);
     expect(cachedCount(queryClient)).toBe(2);
-    expect(result.current).toMatchObject({ commentDrafts: { "post-1": "" }, replyingTo: { "post-1": null }, openComments: { "post-1": true } });
+    expect(result.current).toMatchObject({
+      commentDrafts: { "post-1": "" },
+      replyingTo: { "post-1": null },
+      openComments: { "post-1": true },
+    });
   });
 
   it("ignores a blank reply and does nothing without an event", async () => {
@@ -91,7 +105,7 @@ describe("useHubFeedComments: reacting and deleting", () => {
   it("shows a reaction at once and reloads the thread when the server refuses it", async () => {
     server.use(
       apiRoute("post", `${POST_PATH}/comments/c1/reactions`, { message: "não" }, 500),
-      apiRoute("get", `${POST_PATH}/comments`, [comment({ id: "c1" })])
+      apiRoute("get", `${POST_PATH}/comments`, [comment({ id: "c1" })]),
     );
     const { result, queryClient } = setup();
 
@@ -102,7 +116,11 @@ describe("useHubFeedComments: reacting and deleting", () => {
   });
 
   it("removes a comment at once and puts it back when the delete fails", async () => {
-    server.use(http.delete(`*/api/v1/${POST_PATH}/comments/c1`, () => HttpResponse.json({ message: "sem permissão" }, { status: 500 })));
+    server.use(
+      http.delete(`*/api/v1/${POST_PATH}/comments/c1`, () =>
+        HttpResponse.json({ message: "sem permissão" }, { status: 500 }),
+      ),
+    );
     const { result, queryClient } = setup();
 
     await act(() => result.current.deleteComment("post-1", "c1"));

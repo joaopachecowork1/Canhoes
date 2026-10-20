@@ -33,7 +33,17 @@ describe("toFeedPage", () => {
 
 describe("countRemainingPosts", () => {
   it("counts the posts not loaded yet", () => {
-    expect(countRemainingPosts(makeFeed([["a", "b"], ["c", "d"]], 7))).toBe(3);
+    expect(
+      countRemainingPosts(
+        makeFeed(
+          [
+            ["a", "b"],
+            ["c", "d"],
+          ],
+          7,
+        ),
+      ),
+    ).toBe(3);
   });
 
   it("is zero without data", () => {
@@ -43,7 +53,13 @@ describe("countRemainingPosts", () => {
 
 describe("removePostFromFeed", () => {
   it("removes the post and decrements the total without changing the remaining count", () => {
-    const feed = makeFeed([["a", "b"], ["c", "d"]], 7);
+    const feed = makeFeed(
+      [
+        ["a", "b"],
+        ["c", "d"],
+      ],
+      7,
+    );
     const updatedFeed = removePostFromFeed(feed, "c");
 
     expect(updatedFeed?.pages.flatMap((page) => page.posts.map((post) => post.id))).toEqual(["a", "b", "d"]);

@@ -14,9 +14,15 @@ import { CanhoesMeasuresModule } from "./CanhoesMeasuresModule";
 
 const measures = [measure(), measure({ id: "m-2", text: "Quem chegar atrasado canta" })];
 
-function renderMeasures({ initialData = measures, phaseType = "PROPOSALS" }: { initialData?: GalaMeasureDto[]; phaseType?: string } = {}) {
+function renderMeasures({
+  initialData = measures,
+  phaseType = "PROPOSALS",
+}: { initialData?: GalaMeasureDto[]; phaseType?: string } = {}) {
   return renderWithProviders(
-    <CanhoesMeasuresModule initialData={initialData} initialContext={makeEventContext({ phaseType, modules: { measures: true } })} />
+    <CanhoesMeasuresModule
+      initialData={initialData}
+      initialContext={makeEventContext({ phaseType, modules: { measures: true } })}
+    />,
   );
 }
 
@@ -63,7 +69,7 @@ describe("CanhoesMeasuresModule", () => {
       http.post("*/api/v1/events/event-1/measures", async ({ request }) => {
         await recorder.capture(request);
         return HttpResponse.json(measureProposal());
-      })
+      }),
     );
     renderMeasures();
 

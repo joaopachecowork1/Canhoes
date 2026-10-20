@@ -23,7 +23,12 @@ type SecretSantaAdminProps = {
   onRefresh: () => Promise<void>;
 };
 
-function StatPanel({ hint, icon: Icon, label, value }: Readonly<{ hint: string; icon: LucideIcon; label: string; value: number }>) {
+function StatPanel({
+  hint,
+  icon: Icon,
+  label,
+  value,
+}: Readonly<{ hint: string; icon: LucideIcon; label: string; value: number }>) {
   return (
     <AdminDetailPanel className="space-y-2">
       <div className="flex items-center gap-2 text-[var(--ink-secondary)]">
@@ -85,20 +90,43 @@ function DrawActions({
   canReveal,
   hasDraw,
   onRefresh,
-}: Readonly<{ actions: ReturnType<typeof useSecretSantaActions>; canDraw: boolean; canReveal: boolean; hasDraw: boolean; onRefresh: () => Promise<void> }>) {
+}: Readonly<{
+  actions: ReturnType<typeof useSecretSantaActions>;
+  canDraw: boolean;
+  canReveal: boolean;
+  hasDraw: boolean;
+  onRefresh: () => Promise<void>;
+}>) {
   const DrawIcon = actions.isDrawing ? RefreshCw : Shuffle;
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
-      <Button type="button" onClick={actions.handleDraw} disabled={!canDraw || actions.isBusy} className="min-h-12 flex-1 gap-2">
+      <Button
+        type="button"
+        onClick={actions.handleDraw}
+        disabled={!canDraw || actions.isBusy}
+        className="min-h-12 flex-1 gap-2"
+      >
         <DrawIcon className={cn("h-4 w-4", actions.isDrawing && "animate-spin")} />
         {hasDraw ? copy.redraw : copy.draw}
       </Button>
-      <Button type="button" variant="outline" onClick={actions.handleReveal} disabled={!canReveal || actions.isBusy} className="min-h-12 flex-1 gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={actions.handleReveal}
+        disabled={!canReveal || actions.isBusy}
+        className="min-h-12 flex-1 gap-2"
+      >
         <Eye className="h-4 w-4" />
         {copy.reveal}
       </Button>
-      <Button type="button" variant="outline" onClick={() => void onRefresh()} disabled={actions.isBusy} className="min-h-12 gap-2">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => void onRefresh()}
+        disabled={actions.isBusy}
+        className="min-h-12 gap-2"
+      >
         <RefreshCw className={cn("h-4 w-4", actions.isBusy && "animate-spin")} />
         {copy.sync}
       </Button>
@@ -146,9 +174,21 @@ export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
           </div>
 
           <div className="space-y-4">
-            {isLocked ? <AdminDetailPanel className="border-[var(--person-amber)]/30 bg-[var(--person-amber)]/5">{copy.lockedNotice}</AdminDetailPanel> : null}
-            <DrawActions actions={actions} canDraw={canDraw} canReveal={state.hasDraw && !isLocked} hasDraw={state.hasDraw} onRefresh={onRefresh} />
-            {!canDraw && !isLocked ? <p className="text-center text-xs text-[var(--person-amber)]">{copy.notEnoughMembers}</p> : null}
+            {isLocked ? (
+              <AdminDetailPanel className="border-[var(--person-amber)]/30 bg-[var(--person-amber)]/5">
+                {copy.lockedNotice}
+              </AdminDetailPanel>
+            ) : null}
+            <DrawActions
+              actions={actions}
+              canDraw={canDraw}
+              canReveal={state.hasDraw && !isLocked}
+              hasDraw={state.hasDraw}
+              onRefresh={onRefresh}
+            />
+            {!canDraw && !isLocked ? (
+              <p className="text-center text-xs text-[var(--person-amber)]">{copy.notEnoughMembers}</p>
+            ) : null}
           </div>
 
           {state.hasDraw ? <DrawStatus isLocked={isLocked} /> : null}

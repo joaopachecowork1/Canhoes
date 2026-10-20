@@ -16,7 +16,10 @@ type ErrorAlertProps = {
   title?: string;
 };
 
-const TONE_CLASSES: Record<ErrorAlertTone, { border: string; icon: string; title: string; body: string; action: string }> = {
+const TONE_CLASSES: Record<
+  ErrorAlertTone,
+  { border: string; icon: string; title: string; body: string; action: string }
+> = {
   danger: {
     border: "border-[var(--color-danger)]/50 text-[var(--text-primary)]",
     icon: "text-[var(--color-danger)]",
@@ -67,7 +70,7 @@ export function ErrorAlert({
       className={cn(
         "relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 overflow-hidden rounded-2xl border-2 bg-[var(--color-bg-elevated)] px-4 py-3 text-sm text-[var(--color-text-primary)] shadow-[var(--shadow-elevation-sm)] has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] has-[>svg]:gap-x-3 [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
         toneClasses.border,
-        className
+        className,
       )}
     >
       <AlertCircle className={toneClasses.icon} />
@@ -77,7 +80,7 @@ export function ErrorAlert({
       <div
         className={cn(
           "col-start-2 grid justify-items-start gap-1 text-sm text-[var(--color-text-muted)] [&_p]:leading-relaxed space-y-3",
-          toneClasses.body
+          toneClasses.body,
         )}
       >
         <p>{description}</p>

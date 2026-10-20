@@ -4,7 +4,16 @@ import type { EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 
 /* Members' wishlists, shared with the whole group. Route guards decide who may call each one. */
 
-type WishlistItemRow = { id: string; userId: string; eventId: string; title: string; url: string | null; notes: string | null; imageUrl: string | null; updatedAtUtc: Date };
+type WishlistItemRow = {
+  id: string;
+  userId: string;
+  eventId: string;
+  title: string;
+  url: string | null;
+  notes: string | null;
+  imageUrl: string | null;
+  updatedAtUtc: Date;
+};
 
 function toWishlistItemDto(item: WishlistItemRow): EventWishlistItemDto {
   return {
@@ -24,7 +33,7 @@ export async function replaceWishlistImage(
   eventId: string,
   itemId: string,
   user: { id: string; isAdmin: boolean },
-  file: File
+  file: File,
 ): Promise<EventWishlistItemDto | null> {
   const item = await prisma.wishlistItem.findFirst({ where: { id: itemId, eventId } });
   if (!item || (item.userId !== user.id && !user.isAdmin)) return null;
@@ -43,7 +52,7 @@ export async function replaceWishlistImage(
 export async function getWishlistItems(
   eventId: string,
   skip = 0,
-  take = 50
+  take = 50,
 ): Promise<PagedResult<EventWishlistItemDto>> {
   const [items, total] = await Promise.all([
     prisma.wishlistItem.findMany({
@@ -68,7 +77,7 @@ export async function getWishlistItems(
 export async function createWishlistItem(
   eventId: string,
   userId: string,
-  data: { title: string; url?: string | null; notes?: string | null }
+  data: { title: string; url?: string | null; notes?: string | null },
 ): Promise<EventWishlistItemDto> {
   const item = await prisma.wishlistItem.create({
     data: {
@@ -88,7 +97,7 @@ export async function deleteWishlistItem(
   eventId: string,
   itemId: string,
   userId: string,
-  isAdmin: boolean
+  isAdmin: boolean,
 ): Promise<boolean> {
   const item = await prisma.wishlistItem.findFirst({
     where: { id: itemId, eventId },

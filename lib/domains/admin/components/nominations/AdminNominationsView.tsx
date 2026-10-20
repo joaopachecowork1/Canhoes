@@ -35,7 +35,11 @@ type AdminNominationsViewProps = Readonly<{
   isMutationPending: boolean;
 }>;
 
-function CategoryFilter({ categories, onChange, value }: Readonly<{ categories: AwardCategoryDto[]; onChange: (value: string) => void; value: string }>) {
+function CategoryFilter({
+  categories,
+  onChange,
+  value,
+}: Readonly<{ categories: AwardCategoryDto[]; onChange: (value: string) => void; value: string }>) {
   return (
     <div className="lg:w-64">
       <Select value={value} onValueChange={onChange}>
@@ -60,17 +64,30 @@ function NominationList({
   nominations,
   onSelect,
   selectedId,
-}: Readonly<{ categories: AwardCategoryDto[]; nominations: AdminNomineeDto[]; onSelect: (id: string) => void; selectedId: string | null }>) {
+}: Readonly<{
+  categories: AwardCategoryDto[];
+  nominations: AdminNomineeDto[];
+  onSelect: (id: string) => void;
+  selectedId: string | null;
+}>) {
   return (
     <div className="max-h-[56svh] overflow-y-auto rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper-soft)] p-2">
       <div className="space-y-2">
         {nominations.map((nomination) => {
           const isSelected = nomination.id === selectedId;
           return (
-            <AdminSelectableButton key={nomination.id} type="button" onClick={() => onSelect(nomination.id)} selected={isSelected} aria-pressed={isSelected}>
+            <AdminSelectableButton
+              key={nomination.id}
+              type="button"
+              onClick={() => onSelect(nomination.id)}
+              selected={isSelected}
+              aria-pressed={isSelected}
+            >
               <div className="min-w-0 space-y-1">
                 <p className="truncate text-base font-semibold text-[var(--ink-primary)]">{nomination.title}</p>
-                <p className="truncate text-xs text-[var(--ink-muted)]">{getCategoryName(nomination.categoryId, categories)}</p>
+                <p className="truncate text-xs text-[var(--ink-muted)]">
+                  {getCategoryName(nomination.categoryId, categories)}
+                </p>
                 <p className="text-xs text-[var(--ink-muted)]">{formatDateTimeUtc(nomination.createdAtUtc)}</p>
               </div>
             </AdminSelectableButton>
@@ -81,7 +98,11 @@ function NominationList({
   );
 }
 
-function RejectNominationDialog({ isOpen, onCancel, onConfirm }: Readonly<{ isOpen: boolean; onCancel: () => void; onConfirm: () => void }>) {
+function RejectNominationDialog({
+  isOpen,
+  onCancel,
+  onConfirm,
+}: Readonly<{ isOpen: boolean; onCancel: () => void; onConfirm: () => void }>) {
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialogContent>
@@ -110,7 +131,10 @@ export function AdminNominationsView({
   const [rejectingNominationId, setRejectingNominationId] = useState<string | null>(null);
   const [selectedNominationId, setSelectedNominationId] = useState<string | null>(null);
 
-  const filteredNominations = useMemo(() => filterAndSortNominations(nominations, categoryFilter), [categoryFilter, nominations]);
+  const filteredNominations = useMemo(
+    () => filterAndSortNominations(nominations, categoryFilter),
+    [categoryFilter, nominations],
+  );
   const selectedNomination = filteredNominations.find((nomination) => nomination.id === selectedNominationId);
 
   const handleConfirmReject = () => {
@@ -135,9 +159,16 @@ export function AdminNominationsView({
         <CardContent className="space-y-3">
           <CategoryFilter categories={categories} onChange={setCategoryFilter} value={categoryFilter} />
           {filteredNominations.length === 0 ? (
-            <AdminStateMessage variant="panel">{categoryFilter === "all" ? copy.empty : copy.emptyInCategory}</AdminStateMessage>
+            <AdminStateMessage variant="panel">
+              {categoryFilter === "all" ? copy.empty : copy.emptyInCategory}
+            </AdminStateMessage>
           ) : (
-            <NominationList categories={categories} nominations={filteredNominations} onSelect={setSelectedNominationId} selectedId={selectedNominationId} />
+            <NominationList
+              categories={categories}
+              nominations={filteredNominations}
+              onSelect={setSelectedNominationId}
+              selectedId={selectedNominationId}
+            />
           )}
         </CardContent>
       </Card>
@@ -152,7 +183,11 @@ export function AdminNominationsView({
         onReject={setRejectingNominationId}
       />
 
-      <RejectNominationDialog isOpen={Boolean(rejectingNominationId)} onCancel={() => setRejectingNominationId(null)} onConfirm={handleConfirmReject} />
+      <RejectNominationDialog
+        isOpen={Boolean(rejectingNominationId)}
+        onCancel={() => setRejectingNominationId(null)}
+        onConfirm={handleConfirmReject}
+      />
     </div>
   );
 }

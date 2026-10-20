@@ -12,8 +12,11 @@ describe("CanhoesHomeDashboard", () => {
   it("points to the area of the active phase and up to three shortcuts", async () => {
     render(
       <CanhoesHomeDashboard
-        context={makeEventContext({ phaseType: "VOTING", modules: { feed: true, voting: true, gala: true, wishlist: true, stickers: true, measures: true } })}
-      />
+        context={makeEventContext({
+          phaseType: "VOTING",
+          modules: { feed: true, voting: true, gala: true, wishlist: true, stickers: true, measures: true },
+        })}
+      />,
     );
 
     expect(screen.getByRole("link", { name: /Próximo passo.*Votação/ })).toHaveAttribute("href", "/canhoes/votacao");
@@ -23,7 +26,11 @@ describe("CanhoesHomeDashboard", () => {
   });
 
   it("colours each shortcut with its area's colour", async () => {
-    render(<CanhoesHomeDashboard context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })} />);
+    render(
+      <CanhoesHomeDashboard
+        context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
+      />,
+    );
 
     await userEvent.click(await screen.findByRole("button", { name: "Mostrar atalhos" }));
     const shortcuts = screen.getByRole("navigation", { name: "Atalhos da edição" });
@@ -36,7 +43,11 @@ describe("CanhoesHomeDashboard", () => {
   });
 
   it("keeps the shortcuts folded until asked, with the next step always in view", () => {
-    render(<CanhoesHomeDashboard context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })} />);
+    render(
+      <CanhoesHomeDashboard
+        context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
+      />,
+    );
 
     expect(screen.getByRole("link", { name: /Próximo passo.*Votação/ })).toBeVisible();
     expect(screen.getByRole("button", { name: "Mostrar atalhos" })).toHaveAttribute("aria-expanded", "false");
@@ -44,14 +55,22 @@ describe("CanhoesHomeDashboard", () => {
   });
 
   it("opens the shortcuts and remembers it", async () => {
-    const { unmount } = render(<CanhoesHomeDashboard context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })} />);
+    const { unmount } = render(
+      <CanhoesHomeDashboard
+        context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
+      />,
+    );
 
     await userEvent.click(await screen.findByRole("button", { name: "Mostrar atalhos" }));
     expect(screen.getByRole("navigation", { name: "Atalhos da edição" })).toBeVisible();
     expect(localStorage.getItem("canhoes:home-shortcuts-expanded")).toBe("true");
     unmount();
 
-    render(<CanhoesHomeDashboard context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })} />);
+    render(
+      <CanhoesHomeDashboard
+        context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
+      />,
+    );
     expect(screen.getByRole("button", { name: "Esconder atalhos" })).toHaveAttribute("aria-expanded", "true");
   });
 

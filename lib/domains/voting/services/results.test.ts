@@ -24,7 +24,9 @@ describe("rankCategory", () => {
   });
 
   it("keeps first-seen order on ties and only the top five", () => {
-    const many = new Map(Array.from({ length: 7 }, (_, index) => [`n${index}`, { title: `N${index}`, imageUrl: null }]));
+    const many = new Map(
+      Array.from({ length: 7 }, (_, index) => [`n${index}`, { title: `N${index}`, imageUrl: null }]),
+    );
     const ranked = rankCategory(category, [...many.keys()], many);
     expect(ranked.top.map((entry) => entry.nomineeId)).toEqual(["n0", "n1", "n2", "n3", "n4"]);
     expect(ranked.totalVotes).toBe(7);

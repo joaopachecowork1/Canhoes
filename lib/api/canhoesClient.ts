@@ -6,7 +6,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public readonly status: number,
-    public readonly details?: unknown
+    public readonly details?: unknown,
   ) {
     super(message);
     this.name = "ApiError";
@@ -20,14 +20,21 @@ type CanhoesRequestInit = RequestInit & {
 const pendingGets = new Map<string, Promise<unknown>>();
 
 function normalizePath(path: string) {
-  return path.trim().replace(/^\/+/, "").replace(/^api\//, "");
+  return path
+    .trim()
+    .replace(/^\/+/, "")
+    .replace(/^api\//, "");
 }
 
 async function readBody(response: Response) {
   if (response.status === 204) return undefined;
   const text = await response.text();
   if (!text) return undefined;
-  try { return JSON.parse(text) as unknown; } catch { return text; }
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text;
+  }
 }
 
 const REQUEST_TIMEOUT_MS = 10_000;

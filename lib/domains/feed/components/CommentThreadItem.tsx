@@ -45,7 +45,10 @@ export function CommentThreadItem({
   const offset = comment.indentLevel * INDENT_PX + GUTTER_PX;
 
   return (
-    <article style={{ paddingLeft: `${offset}px` }} className="group relative flex gap-3 pr-3 py-3 transition-colors hover:bg-[var(--color-veil)]/2">
+    <article
+      style={{ paddingLeft: `${offset}px` }}
+      className="group relative flex gap-3 pr-3 py-3 transition-colors hover:bg-[var(--color-veil)]/2"
+    >
       <ThreadLines indentLevel={comment.indentLevel} offset={offset} />
 
       <div className="relative flex flex-col items-center">
@@ -67,7 +70,9 @@ export function CommentThreadItem({
           <span className="text-xs text-[var(--text-muted)]">{`· ${formatDateTime(comment.createdAtUtc)}`}</span>
         </div>
 
-        <p className="mt-1 whitespace-pre-wrap break-words text-base leading-relaxed text-[var(--text-primary)]">{comment.text}</p>
+        <p className="mt-1 whitespace-pre-wrap break-words text-base leading-relaxed text-[var(--text-primary)]">
+          {comment.text}
+        </p>
 
         <div className="mt-2 flex items-center justify-between">
           <button

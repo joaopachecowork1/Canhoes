@@ -26,10 +26,7 @@ const atkinson = localFont({
   display: "swap",
 });
 
-const metadataBaseUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  process.env.NEXTAUTH_URL ??
-  "http://localhost:3000";
+const metadataBaseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(metadataBaseUrl),
@@ -59,15 +56,16 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   // The font variables live on <html> so the :root tokens (--font-display, --font-body) can read them.
   return (
-    <html lang="pt" suppressHydrationWarning data-scroll-behavior="smooth" className={`${barlowCondensed.variable} ${atkinson.variable}`}>
-      <body
-        className="min-h-screen antialiased [scrollbar-gutter:stable]"
-      >
+    <html
+      lang="pt"
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+      className={`${barlowCondensed.variable} ${atkinson.variable}`}
+    >
+      <body className="min-h-screen antialiased [scrollbar-gutter:stable]">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

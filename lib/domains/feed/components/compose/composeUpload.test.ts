@@ -10,11 +10,22 @@ function fileOf(name: string, type: string, size: number) {
 }
 
 /** A canvas that encodes to `encodedSize` bytes, and webp support as asked. */
-function stubCanvas({ encodedSize, webp = true, hasContext = true }: { encodedSize: number | null; webp?: boolean; hasContext?: boolean }) {
+function stubCanvas({
+  encodedSize,
+  webp = true,
+  hasContext = true,
+}: {
+  encodedSize: number | null;
+  webp?: boolean;
+  hasContext?: boolean;
+}) {
   const drawImage = vi.fn();
   // getContext is overloaded per context kind; the 2D stub only needs drawImage.
-  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() => (hasContext ? { drawImage } : null)) as never);
-  vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue(webp ? "data:image/webp;base64," : "data:image/png;base64,");
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation((() =>
+    hasContext ? { drawImage } : null) as never);
+  vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockReturnValue(
+    webp ? "data:image/webp;base64," : "data:image/png;base64,",
+  );
   vi.spyOn(HTMLCanvasElement.prototype, "toBlob").mockImplementation(function (callback, type) {
     callback(encodedSize === null ? null : new Blob([new Uint8Array(encodedSize)], { type }));
   });
@@ -34,7 +45,10 @@ describe("isAcceptedImage", () => {
 
 describe("normalizeUploadImage", () => {
   beforeEach(() => {
-    vi.stubGlobal("createImageBitmap", vi.fn(async () => ({ width: 3200, height: 1600, close: vi.fn() })));
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => ({ width: 3200, height: 1600, close: vi.fn() })),
+    );
   });
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -57,7 +71,10 @@ describe("normalizeUploadImage", () => {
 
   it("falls back to jpeg where webp cannot be encoded", async () => {
     stubCanvas({ encodedSize: MB, webp: false });
-    expect(await normalizeUploadImage(fileOf("praia.png", "image/png", 5 * MB))).toMatchObject({ name: "praia.jpg", type: "image/jpeg" });
+    expect(await normalizeUploadImage(fileOf("praia.png", "image/png", 5 * MB))).toMatchObject({
+      name: "praia.jpg",
+      type: "image/jpeg",
+    });
   });
 
   it("always converts HEIC, even when small", async () => {
@@ -81,7 +98,10 @@ describe("normalizeUploadImage", () => {
     stubCanvas({ encodedSize: null });
     expect(await normalizeUploadImage(large)).toBe(large);
 
-    vi.stubGlobal("createImageBitmap", vi.fn(async () => Promise.reject(new Error("decode"))));
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => Promise.reject(new Error("decode"))),
+    );
     expect(await normalizeUploadImage(large)).toBe(large);
   });
 });

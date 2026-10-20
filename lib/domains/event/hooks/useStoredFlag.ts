@@ -30,7 +30,11 @@ function readFlag(key: string) {
 
 /** A true/false choice remembered in this browser; `serverValue` is what the server render shows, before the browser's choice is known. */
 export function useStoredFlag(key: string, serverValue: boolean) {
-  const flag = useSyncExternalStore(subscribe, () => readFlag(key), () => serverValue);
+  const flag = useSyncExternalStore(
+    subscribe,
+    () => readFlag(key),
+    () => serverValue,
+  );
 
   const setFlag = (next: boolean) => {
     try {

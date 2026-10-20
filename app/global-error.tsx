@@ -33,19 +33,13 @@ export default function GlobalError({
               Algo correu mal a carregar a aplicação
             </h1>
             <p className="text-sm leading-relaxed text-[var(--text-muted)]">
-              O erro não ficou isolado numa área específica.
-              Tenta novamente ou recarrega a página para recuperar.
+              O erro não ficou isolado numa área específica. Tenta novamente ou recarrega a página para recuperar.
             </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-3">
-            <Button onClick={() => reset()}>
-              Tentar novamente
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => globalThis.location.reload()}
-            >
+            <Button onClick={() => reset()}>Tentar novamente</Button>
+            <Button variant="outline" onClick={() => globalThis.location.reload()}>
               Recarregar página
             </Button>
             <Button
@@ -63,9 +57,7 @@ export default function GlobalError({
               <summary className="cursor-pointer text-xs font-medium text-[var(--text-muted)]">
                 Detalhes tecnicos
               </summary>
-              <pre className="mt-2 overflow-x-auto text-xs text-[var(--text-ghost)]">
-                {error.message}
-              </pre>
+              <pre className="mt-2 overflow-x-auto text-xs text-[var(--text-ghost)]">{error.message}</pre>
             </details>
           ) : null}
         </div>

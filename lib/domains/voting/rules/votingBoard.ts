@@ -5,7 +5,7 @@ export function applyVoteSelection(board: EventVotingBoardDto, vote: CastOfficia
   return {
     ...board,
     categories: board.categories.map((category) =>
-      category.id === vote.categoryId ? { ...category, myOptionId: vote.selectionId } : category
+      category.id === vote.categoryId ? { ...category, myOptionId: vote.selectionId } : category,
     ),
   };
 }

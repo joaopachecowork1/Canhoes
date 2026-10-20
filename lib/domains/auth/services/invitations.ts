@@ -7,11 +7,7 @@ import { prisma } from "@/lib/prisma";
 const INVITATION_TTL_DAYS = 7;
 const PASSWORD_HASH_ROUNDS = 10;
 
-type InvitationErrorCode =
-  | "USER_ALREADY_EXISTS"
-  | "INVALID_INVITATION"
-  | "INVITATION_USED"
-  | "INVITATION_EXPIRED";
+type InvitationErrorCode = "USER_ALREADY_EXISTS" | "INVALID_INVITATION" | "INVITATION_USED" | "INVITATION_EXPIRED";
 
 const INVITATION_ERROR_MESSAGES: Record<InvitationErrorCode, string> = {
   USER_ALREADY_EXISTS: "Já existe uma conta com este email.",
@@ -65,7 +61,10 @@ export async function registerWithInvitation(input: { token: string; password: s
 
   return prisma.$transaction(async (tx) => {
     // Claiming the invitation is the check that counts: two simultaneous requests both pass the one above.
-    const claimed = await tx.userInvitation.updateMany({ where: { id: invitation.id, usedAtUtc: null }, data: { usedAtUtc: new Date() } });
+    const claimed = await tx.userInvitation.updateMany({
+      where: { id: invitation.id, usedAtUtc: null },
+      data: { usedAtUtc: new Date() },
+    });
     if (claimed.count === 0) throw new InvitationError("INVITATION_USED");
 
     const existingUser = await tx.user.findUnique({ where: { email } });
@@ -75,7 +74,13 @@ export async function registerWithInvitation(input: { token: string; password: s
           data: { passwordHash, displayName: existingUser.displayName || input.displayName },
         })
       : await tx.user.create({
-          data: { email, externalId: `credentials:${email}`, displayName: input.displayName, passwordHash, isAdmin: false },
+          data: {
+            email,
+            externalId: `credentials:${email}`,
+            displayName: input.displayName,
+            passwordHash,
+            isAdmin: false,
+          },
         });
 
     if (invitation.eventId) {

@@ -18,7 +18,7 @@ describe("PersonColorPicker", () => {
       http.put("*/api/v1/me/color", async ({ request }) => {
         await recorded.capture(request);
         return HttpResponse.json({ color: "pink" });
-      })
+      }),
     );
     const { queryClient } = renderWithProviders(<PersonColorPicker />);
     const invalidate = vi.spyOn(queryClient, "invalidateQueries");

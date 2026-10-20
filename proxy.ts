@@ -8,15 +8,12 @@ export function shouldRedirectUnauthenticated(pathname: string, token: unknown) 
   return !token && !PUBLIC_PATHS.has(pathname);
 }
 
-export default withAuth(
-  function proxy() {},
-  {
-    pages: { signIn: "/canhoes/login" },
-    callbacks: {
-      authorized: ({ req, token }) => !shouldRedirectUnauthenticated(req.nextUrl.pathname, token),
-    },
-  }
-);
+export default withAuth(function proxy() {}, {
+  pages: { signIn: "/canhoes/login" },
+  callbacks: {
+    authorized: ({ req, token }) => !shouldRedirectUnauthenticated(req.nextUrl.pathname, token),
+  },
+});
 
 export const config = {
   matcher: ["/canhoes/:path*"],

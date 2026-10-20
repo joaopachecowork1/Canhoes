@@ -5,7 +5,8 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 // A disabled button with a box turns into a flat grey one; the variants without a box (ghost, link) just dim.
-const DISABLED_BOX = "disabled:border-[var(--color-border)] disabled:bg-[var(--color-veil)]/8 disabled:text-[var(--color-text-muted)]";
+const DISABLED_BOX =
+  "disabled:border-[var(--color-border)] disabled:bg-[var(--color-veil)]/8 disabled:text-[var(--color-text-muted)]";
 const DISABLED_DIM = "disabled:opacity-50";
 
 /**
@@ -38,24 +39,24 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 type ButtonProps = React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
-  }
+    asChild?: boolean;
+  };
 
 /**
  * Componente de botão interativo e acessível com suporte para múltiplas variantes visuais.
- * 
+ *
  * @param asChild - Se true, renderiza o componente usando o Slot do Radix para composição.
  * @param variant - O estilo visual do botão.
  * @param size - O tamanho do botão.
  */
 function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
   const Comp = asChild ? Slot : "button";
-  return <Comp className={cn(buttonVariants({ variant, size, className }))} {...props} />
+  return <Comp className={cn(buttonVariants({ variant, size, className }))} {...props} />;
 }
 
-export { Button }
+export { Button };

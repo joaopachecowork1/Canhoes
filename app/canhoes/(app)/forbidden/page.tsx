@@ -16,7 +16,9 @@ export default function ForbiddenPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm">{copy.description}</p>
-          <Button asChild><Link href="/canhoes">{copy.back}</Link></Button>
+          <Button asChild>
+            <Link href="/canhoes">{copy.back}</Link>
+          </Button>
         </CardContent>
       </Card>
     </div>

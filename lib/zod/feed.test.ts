@@ -15,7 +15,14 @@ describe("CreateFeedPostSchema", () => {
     if (result.success) expect(result.data.text).toBe("Jantar de Natal");
   });
 
-  it.each(["https://tracker.example/a.png", "/uploads/../api/auth/signout", "/uploads/%2e%2e/x", "/uploads/.\t./api/v1/x.png", "/uploads/feed/page.html", "/uploads/canhoes/wishlist/a.png"])("rejects the media address %s", (url) => {
+  it.each([
+    "https://tracker.example/a.png",
+    "/uploads/../api/auth/signout",
+    "/uploads/%2e%2e/x",
+    "/uploads/.\t./api/v1/x.png",
+    "/uploads/feed/page.html",
+    "/uploads/canhoes/wishlist/a.png",
+  ])("rejects the media address %s", (url) => {
     expect(CreateFeedPostSchema.safeParse({ text: "Foto", mediaUrls: [url] }).success).toBe(false);
     expect(CreateFeedPostSchema.safeParse({ text: "Foto", mediaUrl: url }).success).toBe(false);
   });

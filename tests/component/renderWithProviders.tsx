@@ -21,7 +21,7 @@ export function renderWithProviders(ui: ReactElement): RenderResult & { queryCli
           {ui}
           <Toaster />
         </AuthProvider>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     ),
   };
 }

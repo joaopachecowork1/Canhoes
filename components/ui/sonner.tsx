@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  CircleCheckIcon,
-  InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
-  TriangleAlertIcon,
-} from "lucide-react";
+import { CircleCheckIcon, InfoIcon, Loader2Icon, OctagonXIcon, TriangleAlertIcon } from "lucide-react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -20,25 +14,17 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster group"
       toastOptions={{
         classNames: {
-          actionButton:
-            "!bg-[var(--color-moss)] !text-[var(--on-moss)]",
-          cancelButton:
-            "!bg-[var(--color-bg-surface-alt)] !text-[var(--color-text-primary)]",
+          actionButton: "!bg-[var(--color-moss)] !text-[var(--on-moss)]",
+          cancelButton: "!bg-[var(--color-bg-surface-alt)] !text-[var(--color-text-primary)]",
           closeButton:
             "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
           description: "!text-[var(--color-text-muted)]",
-          error:
-            "!border-[var(--color-danger)]/25 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
-          info:
-            "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
-          loading:
-            "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
-          success:
-            "!border-[var(--color-moss)]/22 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
-          toast:
-            "!rounded-[var(--radius-md-token)] !border !shadow-[var(--shadow-layered)]",
-          warning:
-            "!border-[var(--person-amber)]/20 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+          error: "!border-[var(--color-danger)]/25 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+          info: "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+          loading: "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+          success: "!border-[var(--color-moss)]/22 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+          toast: "!rounded-[var(--radius-md-token)] !border !shadow-[var(--shadow-layered)]",
+          warning: "!border-[var(--person-amber)]/20 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
         },
       }}
       icons={{

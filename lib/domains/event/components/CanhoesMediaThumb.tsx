@@ -32,7 +32,7 @@ export function CanhoesMediaThumb({
     <div
       className={cn(
         "flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[var(--color-veil)]/5",
-        frameClassName
+        frameClassName,
       )}
     >
       {resolvedSrc ? (
@@ -46,9 +46,7 @@ export function CanhoesMediaThumb({
           sizes="56px"
         />
       ) : (
-        <ImageOff
-          className={cn("h-4 w-4 text-[var(--color-text-muted)]", iconClassName)}
-        />
+        <ImageOff className={cn("h-4 w-4 text-[var(--color-text-muted)]", iconClassName)} />
       )}
     </div>
   );

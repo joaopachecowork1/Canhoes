@@ -16,6 +16,7 @@ App full-stack em Next.js 16 (App Router, React 19, TypeScript 6, Tailwind 4), c
 npm run db:up          # PostgreSQL (Docker ou Podman) em localhost:5433
 npm run db:migrate && npm run db:seed
 npm run dev            # http://localhost:3000/canhoes (login de dev automático)
+npm run format         # Prettier; o CI recusa código mal formatado (format:check)
 npm run lint
 npx tsc --noEmit
 npm test               # vitest, testes unitários de lógica pura
@@ -26,9 +27,9 @@ npm run build
 docker compose up -d --build   # stack completa; com Podman: podman compose up -d --build --force-recreate
 ```
 
-Antes de dar algo por terminado: `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run test:component`, `npm run test:integration` e `npm run knip` (o CI corre todos).
+Antes de dar algo por terminado: `npm run format:check`, `npm run lint`, `npx tsc --noEmit`, `npm test`, `npm run test:component`, `npm run test:integration` e `npm run knip` (o CI corre todos).
 
-`scripts/quality-gate.sh` corre lint, tipos, testes unitários e de componentes e knip (`--cached` salta quando nada mudou desde a última passagem). Corre sozinho no `git push` (`scripts/git-hooks/pre-push`, ativo com `git config core.hooksPath scripts/git-hooks`) e nos hooks locais do Claude Code (`.claude/settings.json`: antes de cada `git commit` e ao terminar uma resposta com alterações por commitar).
+`scripts/quality-gate.sh` corre formatação, lint, tipos, testes unitários e de componentes e knip (`--cached` salta quando nada mudou desde a última passagem). Corre sozinho no `git push` (`scripts/git-hooks/pre-push`, ativo com `git config core.hooksPath scripts/git-hooks`) e nos hooks locais do Claude Code (`.claude/settings.json`: antes de cada `git commit` e ao terminar uma resposta com alterações por commitar).
 
 ## Definição de pronto
 
@@ -36,7 +37,7 @@ Uma alteração só está pronta quando:
 
 1. **Teste primeiro.** Código novo ou bug corrigido tem um teste que falhou antes da mudança (`superpowers:test-driven-development`). Testa o que o utilizador vê ou o que a API devolve, não detalhes de implementação.
 2. **Cobertura não desce.** Os mínimos em `vitest.config.mjs` só sobem; depois de um lote de testes, acerta-os logo abaixo dos números novos.
-3. **Documentado.** Cada função exportada de `services/`, `rules/`, `hooks/` e `lib/` tem um JSDoc de uma linha que diz o que faz (o lint exige-o); comentários no corpo só para o porquê. Mudanças de comportamento, de API ou de setup atualizam `docs/` e o `README.md`.
+3. **Documentado.** Cada função exportada de `services/`, `rules/`, `hooks/` e `lib/` tem um JSDoc de uma linha, **em português**, que diz o que faz (o lint exige-o); comentários no corpo também em português e só onde ajudam: o porquê de uma regra, uma ordem que importa ou um passo menos óbvio. Mudanças de comportamento, de API ou de setup atualizam `docs/` e o `README.md`.
 4. **Legível.** Nomes honestos, funções pequenas, sem código morto (as regras de Prioridades acima).
 5. **Revisto.** `/code-review` ao diff antes do commit, e `superpowers:verification-before-completion`: não dizer que está feito sem mostrar a saída das verificações.
 6. **Verde.** `scripts/quality-gate.sh` e `npm run test:integration` passam.

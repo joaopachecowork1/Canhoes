@@ -101,5 +101,5 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
 ];
 
 export const CANHOES_MODULE_BY_KEY = Object.fromEntries(
-  CANHOES_MODULES.map((module) => [module.key, module])
+  CANHOES_MODULES.map((module) => [module.key, module]),
 ) as Record<AdminModuleKey, CanhoesModule>;

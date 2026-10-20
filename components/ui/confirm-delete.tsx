@@ -56,25 +56,21 @@ export function ConfirmDeleteAction({
 }: ConfirmDeleteProps) {
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        {trigger ?? <DefaultTrigger iconOnly={iconOnly} />}
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{trigger ?? <DefaultTrigger iconOnly={iconOnly} />}</AlertDialogTrigger>
       <AlertDialogContent className="border border-[var(--color-veil)]/10 bg-[var(--bg-deep)] shadow-xl">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-[var(--text-primary)]">{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-[var(--text-muted)]">
-            {description}
-          </AlertDialogDescription>
+          <AlertDialogDescription className="text-[var(--text-muted)]">{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="border-[var(--color-veil)]/10 bg-transparent text-[var(--ink-secondary)] hover:bg-[var(--color-veil)]/5 hover:text-[var(--text-primary)]">
             {messages.common.cancel}
           </AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogAction
             onClick={(e) => {
               e.stopPropagation();
               onConfirm();
-            }} 
+            }}
             className="bg-[var(--color-danger)] text-[var(--text-primary)] hover:bg-[var(--color-danger-hover)]"
           >
             {messages.common.delete}

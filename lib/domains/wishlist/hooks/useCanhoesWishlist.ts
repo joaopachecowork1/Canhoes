@@ -38,7 +38,10 @@ type UseCanhoesWishlistOptions = {
   initialWishlistItems?: EventWishlistItemDto[];
 };
 
-function useWishlistQueries(eventId: string | null, { initialMembers, initialWishlistItems }: UseCanhoesWishlistOptions) {
+function useWishlistQueries(
+  eventId: string | null,
+  { initialMembers, initialWishlistItems }: UseCanhoesWishlistOptions,
+) {
   const membersQuery = useEventMembers(eventId, initialMembers);
 
   const itemsQuery = useQuery({
@@ -108,7 +111,7 @@ function useWishlistMutations(eventId: string | null) {
     try {
       await eventRepo.deleteWishlistItem(eventId, wishlistItemId);
       queryClient.setQueryData<EventWishlistItemDto[]>(queryKeys.wishlistItems(eventId), (previousItems) =>
-        (previousItems ?? []).filter((item) => item.id !== wishlistItemId)
+        (previousItems ?? []).filter((item) => item.id !== wishlistItemId),
       );
       toast.success(copy.itemRemoved);
     } catch (deleteError) {
@@ -122,7 +125,16 @@ function useWishlistMutations(eventId: string | null) {
   const retryLoading = () =>
     eventId ? queryClient.invalidateQueries({ queryKey: queryKeys.wishlistItems(eventId) }) : Promise.resolve();
 
-  return { formState, setFormState, isSaving, deletingItemId, canSubmit, createWishlistItem, deleteWishlistItem, retryLoading };
+  return {
+    formState,
+    setFormState,
+    isSaving,
+    deletingItemId,
+    canSubmit,
+    createWishlistItem,
+    deleteWishlistItem,
+    retryLoading,
+  };
 }
 
 /** Members and wishlist items of the event, the selected member's list, and adding or removing your own items. */

@@ -62,20 +62,25 @@ function useNominationCache(nominationsQueryKey: readonly unknown[]) {
 
   const updateNominations = (update: (nominations: AdminNomineeDto[]) => AdminNomineeDto[]) => {
     queryClient.setQueryData<NominationsQueryData>(nominationsQueryKey, (current) =>
-      current ? { ...current, nominations: update(current.nominations) } : current
+      current ? { ...current, nominations: update(current.nominations) } : current,
     );
   };
 
   return {
-    remove: (nomineeId: string) => updateNominations((nominations) => nominations.filter((nomination) => nomination.id !== nomineeId)),
+    remove: (nomineeId: string) =>
+      updateNominations((nominations) => nominations.filter((nomination) => nomination.id !== nomineeId)),
     setCategory: (nomineeId: string, categoryId: string | null) =>
       updateNominations((nominations) =>
-        nominations.map((nomination) => (nomination.id === nomineeId ? { ...nomination, categoryId } : nomination))
+        nominations.map((nomination) => (nomination.id === nomineeId ? { ...nomination, categoryId } : nomination)),
       ),
   };
 }
 
-function useNominationMutations(queryEventId: string, nominationsQueryKey: readonly unknown[], categoriesQueryKey: readonly unknown[]) {
+function useNominationMutations(
+  queryEventId: string,
+  nominationsQueryKey: readonly unknown[],
+  categoriesQueryKey: readonly unknown[],
+) {
   const queryClient = useQueryClient();
   const cache = useNominationCache(nominationsQueryKey);
   const invalidateRelated = () =>
@@ -100,8 +105,11 @@ function useNominationMutations(queryEventId: string, nominationsQueryKey: reado
   });
   const setCategory = useModerationMutation({
     mutationFn: ({ nomineeId, categoryId }: { nomineeId: string; categoryId: string }) =>
-      adminRepo.setNominationCategory(queryEventId, nomineeId, { categoryId: categoryId === NO_CATEGORY ? null : categoryId }),
-    updateCache: ({ nomineeId, categoryId }) => cache.setCategory(nomineeId, categoryId === NO_CATEGORY ? null : categoryId),
+      adminRepo.setNominationCategory(queryEventId, nomineeId, {
+        categoryId: categoryId === NO_CATEGORY ? null : categoryId,
+      }),
+    updateCache: ({ nomineeId, categoryId }) =>
+      cache.setCategory(nomineeId, categoryId === NO_CATEGORY ? null : categoryId),
     successMessage: copy.categoryUpdated,
     errorMessage: copy.moveError,
     invalidateRelated,

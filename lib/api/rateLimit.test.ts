@@ -20,17 +20,25 @@ describe("enforceRateLimit", () => {
 
   it("trusts the address Cloudflare sets over a forwarded header the caller can fake", () => {
     vi.stubEnv("TRUST_CF_CONNECTING_IP", "true");
-    const attacker = (spoofed: string) => ({ headers: new Headers({ "cf-connecting-ip": "caller-real", "x-forwarded-for": spoofed }) });
+    const attacker = (spoofed: string) => ({
+      headers: new Headers({ "cf-connecting-ip": "caller-real", "x-forwarded-for": spoofed }),
+    });
     for (let call = 0; call < 5; call++) enforceRateLimit(attacker(`fake-${call}`), "strict");
 
-    expect(() => enforceRateLimit(attacker("fake-new"), "strict")).toThrowError(expect.objectContaining({ status: 429 }));
+    expect(() => enforceRateLimit(attacker("fake-new"), "strict")).toThrowError(
+      expect.objectContaining({ status: 429 }),
+    );
   });
 
   it("ignores CF-Connecting-IP unless the deployment says Cloudflare is the only way in", () => {
-    const attacker = (spoofed: string) => ({ headers: new Headers({ "cf-connecting-ip": spoofed, "x-forwarded-for": "caller-fixed" }) });
+    const attacker = (spoofed: string) => ({
+      headers: new Headers({ "cf-connecting-ip": spoofed, "x-forwarded-for": "caller-fixed" }),
+    });
     for (let call = 0; call < 5; call++) enforceRateLimit(attacker(`fake-${call}`), "strict");
 
-    expect(() => enforceRateLimit(attacker("fake-new"), "strict")).toThrowError(expect.objectContaining({ status: 429 }));
+    expect(() => enforceRateLimit(attacker("fake-new"), "strict")).toThrowError(
+      expect.objectContaining({ status: 429 }),
+    );
   });
 
   it("does not limit callers it cannot tell apart", () => {
@@ -66,9 +74,12 @@ describe("enforceRateLimit", () => {
   });
 
   it("limits an account whatever the IP, ignoring the case of its email", () => {
-    for (let call = 0; call < 10; call++) enforceAccountRateLimit(call % 2 ? "Dora@Example.test " : "dora@example.test", "login");
+    for (let call = 0; call < 10; call++)
+      enforceAccountRateLimit(call % 2 ? "Dora@Example.test " : "dora@example.test", "login");
 
-    expect(() => enforceAccountRateLimit("DORA@example.test", "login")).toThrowError(expect.objectContaining({ status: 429 }));
+    expect(() => enforceAccountRateLimit("DORA@example.test", "login")).toThrowError(
+      expect.objectContaining({ status: 429 }),
+    );
     expect(() => enforceAccountRateLimit("eva@example.test", "login")).not.toThrow();
   });
 });

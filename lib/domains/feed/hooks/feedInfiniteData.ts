@@ -14,8 +14,8 @@ export type FeedInfiniteData = InfiniteData<FeedPageData, number>;
 /** One page of the infinite feed from an API page, dropping malformed posts. */
 export function toFeedPage(result: PagedResult<EventFeedPostFullDto>): FeedPageData {
   return {
-    posts: (Array.isArray(result.items) ? result.items : []).filter(
-      (post): post is EventFeedPostFullDto => Boolean(post?.id)
+    posts: (Array.isArray(result.items) ? result.items : []).filter((post): post is EventFeedPostFullDto =>
+      Boolean(post?.id),
     ),
     nextCursor: result.hasMore ? result.skip + result.take : null,
     total: result.total,
@@ -34,7 +34,7 @@ export function countRemainingPosts(feed: InfiniteData<FeedPageData> | undefined
 /** The feed without the given post, on every loaded page. */
 export function removePostFromFeed<TFeed extends InfiniteData<FeedPageData>>(
   feed: TFeed | undefined,
-  postId: string
+  postId: string,
 ): TFeed | undefined {
   const isPostLoaded = feed?.pages.some((page) => page.posts.some((post) => post.id === postId));
   if (!feed || !isPostLoaded) return feed;
@@ -58,7 +58,7 @@ export function findPostInFeed(feed: FeedInfiniteData | undefined, postId: strin
 export function updatePostInFeed(
   feed: FeedInfiniteData | undefined,
   postId: string,
-  updater: (post: EventFeedPostFullDto) => EventFeedPostFullDto
+  updater: (post: EventFeedPostFullDto) => EventFeedPostFullDto,
 ): FeedInfiniteData | undefined {
   if (!feed) return feed;
 
@@ -81,10 +81,11 @@ export function sortPinnedPosts(feed: FeedInfiniteData | undefined): FeedInfinit
     ...feed,
     pages: feed.pages.map((page) => ({
       ...page,
-      posts: [...page.posts].sort((left, right) =>
-        Number(Boolean(right.isPinned)) - Number(Boolean(left.isPinned)) ||
-        lastPinned(left) - lastPinned(right) ||
-        String(right.createdAtUtc).localeCompare(String(left.createdAtUtc))
+      posts: [...page.posts].sort(
+        (left, right) =>
+          Number(Boolean(right.isPinned)) - Number(Boolean(left.isPinned)) ||
+          lastPinned(left) - lastPinned(right) ||
+          String(right.createdAtUtc).localeCompare(String(left.createdAtUtc)),
       ),
     })),
   };

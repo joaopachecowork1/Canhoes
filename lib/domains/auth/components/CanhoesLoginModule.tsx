@@ -17,9 +17,7 @@ const copy = messages.auth.CanhoesLoginModule;
 const AUTH_ERROR_MESSAGES: Record<string, string> = copy.authErrors;
 
 function getSafeCallbackUrl(value: string | null): string {
-  return value?.startsWith("/canhoes") && !value.startsWith("//")
-    ? value
-    : "/canhoes";
+  return value?.startsWith("/canhoes") && !value.startsWith("//") ? value : "/canhoes";
 }
 
 function getRequestedCallbackUrl() {
@@ -130,11 +128,19 @@ export function CanhoesLoginModule() {
 
               {isDevLoginAvailable ? <DevLoginOption onLogin={loginDevelopment} /> : null}
 
-              <CredentialsLoginForm isSigningIn={isSigningIn} onSubmit={(email, password) => void handleCredentialsLogin(email, password)} />
+              <CredentialsLoginForm
+                isSigningIn={isSigningIn}
+                onSubmit={(email, password) => void handleCredentialsLogin(email, password)}
+              />
 
               <OrDivider />
 
-              <Button variant="outline" className="w-full text-[var(--text-secondary)]" onClick={handleGoogleLogin} disabled={isGoogleBusy}>
+              <Button
+                variant="outline"
+                className="w-full text-[var(--text-secondary)]"
+                onClick={handleGoogleLogin}
+                disabled={isGoogleBusy}
+              >
                 {isGoogleBusy ? messages.auth.common.signingIn : copy.googleLogin}
               </Button>
               <p className="text-center text-xs text-[var(--text-muted)]">{copy.footer}</p>

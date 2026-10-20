@@ -22,13 +22,7 @@ type WishlistMemberPanelProps = {
 };
 
 /** One member's wishlist, read-only. */
-export function WishlistMemberPanel({
-  deletingItemId,
-  items,
-  member,
-  onDelete,
-  userId,
-}: WishlistMemberPanelProps) {
+export function WishlistMemberPanel({ deletingItemId, items, member, onDelete, userId }: WishlistMemberPanelProps) {
   const isCurrentUser = member.id === userId;
 
   return (

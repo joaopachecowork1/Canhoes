@@ -17,7 +17,7 @@ export type ResolvedUser = {
 export async function resolveUser(
   externalId: string,
   email: string,
-  displayName: string | null
+  displayName: string | null,
 ): Promise<ResolvedUser> {
   const existing = await prisma.user.findFirst({
     where: {
@@ -63,7 +63,7 @@ export async function resolveUser(
 export async function resolveDevelopmentAdmin(
   externalId: string,
   email: string,
-  displayName: string
+  displayName: string,
 ): Promise<ResolvedUser> {
   const user = await resolveUser(externalId, email, displayName);
   if (user.isAdmin) return user;

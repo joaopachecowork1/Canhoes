@@ -23,7 +23,7 @@ function renderStickers({ phaseType = "PROPOSALS", stickers = approved } = {}) {
       initialContext={makeEventContext({ phaseType, modules: { stickers: true } })}
       initialStickerCategories={[stickerCategory, category()]}
       initialApprovedNominees={stickers}
-    />
+    />,
   );
 }
 
@@ -70,7 +70,7 @@ describe("CanhoesStickerSubmitModule", () => {
       }),
       http.post("*/api/v1/events/event-1/nominations/new/upload", () => HttpResponse.json(nominee({ id: "new" }))),
       apiRoute("get", "events/event-1/categories", paged([stickerCategory])),
-      apiRoute("get", "events/event-1/nominations/approved", approved)
+      apiRoute("get", "events/event-1/nominations/approved", approved),
     );
     renderStickers();
 
@@ -96,7 +96,7 @@ describe("CanhoesStickerSubmitModule", () => {
       }),
       apiRoute("post", "events/event-1/nominations/new/upload", { message: "Imagem inválida." }, 400),
       apiRoute("get", "events/event-1/categories", paged([stickerCategory])),
-      apiRoute("get", "events/event-1/nominations/approved", approved)
+      apiRoute("get", "events/event-1/nominations/approved", approved),
     );
     renderStickers();
 
@@ -143,9 +143,11 @@ describe("CanhoesStickerSubmitModule", () => {
   it("shows the load error", async () => {
     server.use(
       apiRoute("get", "events/event-1/categories", { message: "boom" }, 500),
-      apiRoute("get", "events/event-1/nominations/approved", [])
+      apiRoute("get", "events/event-1/nominations/approved", []),
     );
-    renderWithProviders(<CanhoesStickerSubmitModule initialContext={makeEventContext({ modules: { stickers: true } })} />);
+    renderWithProviders(
+      <CanhoesStickerSubmitModule initialContext={makeEventContext({ modules: { stickers: true } })} />,
+    );
 
     const alert = await screen.findByRole("alert");
     expect(within(alert).getByText("Não deu para abrir os stickers")).toBeInTheDocument();

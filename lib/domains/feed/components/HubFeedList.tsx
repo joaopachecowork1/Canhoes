@@ -38,16 +38,39 @@ type HubFeedListProps = {
   sentinelRef: React.MutableRefObject<HTMLDivElement | null>;
 };
 
-
 const HubFeedListItem = memo(function HubFeedListItem({
-  post, index, eventId, isAdmin, openComments, commentDraft, replyingToId,
-  currentUserId, currentUserName, currentUserImage,
-  onToggleReaction, onToggleDownvote, onToggleComments, onVotePoll,
-  onAddComment, onDeleteComment, onCommentDraftChange, onAdminPin, onAdminMovePinned, onAdminDelete, setReplyingTo
+  post,
+  index,
+  eventId,
+  isAdmin,
+  openComments,
+  commentDraft,
+  replyingToId,
+  currentUserId,
+  currentUserName,
+  currentUserImage,
+  onToggleReaction,
+  onToggleDownvote,
+  onToggleComments,
+  onVotePoll,
+  onAddComment,
+  onDeleteComment,
+  onCommentDraftChange,
+  onAdminPin,
+  onAdminMovePinned,
+  onAdminDelete,
+  setReplyingTo,
 }: {
-  post: EventFeedPostFullDto; index: number; eventId: string; isAdmin: boolean;
-  openComments: boolean; commentDraft: string; replyingToId: string | null;
-  currentUserId: string | null; currentUserName: string; currentUserImage: string | null;
+  post: EventFeedPostFullDto;
+  index: number;
+  eventId: string;
+  isAdmin: boolean;
+  openComments: boolean;
+  commentDraft: string;
+  replyingToId: string | null;
+  currentUserId: string | null;
+  currentUserName: string;
+  currentUserImage: string | null;
   onToggleReaction: (postId: string, emoji: string, e?: React.MouseEvent) => void;
   onToggleDownvote: (postId: string) => void;
   onToggleComments: (postId: string) => void;
@@ -118,53 +141,52 @@ export const HubFeedList = memo(function HubFeedList({
 }: Readonly<HubFeedListProps>) {
   return (
     <div className="animate-fade-in flex flex-col">
-
-                {posts.length > 0 ? (
-            <div className="space-y-3">
-              {posts.map((post, index) => (
-                <HubFeedListItem
-                  key={post.id}
-                  post={post}
-                  index={index}
-                  eventId={eventId}
-                  isAdmin={isAdmin}
-                  openComments={openComments[post.id] ?? false}
-                  commentDraft={commentDrafts[post.id] ?? ""}
-                  replyingToId={replyingTo[post.id] ?? null}
-                  currentUserId={currentUserId}
-                  currentUserName={currentUserName}
-                  currentUserImage={currentUserImage}
-                  onToggleReaction={onToggleReaction}
-                  onToggleDownvote={onToggleDownvote}
-                  onToggleComments={onToggleComments}
-                  onVotePoll={onVotePoll}
-                  onAddComment={onAddComment}
-                  onDeleteComment={onDeleteComment}
-                  onCommentDraftChange={onCommentDraftChange}
-                  onAdminPin={onAdminPin}
-                  onAdminMovePinned={onAdminMovePinned}
-                  onAdminDelete={onAdminDelete}
-                  setReplyingTo={setReplyingTo}
-                />
-              ))}
-            </div>
-        ) : (
-          <EmptyState
-            className="py-10"
-            icon={ScrollText}
-            title={messages.feed.HubFeedList.emptyTitle}
-            description={messages.feed.HubFeedList.emptyDescription}
-            tone="social"
-          />
-        )}
-
-        <FeedLoadMore
-          hasMore={hasMore}
-          isFetchingNextPage={isFetchingNextPage}
-          remainingCount={remainingPostsCount}
-          onLoadMore={onLoadMore}
-          sentinelRef={sentinelRef}
+      {posts.length > 0 ? (
+        <div className="space-y-3">
+          {posts.map((post, index) => (
+            <HubFeedListItem
+              key={post.id}
+              post={post}
+              index={index}
+              eventId={eventId}
+              isAdmin={isAdmin}
+              openComments={openComments[post.id] ?? false}
+              commentDraft={commentDrafts[post.id] ?? ""}
+              replyingToId={replyingTo[post.id] ?? null}
+              currentUserId={currentUserId}
+              currentUserName={currentUserName}
+              currentUserImage={currentUserImage}
+              onToggleReaction={onToggleReaction}
+              onToggleDownvote={onToggleDownvote}
+              onToggleComments={onToggleComments}
+              onVotePoll={onVotePoll}
+              onAddComment={onAddComment}
+              onDeleteComment={onDeleteComment}
+              onCommentDraftChange={onCommentDraftChange}
+              onAdminPin={onAdminPin}
+              onAdminMovePinned={onAdminMovePinned}
+              onAdminDelete={onAdminDelete}
+              setReplyingTo={setReplyingTo}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          className="py-10"
+          icon={ScrollText}
+          title={messages.feed.HubFeedList.emptyTitle}
+          description={messages.feed.HubFeedList.emptyDescription}
+          tone="social"
         />
+      )}
+
+      <FeedLoadMore
+        hasMore={hasMore}
+        isFetchingNextPage={isFetchingNextPage}
+        remainingCount={remainingPostsCount}
+        onLoadMore={onLoadMore}
+        sentinelRef={sentinelRef}
+      />
     </div>
   );
 });

@@ -46,10 +46,7 @@ export function CanhoesBottomTabs({
   ] as const satisfies readonly DockItem[];
 
   return (
-    <nav
-      aria-label={messages.shell.CanhoesBottomTabs.navLabel}
-      className="fixed inset-x-0 bottom-0 z-50"
-    >
+    <nav aria-label={messages.shell.CanhoesBottomTabs.navLabel} className="fixed inset-x-0 bottom-0 z-50">
       <div className="mx-auto max-w-[32rem] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:px-3">
         <Dock
           items={items}

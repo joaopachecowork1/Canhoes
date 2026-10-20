@@ -14,11 +14,18 @@ import { CanhoesOfficialVotingModule } from "./CanhoesOfficialVotingModule";
 
 const bestCanhao = votingCategory();
 const bestCanhoVoted = { ...bestCanhao, myOptionId: "opt-rui" };
-const bestPhoto = votingCategory({ id: "cat-2", title: "Melhor Foto", options: [{ id: "opt-praia", label: "Praia", imageUrl: null }] });
+const bestPhoto = votingCategory({
+  id: "cat-2",
+  title: "Melhor Foto",
+  options: [{ id: "opt-praia", label: "Praia", imageUrl: null }],
+});
 
 function renderVoting(initialData: EventVotingBoardDto | null = votingBoard([bestCanhao, bestPhoto])) {
   return renderWithProviders(
-    <CanhoesOfficialVotingModule initialData={initialData ?? undefined} initialContext={makeEventContext({ phaseType: "VOTING", modules: { voting: true } })} />
+    <CanhoesOfficialVotingModule
+      initialData={initialData ?? undefined}
+      initialContext={makeEventContext({ phaseType: "VOTING", modules: { voting: true } })}
+    />,
   );
 }
 
@@ -52,7 +59,7 @@ describe("CanhoesOfficialVotingModule", () => {
         await new Promise<void>((resolve) => (resolveVote = resolve));
         return new HttpResponse(null, { status: 204 });
       }),
-      apiRoute("get", "events/event-1/voting", votingBoard([{ ...bestCanhao, myOptionId: "opt-rui" }, bestPhoto]))
+      apiRoute("get", "events/event-1/voting", votingBoard([{ ...bestCanhao, myOptionId: "opt-rui" }, bestPhoto])),
     );
     renderVoting();
 
@@ -78,7 +85,10 @@ describe("CanhoesOfficialVotingModule", () => {
 
   it("replaces the ballot with one clear state while voting has not opened, with nominating as the way forward", () => {
     renderWithProviders(
-      <CanhoesOfficialVotingModule initialData={votingBoard([bestCanhao], false)} initialContext={makeEventContext({ phaseType: "PROPOSALS", modules: { voting: false, nominees: true } })} />
+      <CanhoesOfficialVotingModule
+        initialData={votingBoard([bestCanhao], false)}
+        initialContext={makeEventContext({ phaseType: "PROPOSALS", modules: { voting: false, nominees: true } })}
+      />,
     );
 
     expect(screen.getByText("A votação ainda não abriu")).toBeInTheDocument();
@@ -90,7 +100,10 @@ describe("CanhoesOfficialVotingModule", () => {
 
   it("sends back to the mural when there is nothing to nominate either", () => {
     renderWithProviders(
-      <CanhoesOfficialVotingModule initialData={votingBoard([bestCanhao], false)} initialContext={makeEventContext({ phaseType: "DRAW", modules: { voting: false, nominees: false } })} />
+      <CanhoesOfficialVotingModule
+        initialData={votingBoard([bestCanhao], false)}
+        initialContext={makeEventContext({ phaseType: "DRAW", modules: { voting: false, nominees: false } })}
+      />,
     );
 
     expect(screen.getByRole("link", { name: "Voltar ao mural" })).toHaveAttribute("href", "/canhoes");
@@ -99,7 +112,10 @@ describe("CanhoesOfficialVotingModule", () => {
 
   it("says the voting is over, and points to the gala, once the results phase has started", () => {
     renderWithProviders(
-      <CanhoesOfficialVotingModule initialData={votingBoard([bestCanhao], false)} initialContext={makeEventContext({ phaseType: "RESULTS", modules: { voting: true } })} />
+      <CanhoesOfficialVotingModule
+        initialData={votingBoard([bestCanhao], false)}
+        initialContext={makeEventContext({ phaseType: "RESULTS", modules: { voting: true } })}
+      />,
     );
 
     expect(screen.getByText("A votação terminou")).toBeInTheDocument();

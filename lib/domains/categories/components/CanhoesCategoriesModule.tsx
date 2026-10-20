@@ -27,7 +27,10 @@ function CategoriesLoadingState() {
   return (
     <div className="space-y-2.5">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="flex items-center gap-3.5 rounded-2xl border border-[var(--color-veil)]/5 bg-[var(--bg-paper-soft)] p-4">
+        <div
+          key={index}
+          className="flex items-center gap-3.5 rounded-2xl border border-[var(--color-veil)]/5 bg-[var(--bg-paper-soft)] p-4"
+        >
           <Skeleton className="h-11 w-11 shrink-0 rounded-xl" />
           <div className="min-w-0 flex-1 space-y-2">
             <Skeleton className="h-4 w-3/5 rounded" />
@@ -54,9 +57,13 @@ function CategoryRow({ category, index }: Readonly<{ category: AwardCategoryDto;
       </div>
       <div className="min-w-0 flex-1">
         <p className="truncate text-base font-bold text-[var(--ink-primary)]">{category.name}</p>
-        <p className="mt-0.5 truncate text-xs text-[var(--ink-secondary)]">{category.description || copy.noDescription}</p>
+        <p className="mt-0.5 truncate text-xs text-[var(--ink-secondary)]">
+          {category.description || copy.noDescription}
+        </p>
       </div>
-      <Badge variant={category.isActive ? "default" : "outline"}>{category.isActive ? copy.active : copy.inactive}</Badge>
+      <Badge variant={category.isActive ? "default" : "outline"}>
+        {category.isActive ? copy.active : copy.inactive}
+      </Badge>
     </div>
   );
 }
@@ -70,7 +77,13 @@ function CategoryList({
   return (
     <>
       {errorMessage ? (
-        <ErrorAlert title={copy.loadErrorTitle} description={errorMessage} actionLabel={messages.common.retry} tone="official" onAction={onRetry} />
+        <ErrorAlert
+          title={copy.loadErrorTitle}
+          description={errorMessage}
+          actionLabel={messages.common.retry}
+          tone="official"
+          onAction={onRetry}
+        />
       ) : null}
       {isLoading && categories.length === 0 ? <CategoriesLoadingState /> : null}
       {!isLoading && !errorMessage && categories.length === 0 ? (
@@ -94,7 +107,10 @@ function matchesSearch(category: AwardCategoryDto, searchTerm: string) {
 }
 
 /** Categorias page: the edition's categories and the form to propose a new one. */
-export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
+export function CanhoesCategoriesModule({
+  initialContext,
+  initialCategories,
+}: {
   initialContext?: EventActiveContextDto | null;
   initialCategories?: AwardCategoryDto[];
 }) {
@@ -103,7 +119,11 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
   const eventId = event?.id;
   const [search, setSearch] = useState("");
 
-  const { data: categoryList = [], isLoading, error } = useQuery({
+  const {
+    data: categoryList = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: queryKeys.categories(eventId),
     queryFn: () => awardsRepo.getCategories(eventId ?? "").then((result) => result.items),
     enabled: !!eventId,
@@ -112,16 +132,14 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
   });
 
   const searchTerm = search.trim().toLowerCase();
-  const filteredCategories = searchTerm ? categoryList.filter((category) => matchesSearch(category, searchTerm)) : categoryList;
+  const filteredCategories = searchTerm
+    ? categoryList.filter((category) => matchesSearch(category, searchTerm))
+    : categoryList;
 
   return (
     <div className="space-y-5">
       <div className="sticky top-0 z-10 -mx-4 px-4 pb-4 pt-2 backdrop-blur-xl bg-[var(--bg-void)]/80 border-b border-[var(--color-veil)]/5">
-        <CanhoesModuleHeader
-          module="categories"
-          title={copy.title}
-          description={copy.description}
-        />
+        <CanhoesModuleHeader module="categories" title={copy.title} description={copy.description} />
       </div>
 
       <CategoryProposalForm canPropose={Boolean(overview?.permissions.canSubmitProposal)} eventId={eventId} />
@@ -134,7 +152,12 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
         <CardContent className="space-y-3">
           <div className="relative">
             <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none" />
-            <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={copy.searchPlaceholder} className="h-10 pl-9" />
+            <Input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={copy.searchPlaceholder}
+              className="h-10 pl-9"
+            />
           </div>
           <CategoryList
             categories={filteredCategories}

@@ -40,9 +40,7 @@ export type CategoryUsage = {
   voteCount: number;
 };
 
-export type CategorySheetState =
-  | { mode: "create" }
-  | { category: AwardCategoryDto; mode: "edit" };
+export type CategorySheetState = { mode: "create" } | { category: AwardCategoryDto; mode: "edit" };
 
 export function buildInitialCategoryForm(sortOrder: number): CategoryFormState {
   return {
@@ -60,9 +58,10 @@ export function buildCategoryForm(category: AwardCategoryDto): CategoryFormState
   return {
     description: category.description ?? "",
     isActive: category.isActive,
-    kind: category.kind === CATEGORY_KIND.USER_VOTE
-      ? CATEGORY_KIND_FORM_LABELS.USER_VOTE
-      : CATEGORY_KIND_FORM_LABELS.STICKER,
+    kind:
+      category.kind === CATEGORY_KIND.USER_VOTE
+        ? CATEGORY_KIND_FORM_LABELS.USER_VOTE
+        : CATEGORY_KIND_FORM_LABELS.STICKER,
     name: category.name,
     sortOrder: String(category.sortOrder),
     voteQuestion: category.voteQuestion ?? "",
@@ -81,9 +80,7 @@ function parseSortOrder(value: string): number | null {
 }
 
 function parseCategoryKind(value: string): CategoryKind {
-  return value === CATEGORY_KIND_FORM_LABELS.USER_VOTE
-    ? CATEGORY_KIND.USER_VOTE
-    : CATEGORY_KIND.NOMINEE;
+  return value === CATEGORY_KIND_FORM_LABELS.USER_VOTE ? CATEGORY_KIND.USER_VOTE : CATEGORY_KIND.NOMINEE;
 }
 
 function buildCategoryPayload(form: Readonly<CategoryFormState>) {
@@ -94,22 +91,16 @@ function buildCategoryPayload(form: Readonly<CategoryFormState>) {
     sortOrder: parseSortOrder(form.sortOrder),
     kind,
     description: normalizeOptionalText(form.description),
-    voteQuestion:
-      kind === CATEGORY_KIND.USER_VOTE ? normalizeOptionalText(form.voteQuestion) : null,
-    voteRules:
-      kind === CATEGORY_KIND.USER_VOTE ? normalizeOptionalText(form.voteRules) : null,
+    voteQuestion: kind === CATEGORY_KIND.USER_VOTE ? normalizeOptionalText(form.voteQuestion) : null,
+    voteRules: kind === CATEGORY_KIND.USER_VOTE ? normalizeOptionalText(form.voteRules) : null,
   };
 }
 
-export function buildCreateCategoryPayload(
-  form: Readonly<CategoryFormState>
-): CreateAwardCategoryRequest {
+export function buildCreateCategoryPayload(form: Readonly<CategoryFormState>): CreateAwardCategoryRequest {
   return buildCategoryPayload(form);
 }
 
-export function buildUpdateCategoryPayload(
-  form: Readonly<CategoryFormState>
-): UpdateAwardCategoryRequest {
+export function buildUpdateCategoryPayload(form: Readonly<CategoryFormState>): UpdateAwardCategoryRequest {
   return {
     ...buildCategoryPayload(form),
     isActive: form.isActive,
@@ -125,11 +116,7 @@ function formatKnownDependencyCount(count: number, variants: Readonly<{ one: str
  * Determines whether the UI can offer deletion. The API remains authoritative
  * because associations may change between this summary and the delete request.
  */
-export function buildCategoryUsage(
-  category: AwardCategoryDto,
-  nomineeCount: number,
-  voteCount: number
-): CategoryUsage {
+export function buildCategoryUsage(category: AwardCategoryDto, nomineeCount: number, voteCount: number): CategoryUsage {
   const dependencyCount = nomineeCount + voteCount;
 
   if (dependencyCount > 0) {
@@ -166,7 +153,7 @@ export function buildCategoryUsage(
 /** Catalog order: sort order first, then name. */
 export function sortCategories(categories: AwardCategoryDto[]) {
   return [...categories].sort(
-    (left, right) => (left.sortOrder ?? 0) - (right.sortOrder ?? 0) || left.name.localeCompare(right.name, "pt-PT")
+    (left, right) => (left.sortOrder ?? 0) - (right.sortOrder ?? 0) || left.name.localeCompare(right.name, "pt-PT"),
   );
 }
 
@@ -182,7 +169,7 @@ function countByCategory(categoryIds: (string | null)[]) {
 export function buildCategoryUsageById(
   categories: AwardCategoryDto[],
   nominations: Pick<AdminNomineeDto, "categoryId">[],
-  votes: Pick<AdminVoteAuditRowDto, "categoryId">[]
+  votes: Pick<AdminVoteAuditRowDto, "categoryId">[],
 ): Record<string, CategoryUsage> {
   const nomineeCounts = countByCategory(nominations.map((nominee) => nominee.categoryId));
   const voteCounts = countByCategory(votes.map((vote) => vote.categoryId));
@@ -191,6 +178,6 @@ export function buildCategoryUsageById(
     categories.map((category) => [
       category.id,
       buildCategoryUsage(category, nomineeCounts.get(category.id) ?? 0, voteCounts.get(category.id) ?? 0),
-    ])
+    ]),
   );
 }

@@ -3,13 +3,7 @@
 import type { EventOverviewDto } from "@/lib/api/types";
 
 import type { CanhoesBottomTabEntry } from "./CanhoesBottomTabs";
-import {
-  ADMIN_NAV_ITEM,
-  getNavigation,
-  getPageContext,
-  HOME_NAV_ITEM,
-  MENU_NAV_ITEM,
-} from "./canhoesNavigation";
+import { ADMIN_NAV_ITEM, getNavigation, getPageContext, HOME_NAV_ITEM, MENU_NAV_ITEM } from "./canhoesNavigation";
 import messages from "@/messages/pt.json";
 
 function isHomePath(pathname: string | null) {

@@ -22,7 +22,12 @@ function setup({ eventId = "event-1" as string | null } = {}) {
 describe("useAdminControlCenter", () => {
   it("changes the phase, refreshes, and ignores the phase that is already active", async () => {
     const recorder = recordRequests();
-    server.use(http.put(`*/api/v1/${ADMIN}/phase`, async ({ request }) => { await recorder.capture(request); return HttpResponse.json({}); }));
+    server.use(
+      http.put(`*/api/v1/${ADMIN}/phase`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json({});
+      }),
+    );
     const { result, onRefresh } = setup();
 
     act(() => result.current.handleUpdatePhase("PROPOSALS"));
@@ -30,14 +35,22 @@ describe("useAdminControlCenter", () => {
 
     act(() => result.current.handleUpdatePhase("VOTING"));
     await waitFor(() => expect(onRefresh).toHaveBeenCalledOnce());
-    expect(recorder.requests).toEqual([{ method: "PUT", url: `/api/v1/${ADMIN}/phase`, body: { phaseType: "VOTING" } }]);
+    expect(recorder.requests).toEqual([
+      { method: "PUT", url: `/api/v1/${ADMIN}/phase`, body: { phaseType: "VOTING" } },
+    ]);
   });
 
   it("switches proposals and modules on and off", async () => {
     const recorder = recordRequests();
     server.use(
-      http.put(`*/api/v1/${ADMIN}/state`, async ({ request }) => { await recorder.capture(request); return HttpResponse.json({}); }),
-      http.patch("*/api/v1/events/event-1/modules", async ({ request }) => { await recorder.capture(request); return HttpResponse.json({}); })
+      http.put(`*/api/v1/${ADMIN}/state`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json({});
+      }),
+      http.patch("*/api/v1/events/event-1/modules", async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json({});
+      }),
     );
     const { result, onRefresh } = setup();
     const firstModule = CANHOES_MODULES[0]!;
@@ -47,7 +60,10 @@ describe("useAdminControlCenter", () => {
     act(() => result.current.handleModuleToggle(firstModule, false));
     await waitFor(() => expect(onRefresh).toHaveBeenCalledTimes(2));
 
-    expect(recorder.requests.map((request) => request.body)).toEqual([{ nominationsVisible: false }, { modules: { [firstModule.key]: false } }]);
+    expect(recorder.requests.map((request) => request.body)).toEqual([
+      { nominationsVisible: false },
+      { modules: { [firstModule.key]: false } },
+    ]);
   });
 
   it("activates another event only when it differs from the current one", async () => {

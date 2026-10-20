@@ -50,7 +50,7 @@ function usePostComments(eventId: string, postId: string, isOpen: boolean) {
 
   const loadedComments = (fetchedComments ?? []).filter(Boolean);
   const sortedComments = [...loadedComments].sort((left, right) =>
-    String(left.createdAtUtc).localeCompare(String(right.createdAtUtc))
+    String(left.createdAtUtc).localeCompare(String(right.createdAtUtc)),
   );
 
   return { loadedComments, displayComments: flattenCommentTree(buildCommentTree(sortedComments)) };
@@ -99,9 +99,7 @@ export function HubPostComments({
 
   if (!openComments) return null;
 
-  const replyingToComment = replyingToId
-    ? loadedComments.find((comment) => comment.id === replyingToId)
-    : null;
+  const replyingToComment = replyingToId ? loadedComments.find((comment) => comment.id === replyingToId) : null;
 
   const handleReply = (commentId: string) => {
     setReplyingTo(postId, commentId);

@@ -13,7 +13,13 @@ export function FormSheet({
   onOpenChange,
   title,
   triggerLabel,
-}: Readonly<{ children: ReactNode; isOpen: boolean; onOpenChange: (isOpen: boolean) => void; title: string; triggerLabel: string }>) {
+}: Readonly<{
+  children: ReactNode;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
+  title: string;
+  triggerLabel: string;
+}>) {
   return (
     <>
       <Button type="button" className="w-full" onClick={() => onOpenChange(true)}>

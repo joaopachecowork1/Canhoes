@@ -76,7 +76,7 @@ export function usePublishPost(eventId: string | null) {
         setStatus("idle");
       }
     },
-    [eventId]
+    [eventId],
   );
 
   return { status, publish };

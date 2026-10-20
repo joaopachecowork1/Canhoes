@@ -64,9 +64,7 @@ function ProposalQueue({
         <Card key={kind} className={ADMIN_CONTENT_CARD_CLASS}>
           <CardHeader className="space-y-2">
             <CardTitle>{`${PANEL_META[kind].title} (${rows.length})`}</CardTitle>
-            <p className="body-small max-w-[64ch] text-[var(--color-text-muted)]">
-              {PANEL_META[kind].description}
-            </p>
+            <p className="body-small max-w-[64ch] text-[var(--color-text-muted)]">{PANEL_META[kind].description}</p>
           </CardHeader>
           <CardContent className="space-y-3">
             {rows.length === 0 ? (

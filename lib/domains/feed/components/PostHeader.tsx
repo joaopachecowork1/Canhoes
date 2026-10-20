@@ -26,7 +26,13 @@ type PostAdminActionsProps = {
 };
 
 /** One button that opens the admin's actions on a post (pin, reorder pinned posts, delete) in a bottom sheet. */
-function PostAdminActions({ isPinned, onAdminPin, onAdminMoveUp, onAdminMoveDown, onAdminDelete }: Readonly<PostAdminActionsProps>) {
+function PostAdminActions({
+  isPinned,
+  onAdminPin,
+  onAdminMoveUp,
+  onAdminMoveDown,
+  onAdminDelete,
+}: Readonly<PostAdminActionsProps>) {
   const [isOpen, setIsOpen] = useState(false);
   const run = (action?: () => void) => () => {
     setIsOpen(false);
@@ -91,13 +97,15 @@ export function PostHeader({
   postNumber,
   isAdmin,
   ...adminActions
-}: Readonly<{
-  authorName: string;
-  authorColor?: string;
-  createdAtUtc: string;
-  postNumber: number;
-  isAdmin?: boolean;
-} & PostAdminActionsProps>) {
+}: Readonly<
+  {
+    authorName: string;
+    authorColor?: string;
+    createdAtUtc: string;
+    postNumber: number;
+    isAdmin?: boolean;
+  } & PostAdminActionsProps
+>) {
   const relativeTime = useRelativeTime(createdAtUtc);
 
   return (
@@ -111,7 +119,9 @@ export function PostHeader({
             {adminActions.isPinned ? <Badge variant="secondary">{copy.pinned}</Badge> : null}
           </div>
           <p className="text-sm text-[var(--text-muted)]" title={formatDateTime(createdAtUtc)}>
-            <span className="font-[family-name:var(--font-display)] font-bold text-[var(--color-text-secondary)]">{formatMessage(copy.number, { number: postNumber })}</span>
+            <span className="font-[family-name:var(--font-display)] font-bold text-[var(--color-text-secondary)]">
+              {formatMessage(copy.number, { number: postNumber })}
+            </span>
             {" · "}
             {relativeTime}
           </p>

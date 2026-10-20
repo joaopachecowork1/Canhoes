@@ -5,7 +5,9 @@ export default function CanhoesPublicLayout({ children }: Readonly<{ children: R
   // No auth guard, no chrome. Background owned by each child page.
   return (
     <AuthProviders isDevLoginAvailable={isDevelopmentAuthEnabled()}>
-      <div data-theme="canhoes" className="min-h-[100svh]">{children}</div>
+      <div data-theme="canhoes" className="min-h-[100svh]">
+        {children}
+      </div>
     </AuthProviders>
   );
 }

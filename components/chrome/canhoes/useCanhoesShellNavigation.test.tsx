@@ -24,7 +24,7 @@ function buildNavigation(overrides: Partial<Parameters<typeof useCanhoesShellNav
       pathname: "/canhoes",
       user: { name: "Ana", email: "ana@example.com" },
       ...overrides,
-    })
+    }),
   );
   return result.current;
 }
@@ -84,10 +84,20 @@ describe("useCanhoesShellNavigation", () => {
   });
 
   it("titles the header after the current area, in its colour", () => {
-    expect(buildNavigation({ pathname: "/canhoes/votacao/123" }).pageContext).toMatchObject({ areaColor: "var(--area-voting)" });
-    expect(buildNavigation({ pathname: "/canhoes/wishlist" }).pageContext).toMatchObject({ areaColor: "var(--area-wishlist)" });
-    expect(buildNavigation({ pathname: "/canhoes/admin" }).pageContext).toMatchObject({ title: "Admin", areaColor: "var(--area-admin)" });
-    expect(buildNavigation({ pathname: null }).pageContext).toMatchObject({ title: "Mural", areaColor: "var(--area-feed)" });
+    expect(buildNavigation({ pathname: "/canhoes/votacao/123" }).pageContext).toMatchObject({
+      areaColor: "var(--area-voting)",
+    });
+    expect(buildNavigation({ pathname: "/canhoes/wishlist" }).pageContext).toMatchObject({
+      areaColor: "var(--area-wishlist)",
+    });
+    expect(buildNavigation({ pathname: "/canhoes/admin" }).pageContext).toMatchObject({
+      title: "Admin",
+      areaColor: "var(--area-admin)",
+    });
+    expect(buildNavigation({ pathname: null }).pageContext).toMatchObject({
+      title: "Mural",
+      areaColor: "var(--area-feed)",
+    });
   });
 
   it("labels the user by name, then email, then a fallback", () => {

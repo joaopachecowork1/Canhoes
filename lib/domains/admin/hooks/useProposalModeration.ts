@@ -66,7 +66,7 @@ export function useProposalModeration(eventId: string, onUpdate: () => Promise<v
       {
         onSuccess: () => toast.success(copy.deleted.success),
         onError: (error) => toast.error(getErrorMessage(error, copy.deleted.error)),
-      }
+      },
     );
   };
 

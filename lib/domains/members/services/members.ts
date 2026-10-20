@@ -14,13 +14,16 @@ export async function getMembers(eventId: string): Promise<PublicUserDto[]> {
 
   const userMap = await loadUsersById(
     members.map((m) => m.userId),
-    (where) => prisma.user.findMany({ where, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } })
+    (where) =>
+      prisma.user.findMany({ where, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } }),
   );
 
   const result = members
     .map((m) => {
       const u = userMap.get(m.userId);
-      return u ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: m.role === "admin", color: u.color } : null;
+      return u
+        ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: m.role === "admin", color: u.color }
+        : null;
     })
     .filter((x): x is PublicUserDto => x !== null)
     .sort((a, b) => {

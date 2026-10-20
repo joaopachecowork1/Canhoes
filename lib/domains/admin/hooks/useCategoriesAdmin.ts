@@ -61,7 +61,7 @@ function useCategoryQueries(eventId: string | null) {
   const sortedCategories = useMemo(() => sortCategories(categories), [categories]);
   const categoryUsageById = useMemo(
     () => buildCategoryUsageById(sortedCategories, nominations, votes),
-    [nominations, sortedCategories, votes]
+    [nominations, sortedCategories, votes],
   );
   const queries = [categoriesQuery, nominationsSummaryQuery, votesQuery];
 

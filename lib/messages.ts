@@ -7,4 +7,3 @@ export function formatMessage(template: string, values: Readonly<Record<string, 
     name in values ? String(values[name]) : placeholder,
   );
 }
-

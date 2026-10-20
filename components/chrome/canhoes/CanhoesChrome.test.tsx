@@ -20,7 +20,7 @@ function renderChrome({ isAdmin = false, pathname = "/canhoes" } = {}) {
   return renderWithProviders(
     <CanhoesChrome>
       <p>{"Conteúdo da página"}</p>
-    </CanhoesChrome>
+    </CanhoesChrome>,
   );
 }
 

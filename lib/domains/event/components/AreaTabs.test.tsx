@@ -6,8 +6,16 @@ import type { EventModulesDto } from "@/lib/api/types";
 import { AreaTabs } from "./AreaTabs";
 
 const closed: EventModulesDto = {
-  feed: true, nominees: false, categories: false, secretSanta: false, wishlist: false,
-  voting: false, stickers: false, measures: false, gala: false, admin: false,
+  feed: true,
+  nominees: false,
+  categories: false,
+  secretSanta: false,
+  wishlist: false,
+  voting: false,
+  stickers: false,
+  measures: false,
+  gala: false,
+  admin: false,
 };
 
 describe("AreaTabs", () => {

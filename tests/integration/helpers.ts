@@ -14,7 +14,9 @@ type TestUser = { id: string; isAdmin: boolean };
 /** Makes `getServerSession` (mocked in setup/perFile.ts) return this user, or no session for null. */
 export function signInAs(user: TestUser | null) {
   vi.mocked(getServerSession).mockResolvedValue(
-    user ? { user: { id: user.id, isAdmin: user.isAdmin }, expires: new Date(Date.now() + DAY_MS).toISOString() } : null
+    user
+      ? { user: { id: user.id, isAdmin: user.isAdmin }, expires: new Date(Date.now() + DAY_MS).toISOString() }
+      : null,
   );
 }
 
@@ -27,7 +29,7 @@ type RouteHandler<Params> = (request: NextRequest, context: { params: Promise<Pa
 export async function callRoute<Params>(
   handler: RouteHandler<Params>,
   params: Params,
-  { method = "GET", body, ip, query = "" }: { method?: string; body?: unknown; ip?: string; query?: string } = {}
+  { method = "GET", body, ip, query = "" }: { method?: string; body?: unknown; ip?: string; query?: string } = {},
 ) {
   const request = new NextRequest(`http://localhost/api/test${query}`, {
     method,
@@ -47,12 +49,21 @@ export function randomIp() {
 export async function createUser({ isAdmin = false, name }: { isAdmin?: boolean; name?: string } = {}) {
   const id = randomUUID();
   return prisma.user.create({
-    data: { id, externalId: `ext-${id}`, email: `${id}@example.test`, displayName: name ?? `User ${id.slice(0, 4)}`, isAdmin },
+    data: {
+      id,
+      externalId: `ext-${id}`,
+      email: `${id}@example.test`,
+      displayName: name ?? `User ${id.slice(0, 4)}`,
+      isAdmin,
+    },
   });
 }
 
 /** An event with all four phases (only `phase` active, open from yesterday to tomorrow) and its state row. */
-export async function createEvent({ phase = "PROPOSALS", nominationsVisible = true }: { phase?: PhaseType; nominationsVisible?: boolean } = {}) {
+export async function createEvent({
+  phase = "PROPOSALS",
+  nominationsVisible = true,
+}: { phase?: PhaseType; nominationsVisible?: boolean } = {}) {
   const event = await prisma.event.create({ data: { name: `Event ${randomUUID().slice(0, 6)}`, isActive: true } });
   const now = Date.now();
   await prisma.eventPhase.createMany({

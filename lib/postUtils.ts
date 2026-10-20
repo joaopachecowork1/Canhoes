@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-
 /**
  * Parse post text into title and body (Reddit-style).
  *
@@ -55,5 +54,3 @@ export function useRelativeTime(utcString: string): string {
 
   return formatRelativeTime(utcString);
 }
-
-

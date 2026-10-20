@@ -24,7 +24,11 @@ function relativeTimeLabel(dateString: string) {
 }
 
 function RelativeTime({ dateString }: { dateString: string }) {
-  return <time dateTime={dateString} className="shrink-0 text-xs text-[var(--ink-muted)]">{relativeTimeLabel(dateString)}</time>;
+  return (
+    <time dateTime={dateString} className="shrink-0 text-xs text-[var(--ink-muted)]">
+      {relativeTimeLabel(dateString)}
+    </time>
+  );
 }
 
 function StickerFeedCard({ sticker }: { sticker: NomineeDto }) {
@@ -65,7 +69,7 @@ export function StickerFeedList({ stickers }: { stickers: NomineeDto[] }) {
 
   return (
     <div className="max-w-xl mx-auto w-full">
-      {stickers.map(sticker => (
+      {stickers.map((sticker) => (
         <StickerFeedCard key={sticker.id} sticker={sticker} />
       ))}
     </div>

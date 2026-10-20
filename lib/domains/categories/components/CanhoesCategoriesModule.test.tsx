@@ -25,7 +25,7 @@ function renderCategories({
     <CanhoesCategoriesModule
       initialContext={makeEventContext({ phaseType, modules: { categories: true } })}
       initialCategories={initialCategories ?? undefined}
-    />
+    />,
   );
 }
 
@@ -79,7 +79,7 @@ describe("CanhoesCategoriesModule", () => {
         await recorder.capture(request);
         return HttpResponse.json({ id: "proposal-1" });
       }),
-      apiRoute("get", "events/event-1/categories", paged(categories))
+      apiRoute("get", "events/event-1/categories", paged(categories)),
     );
     renderCategories();
 

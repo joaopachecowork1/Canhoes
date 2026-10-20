@@ -5,7 +5,14 @@ import type { MyNominationDto, NomineeDto } from "@/lib/api/types";
 
 /* Nominations and stickers: what a member submitted, what is approved, and nominee images. Route guards decide who may call each one. */
 
-type NomineeRow = { id: string; categoryId: string | null; title: string; imageUrl: string | null; status: string; createdAtUtc: Date };
+type NomineeRow = {
+  id: string;
+  categoryId: string | null;
+  title: string;
+  imageUrl: string | null;
+  status: string;
+  createdAtUtc: Date;
+};
 
 function toNomineeDto(nominee: NomineeRow): NomineeDto {
   return {
@@ -48,7 +55,7 @@ export async function getApprovedNominees(eventId: string): Promise<NomineeDto[]
 export async function createNomination(
   eventId: string,
   userId: string,
-  data: { title: string; categoryId?: string | null; kind?: string | null; targetUserId?: string | null }
+  data: { title: string; categoryId?: string | null; kind?: string | null; targetUserId?: string | null },
 ): Promise<NomineeDto> {
   const nominee = await prisma.nominee.create({
     data: {
@@ -70,7 +77,7 @@ export async function replaceNomineeImage(
   eventId: string,
   nomineeId: string,
   user: { id: string; isAdmin: boolean },
-  file: File
+  file: File,
 ): Promise<NomineeDto | null> {
   const nominee = await prisma.nominee.findFirst({ where: { id: nomineeId, eventId } });
   if (!nominee || (nominee.submittedByUserId !== user.id && !user.isAdmin)) return null;

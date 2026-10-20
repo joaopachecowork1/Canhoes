@@ -6,22 +6,20 @@ import { loadUsersById } from "@/lib/usersById";
 /* Event members as the admin sees them, and promoting or demoting admins (rules in `adminRolePolicy.ts`). */
 
 /** Members of the event, admins first and then by name. */
-export async function getAdminMembersPaged(
-  eventId: string,
-  skip = 0,
-  take = 50
-): Promise<PagedResult<PublicUserDto>> {
+export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50): Promise<PagedResult<PublicUserDto>> {
   const total = await prisma.eventMember.count({ where: { eventId } });
 
   const members = await prisma.eventMember.findMany({
     where: { eventId },
     orderBy: { role: "desc" },
-    skip, take,
+    skip,
+    take,
   });
 
   const userMap = await loadUsersById(
     members.map((m) => m.userId),
-    (where) => prisma.user.findMany({ where, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } })
+    (where) =>
+      prisma.user.findMany({ where, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } }),
   );
 
   const items = members
@@ -38,7 +36,9 @@ export async function getAdminMembersPaged(
 
   return {
     items,
-    total, skip, take,
+    total,
+    skip,
+    take,
     hasMore: skip + take < total,
   };
 }
@@ -54,35 +54,36 @@ export async function setAdminRole(input: {
   isAdmin: boolean;
   confirmSelfDemotion: boolean;
 }) {
-  return prisma.$transaction(async (tx) => {
-    const membership = await tx.eventMember.findUnique({
-      where: { eventId_userId: { eventId: input.eventId, userId: input.targetUserId } },
-      select: { userId: true },
-    });
-    if (!membership) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
+  return prisma.$transaction(
+    async (tx) => {
+      const membership = await tx.eventMember.findUnique({
+        where: { eventId_userId: { eventId: input.eventId, userId: input.targetUserId } },
+        select: { userId: true },
+      });
+      if (!membership) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
 
-    const target = await tx.user.findUnique({
-      where: { id: input.targetUserId },
-      select: { id: true, isAdmin: true },
-    });
-    if (!target) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
+      const target = await tx.user.findUnique({
+        where: { id: input.targetUserId },
+        select: { id: true, isAdmin: true },
+      });
+      if (!target) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
 
-    const adminCount = target.isAdmin && !input.isAdmin
-      ? await tx.user.count({ where: { isAdmin: true } })
-      : 0;
-    assertAdminRoleChangeAllowed({
-      actorUserId: input.actorUserId,
-      targetUserId: input.targetUserId,
-      targetIsAdmin: target.isAdmin,
-      nextIsAdmin: input.isAdmin,
-      adminCount,
-      confirmSelfDemotion: input.confirmSelfDemotion,
-    });
+      const adminCount = target.isAdmin && !input.isAdmin ? await tx.user.count({ where: { isAdmin: true } }) : 0;
+      assertAdminRoleChangeAllowed({
+        actorUserId: input.actorUserId,
+        targetUserId: input.targetUserId,
+        targetIsAdmin: target.isAdmin,
+        nextIsAdmin: input.isAdmin,
+        adminCount,
+        confirmSelfDemotion: input.confirmSelfDemotion,
+      });
 
-    return tx.user.update({
-      where: { id: input.targetUserId },
-      data: { isAdmin: input.isAdmin },
-      select: { id: true, isAdmin: true },
-    });
-  }, { isolationLevel: "Serializable" });
+      return tx.user.update({
+        where: { id: input.targetUserId },
+        data: { isAdmin: input.isAdmin },
+        select: { id: true, isAdmin: true },
+      });
+    },
+    { isolationLevel: "Serializable" },
+  );
 }

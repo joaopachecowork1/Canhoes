@@ -7,9 +7,7 @@ import { PrismaClient } from "../lib/generated/prisma/client.ts";
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
 
 function adminEmails() {
-  const configured = process.env.ADMIN_EMAILS?.trim()
-    || process.env.DEV_AUTH_EMAIL?.trim()
-    || "dev@example.com";
+  const configured = process.env.ADMIN_EMAILS?.trim() || process.env.DEV_AUTH_EMAIL?.trim() || "dev@example.com";
   return configured
     .split(",")
     .map((email) => email.trim().toLowerCase())
@@ -154,9 +152,33 @@ async function seedDemoMembers(eventId, now) {
 /** Each category is created once, with three approved nominations about random members. */
 async function seedDemoCategories(eventId, allUsers) {
   const categoriesData = [
-    { id: "seed-cat-1", name: "Maior Bebedeira", description: "Quem deu o maior espetáculo?", voteQuestion: "Quem ganha a Maior Bebedeira?", sortOrder: 1, kind: 0, isActive: true },
-    { id: "seed-cat-2", name: "Prémio Engate", description: "O rei ou rainha da pista.", voteQuestion: "Quem é o maior sedutor?", sortOrder: 2, kind: 0, isActive: true },
-    { id: "seed-cat-3", name: "Melhor Desculpa", description: "A desculpa mais criativa para faltar ao jantar.", voteQuestion: "Qual foi a melhor desculpa?", sortOrder: 3, kind: 0, isActive: true },
+    {
+      id: "seed-cat-1",
+      name: "Maior Bebedeira",
+      description: "Quem deu o maior espetáculo?",
+      voteQuestion: "Quem ganha a Maior Bebedeira?",
+      sortOrder: 1,
+      kind: 0,
+      isActive: true,
+    },
+    {
+      id: "seed-cat-2",
+      name: "Prémio Engate",
+      description: "O rei ou rainha da pista.",
+      voteQuestion: "Quem é o maior sedutor?",
+      sortOrder: 2,
+      kind: 0,
+      isActive: true,
+    },
+    {
+      id: "seed-cat-3",
+      name: "Melhor Desculpa",
+      description: "A desculpa mais criativa para faltar ao jantar.",
+      voteQuestion: "Qual foi a melhor desculpa?",
+      sortOrder: 3,
+      kind: 0,
+      isActive: true,
+    },
   ];
 
   for (const cat of categoriesData) {
@@ -170,7 +192,14 @@ async function seedDemoCategories(eventId, allUsers) {
     ];
     for (const title of titles) {
       await prisma.nominee.create({
-        data: { eventId, categoryId: category.id, title, submissionKind: "nominees", submittedByUserId: randomEl(allUsers).id, status: "approved" },
+        data: {
+          eventId,
+          categoryId: category.id,
+          title,
+          submissionKind: "nominees",
+          submittedByUserId: randomEl(allUsers).id,
+          status: "approved",
+        },
       });
     }
   }
@@ -181,11 +210,23 @@ async function seedDemoPosts(eventId, allUsers) {
   const existingPosts = await prisma.hubPost.count({ where: { eventId } });
   if (existingPosts < 10) {
     const postsData = [
-      { text: "Lembram-se da passagem de ano de 2018? Que loucura!", isPinned: false, mediaUrl: "https://picsum.photos/seed/canhoes1/800/600" },
+      {
+        text: "Lembram-se da passagem de ano de 2018? Que loucura!",
+        isPinned: false,
+        mediaUrl: "https://picsum.photos/seed/canhoes1/800/600",
+      },
       { text: "Já marquei o restaurante para este ano. Preparem-se!", isPinned: true, pinnedOrder: 1, mediaUrl: null },
       { text: "Alguém tem fotos da última festa?", isPinned: false, mediaUrl: null },
-      { text: "Encontrei esta pérola no telemóvel do Rui 😂", isPinned: false, mediaUrl: "https://picsum.photos/seed/canhoes2/800/1000" },
-      { text: "O troféu do ano passado já está polido e pronto para o novo vencedor!", isPinned: false, mediaUrl: "https://picsum.photos/seed/canhoes3/600/600" },
+      {
+        text: "Encontrei esta pérola no telemóvel do Rui 😂",
+        isPinned: false,
+        mediaUrl: "https://picsum.photos/seed/canhoes2/800/1000",
+      },
+      {
+        text: "O troféu do ano passado já está polido e pronto para o novo vencedor!",
+        isPinned: false,
+        mediaUrl: "https://picsum.photos/seed/canhoes3/600/600",
+      },
     ];
 
     for (const [index, pd] of postsData.entries()) {
@@ -198,7 +239,7 @@ async function seedDemoPosts(eventId, allUsers) {
           mediaUrl: pd.mediaUrl,
           isPinned: pd.isPinned,
           pinnedOrder: pd.pinnedOrder,
-        }
+        },
       });
 
       // Add a poll to the restaurant one
@@ -212,9 +253,9 @@ async function seedDemoPosts(eventId, allUsers) {
                 { text: "Carne", sortOrder: 1 },
                 { text: "Peixe", sortOrder: 2 },
                 { text: "Vegetariano (lol)", sortOrder: 3 },
-              ]
-            }
-          }
+              ],
+            },
+          },
         });
       }
 
@@ -224,14 +265,14 @@ async function seedDemoPosts(eventId, allUsers) {
           postId: post.id,
           userId: randomEl(allUsers).id,
           text: "Nem me fales, ainda me dói a cabeça só de pensar nisso 😂",
-        }
+        },
       });
       await prisma.hubPostComment.create({
         data: {
           postId: post.id,
           userId: randomEl(allUsers).id,
           text: "+1!",
-        }
+        },
       });
 
       // Add reactions
@@ -240,14 +281,14 @@ async function seedDemoPosts(eventId, allUsers) {
           postId: post.id,
           userId: randomEl(allUsers).id,
           emoji: "🔥",
-        }
+        },
       });
       await prisma.hubPostReaction.create({
         data: {
           postId: post.id,
           userId: randomEl(allUsers).id,
           emoji: "😂",
-        }
+        },
       });
     }
   }

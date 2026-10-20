@@ -29,7 +29,10 @@ describe("MediaCarousel", () => {
   it("still shows an image from another address, such as an older post or the demo seed", () => {
     render(<MediaCarousel urls={["https://picsum.photos/seed/a/600/400"]} authorName="Ana" />);
 
-    expect(screen.getByRole("img", { name: "Imagem de Ana" })).toHaveAttribute("src", "https://picsum.photos/seed/a/600/400");
+    expect(screen.getByRole("img", { name: "Imagem de Ana" })).toHaveAttribute(
+      "src",
+      "https://picsum.photos/seed/a/600/400",
+    );
   });
 
   it("shows a single image without controls and opens it on click", async () => {

@@ -34,13 +34,17 @@ function renderSecretSanta({
   secretSantaOverview = overview(),
   wishes = [wish("w1", "rui", "Meias", "https://loja.pt/meias"), wish("w2", "ana", "Livro")],
   isWishlistOpen = true,
-}: { secretSantaOverview?: EventSecretSantaOverviewDto | null; wishes?: EventWishlistItemDto[]; isWishlistOpen?: boolean } = {}) {
+}: {
+  secretSantaOverview?: EventSecretSantaOverviewDto | null;
+  wishes?: EventWishlistItemDto[];
+  isWishlistOpen?: boolean;
+} = {}) {
   return renderWithProviders(
     <CanhoesSecretSantaModule
       initialContext={makeEventContext({ modules: { secretSanta: true, wishlist: isWishlistOpen } })}
       initialSecretSantaOverview={secretSantaOverview}
       initialWishlistData={paged(wishes)}
-    />
+    />,
   );
 }
 

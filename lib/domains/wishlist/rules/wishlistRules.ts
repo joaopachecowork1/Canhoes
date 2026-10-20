@@ -13,7 +13,9 @@ export function groupWishlistItemsByUser(items: EventWishlistItemDto[]) {
   }
 
   for (const itemsForUser of wishlistByUser.values()) {
-    itemsForUser.sort((leftItem, rightItem) => (rightItem.updatedAtUtc || "").localeCompare(leftItem.updatedAtUtc || ""));
+    itemsForUser.sort((leftItem, rightItem) =>
+      (rightItem.updatedAtUtc || "").localeCompare(leftItem.updatedAtUtc || ""),
+    );
   }
 
   return wishlistByUser;

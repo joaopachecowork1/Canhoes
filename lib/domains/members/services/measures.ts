@@ -23,7 +23,7 @@ export async function getMeasures(eventId: string): Promise<GalaMeasureDto[]> {
 export async function createMeasureProposal(
   eventId: string,
   userId: string,
-  text: string
+  text: string,
 ): Promise<MeasureProposalDto> {
   const proposal = await prisma.measureProposal.create({
     data: {

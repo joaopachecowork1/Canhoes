@@ -34,8 +34,15 @@ describe("logger in the browser", () => {
     logger.error("falhou", new Error("boom"));
 
     expect(fetchSpy).toHaveBeenCalledTimes(2);
-    expect(JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body))).toMatchObject({ level: "warn", message: "cuidado", data: { page: "mural" } });
-    expect(JSON.parse(String(fetchSpy.mock.calls[1]?.[1]?.body))).toMatchObject({ level: "error", data: { error: "boom" } });
+    expect(JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body))).toMatchObject({
+      level: "warn",
+      message: "cuidado",
+      data: { page: "mural" },
+    });
+    expect(JSON.parse(String(fetchSpy.mock.calls[1]?.[1]?.body))).toMatchObject({
+      level: "error",
+      data: { error: "boom" },
+    });
   });
 
   it("does not report in development, and never fails when the report itself fails", async () => {

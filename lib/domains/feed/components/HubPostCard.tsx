@@ -25,7 +25,7 @@ const LazyHubPostComments = dynamic(
   {
     loading: () => null,
     ssr: false,
-  }
+  },
 );
 
 const LazyMediaCarousel = dynamic(
@@ -33,16 +33,13 @@ const LazyMediaCarousel = dynamic(
   {
     loading: () => <FeedMediaFallback />,
     ssr: false,
-  }
+  },
 );
 
-const LazyPollBox = dynamic(
-  () => import("./PollBox").then((module) => ({ default: module.PollBox })),
-  {
-    loading: () => <FeedPollFallback />,
-    ssr: false,
-  }
-);
+const LazyPollBox = dynamic(() => import("./PollBox").then((module) => ({ default: module.PollBox })), {
+  loading: () => <FeedPollFallback />,
+  ssr: false,
+});
 
 interface HubPostCardProps {
   post: EventFeedPostFullDto;
@@ -85,7 +82,11 @@ type PostCommentsSectionProps = Pick<
   | "setReplyingTo"
 >;
 
-function CommentToggleButton({ count, isOpen, onToggle }: Readonly<{ count: number; isOpen: boolean; onToggle: () => void }>) {
+function CommentToggleButton({
+  count,
+  isOpen,
+  onToggle,
+}: Readonly<{ count: number; isOpen: boolean; onToggle: () => void }>) {
   return (
     <button
       type="button"
@@ -93,7 +94,7 @@ function CommentToggleButton({ count, isOpen, onToggle }: Readonly<{ count: numb
         "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
         isOpen
           ? "bg-[var(--moss)]/12 text-[var(--moss-glow)]"
-          : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]"
+          : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]",
       )}
       onClick={onToggle}
       aria-label={isOpen ? copy.closeComments : formatMessage(copy.commentCount, { count })}
@@ -119,7 +120,7 @@ function PostCommentsSection({ post, openComments, ...commentProps }: Readonly<P
       ref={commentsRef}
       className={cn(
         "grid w-full transition duration-200 ease-out",
-        openComments ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 mt-0"
+        openComments ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 mt-0",
       )}
     >
       <div className="overflow-hidden">

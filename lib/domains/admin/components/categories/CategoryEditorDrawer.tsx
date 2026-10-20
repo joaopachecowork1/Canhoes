@@ -20,7 +20,13 @@ function CategoryUsagePanel({ usage }: Readonly<{ usage: CategoryUsage }>) {
   return (
     <AdminDetailPanel className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="secondary">{formatCount(usage.nomineeCount, messages.admin.CategoryListItem.nominee, messages.admin.CategoryListItem.nominees)}</Badge>
+        <Badge variant="secondary">
+          {formatCount(
+            usage.nomineeCount,
+            messages.admin.CategoryListItem.nominee,
+            messages.admin.CategoryListItem.nominees,
+          )}
+        </Badge>
         <Badge variant="secondary">{formatCount(usage.voteCount, messages.common.vote, messages.common.votes)}</Badge>
       </div>
       <p className={HINT_CLASS}>{usage.deleteReason ?? copy.noDependencies}</p>
@@ -28,7 +34,11 @@ function CategoryUsagePanel({ usage }: Readonly<{ usage: CategoryUsage }>) {
   );
 }
 
-function ActiveToggle({ isActive, isBusy, onChange }: Readonly<{ isActive: boolean; isBusy: boolean; onChange: (isActive: boolean) => void }>) {
+function ActiveToggle({
+  isActive,
+  isBusy,
+  onChange,
+}: Readonly<{ isActive: boolean; isBusy: boolean; onChange: (isActive: boolean) => void }>) {
   return (
     <AdminDetailPanel className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="space-y-1">
@@ -40,7 +50,11 @@ function ActiveToggle({ isActive, isBusy, onChange }: Readonly<{ isActive: boole
   );
 }
 
-function DeleteAction({ canDelete, isBusy, onDelete }: Readonly<{ canDelete: boolean; isBusy: boolean; onDelete: () => void }>) {
+function DeleteAction({
+  canDelete,
+  isBusy,
+  onDelete,
+}: Readonly<{ canDelete: boolean; isBusy: boolean; onDelete: () => void }>) {
   if (!canDelete) return <p className={HINT_CLASS}>{copy.deleteUnavailable}</p>;
   return (
     <Button
@@ -64,7 +78,15 @@ function DrawerFooter({
   onCancel,
   onDelete,
   onSave,
-}: Readonly<{ canDelete: boolean; canSave: boolean; isBusy: boolean; isEditMode: boolean; onCancel: () => void; onDelete: () => void; onSave: () => void }>) {
+}: Readonly<{
+  canDelete: boolean;
+  canSave: boolean;
+  isBusy: boolean;
+  isEditMode: boolean;
+  onCancel: () => void;
+  onDelete: () => void;
+  onSave: () => void;
+}>) {
   return (
     <div className="flex flex-col gap-3 border-t border-[var(--border-subtle)] pt-4">
       {isEditMode ? <DeleteAction canDelete={canDelete} isBusy={isBusy} onDelete={onDelete} /> : null}
@@ -120,7 +142,9 @@ export function CategoryEditorDrawer({
         <>
           {isEditMode ? <CategoryUsagePanel usage={categoryUsage} /> : null}
           <CategoryFormFields form={form} isBusy={isBusy} onChange={onChange} />
-          {isEditMode ? <ActiveToggle isActive={form.isActive} isBusy={isBusy} onChange={(isActive) => onChange({ isActive })} /> : null}
+          {isEditMode ? (
+            <ActiveToggle isActive={form.isActive} isBusy={isBusy} onChange={(isActive) => onChange({ isActive })} />
+          ) : null}
 
           <DrawerFooter
             canDelete={categoryUsage.canDelete}

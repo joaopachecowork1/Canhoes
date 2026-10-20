@@ -3,7 +3,6 @@
 import { ArrowLeft, ArrowRight, GripHorizontal, X } from "lucide-react";
 import messages from "@/messages/pt.json";
 
-
 type ComposeMediaGridProps = {
   files: File[];
   maxFiles: number;
@@ -12,13 +11,7 @@ type ComposeMediaGridProps = {
   onRemove: (index: number) => void;
 };
 
-export function ComposeMediaGrid({
-  files,
-  maxFiles,
-  previewUrls,
-  onMove,
-  onRemove,
-}: Readonly<ComposeMediaGridProps>) {
+export function ComposeMediaGrid({ files, maxFiles, previewUrls, onMove, onRemove }: Readonly<ComposeMediaGridProps>) {
   if (files.length === 0) return null;
   const composeCopy = messages.feed.compose;
 

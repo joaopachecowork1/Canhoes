@@ -78,6 +78,8 @@ for (const path of ["/canhoes", "/canhoes/votacao", "/canhoes/wishlist", "/canho
 
     const { violations } = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
 
-    expect(violations.filter((violation) => violation.impact === "serious" || violation.impact === "critical")).toEqual([]);
+    expect(violations.filter((violation) => violation.impact === "serious" || violation.impact === "critical")).toEqual(
+      [],
+    );
   });
 }

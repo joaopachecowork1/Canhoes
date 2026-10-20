@@ -25,7 +25,9 @@ export function AdminMembersList({
           </div>
           <span className="text-sm text-[var(--color-text-muted)]">{messages.shell.canhoesNavigation.adminLabel}</span>
           <Switch
-            aria-label={formatMessage(messages.admin.AdminMembersSection.adminSwitchLabel, { name: member.displayName || member.email })}
+            aria-label={formatMessage(messages.admin.AdminMembersSection.adminSwitchLabel, {
+              name: member.displayName || member.email,
+            })}
             checked={member.isAdmin}
             disabled={isPendingRoleChange}
             onCheckedChange={() => onToggleRole(member)}

@@ -11,7 +11,8 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.feed.ImageLightbox;
 const SWIPE_THRESHOLD_PX = 50;
-const ROUND_BUTTON_CLASS = "rounded-full border border-[var(--color-veil)]/10 bg-[var(--color-veil)]/10 p-2 text-[var(--text-primary)] hover:bg-[var(--color-veil)]/20";
+const ROUND_BUTTON_CLASS =
+  "rounded-full border border-[var(--color-veil)]/10 bg-[var(--color-veil)]/10 p-2 text-[var(--text-primary)] hover:bg-[var(--color-veil)]/20";
 const ARROW_CLASS = cn("absolute top-1/2 z-10 -translate-y-1/2 shadow-lg", ROUND_BUTTON_CLASS);
 
 type ImageLightboxProps = {
@@ -24,7 +25,11 @@ type ImageLightboxProps = {
 };
 
 /** Index of the shown image, moved by arrows, keys and swipes; starts at `initialIndex`. */
-function useLightboxNavigation({ initialIndex, onClose, total }: Readonly<{ initialIndex: number; onClose: () => void; total: number }>) {
+function useLightboxNavigation({
+  initialIndex,
+  onClose,
+  total,
+}: Readonly<{ initialIndex: number; onClose: () => void; total: number }>) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const touchStartX = useRef(0);
   const canGoBack = currentIndex > 0;
@@ -48,7 +53,17 @@ function useLightboxNavigation({ initialIndex, onClose, total }: Readonly<{ init
     else if (deltaX > SWIPE_THRESHOLD_PX && canGoBack) showPrevious();
   };
 
-  return { currentIndex, setCurrentIndex, canGoBack, canGoForward, showPrevious, showNext, handleKeyDown, handleTouchStart, handleTouchEnd };
+  return {
+    currentIndex,
+    setCurrentIndex,
+    canGoBack,
+    canGoForward,
+    showPrevious,
+    showNext,
+    handleKeyDown,
+    handleTouchStart,
+    handleTouchEnd,
+  };
 }
 
 function useBodyScrollLock() {
@@ -74,7 +89,11 @@ function AuthorCaption({ authorName, createdAtUtc }: Readonly<{ authorName: stri
   );
 }
 
-function LightboxDots({ currentIndex, onSelect, total }: Readonly<{ currentIndex: number; onSelect: (index: number) => void; total: number }>) {
+function LightboxDots({
+  currentIndex,
+  onSelect,
+  total,
+}: Readonly<{ currentIndex: number; onSelect: (index: number) => void; total: number }>) {
   return (
     <div className="absolute bottom-14 left-1/2 z-10 -translate-x-1/2 flex items-center">
       {Array.from({ length: total }, (_, index) => (
@@ -92,7 +111,9 @@ function LightboxDots({ currentIndex, onSelect, total }: Readonly<{ currentIndex
           <span
             className={cn(
               "h-1.5 w-6 rounded-full transition-[transform,background-color] duration-200",
-              index === currentIndex ? "bg-[var(--text-primary)]" : "scale-x-[0.34] bg-[var(--text-primary)]/40 group-hover:bg-[var(--text-primary)]/60"
+              index === currentIndex
+                ? "bg-[var(--text-primary)]"
+                : "scale-x-[0.34] bg-[var(--text-primary)]/40 group-hover:bg-[var(--text-primary)]/60",
             )}
           />
         </button>
@@ -151,12 +172,20 @@ function LightboxDialog({
     >
       <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
 
-      <button type="button" onClick={onClose} className={cn("absolute right-4 top-4 z-10", ROUND_BUTTON_CLASS)} aria-label={messages.common.close}>
+      <button
+        type="button"
+        onClick={onClose}
+        className={cn("absolute right-4 top-4 z-10", ROUND_BUTTON_CLASS)}
+        aria-label={messages.common.close}
+      >
         <X className="h-5 w-5" />
       </button>
 
       {hasSeveral ? (
-        <div className="absolute left-4 top-4 z-10 rounded-full border border-[var(--color-veil)]/10 bg-black/50 px-3 py-1 text-xs font-medium text-[var(--text-primary)]" aria-live="polite">
+        <div
+          className="absolute left-4 top-4 z-10 rounded-full border border-[var(--color-veil)]/10 bg-black/50 px-3 py-1 text-xs font-medium text-[var(--text-primary)]"
+          aria-live="polite"
+        >
           {`${navigation.currentIndex + 1} / ${total}`}
         </div>
       ) : null}
@@ -173,7 +202,9 @@ function LightboxDialog({
       >
         <Image
           src={currentImageUrl}
-          alt={authorName ? formatMessage(messages.feed.MediaCarousel.authorImageAlt, { name: authorName }) : copy.imageAlt}
+          alt={
+            authorName ? formatMessage(messages.feed.MediaCarousel.authorImageAlt, { name: authorName }) : copy.imageAlt
+          }
           className="max-h-[90vh] max-w-[90vw] object-contain"
           draggable={false}
           width={1200}
@@ -185,8 +216,10 @@ function LightboxDialog({
 
       {navigation.canGoForward ? <LightboxArrow direction="next" onClick={navigation.showNext} /> : null}
 
-      {hasSeveral ? <LightboxDots currentIndex={navigation.currentIndex} onSelect={navigation.setCurrentIndex} total={total} /> : null}
+      {hasSeveral ? (
+        <LightboxDots currentIndex={navigation.currentIndex} onSelect={navigation.setCurrentIndex} total={total} />
+      ) : null}
     </div>,
-    document.body
+    document.body,
   );
 }

@@ -26,7 +26,11 @@ function MembersRoster({
   isPendingRoleChange,
   members,
   onToggleRole,
-}: Readonly<{ isPendingRoleChange: boolean; members: PublicUserDto[]; onToggleRole: (member: { id: string; isAdmin: boolean }) => void }>) {
+}: Readonly<{
+  isPendingRoleChange: boolean;
+  members: PublicUserDto[];
+  onToggleRole: (member: { id: string; isAdmin: boolean }) => void;
+}>) {
   return (
     <Card className={CARD_CLASS}>
       <CardHeader className="space-y-1">
@@ -52,7 +56,10 @@ export function AdminMembersSection({ eventId, loading, onUpdate }: Readonly<Adm
   if (admin.queryError) {
     logFrontendError("AdminMembersSection.query", admin.queryError, { eventId });
     return (
-      <AdminStateMessage tone="error" action={<Button onClick={() => void admin.refetchAll()}>{messages.common.retry}</Button>}>
+      <AdminStateMessage
+        tone="error"
+        action={<Button onClick={() => void admin.refetchAll()}>{messages.common.retry}</Button>}
+      >
         {copy.loadError}
       </AdminStateMessage>
     );
@@ -60,7 +67,9 @@ export function AdminMembersSection({ eventId, loading, onUpdate }: Readonly<Adm
 
   return (
     <div className="space-y-4">
-      {admin.secretSantaState ? <SecretSantaAdmin eventId={eventId} state={admin.secretSantaState} onRefresh={onUpdate} /> : null}
+      {admin.secretSantaState ? (
+        <SecretSantaAdmin eventId={eventId} state={admin.secretSantaState} onRefresh={onUpdate} />
+      ) : null}
       <AdminInviteUser eventId={eventId} />
       <MembersRoster
         members={admin.members}

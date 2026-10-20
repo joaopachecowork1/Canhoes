@@ -19,7 +19,10 @@ const STALE_TIME_MS = 1000 * 60 * 2;
 /** Sticker categories and the approved stickers that have an image. */
 export function useStickerData(
   eventId: string | null,
-  { initialCategories, initialNominees }: Readonly<{ initialCategories?: AwardCategoryDto[]; initialNominees?: NomineeDto[] }>
+  {
+    initialCategories,
+    initialNominees,
+  }: Readonly<{ initialCategories?: AwardCategoryDto[]; initialNominees?: NomineeDto[] }>,
 ) {
   const queryClient = useQueryClient();
   const categoriesQuery = useQuery({
@@ -60,9 +63,12 @@ function usePickedImage() {
   const [picked, setPicked] = useState<{ file: File; previewUrl: string } | null>(null);
   const pickedRef = useRef(picked);
 
-  useEffect(() => () => {
-    if (pickedRef.current) URL.revokeObjectURL(pickedRef.current.previewUrl);
-  }, []);
+  useEffect(
+    () => () => {
+      if (pickedRef.current) URL.revokeObjectURL(pickedRef.current.previewUrl);
+    },
+    [],
+  );
 
   const setFile = useCallback((file: File | null) => {
     if (pickedRef.current) URL.revokeObjectURL(pickedRef.current.previewUrl);
@@ -80,7 +86,11 @@ function getFileRejection(file: File) {
 }
 
 /** The sticker form: category, title and an image checked before it is accepted. */
-export function useStickerSubmission({ eventId, isProposalPhase, onSubmitted }: Readonly<{ eventId: string | null; isProposalPhase: boolean; onSubmitted: () => Promise<unknown> }>) {
+export function useStickerSubmission({
+  eventId,
+  isProposalPhase,
+  onSubmitted,
+}: Readonly<{ eventId: string | null; isProposalPhase: boolean; onSubmitted: () => Promise<unknown> }>) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categoryId, setCategoryId] = useState("");
   const [title, setTitle] = useState("");
@@ -133,5 +143,16 @@ export function useStickerSubmission({ eventId, isProposalPhase, onSubmitted }: 
     }
   };
 
-  return { categoryId, setCategoryId, title, setTitle, file, previewUrl, isSubmitting, canSubmit, handleFileChange, handleSubmit };
+  return {
+    categoryId,
+    setCategoryId,
+    title,
+    setTitle,
+    file,
+    previewUrl,
+    isSubmitting,
+    canSubmit,
+    handleFileChange,
+    handleSubmit,
+  };
 }

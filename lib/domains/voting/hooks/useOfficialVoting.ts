@@ -37,11 +37,14 @@ export function useOfficialVoting(eventId: string | null, initialData: EventVoti
 
       await queryClient.cancelQueries({ queryKey });
       const previousBoardData = queryClient.getQueryData<EventVotingBoardDto>(queryKey);
-      queryClient.setQueryData<EventVotingBoardDto>(queryKey, (board) => (board ? applyVoteSelection(board, vote) : board));
+      queryClient.setQueryData<EventVotingBoardDto>(queryKey, (board) =>
+        board ? applyVoteSelection(board, vote) : board,
+      );
       return { previousBoardData };
     },
     onError: (error, _vote, mutationContext) => {
-      if (eventId && mutationContext?.previousBoardData) queryClient.setQueryData(queryKey, mutationContext.previousBoardData);
+      if (eventId && mutationContext?.previousBoardData)
+        queryClient.setQueryData(queryKey, mutationContext.previousBoardData);
       logFrontendError("CanhoesOfficialVoting.castVote", error, { eventId });
       toast.error(getErrorMessage(error, messages.voting.CanhoesOfficialVotingModule.voteError));
     },

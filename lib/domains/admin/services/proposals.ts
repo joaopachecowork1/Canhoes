@@ -1,10 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ProposalStatusSchema } from "@/lib/zod/common";
-import type {
-  PagedResult,
-  CategoryProposalDto,
-  MeasureProposalDto,
-} from "@/lib/api/types";
+import type { PagedResult, CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
 import { createCategory } from "./categories";
 
 /*
@@ -22,7 +18,7 @@ export async function getCategoryProposals(
   eventId: string,
   status?: string | null,
   skip = 0,
-  take = 50
+  take = 50,
 ): Promise<PagedResult<CategoryProposalDto>> {
   const where: Record<string, unknown> = { eventId };
   if (status) where.status = status;
@@ -46,7 +42,9 @@ export async function getCategoryProposals(
       status: ProposalStatusSchema.parse(p.status),
       createdAtUtc: p.createdAtUtc.toISOString(),
     })),
-    total, skip, take,
+    total,
+    skip,
+    take,
     hasMore: skip + take < total,
   };
 }
@@ -58,7 +56,7 @@ export async function getCategoryProposals(
 export async function updateCategoryProposal(
   eventId: string,
   proposalId: string,
-  data: { name?: string; description?: string | null; status?: string }
+  data: { name?: string; description?: string | null; status?: string },
 ): Promise<CategoryProposalDto | null> {
   const proposal = await prisma.categoryProposal.findFirst({ where: { id: proposalId, eventId } });
   if (!proposal) return null;
@@ -106,7 +104,7 @@ export async function getMeasureProposals(
   eventId: string,
   status?: string | null,
   skip = 0,
-  take = 50
+  take = 50,
 ): Promise<PagedResult<MeasureProposalDto>> {
   const where: Record<string, unknown> = { eventId };
   if (status) where.status = status;
@@ -128,7 +126,9 @@ export async function getMeasureProposals(
       status: ProposalStatusSchema.parse(p.status),
       createdAtUtc: p.createdAtUtc.toISOString(),
     })),
-    total, skip, take,
+    total,
+    skip,
+    take,
     hasMore: skip + take < total,
   };
 }
@@ -137,7 +137,7 @@ export async function getMeasureProposals(
 export async function updateMeasureProposal(
   eventId: string,
   proposalId: string,
-  data: { text?: string; status?: string }
+  data: { text?: string; status?: string },
 ): Promise<MeasureProposalDto | null> {
   const proposal = await prisma.measureProposal.findFirst({ where: { id: proposalId, eventId } });
   if (!proposal) return null;

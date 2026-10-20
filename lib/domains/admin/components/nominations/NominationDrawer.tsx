@@ -36,7 +36,9 @@ function NominationDetails({
     <>
       <AdminDetailPanel>
         <div className="space-y-1">
-          <p className="font-[family-name:var(--font-mono)] text-xs text-[var(--ink-muted)]">{formatDateTimeUtc(nomination.createdAtUtc)}</p>
+          <p className="font-[family-name:var(--font-mono)] text-xs text-[var(--ink-muted)]">
+            {formatDateTimeUtc(nomination.createdAtUtc)}
+          </p>
           <p className="flex items-center gap-1.5 text-sm text-[var(--ink-primary)]">
             <User className="h-3.5 w-3.5" />
             {formatMessage(copy.submittedBy, { name: nomination.submittedByName })}
@@ -109,7 +111,11 @@ export function NominationDrawer({
       open={Boolean(nomination)}
       onOpenChange={(open) => !open && onClose()}
       title={nomination?.title ?? ""}
-      description={nomination ? formatMessage(copy.currentCategory, { name: getCategoryName(nomination.categoryId, categories) }) : undefined}
+      description={
+        nomination
+          ? formatMessage(copy.currentCategory, { name: getCategoryName(nomination.categoryId, categories) })
+          : undefined
+      }
     >
       {nomination ? (
         <NominationDetails

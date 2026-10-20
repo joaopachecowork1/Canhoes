@@ -1,6 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-
 interface FeedSkeletonProps {
   count?: number;
 }
@@ -25,7 +24,6 @@ function FeedPostSkeleton({ index }: FeedPostSkeletonProps) {
       className="overflow-hidden rounded-[var(--radius-lg-token)] blurfade-in"
       style={{ animationDelay: `${index * 50}ms` }}
     >
-
       <div className="space-y-4 px-4 py-4 sm:px-5 sm:py-5">
         <div className="flex items-center gap-3">
           <Skeleton className="h-10 w-10 rounded-full" />
@@ -49,15 +47,10 @@ function FeedPostSkeleton({ index }: FeedPostSkeletonProps) {
       <div className="px-4 pb-4 sm:px-5">
         <div className="mt-4 flex flex-wrap gap-2">
           {Array.from({ length: 4 }).map((_, actionIndex) => (
-            <Skeleton
-              key={actionIndex}
-              className="h-9 w-20 rounded-full"
-            />
+            <Skeleton key={actionIndex} className="h-9 w-20 rounded-full" />
           ))}
         </div>
       </div>
     </div>
   );
 }
-
-

@@ -29,5 +29,9 @@ export function CanhoesPhaseHud({
   }
   if (!overview) return null;
 
-  return <span className={`${PILL_CLASS} border border-[var(--moss)]/60 text-[var(--moss-glow)]`}>{getPhaseLabel(overview.activePhase?.type)}</span>;
+  return (
+    <span className={`${PILL_CLASS} border border-[var(--moss)]/60 text-[var(--moss-glow)]`}>
+      {getPhaseLabel(overview.activePhase?.type)}
+    </span>
+  );
 }

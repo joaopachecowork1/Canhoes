@@ -23,8 +23,21 @@ type DockProps = {
   items: readonly DockItem[];
 };
 
-function DockButton({ accent, ariaLabel, ariaPressed, buttonClassName, icon: Icon, iconClassName, isActive, label, onClick }: Readonly<DockItem>) {
-  const activeStyle = isActive && accent ? { color: accent, backgroundColor: `color-mix(in srgb, ${accent} 16%, transparent)` } : undefined;
+function DockButton({
+  accent,
+  ariaLabel,
+  ariaPressed,
+  buttonClassName,
+  icon: Icon,
+  iconClassName,
+  isActive,
+  label,
+  onClick,
+}: Readonly<DockItem>) {
+  const activeStyle =
+    isActive && accent
+      ? { color: accent, backgroundColor: `color-mix(in srgb, ${accent} 16%, transparent)` }
+      : undefined;
   return (
     <button
       type="button"
@@ -36,11 +49,13 @@ function DockButton({ accent, ariaLabel, ariaPressed, buttonClassName, icon: Ico
       className={cn(
         "relative flex min-h-[3.375rem] w-full flex-col items-center justify-center gap-1 rounded-[0.95rem] px-0.5 py-2 leading-none transition-colors duration-200 active:scale-[0.97]",
         isActive ? "text-[var(--text-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--color-veil)]/6",
-        buttonClassName
+        buttonClassName,
       )}
     >
       <Icon className={cn("h-5 w-5 shrink-0", iconClassName)} aria-hidden />
-      <span className="max-w-full font-[family-name:var(--font-display)] text-[0.8125rem] font-bold uppercase">{label}</span>
+      <span className="max-w-full font-[family-name:var(--font-display)] text-[0.8125rem] font-bold uppercase">
+        {label}
+      </span>
     </button>
   );
 }

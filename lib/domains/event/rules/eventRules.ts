@@ -64,6 +64,6 @@ export function isVotingOpen(votingPhase: VotingWindow | null, now: Date) {
 export function readModuleSwitches(value: unknown): Record<string, boolean> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   return Object.fromEntries(
-    Object.entries(value).filter((entry): entry is [string, boolean] => typeof entry[1] === "boolean")
+    Object.entries(value).filter((entry): entry is [string, boolean] => typeof entry[1] === "boolean"),
   );
 }

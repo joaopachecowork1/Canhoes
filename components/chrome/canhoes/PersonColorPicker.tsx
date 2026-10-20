@@ -12,7 +12,6 @@ import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.shell.PersonColorPicker;
 
-
 /** The palette as a row of swatches; picking one saves it and refreshes the session. */
 export function PersonColorPicker() {
   const { user, refreshProfile } = useAuth();
@@ -34,7 +33,10 @@ export function PersonColorPicker() {
       </legend>
       <div className="flex flex-wrap gap-1">
         {PERSON_COLORS.map((color) => (
-          <label key={color} className="flex size-11 cursor-pointer items-center justify-center rounded-xl has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--moss-glow)]">
+          <label
+            key={color}
+            className="flex size-11 cursor-pointer items-center justify-center rounded-xl has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-[var(--moss-glow)]"
+          >
             <input
               type="radio"
               name="person-color"

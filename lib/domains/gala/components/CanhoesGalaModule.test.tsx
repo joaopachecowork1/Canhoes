@@ -60,7 +60,12 @@ describe("CanhoesGalaModule", () => {
 
   it("does not show a broken-image placeholder for a nominee without a picture", async () => {
     vi.mocked(awardsRepo.getResults).mockResolvedValue([
-      { categoryId: "c1", categoryName: "Canhão do Ano", totalVotes: 1, top: [{ nomineeId: "n1", title: "Ana", imageUrl: null, voteCount: 1 }] },
+      {
+        categoryId: "c1",
+        categoryName: "Canhão do Ano",
+        totalVotes: 1,
+        top: [{ nomineeId: "n1", title: "Ana", imageUrl: null, voteCount: 1 }],
+      },
     ]);
 
     const { container } = renderWithProviders(<CanhoesGalaModule initialContext={context} />);

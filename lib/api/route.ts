@@ -26,7 +26,7 @@ type RouteContext<Params> = { params: Promise<Params> };
 
 /** Wraps a route handler: resolves its params, logs the request with a `requestId` and turns errors into JSON responses (`HttpError` keeps its status, anything else is a logged 500). */
 export function apiRoute<Params = Record<string, never>>(
-  handler: (request: NextRequest, params: Params) => Promise<Response>
+  handler: (request: NextRequest, params: Params) => Promise<Response>,
 ) {
   return async (request: NextRequest, context: RouteContext<Params>) => {
     const requestId = crypto.randomUUID().slice(0, 8);
@@ -47,16 +47,17 @@ export function apiRoute<Params = Record<string, never>>(
 
 function toErrorResponse(error: unknown, requestId: string) {
   if (error instanceof HttpError) {
-    const body = error.details === undefined
-      ? { code: error.code, message: error.message }
-      : { code: error.code, message: error.message, details: error.details };
+    const body =
+      error.details === undefined
+        ? { code: error.code, message: error.message }
+        : { code: error.code, message: error.message, details: error.details };
     return NextResponse.json(body, { status: error.status });
   }
 
   logger.error("Unhandled API error", error, { requestId });
   return NextResponse.json(
     { code: "UNHANDLED_SERVER_ERROR", message: "Unexpected server error.", requestId },
-    { status: 500 }
+    { status: 500 },
   );
 }
 

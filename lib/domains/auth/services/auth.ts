@@ -25,7 +25,9 @@ const developmentLoginEnabled = isDevelopmentAuthEnabled();
  * A throttled attempt looks like a wrong password, so it tells a guesser nothing.
  */
 function isLoginThrottled(email: string, requestHeaders: Record<string, unknown> = {}) {
-  const headers = new Headers(Object.entries(requestHeaders).map(([name, value]): [string, string] => [name, String(value)]));
+  const headers = new Headers(
+    Object.entries(requestHeaders).map(([name, value]): [string, string] => [name, String(value)]),
+  );
   try {
     // The account first: an attempt it refuses must not also use up the budget of a house that shares one IP.
     enforceAccountRateLimit(email, "login");
@@ -46,7 +48,11 @@ async function findUserWithPassword(email: string, password: string) {
 
 type AuthMode = NonNullable<JWT["authMode"]>;
 
-const AUTH_MODES: Record<string, AuthMode> = { google: "google", development: "development", credentials: "credentials" };
+const AUTH_MODES: Record<string, AuthMode> = {
+  google: "google",
+  development: "development",
+  credentials: "credentials",
+};
 
 /**
  * On sign-in, notes the provider on the token. Credentials and development logins already carry
@@ -90,14 +96,15 @@ export const authOptions: NextAuthOptions = {
       name: "Email and Password",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials, request) {
-        if (!credentials?.email || !credentials?.password || isLoginThrottled(credentials.email, request?.headers)) return null;
+        if (!credentials?.email || !credentials?.password || isLoginThrottled(credentials.email, request?.headers))
+          return null;
 
         const user = await findUserWithPassword(credentials.email, credentials.password);
         return user && { id: user.id, email: user.email, name: user.displayName ?? user.email };
-      }
+      },
     }),
     ...(developmentLoginEnabled
       ? [
@@ -124,8 +131,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   // Sign-in failures (a wrong Google redirect URI, a missing secret) go to the same log as the API.
   logger: {
-    error: (code, metadata) =>
-      logger.error(`NextAuth ${code}`, metadata instanceof Error ? metadata : metadata.error),
+    error: (code, metadata) => logger.error(`NextAuth ${code}`, metadata instanceof Error ? metadata : metadata.error),
     warn: (code) => logger.warn(`NextAuth ${code}`),
     debug: (code, metadata) => logger.debug(`NextAuth ${code}`, { metadata }),
   },

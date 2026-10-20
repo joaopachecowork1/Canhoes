@@ -8,5 +8,7 @@ export default async function VotingPage() {
     ? await canhoesServerFetch<EventVotingBoardDto>(`events/${activeContext.event.id}/voting`)
     : null;
 
-  return <CanhoesOfficialVotingModule initialData={initialBoard ?? undefined} initialContext={activeContext ?? undefined} />;
+  return (
+    <CanhoesOfficialVotingModule initialData={initialBoard ?? undefined} initialContext={activeContext ?? undefined} />
+  );
 }

@@ -47,7 +47,12 @@ function CategoryCatalog({ admin }: Readonly<{ admin: CategoriesAdmin }>) {
             <p className="text-sm text-[var(--ink-secondary)]">{getCatalogSummary(sortedCategories)}</p>
           </div>
 
-          <Button type="button" onClick={admin.openCreateSheet} className="min-h-11 gap-2 sm:self-start" disabled={admin.mutations.isBusy}>
+          <Button
+            type="button"
+            onClick={admin.openCreateSheet}
+            className="min-h-11 gap-2 sm:self-start"
+            disabled={admin.mutations.isBusy}
+          >
             <Plus className="h-4 w-4" /> {copy.newCategory}
           </Button>
         </div>
@@ -55,7 +60,9 @@ function CategoryCatalog({ admin }: Readonly<{ admin: CategoriesAdmin }>) {
 
       <CardContent className="space-y-3">
         {isLoading ? <AdminStateMessage>{copy.loading}</AdminStateMessage> : null}
-        {!isLoading && sortedCategories.length === 0 ? <AdminStateMessage variant="panel">{copy.empty}</AdminStateMessage> : null}
+        {!isLoading && sortedCategories.length === 0 ? (
+          <AdminStateMessage variant="panel">{copy.empty}</AdminStateMessage>
+        ) : null}
         {!isLoading && sortedCategories.length > 0 ? (
           <div className="space-y-2">
             {sortedCategories.map((category) => (
@@ -77,7 +84,10 @@ function CategoryCatalog({ admin }: Readonly<{ admin: CategoriesAdmin }>) {
  * Coordinates the official category catalog. Data loading and mutations live
  * in the domain hook; this component owns the admin view composition.
  */
-export function CategoriesAdmin({ eventId, onUpdate }: Readonly<{ eventId: string | null; onUpdate: () => Promise<void> }>) {
+export function CategoriesAdmin({
+  eventId,
+  onUpdate,
+}: Readonly<{ eventId: string | null; onUpdate: () => Promise<void> }>) {
   const admin = useCategoriesAdmin(eventId, onUpdate);
   const { sheetState, queryError } = admin;
   const editedCategory = sheetState?.mode === "edit" ? sheetState.category : null;

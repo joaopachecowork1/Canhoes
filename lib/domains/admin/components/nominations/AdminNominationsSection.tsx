@@ -32,11 +32,7 @@ export function AdminNominationsSection({
     return (
       <AdminStateMessage
         tone="error"
-        action={
-          <Button onClick={() => void nominations.refresh()}>
-            {messages.common.retry}
-          </Button>
-        }
+        action={<Button onClick={() => void nominations.refresh()}>{messages.common.retry}</Button>}
       >
         {copy.loadError}
       </AdminStateMessage>

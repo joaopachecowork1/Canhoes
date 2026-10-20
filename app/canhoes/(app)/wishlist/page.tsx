@@ -8,7 +8,9 @@ export default async function WishlistPage() {
   const [initialMembers, initialWishlistData] = activeContext
     ? await Promise.all([
         canhoesServerFetch<PublicUserDto[]>(`events/${activeContext.event.id}/members`),
-        canhoesServerFetch<PagedResult<EventWishlistItemDto>>(`events/${activeContext.event.id}/wishlist?skip=0&take=1000`),
+        canhoesServerFetch<PagedResult<EventWishlistItemDto>>(
+          `events/${activeContext.event.id}/wishlist?skip=0&take=1000`,
+        ),
       ])
     : [null, null];
 

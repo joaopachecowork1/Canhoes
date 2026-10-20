@@ -22,9 +22,14 @@ function toSecretSantaView(overview: EventSecretSantaOverviewDto | undefined, wi
 export function useSecretSanta(
   eventId?: string,
   initialOverview?: EventSecretSantaOverviewDto | null,
-  initialWishlistData?: PagedResult<EventWishlistItemDto> | null
+  initialWishlistData?: PagedResult<EventWishlistItemDto> | null,
 ) {
-  const { data: overview, isLoading, error, refetch } = useQuery({
+  const {
+    data: overview,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: queryKeys.secretSantaOverview(eventId),
     queryFn: () => eventRepo.getSecretSantaOverview(eventId ?? ""),
     enabled: !!eventId,

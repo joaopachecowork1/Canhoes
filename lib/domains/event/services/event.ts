@@ -1,9 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type {
-  EventActiveContextDto,
-  EventOverviewDto,
-  EventPermissionsDto,
-} from "@/lib/api/types";
+import type { EventActiveContextDto, EventOverviewDto, EventPermissionsDto } from "@/lib/api/types";
 import { toEventSummary, toPhaseDto } from "@/lib/domains/admin/services/constants";
 import {
   canSubmitProposals,
@@ -44,7 +40,7 @@ export async function isEventMember(eventId: string, userId: string) {
 export async function getEventOverview(
   eventId: string,
   userId: string,
-  isAdmin: boolean
+  isAdmin: boolean,
 ): Promise<EventOverviewDto | null> {
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) return null;
@@ -70,10 +66,7 @@ export async function getEventOverview(
 }
 
 /** The overview of the active event (the most recent one if several are active), or null when none is. */
-export async function getActiveEventContext(
-  userId: string,
-  isAdmin: boolean
-): Promise<EventActiveContextDto | null> {
+export async function getActiveEventContext(userId: string, isAdmin: boolean): Promise<EventActiveContextDto | null> {
   const activeEvent = await prisma.event.findFirst({
     where: { isActive: true },
     orderBy: { createdAtUtc: "desc" },

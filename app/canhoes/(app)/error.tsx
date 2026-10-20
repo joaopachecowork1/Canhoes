@@ -28,20 +28,11 @@ export default function CanhoesError({
           <h1 className="text-xl font-semibold text-[var(--text-primary)]">{copy.title}</h1>
         </div>
 
-        <ErrorAlert
-          title={copy.alertTitle}
-          description={getErrorMessage(
-            error,
-            copy.alertDescription
-          )}
-        />
+        <ErrorAlert title={copy.alertTitle} description={getErrorMessage(error, copy.alertDescription)} />
 
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => reset()}>
-            {messages.common.retry}
-          </Button>
+          <Button onClick={() => reset()}>{messages.common.retry}</Button>
           <Button
-           
             variant="outline"
             // A full reload discards the client state that crashed.
             // eslint-disable-next-line @next/next/no-location-assign-relative-destination
@@ -49,11 +40,7 @@ export default function CanhoesError({
           >
             {messages.common.backToEvent}
           </Button>
-          <Button
-           
-            variant="ghost"
-            onClick={() => globalThis.location.reload()}
-          >
+          <Button variant="ghost" onClick={() => globalThis.location.reload()}>
             {copy.reload}
           </Button>
         </div>

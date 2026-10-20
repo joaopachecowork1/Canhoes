@@ -28,7 +28,7 @@ export function CanhoesFileTrigger({
     <label
       className={cn(
         "flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-[var(--color-moss)]/20 px-4 py-3 text-sm font-semibold text-[var(--color-text-primary)]",
-        className
+        className,
       )}
     >
       <Upload className={cn("h-4 w-4 text-[var(--color-text-secondary)]", iconClassName)} />

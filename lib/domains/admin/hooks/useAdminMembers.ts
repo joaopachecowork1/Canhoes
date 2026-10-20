@@ -40,7 +40,10 @@ export function useAdminMembers(eventId: string | null) {
     },
     onSuccess: async (result) => {
       if (!result) return;
-      await Promise.all([queryClient.invalidateQueries({ queryKey: queryKeys.admin.members(eventId) }), refreshProfile()]);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.members(eventId) }),
+        refreshProfile(),
+      ]);
       toast.success(copy.rolesUpdated);
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : copy.roleError),

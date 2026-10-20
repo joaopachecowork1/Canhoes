@@ -51,15 +51,21 @@ export async function authorizeGoogleSignIn(input: { email: string; externalId: 
     if (invitation && decision === "accept-invitation") {
       await tx.userInvitation.update({ where: { id: invitation.id }, data: { usedAtUtc: now } });
     }
-    const invitedUser = user ?? await tx.user.create({
-      data: { email, externalId: input.externalId, displayName: input.displayName ?? email, isAdmin: false },
-      select: { id: true, isAdmin: true },
-    });
-    const eventId = invitation?.eventId ?? (await tx.event.findFirst({
-      where: { isActive: true },
-      orderBy: { createdAtUtc: "asc" },
-      select: { id: true },
-    }))?.id;
+    const invitedUser =
+      user ??
+      (await tx.user.create({
+        data: { email, externalId: input.externalId, displayName: input.displayName ?? email, isAdmin: false },
+        select: { id: true, isAdmin: true },
+      }));
+    const eventId =
+      invitation?.eventId ??
+      (
+        await tx.event.findFirst({
+          where: { isActive: true },
+          orderBy: { createdAtUtc: "asc" },
+          select: { id: true },
+        })
+      )?.id;
     if (eventId) {
       await tx.eventMember.upsert({
         where: { eventId_userId: { eventId, userId: invitedUser.id } },

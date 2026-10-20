@@ -6,7 +6,12 @@ import { toast } from "sonner";
 import { formatMessage } from "@/lib/messages";
 import messages from "@/messages/pt.json";
 
-import { isAcceptedImage, MAX_FILE_BYTES, MAX_FILE_MB, normalizeUploadImage } from "../components/compose/composeUpload";
+import {
+  isAcceptedImage,
+  MAX_FILE_BYTES,
+  MAX_FILE_MB,
+  normalizeUploadImage,
+} from "../components/compose/composeUpload";
 import { getFileKey, MAX_MEDIA_FILES, MAX_POLL_OPTIONS, MIN_POLL_OPTIONS, moveItem } from "../rules/composeRules";
 
 const copy = messages.feed.compose;
@@ -36,16 +41,21 @@ function useMediaDraft() {
   /** Takes the new full list of files, keeping the URLs of files already there. */
   const setFiles = useCallback(
     (files: File[]) =>
-      commit(files.map((file) => mediaRef.current.find((entry) => entry.file === file) ?? { file, previewUrl: URL.createObjectURL(file) })),
-    [commit]
+      commit(
+        files.map(
+          (file) =>
+            mediaRef.current.find((entry) => entry.file === file) ?? { file, previewUrl: URL.createObjectURL(file) },
+        ),
+      ),
+    [commit],
   );
   const removeFile = useCallback(
     (index: number) => commit(mediaRef.current.filter((_, currentIndex) => currentIndex !== index)),
-    [commit]
+    [commit],
   );
   const moveFile = useCallback(
     (index: number, direction: -1 | 1) => commit(moveItem(mediaRef.current, index, direction)),
-    [commit]
+    [commit],
   );
 
   return { media, setFiles, removeFile, moveFile };
@@ -66,7 +76,7 @@ function usePollDraft() {
 
   const removeOption = useCallback((index: number) => {
     setOptions((current) =>
-      current.length > MIN_POLL_OPTIONS ? current.filter((_, currentIndex) => currentIndex !== index) : current
+      current.length > MIN_POLL_OPTIONS ? current.filter((_, currentIndex) => currentIndex !== index) : current,
     );
   }, []);
 
@@ -131,7 +141,7 @@ export function useComposer() {
       if (!fileList) return;
       setFiles(await prepareFiles(files, fileList));
     },
-    [files, setFiles]
+    [files, setFiles],
   );
 
   const { reset: resetPoll } = poll;
@@ -141,5 +151,15 @@ export function useComposer() {
     resetPoll();
   }, [resetPoll, setFiles]);
 
-  return { text, setText, files, previewUrls: media.map((entry) => entry.previewUrl), addFiles, removeFile, moveFile, poll, reset };
+  return {
+    text,
+    setText,
+    files,
+    previewUrls: media.map((entry) => entry.previewUrl),
+    addFiles,
+    removeFile,
+    moveFile,
+    poll,
+    reset,
+  };
 }

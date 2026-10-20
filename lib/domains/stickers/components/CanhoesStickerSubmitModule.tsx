@@ -51,7 +51,10 @@ function StickerSubmitLoadingState() {
       </Card>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="space-y-3 rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/90 p-3">
+          <div
+            key={index}
+            className="space-y-3 rounded-[var(--radius-lg-token)] border border-[var(--color-veil)]/12 bg-[var(--color-panel)]/90 p-3"
+          >
             <Skeleton className="aspect-square w-full rounded-[var(--radius-md-token)]" />
             <Skeleton className="h-4 w-4/5 rounded" />
             <Skeleton className="h-3 w-2/3 rounded" />
@@ -83,27 +86,30 @@ function StickerGallery({ isReady, stickers }: Readonly<{ isReady: boolean; stic
 }
 
 /** Stickers page: send a sticker image to a category and see the approved ones. */
-export function CanhoesStickerSubmitModule({ initialContext, initialStickerCategories, initialApprovedNominees }: {
-    initialContext?: EventActiveContextDto | null;
-    initialStickerCategories?: AwardCategoryDto[];
-    initialApprovedNominees?: NomineeDto[];
+export function CanhoesStickerSubmitModule({
+  initialContext,
+  initialStickerCategories,
+  initialApprovedNominees,
+}: {
+  initialContext?: EventActiveContextDto | null;
+  initialStickerCategories?: AwardCategoryDto[];
+  initialApprovedNominees?: NomineeDto[];
 }) {
   const { overview, event } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
   const phaseType = overview?.activePhase?.type;
   const isProposalPhase = phaseType === "PROPOSALS";
-  const stickers = useStickerData(eventId, { initialCategories: initialStickerCategories, initialNominees: initialApprovedNominees });
+  const stickers = useStickerData(eventId, {
+    initialCategories: initialStickerCategories,
+    initialNominees: initialApprovedNominees,
+  });
   const submission = useStickerSubmission({ eventId, isProposalPhase, onSubmitted: stickers.refresh });
 
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   return (
     <div className="space-y-4">
-      <CanhoesModuleHeader
-        module="stickers"
-        title={copy.title}
-        description={copy.description}
-      />
+      <CanhoesModuleHeader module="stickers" title={copy.title} description={copy.description} />
 
       {isProposalPhase ? (
         <FormSheet isOpen={isFormOpen} onOpenChange={setIsFormOpen} title={copy.formTitle} triggerLabel={copy.openForm}>

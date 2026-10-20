@@ -43,9 +43,7 @@ export function CanhoesMenuSheet({
       >
         <SheetHeader className="pb-3 pr-14">
           <SheetTitle className="text-xl">{messages.shell.common.menu}</SheetTitle>
-          <SheetDescription className="text-sm text-[var(--color-text-muted)]">
-            {copy.menuDescription}
-          </SheetDescription>
+          <SheetDescription className="text-sm text-[var(--color-text-muted)]">{copy.menuDescription}</SheetDescription>
         </SheetHeader>
 
         <PersonColorPicker />
@@ -61,9 +59,7 @@ export function CanhoesMenuSheet({
           ))}
 
           {items.length === 0 ? (
-            <p className="px-3 py-4 text-base text-[var(--color-text-muted)]">
-              {copy.noMoreAreas}
-            </p>
+            <p className="px-3 py-4 text-base text-[var(--color-text-muted)]">{copy.noMoreAreas}</p>
           ) : null}
 
           {isAdmin ? (
@@ -81,7 +77,13 @@ export function CanhoesMenuSheet({
           ) : null}
 
           <MenuLink
-            item={{ id: "welcome", label: copy.welcomeAgain, href: "/canhoes", icon: CircleHelp, description: copy.welcomeAgainDescription }}
+            item={{
+              id: "welcome",
+              label: copy.welcomeAgain,
+              href: "/canhoes",
+              icon: CircleHelp,
+              description: copy.welcomeAgainDescription,
+            }}
             isActive={false}
             onSelect={() => {
               setIsWelcomeDismissed(false);
@@ -131,7 +133,7 @@ function MenuLink({
       style={{ "--area": areaColorVar(item.id) }}
       className={cn(
         "flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-[var(--bg-paper)] active:bg-[var(--bg-paper)]",
-        isActive && "bg-[var(--bg-paper)]"
+        isActive && "bg-[var(--bg-paper)]",
       )}
     >
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--area,var(--moss))] text-[var(--on-person)]">

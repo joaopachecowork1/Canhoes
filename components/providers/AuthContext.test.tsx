@@ -11,10 +11,18 @@ function AuthProbe() {
   return (
     <div>
       <p>{`user:${auth.user?.name ?? "none"} admin:${String(auth.user?.isAdmin ?? false)} loading:${String(auth.loading)} dev:${String(auth.isDevAuthBypass)}`}</p>
-      <button type="button" onClick={auth.loginGoogle}>{"google"}</button>
-      <button type="button" onClick={auth.loginDevelopment}>{"dev"}</button>
-      <button type="button" onClick={auth.logout}>{"logout"}</button>
-      <button type="button" onClick={() => void auth.refreshProfile()}>{"refresh"}</button>
+      <button type="button" onClick={auth.loginGoogle}>
+        {"google"}
+      </button>
+      <button type="button" onClick={auth.loginDevelopment}>
+        {"dev"}
+      </button>
+      <button type="button" onClick={auth.logout}>
+        {"logout"}
+      </button>
+      <button type="button" onClick={() => void auth.refreshProfile()}>
+        {"refresh"}
+      </button>
     </div>
   );
 }
@@ -23,7 +31,7 @@ function renderAuth(isDevLoginAvailable = false) {
   return render(
     <AuthProvider isDevLoginAvailable={isDevLoginAvailable}>
       <AuthProbe />
-    </AuthProvider>
+    </AuthProvider>,
   );
 }
 
@@ -62,7 +70,9 @@ describe("AuthProvider", () => {
     renderAuth(true);
 
     expect(screen.getByText(/loading:true/)).toBeInTheDocument();
-    await waitFor(() => expect(signIn).toHaveBeenCalledWith("development", { callbackUrl: "/canhoes", redirect: false }));
+    await waitFor(() =>
+      expect(signIn).toHaveBeenCalledWith("development", { callbackUrl: "/canhoes", redirect: false }),
+    );
     await waitFor(() => expect(updateSession).toHaveBeenCalled());
   });
 

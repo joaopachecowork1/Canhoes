@@ -28,9 +28,7 @@ export function WishlistPreviewCard({
         <div className="p-4">
           <p>{copy.yourWishlist}</p>
           <p className="mt-2 text-2xl font-semibold text-[var(--color-text-primary)]">{myWishlistItemCount}</p>
-          <p className="body-small mt-1 text-[var(--color-text-muted)]">
-            {copy.hint}
-          </p>
+          <p className="body-small mt-1 text-[var(--color-text-muted)]">{copy.hint}</p>
         </div>
         <Button className="w-full" asChild>
           <Link href={wishlistHref}>{wishlistLabel}</Link>

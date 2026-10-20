@@ -135,7 +135,11 @@ function RegisterForm() {
             disabled={isFormDisabled}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={isFormDisabled || !displayName || password.length < MIN_PASSWORD_LENGTH}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isFormDisabled || !displayName || password.length < MIN_PASSWORD_LENGTH}
+        >
           {isSubmitting ? copy.submitting : copy.submit}
         </Button>
       </form>
@@ -148,7 +152,6 @@ function RegisterForm() {
 export function CanhoesRegisterModule() {
   return (
     <div className="relative isolate min-h-[100svh] overflow-hidden bg-[linear-gradient(180deg,var(--bg-deep)_0%,var(--bg-void)_100%)]">
-
       <div className="relative z-10 flex min-h-[100svh] items-center justify-center px-4 py-10">
         <section className="w-full max-w-md rounded-[var(--radius-xl-token)] border p-6 text-[var(--text-primary)] shadow-[var(--shadow-modal)] backdrop-blur-xl sm:p-8">
           <Suspense fallback={<div className="text-center text-[var(--text-primary)]">{messages.common.loading}</div>}>

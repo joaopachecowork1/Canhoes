@@ -1,0 +1,13 @@
+.next
+node_modules
+lib/generated
+docs/diagramas
+package-lock.json
+messages
+coverage
+.data
+test-results
+playwright-report
+*.md
+*.json
+*.css

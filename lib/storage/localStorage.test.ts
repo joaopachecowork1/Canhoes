@@ -43,7 +43,9 @@ describe("local upload storage", () => {
     ["image/gif", [0x47, 0x49, 0x46, 0x38]],
     ["image/webp", [0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]],
   ])("accepts real %s bytes", async (type, bytes) => {
-    await expect(saveUpload(new File([new Uint8Array(bytes)], "image", { type }), ["events"])).resolves.toMatchObject({ contentType: type });
+    await expect(saveUpload(new File([new Uint8Array(bytes)], "image", { type }), ["events"])).resolves.toMatchObject({
+      contentType: type,
+    });
   });
 
   it("rejects unsupported files", async () => {

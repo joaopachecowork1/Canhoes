@@ -6,7 +6,10 @@ export type SecretSantaPair = { giverUserId: string; receiverUserId: string };
  * everybody gives and receives exactly once. `random` returns a number in [0, 1); tests pass
  * a seeded one.
  */
-export function drawSecretSanta(participantIds: readonly string[], random: () => number = Math.random): SecretSantaPair[] {
+export function drawSecretSanta(
+  participantIds: readonly string[],
+  random: () => number = Math.random,
+): SecretSantaPair[] {
   const participants = [...new Set(participantIds)];
   if (participants.length < 2) {
     throw new RangeError("Secret Santa needs at least 2 participants.");

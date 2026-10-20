@@ -9,7 +9,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  output: 'standalone',
+  output: "standalone",
   devIndicators: false,
   poweredByHeader: false,
   async headers() {

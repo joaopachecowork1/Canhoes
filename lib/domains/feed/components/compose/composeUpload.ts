@@ -1,6 +1,5 @@
 "use client";
 
-
 export const MAX_FILE_MB = 10;
 export const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
 
@@ -18,15 +17,7 @@ const ACCEPTED_IMAGE_TYPES = new Set([
   "image/heif",
 ]);
 
-const ACCEPTED_IMAGE_EXTENSIONS = new Set([
-  "jpg",
-  "jpeg",
-  "png",
-  "webp",
-  "gif",
-  "heic",
-  "heif",
-]);
+const ACCEPTED_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"]);
 
 const TRANSCODE_IMAGE_TYPES = new Set(["image/heic", "image/heif"]);
 

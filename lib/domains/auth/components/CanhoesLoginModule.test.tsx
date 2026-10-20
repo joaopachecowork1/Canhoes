@@ -27,7 +27,11 @@ describe("CanhoesLoginModule", () => {
 
     await logInWithEmail();
 
-    expect(signIn).toHaveBeenCalledWith("credentials", { email: "ana@canhoes.pt", password: "segredo123", redirect: false });
+    expect(signIn).toHaveBeenCalledWith("credentials", {
+      email: "ana@canhoes.pt",
+      password: "segredo123",
+      redirect: false,
+    });
     expect(router.push).toHaveBeenCalledWith("/canhoes");
   });
 

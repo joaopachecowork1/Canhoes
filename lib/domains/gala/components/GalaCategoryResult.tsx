@@ -33,7 +33,9 @@ function WinnerBlock({ nominee }: Readonly<{ nominee: RankedNominee }>) {
           <Trophy className="size-4" aria-hidden />
           {copy.winner}
         </p>
-        <h3 className="break-words font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[var(--ink-primary)]">{nominee.title}</h3>
+        <h3 className="break-words font-[family-name:var(--font-display)] text-2xl font-bold leading-tight text-[var(--ink-primary)]">
+          {nominee.title}
+        </h3>
         <p className="text-base text-[var(--ink-secondary)]">{formatVotes(nominee.voteCount)}</p>
       </div>
     </div>
@@ -43,7 +45,9 @@ function WinnerBlock({ nominee }: Readonly<{ nominee: RankedNominee }>) {
 function RunnerUpRow({ nominee, place }: Readonly<{ nominee: RankedNominee; place: number }>) {
   return (
     <li className="flex items-baseline gap-3 px-1 text-base text-[var(--ink-secondary)]">
-      <span className="w-8 shrink-0 font-[family-name:var(--font-display)] font-bold text-[var(--ink-primary)]">{formatMessage(copy.place, { position: place })}</span>
+      <span className="w-8 shrink-0 font-[family-name:var(--font-display)] font-bold text-[var(--ink-primary)]">
+        {formatMessage(copy.place, { position: place })}
+      </span>
       <span className="min-w-0 flex-1 break-words">{nominee.title}</span>
       <span className="shrink-0 text-sm">{formatVotes(nominee.voteCount)}</span>
     </li>
@@ -59,12 +63,18 @@ export function GalaCategoryResult({ categoryResult }: Readonly<{ categoryResult
       <CardHeader className="pb-2">
         <CardTitle className="flex flex-wrap items-center justify-between gap-2">
           <h2>{categoryResult.categoryName}</h2>
-          <Badge variant="outline" className="border-[var(--area)] text-[var(--area)]">{formatVotes(categoryResult.totalVotes)}</Badge>
+          <Badge variant="outline" className="border-[var(--area)] text-[var(--area)]">
+            {formatVotes(categoryResult.totalVotes)}
+          </Badge>
         </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-3">
-        {winner ? <WinnerBlock nominee={winner} /> : <p className="body-small text-[var(--ink-secondary)]">{copy.noNominees}</p>}
+        {winner ? (
+          <WinnerBlock nominee={winner} />
+        ) : (
+          <p className="body-small text-[var(--ink-secondary)]">{copy.noNominees}</p>
+        )}
         {runnersUp.length > 0 ? (
           <ul className="space-y-2">
             {runnersUp.map((nominee, index) => (

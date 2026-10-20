@@ -34,10 +34,19 @@ function ResultsCategoryButton({
   const participationRate = Math.round(category.participationRate * 100);
 
   return (
-    <AdminSelectableButton type="button" onClick={() => onSelect(category.categoryId)} selected={isSelected} aria-pressed={isSelected}>
+    <AdminSelectableButton
+      type="button"
+      onClick={() => onSelect(category.categoryId)}
+      selected={isSelected}
+      aria-pressed={isSelected}
+    >
       <p className="truncate text-base font-semibold text-[var(--ink-primary)]">{category.categoryName}</p>
       <p className="mt-1 text-xs text-[var(--ink-secondary)]">
-        {formatMessage(copy.categoryVotes, { votes: category.totalVotes, members: totalMembers, percent: participationRate })}
+        {formatMessage(copy.categoryVotes, {
+          votes: category.totalVotes,
+          members: totalMembers,
+          percent: participationRate,
+        })}
       </p>
     </AdminSelectableButton>
   );
@@ -51,7 +60,9 @@ function ResultsHeader({ refreshedAt }: Readonly<{ refreshedAt: string | null }>
           <BarChart2 className="h-4 w-4" />
           {copy.title}
         </CardTitle>
-        {refreshedAt ? <p className="text-xs text-[var(--ink-secondary)]">{formatMessage(copy.updatedAt, { date: refreshedAt })}</p> : null}
+        {refreshedAt ? (
+          <p className="text-xs text-[var(--ink-secondary)]">{formatMessage(copy.updatedAt, { date: refreshedAt })}</p>
+        ) : null}
       </CardHeader>
     </Card>
   );
@@ -88,7 +99,10 @@ export function AdminOfficialResultsSection({
 
   if (resultsQuery.error) {
     return (
-      <AdminStateMessage tone="warning" action={<Button onClick={() => void resultsQuery.refetch()}>{messages.common.retry}</Button>}>
+      <AdminStateMessage
+        tone="warning"
+        action={<Button onClick={() => void resultsQuery.refetch()}>{messages.common.retry}</Button>}
+      >
         {copy.loadError}
       </AdminStateMessage>
     );
@@ -96,7 +110,9 @@ export function AdminOfficialResultsSection({
 
   return (
     <div className="space-y-4">
-      <ResultsHeader refreshedAt={resultsQuery.dataUpdatedAt ? new Date(resultsQuery.dataUpdatedAt).toLocaleString("pt-PT") : null} />
+      <ResultsHeader
+        refreshedAt={resultsQuery.dataUpdatedAt ? new Date(resultsQuery.dataUpdatedAt).toLocaleString("pt-PT") : null}
+      />
 
       {resultCategories.length === 0 ? <AdminStateMessage variant="panel">{copy.empty}</AdminStateMessage> : null}
 
@@ -116,7 +132,11 @@ export function AdminOfficialResultsSection({
         </div>
       ) : null}
 
-      <ResultsCategoryDrawer category={selectedCategory} memberCount={memberCount} onClose={() => setSelectedCategoryId(null)} />
+      <ResultsCategoryDrawer
+        category={selectedCategory}
+        memberCount={memberCount}
+        onClose={() => setSelectedCategoryId(null)}
+      />
     </div>
   );
 }

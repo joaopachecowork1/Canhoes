@@ -52,7 +52,13 @@ function GalaResults({
   isResultsPhase,
   onRetry,
   resultsByCategory,
-}: Readonly<{ errorMessage: string | null; isLoading: boolean; isResultsPhase: boolean; onRetry: () => void; resultsByCategory: PublicCategoryResultDto[] }>) {
+}: Readonly<{
+  errorMessage: string | null;
+  isLoading: boolean;
+  isResultsPhase: boolean;
+  onRetry: () => void;
+  resultsByCategory: PublicCategoryResultDto[];
+}>) {
   if (isLoading) return <GalaLoadingState />;
   const hasNoRanking = resultsByCategory.every((categoryResult) => categoryResult.top.length === 0);
 
@@ -60,14 +66,23 @@ function GalaResults({
   return (
     <>
       {errorMessage ? (
-        <ErrorAlert title={copy.loadErrorTitle} description={errorMessage} actionLabel={messages.common.retry} onAction={onRetry} />
+        <ErrorAlert
+          title={copy.loadErrorTitle}
+          description={errorMessage}
+          actionLabel={messages.common.retry}
+          onAction={onRetry}
+        />
       ) : null}
       {hasNoRanking && !errorMessage ? (
         <EmptyState
           icon={Trophy}
           title={isResultsPhase ? copy.noVotesTitle : copy.emptyTitle}
           description={isResultsPhase ? copy.noVotesDescription : copy.emptyDescription}
-          action={<Button asChild variant="outline" className="w-full"><Link href="/canhoes">{copy.backToMural}</Link></Button>}
+          action={
+            <Button asChild variant="outline" className="w-full">
+              <Link href="/canhoes">{copy.backToMural}</Link>
+            </Button>
+          }
         />
       ) : null}
       {!hasNoRanking ? (
@@ -82,14 +97,22 @@ function GalaResults({
 }
 
 /** Gala page: the top results of each category, open in the RESULTS phase. */
-export function CanhoesGalaModule({ initialContext, initialResults }: {
-    initialContext?: EventActiveContextDto | null;
-    initialResults?: PublicCategoryResultDto[];
+export function CanhoesGalaModule({
+  initialContext,
+  initialResults,
+}: {
+  initialContext?: EventActiveContextDto | null;
+  initialResults?: PublicCategoryResultDto[];
 }) {
   const { event, overview } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
 
-  const { data: resultsByCategory = [], isLoading, error, refetch } = useQuery({
+  const {
+    data: resultsByCategory = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: queryKeys.galaResults(eventId),
     queryFn: () => awardsRepo.getResults(eventId ?? ""),
     enabled: !!eventId,
@@ -101,7 +124,12 @@ export function CanhoesGalaModule({ initialContext, initialResults }: {
 
   return (
     <div className="space-y-4">
-      <CanhoesModuleHeader module="gala" title={copy.title} description={copy.description} badgeLabel={totalVotes > 0 ? formatVotes(totalVotes) : undefined} />
+      <CanhoesModuleHeader
+        module="gala"
+        title={copy.title}
+        description={copy.description}
+        badgeLabel={totalVotes > 0 ? formatVotes(totalVotes) : undefined}
+      />
       <GalaResults
         errorMessage={error ? getErrorMessage(error, copy.loadError) : null}
         isLoading={isLoading}

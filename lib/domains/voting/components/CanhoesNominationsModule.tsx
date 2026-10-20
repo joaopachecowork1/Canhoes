@@ -44,7 +44,9 @@ function NominationsBoard({ nominations }: Readonly<{ nominations: Nominations }
           eventId={nominations.queryEventId}
           isPhaseOpen={nominations.isPhaseOpen}
           myNomination={myNominations.find((mine) => mine.categoryId === selectedCategory.id)}
-          approvedNominees={nominations.approvedNominees.filter((nominee) => nominee.categoryId === selectedCategory.id)}
+          approvedNominees={nominations.approvedNominees.filter(
+            (nominee) => nominee.categoryId === selectedCategory.id,
+          )}
           onNominationSubmitted={nominations.refreshMyNominations}
           queryClient={nominations.queryClient}
         />
@@ -88,11 +90,27 @@ export function CanhoesNominationsModule({
   }
 
   if (nominations.categories.length === 0) {
-    return <EmptyState className="py-8" icon={Trophy} title={copy.noCategoriesTitle} description={copy.noCategoriesDescription} tone="official" />;
+    return (
+      <EmptyState
+        className="py-8"
+        icon={Trophy}
+        title={copy.noCategoriesTitle}
+        description={copy.noCategoriesDescription}
+        tone="official"
+      />
+    );
   }
 
   if (!nominations.isPhaseOpen) {
-    return <EmptyState className="py-10 opacity-90" icon={Lock} title={copy.closedTitle} description={copy.closedDescription} tone="official" />;
+    return (
+      <EmptyState
+        className="py-10 opacity-90"
+        icon={Lock}
+        title={copy.closedTitle}
+        description={copy.closedDescription}
+        tone="official"
+      />
+    );
   }
 
   return <NominationsBoard nominations={nominations} />;

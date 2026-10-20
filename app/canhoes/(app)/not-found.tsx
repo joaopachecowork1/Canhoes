@@ -19,20 +19,13 @@ export default function CanhoesNotFound() {
           <h1 className="text-xl font-semibold text-[var(--text-primary)]">{copy.title}</h1>
         </div>
 
-        <ErrorAlert
-          title={copy.alertTitle}
-          description={copy.alertDescription}
-        />
+        <ErrorAlert title={copy.alertTitle} description={copy.alertDescription} />
 
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={() => router.push("/canhoes")}>
             {messages.common.backToEvent}
           </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => globalThis.history.back()}
-          >
+          <Button type="button" variant="outline" onClick={() => globalThis.history.back()}>
             {copy.goBack}
           </Button>
         </div>

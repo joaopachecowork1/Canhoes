@@ -2,7 +2,6 @@
 
 import { BarChart3, PlusCircle, Trash2 } from "lucide-react";
 
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import messages from "@/messages/pt.json";

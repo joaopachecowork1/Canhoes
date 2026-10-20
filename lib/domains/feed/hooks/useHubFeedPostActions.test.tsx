@@ -18,7 +18,13 @@ const P = "events/event-1/feed/posts/post-1";
 function setup(eventId: string | null = "event-1") {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const feed: FeedInfiniteData = {
-    pages: [{ posts: [post({ id: "post-1", likeCount: 1 }), post({ id: "post-2", text: "Outro" })], nextCursor: null, total: 2 }],
+    pages: [
+      {
+        posts: [post({ id: "post-1", likeCount: 1 }), post({ id: "post-2", text: "Outro" })],
+        nextCursor: null,
+        total: 2,
+      },
+    ],
     pageParams: [0],
   };
   queryClient.setQueryData(queryKeys.hubPosts("event-1"), feed);
@@ -74,8 +80,19 @@ describe("useHubFeedPostActions: poll votes", () => {
   it("restores the poll when the vote is refused", async () => {
     server.use(apiRoute("post", `${P}/poll/vote`, { message: "fechada" }, 500));
     const { result, queryClient } = setup();
-    const withPoll = post({ id: "post-1", poll: { question: "Onde?", totalVotes: 0, myOptionId: null, options: [{ id: "o1", text: "Porto", voteCount: 0 }] } });
-    queryClient.setQueryData<FeedInfiniteData>(queryKeys.hubPosts("event-1"), { pages: [{ posts: [withPoll], nextCursor: null, total: 1 }], pageParams: [0] });
+    const withPoll = post({
+      id: "post-1",
+      poll: {
+        question: "Onde?",
+        totalVotes: 0,
+        myOptionId: null,
+        options: [{ id: "o1", text: "Porto", voteCount: 0 }],
+      },
+    });
+    queryClient.setQueryData<FeedInfiniteData>(queryKeys.hubPosts("event-1"), {
+      pages: [{ posts: [withPoll], nextCursor: null, total: 1 }],
+      pageParams: [0],
+    });
 
     await act(() => result.current.votePoll("post-1", "o1"));
 
@@ -96,7 +113,10 @@ describe("useHubFeedPostActions: admin", () => {
   });
 
   it("reports a failed pin or move without touching the list", async () => {
-    server.use(apiRoute("post", `${P}/pin`, { message: "x" }, 500), apiRoute("patch", `${P}/pin`, { message: "y" }, 500));
+    server.use(
+      apiRoute("post", `${P}/pin`, { message: "x" }, 500),
+      apiRoute("patch", `${P}/pin`, { message: "y" }, 500),
+    );
     const { result, cached } = setup();
 
     await act(() => result.current.adminPin("post-1"));
@@ -107,7 +127,10 @@ describe("useHubFeedPostActions: admin", () => {
   });
 
   it("moves a pinned post and reloads the feed", async () => {
-    server.use(apiRoute("patch", `${P}/pin`, {}), apiRoute("get", "events/event-1/feed/posts", { items: [], total: 0, skip: 0, take: 15, hasMore: false }));
+    server.use(
+      apiRoute("patch", `${P}/pin`, {}),
+      apiRoute("get", "events/event-1/feed/posts", { items: [], total: 0, skip: 0, take: 15, hasMore: false }),
+    );
     const { result, queryClient } = setup();
 
     await act(() => result.current.adminMovePinned("post-1", "down"));

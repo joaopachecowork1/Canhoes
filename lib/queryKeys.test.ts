@@ -6,8 +6,15 @@ describe("queryKeys", () => {
   it("keeps every admin list of an event under one prefix, so one invalidation refreshes them all", () => {
     const { admin } = queryKeys;
     const lists = [
-      admin.categories("e"), admin.nominationsAll("e"), admin.nominationsPendingCount("e"), admin.nominationsPage("e", 0, 50),
-      admin.votesAudit("e"), admin.officialResults("e"), admin.members("e"), admin.membersPage("e", 0, 50), admin.secretSantaState("e"),
+      admin.categories("e"),
+      admin.nominationsAll("e"),
+      admin.nominationsPendingCount("e"),
+      admin.nominationsPage("e", 0, 50),
+      admin.votesAudit("e"),
+      admin.officialResults("e"),
+      admin.members("e"),
+      admin.membersPage("e", 0, 50),
+      admin.secretSantaState("e"),
     ];
 
     for (const key of lists) expect(key.slice(0, 3)).toEqual(admin.all("e"));

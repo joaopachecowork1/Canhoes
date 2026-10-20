@@ -7,9 +7,7 @@ import { isAdminSectionId } from "@/lib/domains/admin/components/adminSections";
 import { AdminRouteTabs } from "@/lib/domains/admin/components/layout/AdminRouteTabs";
 
 /** One tab of the admin area. Only admins get here: `admin/layout.tsx` redirects everyone else. */
-export default async function AdminSectionPage({
-  params,
-}: Readonly<{ params: Promise<{ section: string }> }>) {
+export default async function AdminSectionPage({ params }: Readonly<{ params: Promise<{ section: string }> }>) {
   const { section } = await params;
   if (!isAdminSectionId(section)) notFound();
 

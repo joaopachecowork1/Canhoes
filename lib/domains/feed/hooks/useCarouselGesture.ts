@@ -19,7 +19,7 @@ export function useCarouselGesture(totalSlides: number) {
         const next = typeof update === "function" ? update(Math.min(previous, lastIndex)) : update;
         return Math.min(Math.max(next, 0), lastIndex);
       }),
-    [lastIndex]
+    [lastIndex],
   );
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);

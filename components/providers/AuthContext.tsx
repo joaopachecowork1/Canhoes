@@ -119,9 +119,10 @@ export function AuthProvider({
     await updateSession();
   }, [updateSession]);
 
-  const isLoading = status === "loading"
-    || autoLogin.isPending
-    || (status === "unauthenticated" && isDevLoginAvailable && !autoLogin.hasFailed);
+  const isLoading =
+    status === "loading" ||
+    autoLogin.isPending ||
+    (status === "unauthenticated" && isDevLoginAvailable && !autoLogin.hasFailed);
 
   const value = useMemo<AuthContextType>(
     () => ({
@@ -135,7 +136,7 @@ export function AuthProvider({
       logout,
       refreshProfile,
     }),
-    [user, isLoggedIn, isDevAuthBypass, isDevLoginAvailable, isLoading, refreshProfile]
+    [user, isLoggedIn, isDevAuthBypass, isDevLoginAvailable, isLoading, refreshProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

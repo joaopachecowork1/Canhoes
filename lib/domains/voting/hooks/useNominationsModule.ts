@@ -15,7 +15,11 @@ const EMPTY_MY_NOMINATIONS: MyNominationDto[] = [];
 /** Query key of the user's own nominations, shared with the optimistic update in `useSubmitNomination`. */
 export const myNominationsKey = (eventId: string) => ["nominations", eventId, "my-status"];
 
-const QUERY_OPTIONS = { placeholderData: keepPreviousData, staleTime: 1000 * 60 * 5, refetchOnWindowFocus: false } as const;
+const QUERY_OPTIONS = {
+  placeholderData: keepPreviousData,
+  staleTime: 1000 * 60 * 5,
+  refetchOnWindowFocus: false,
+} as const;
 
 function useNominationQueries(eventId: string | null, initialCategories?: AwardCategoryDto[]) {
   const queryEventId = eventId ?? "";
@@ -62,14 +66,19 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
  * Owns the remote nomination state and the category selection.
  * The view only receives the data and callbacks it needs to render.
  */
-export function useNominationsModule(initialCategories?: AwardCategoryDto[], initialContext?: EventActiveContextDto | null) {
+export function useNominationsModule(
+  initialCategories?: AwardCategoryDto[],
+  initialContext?: EventActiveContextDto | null,
+) {
   const queryClient = useQueryClient();
   const { event, overview, isLoading: isOverviewLoading } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
   const queryEventId = eventId ?? "";
   const { categories, isLoading, ...remote } = useNominationQueries(eventId, initialCategories);
-  const { setSelectedId: setSelectedCategoryId, selectedItem: selectedCategory } =
-    useCategorySelection(categories, (category) => category.id);
+  const { setSelectedId: setSelectedCategoryId, selectedItem: selectedCategory } = useCategorySelection(
+    categories,
+    (category) => category.id,
+  );
 
   const refreshMyNominations = () => queryClient.invalidateQueries({ queryKey: myNominationsKey(queryEventId) });
 

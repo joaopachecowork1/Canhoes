@@ -6,7 +6,10 @@ import { createInvitation } from "@/lib/domains/auth/services/invitations";
 
 const inviteSchema = z.object({
   email: z.string().trim().min(1, "Indica um email."),
-  eventId: z.string().nullish().transform((eventId) => eventId?.trim() || null),
+  eventId: z
+    .string()
+    .nullish()
+    .transform((eventId) => eventId?.trim() || null),
 });
 
 export const POST = apiRoute(async (request) => {

@@ -6,19 +6,22 @@ import { apiRoute, json, readJson } from "@/lib/api/route";
 import { updateEventModules } from "@/lib/domains/admin/services/state";
 import { getEventOverview } from "@/lib/domains/event/services/event";
 
-const moduleVisibilitySchema = z.object({
-  feed: z.boolean().optional(),
-  secretSanta: z.boolean().optional(),
-  wishlist: z.boolean().optional(),
-  categories: z.boolean().optional(),
-  voting: z.boolean().optional(),
-  gala: z.boolean().optional(),
-  stickers: z.boolean().optional(),
-  measures: z.boolean().optional(),
-  nominees: z.boolean().optional(),
-}).strict().refine((modules) => Object.keys(modules).length > 0, {
-  message: "At least one module is required.",
-});
+const moduleVisibilitySchema = z
+  .object({
+    feed: z.boolean().optional(),
+    secretSanta: z.boolean().optional(),
+    wishlist: z.boolean().optional(),
+    categories: z.boolean().optional(),
+    voting: z.boolean().optional(),
+    gala: z.boolean().optional(),
+    stickers: z.boolean().optional(),
+    measures: z.boolean().optional(),
+    nominees: z.boolean().optional(),
+  })
+  .strict()
+  .refine((modules) => Object.keys(modules).length > 0, {
+    message: "At least one module is required.",
+  });
 
 const updateModulesSchema = z.object({ modules: moduleVisibilitySchema }).strict();
 

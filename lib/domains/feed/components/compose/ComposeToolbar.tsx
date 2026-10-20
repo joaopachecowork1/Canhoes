@@ -48,7 +48,7 @@ export function ComposeToolbar({
             "relative",
             fileCount > 0
               ? "border-[var(--moss)] bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--glow-green-sm)]"
-              : IDLE_TOOL_CLASS
+              : IDLE_TOOL_CLASS,
           )}
         >
           <ImagePlus className="h-4 w-4" />
@@ -69,7 +69,7 @@ export function ComposeToolbar({
             TOOL_CLASS,
             isPollEnabled
               ? "border-[var(--color-text-muted)] bg-[var(--color-text-muted)] text-[var(--ink-primary)] shadow-[var(--shadow-card)]"
-              : IDLE_TOOL_CLASS
+              : IDLE_TOOL_CLASS,
           )}
         >
           <BarChart3 className="h-4 w-4" />

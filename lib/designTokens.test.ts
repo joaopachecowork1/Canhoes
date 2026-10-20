@@ -13,8 +13,20 @@ function tokenValue(name: string): string {
 
 describe("design tokens", () => {
   it("gives every area a colour of its own, never a person's frame colour", () => {
-    const people = ["coral", "amber", "teal", "blue", "pink", "lime", "violet", "sky"].map((key) => tokenValue(`person-${key}`));
-    const areas = ["feed", "voting", "nominees", "categories", "gala", "secret-santa", "wishlist", "stickers", "measures"];
+    const people = ["coral", "amber", "teal", "blue", "pink", "lime", "violet", "sky"].map((key) =>
+      tokenValue(`person-${key}`),
+    );
+    const areas = [
+      "feed",
+      "voting",
+      "nominees",
+      "categories",
+      "gala",
+      "secret-santa",
+      "wishlist",
+      "stickers",
+      "measures",
+    ];
 
     for (const area of areas) {
       const value = tokenValue(`area-${area}`);
@@ -24,7 +36,17 @@ describe("design tokens", () => {
   });
 
   it("keeps the area colours apart from each other", () => {
-    const areas = ["feed", "voting", "nominees", "categories", "gala", "secret-santa", "wishlist", "stickers", "measures"];
+    const areas = [
+      "feed",
+      "voting",
+      "nominees",
+      "categories",
+      "gala",
+      "secret-santa",
+      "wishlist",
+      "stickers",
+      "measures",
+    ];
     const values = areas.map((area) => tokenValue(`area-${area}`));
 
     expect(new Set(values).size).toBe(areas.length);

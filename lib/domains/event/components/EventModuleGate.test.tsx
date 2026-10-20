@@ -11,7 +11,14 @@ vi.mock("@/lib/domains/event/hooks/useEventOverview", () => ({ useEventOverview:
 
 function setOverview({ isAdmin = false, isWishlistOpen = false } = {}) {
   const context = makeEventContext({ isAdmin, modules: { wishlist: isWishlistOpen } });
-  overviewState.current = { error: null, event: context.event, isLoading: false, isFetching: false, overview: context.overview, refresh: vi.fn() };
+  overviewState.current = {
+    error: null,
+    event: context.event,
+    isLoading: false,
+    isFetching: false,
+    overview: context.overview,
+    refresh: vi.fn(),
+  };
 }
 
 describe("EventModuleGate", () => {

@@ -30,7 +30,9 @@ const fetchMock = vi.mocked(canhoesServerFetch);
 
 /** Every path answers `{ from: path }`, the active context answers the event (or null). */
 function serveEverything(activeContext: unknown = context) {
-  fetchMock.mockImplementation(async (path: string) => (path === "events/active/context" ? activeContext : { items: [`items of ${path}`], from: path }));
+  fetchMock.mockImplementation(async (path: string) =>
+    path === "events/active/context" ? activeContext : { items: [`items of ${path}`], from: path },
+  );
 }
 
 type AnyProps = Record<string, unknown> & { children?: ReactNode };
@@ -91,15 +93,21 @@ describe("app pages", () => {
     serveEverything();
     const moduleElement = findElementWithProp(await SecretSantaPage(), "initialSecretSantaOverview");
 
-    expect(moduleElement?.props.initialSecretSantaOverview).toMatchObject({ from: "events/event-1/secret-santa/overview" });
-    expect(moduleElement?.props.initialWishlistData).toMatchObject({ from: "events/event-1/wishlist?skip=0&take=1000" });
+    expect(moduleElement?.props.initialSecretSantaOverview).toMatchObject({
+      from: "events/event-1/secret-santa/overview",
+    });
+    expect(moduleElement?.props.initialWishlistData).toMatchObject({
+      from: "events/event-1/wishlist?skip=0&take=1000",
+    });
   });
 
   it("stickers load the categories and the approved stickers", async () => {
     serveEverything();
     const moduleElement = findElementWithProp(await StickersPage(), "initialStickerCategories");
 
-    expect(moduleElement?.props.initialStickerCategories).toEqual(["items of events/event-1/categories?skip=0&take=50"]);
+    expect(moduleElement?.props.initialStickerCategories).toEqual([
+      "items of events/event-1/categories?skip=0&take=50",
+    ]);
     expect(moduleElement?.props.initialApprovedNominees).toMatchObject({ from: "events/event-1/nominations/approved" });
   });
 
@@ -114,7 +122,7 @@ describe("app pages", () => {
   it("the mural loads the first page of posts and the dashboard", async () => {
     serveEverything();
     fetchMock.mockImplementation(async (path: string) =>
-      path === "events/active/context" ? context : { items: [], total: 0, skip: 0, take: 15, hasMore: false }
+      path === "events/active/context" ? context : { items: [], total: 0, skip: 0, take: 15, hasMore: false },
     );
 
     const tree = await HomePage();
@@ -127,7 +135,10 @@ describe("app pages", () => {
   it("admin opens the requested section and rejects unknown ones", async () => {
     serveEverything();
 
-    const moduleElement = findElementWithProp(await AdminSectionPage({ params: Promise.resolve({ section: "membros" }) }), "section");
+    const moduleElement = findElementWithProp(
+      await AdminSectionPage({ params: Promise.resolve({ section: "membros" }) }),
+      "section",
+    );
     expect(moduleElement?.props).toMatchObject({ section: "membros", initialEventId: "event-1" });
 
     await AdminSectionPage({ params: Promise.resolve({ section: "nada" }) });

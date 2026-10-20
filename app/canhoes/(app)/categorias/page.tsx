@@ -8,7 +8,7 @@ export default async function CategoriasPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const initialCategories = activeContext
     ? await canhoesServerFetch<PagedResult<AwardCategoryDto>>(
-        `events/${activeContext.event.id}/categories?skip=0&take=50`
+        `events/${activeContext.event.id}/categories?skip=0&take=50`,
       )
     : null;
 

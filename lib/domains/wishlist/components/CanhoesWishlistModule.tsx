@@ -33,7 +33,10 @@ function WishlistLoadingState() {
         <Skeleton className="h-4 w-28 rounded" />
         <div className="space-y-3 pt-2">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="flex gap-3 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 p-3">
+            <div
+              key={index}
+              className="flex gap-3 rounded-[var(--radius-md-token)] border border-[var(--color-veil)]/10 p-3"
+            >
               <Skeleton className="h-14 w-14 rounded-[var(--radius-md-token)]" />
               <div className="min-w-0 flex-1 space-y-2">
                 <Skeleton className="h-4 w-2/3 rounded" />
@@ -123,7 +126,12 @@ export function CanhoesWishlistModule({
         badgeVariant="secondary"
       />
 
-      <FormSheet isOpen={isFormOpen} onOpenChange={setIsFormOpen} title={messages.wishlist.WishlistForm.title} triggerLabel={copy.addItem}>
+      <FormSheet
+        isOpen={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        title={messages.wishlist.WishlistForm.title}
+        triggerLabel={copy.addItem}
+      >
         <WishlistForm
           formState={wishlist.formState}
           isSaving={wishlist.isSaving}

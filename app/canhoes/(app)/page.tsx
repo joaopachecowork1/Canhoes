@@ -8,20 +8,18 @@ import { CanhoesHomeDashboard } from "@/lib/domains/event/components/CanhoesHome
 
 const HubFeedModule = dynamic(
   () => import("@/lib/domains/feed/components/HubFeedModule").then((module) => ({ default: module.HubFeedModule })),
-  { loading: () => <FeedSkeleton /> }
+  { loading: () => <FeedSkeleton /> },
 );
 
 export default async function CanhoesPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const firstPage = activeContext
     ? await canhoesServerFetch<PagedResult<EventFeedPostFullDto>>(
-        `events/${activeContext.event.id}/feed/posts?skip=0&take=15`
+        `events/${activeContext.event.id}/feed/posts?skip=0&take=15`,
       )
     : null;
 
-  const initialData = firstPage
-    ? { pages: [toFeedPage(firstPage)], pageParams: [0] }
-    : undefined;
+  const initialData = firstPage ? { pages: [toFeedPage(firstPage)], pageParams: [0] } : undefined;
 
   return (
     <EventModuleGate moduleKey="feed">

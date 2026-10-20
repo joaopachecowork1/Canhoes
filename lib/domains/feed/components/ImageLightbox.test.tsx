@@ -8,7 +8,17 @@ const images = ["/uploads/a.jpg", "/uploads/b.jpg", "/uploads/c.jpg"];
 
 function renderLightbox(props: Partial<Parameters<typeof ImageLightbox>[0]> = {}) {
   const onClose = vi.fn();
-  render(<ImageLightbox images={images} initialIndex={0} open onClose={onClose} authorName="Ana" createdAtUtc="2026-10-01T10:00:00.000Z" {...props} />);
+  render(
+    <ImageLightbox
+      images={images}
+      initialIndex={0}
+      open
+      onClose={onClose}
+      authorName="Ana"
+      createdAtUtc="2026-10-01T10:00:00.000Z"
+      {...props}
+    />,
+  );
   return { onClose, dialog: screen.queryByRole("dialog", { name: "Visualizador de imagem" }) };
 }
 

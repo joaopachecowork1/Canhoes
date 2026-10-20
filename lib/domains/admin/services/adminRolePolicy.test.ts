@@ -21,11 +21,13 @@ const base = {
 
 describe("admin role policy", () => {
   it("allows promotion", () => {
-    expect(() => assertAdminRoleChangeAllowed({
-      ...base,
-      targetIsAdmin: false,
-      nextIsAdmin: true,
-    })).not.toThrow();
+    expect(() =>
+      assertAdminRoleChangeAllowed({
+        ...base,
+        targetIsAdmin: false,
+        nextIsAdmin: true,
+      }),
+    ).not.toThrow();
   });
 
   it("prevents removing the last admin", () => {
@@ -37,10 +39,12 @@ describe("admin role policy", () => {
   });
 
   it("allows a confirmed self-demotion when another admin remains", () => {
-    expect(() => assertAdminRoleChangeAllowed({
-      ...base,
-      actorUserId: "target",
-      confirmSelfDemotion: true,
-    })).not.toThrow();
+    expect(() =>
+      assertAdminRoleChangeAllowed({
+        ...base,
+        actorUserId: "target",
+        confirmSelfDemotion: true,
+      }),
+    ).not.toThrow();
   });
 });

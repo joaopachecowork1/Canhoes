@@ -10,7 +10,9 @@ function openModules(state: Partial<EventRulesState>) {
     hasSecretSantaDraw: false,
     ...state,
   });
-  return Object.keys(modules).filter((key) => modules[key]).sort();
+  return Object.keys(modules)
+    .filter((key) => modules[key])
+    .sort();
 }
 
 describe("resolveMemberModules", () => {
@@ -20,7 +22,12 @@ describe("resolveMemberModules", () => {
 
   it("opens every proposal area while proposals are accepted", () => {
     expect(openModules({ activePhaseType: "PROPOSALS" })).toEqual([
-      "categories", "feed", "measures", "nominees", "stickers", "wishlist",
+      "categories",
+      "feed",
+      "measures",
+      "nominees",
+      "stickers",
+      "wishlist",
     ]);
   });
 

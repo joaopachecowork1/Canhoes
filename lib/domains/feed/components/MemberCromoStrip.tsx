@@ -11,7 +11,11 @@ export function MemberCromoStrip({ eventId }: Readonly<{ eventId: string | null 
   if (members.length === 0) return null;
 
   return (
-    <ul tabIndex={0} aria-label={messages.feed.HubFeedModule.membersLabel} className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+    <ul
+      tabIndex={0}
+      aria-label={messages.feed.HubFeedModule.membersLabel}
+      className="-mx-1 flex gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none]"
+    >
       {members.map((member) => {
         const name = member.displayName ?? member.email.split("@")[0];
         return (

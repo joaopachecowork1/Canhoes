@@ -125,7 +125,12 @@ function ResultsCategoryDetails({ category }: Readonly<{ category: AdminCategory
         ))}
       </div>
 
-      <Button type="button" variant="outline" className="w-full justify-center" onClick={() => setIsVotersVisible((current) => !current)}>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full justify-center"
+        onClick={() => setIsVotersVisible((current) => !current)}
+      >
         <ToggleIcon className="mr-2 h-4 w-4" />
         {copy.showVoters}
       </Button>
@@ -147,7 +152,11 @@ export function ResultsCategoryDrawer({
       title={category?.categoryName ?? ""}
       description={
         category
-          ? formatMessage(copy.drawerDescription, { votes: category.totalVotes, members: memberCount, percent: toPercent(category.participationRate) })
+          ? formatMessage(copy.drawerDescription, {
+              votes: category.totalVotes,
+              members: memberCount,
+              percent: toPercent(category.participationRate),
+            })
           : undefined
       }
     >

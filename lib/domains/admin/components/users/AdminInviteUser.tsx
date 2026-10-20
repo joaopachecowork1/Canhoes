@@ -31,7 +31,13 @@ function InviteLinkResult({ inviteUrl }: Readonly<{ inviteUrl: string }>) {
       <p className="text-xs text-[var(--ink-muted)]">{copy.generatedHint}</p>
       <div className="flex items-center gap-2">
         <Input value={inviteUrl} readOnly className="h-8 text-xs bg-black/40 border-[var(--border-paper)]" />
-        <Button size="icon" variant="outline" className="h-8 w-8 shrink-0" onClick={handleCopy} aria-label={copy.copyLabel}>
+        <Button
+          size="icon"
+          variant="outline"
+          className="h-8 w-8 shrink-0"
+          onClick={handleCopy}
+          aria-label={copy.copyLabel}
+        >
           {isCopied ? <Check className="h-4 w-4 text-[var(--moss-glow)]" /> : <Copy className="h-4 w-4" />}
         </Button>
       </div>
@@ -72,7 +78,9 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
         <form onSubmit={handleInvite} className="space-y-4">
           <div className="flex gap-2">
             <div className="flex-1 space-y-1">
-              <Label htmlFor="inviteEmail" className="sr-only">{messages.auth.CredentialsLoginForm.emailLabel}</Label>
+              <Label htmlFor="inviteEmail" className="sr-only">
+                {messages.auth.CredentialsLoginForm.emailLabel}
+              </Label>
               <Input
                 id="inviteEmail"
                 type="email"
