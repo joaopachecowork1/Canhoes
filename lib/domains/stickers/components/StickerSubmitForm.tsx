@@ -12,24 +12,19 @@ import type { useStickerSubmission } from "../hooks/useStickers";
 
 const copy = messages.stickers.StickerSubmitForm;
 
-function getSubmitLabel(isProposalPhase: boolean, isSubmitting: boolean) {
-  if (!isProposalPhase) return copy.closed;
-  return isSubmitting ? copy.submitting : copy.submit;
-}
-
 /** Category, title and image of a new sticker, with a preview of the image. */
 export function StickerSubmitForm({
   categories,
-  isProposalPhase,
+  onSubmit,
   submission,
-}: Readonly<{ categories: AwardCategoryDto[]; isProposalPhase: boolean; submission: ReturnType<typeof useStickerSubmission> }>) {
+}: Readonly<{ categories: AwardCategoryDto[]; onSubmit: () => void; submission: ReturnType<typeof useStickerSubmission> }>) {
   return (
     <>
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className="space-y-2">
           <span id="sticker-category-label">{copy.categoryLabel}</span>
-          <Select value={submission.categoryId} onValueChange={submission.setCategoryId} aria-labelledby="sticker-category-label">
-            <SelectTrigger>
+          <Select value={submission.categoryId} onValueChange={submission.setCategoryId}>
+            <SelectTrigger aria-labelledby="sticker-category-label">
               <SelectValue placeholder={copy.categoryPlaceholder} />
             </SelectTrigger>
             <SelectContent>
@@ -53,29 +48,31 @@ export function StickerSubmitForm({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_12rem]">
         <div className="space-y-3">
           <p>{copy.imageLabel}</p>
           <CanhoesFileTrigger
             className="gap-3 rounded-[var(--radius-md-token)] border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[var(--shadow-panel)]"
             fileName={submission.file?.name}
-            iconClassName="text-[var(--neon-cyan)]"
+            iconClassName="text-[var(--person-teal)]"
             onChange={submission.handleFileChange}
             placeholder={messages.wishlist.WishlistForm.imagePlaceholder}
           />
           <p>{copy.pendingHint}</p>
         </div>
 
-        <div className="rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 shadow-[var(--shadow-panel)]">
-          <CanhoesMediaThumb
-            alt={submission.file?.name ?? copy.previewAlt}
-            src={submission.previewUrl}
-            normalizeSrc={false}
-            frameClassName="aspect-square h-auto w-full rounded-[calc(var(--radius-md-token)-4px)] bg-[var(--color-bg-surface)]"
-            imageClassName="h-full w-full object-cover"
-            iconClassName="h-6 w-6"
-          />
-        </div>
+        {submission.previewUrl ? (
+          <div className="rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3 shadow-[var(--shadow-panel)]">
+            <CanhoesMediaThumb
+              alt={submission.file?.name ?? copy.previewAlt}
+              src={submission.previewUrl}
+              normalizeSrc={false}
+              frameClassName="aspect-square h-auto w-full rounded-[calc(var(--radius-md-token)-4px)] bg-[var(--color-bg-surface)]"
+              imageClassName="h-full w-full object-cover"
+              iconClassName="h-6 w-6"
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="flex sm:justify-end">
@@ -83,10 +80,10 @@ export function StickerSubmitForm({
           type="button"
           variant="default"
           disabled={!submission.canSubmit}
-          onClick={() => void submission.handleSubmit()}
+          onClick={onSubmit}
           className="w-full sm:w-auto"
         >
-          {getSubmitLabel(isProposalPhase, submission.isSubmitting)}
+          {submission.isSubmitting ? copy.submitting : copy.submit}
         </Button>
       </div>
     </>

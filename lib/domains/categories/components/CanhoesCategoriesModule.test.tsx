@@ -51,7 +51,7 @@ describe("CanhoesCategoriesModule", () => {
 
   it("shows an empty state without categories", () => {
     renderCategories({ initialCategories: [] });
-    expect(screen.getByText("Sem categorias oficiais")).toBeInTheDocument();
+    expect(screen.getByText("Ainda não há categorias")).toBeInTheDocument();
   });
 
   it("shows the load error", async () => {
@@ -59,7 +59,7 @@ describe("CanhoesCategoriesModule", () => {
     renderCategories({ initialCategories: null });
 
     const alert = await screen.findByRole("alert");
-    expect(within(alert).getByText("Erro ao carregar categorias oficiais")).toBeInTheDocument();
+    expect(within(alert).getByText("Não deu para abrir as categorias")).toBeInTheDocument();
   });
 
   it("needs a name of three letters before proposing", async () => {

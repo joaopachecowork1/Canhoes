@@ -1,3 +1,4 @@
+import { enforceRateLimit } from "@/lib/api/rateLimit";
 import { z } from "zod";
 
 import { apiRoute, noContent, readJson } from "@/lib/api/route";
@@ -18,6 +19,7 @@ const telemetrySchema = z.object({
 });
 
 export const POST = apiRoute(async (request) => {
+  enforceRateLimit(request, "telemetry");
   const { level, message, data, url, timestamp } = await readJson(request, telemetrySchema);
   const context = { url, browserTime: timestamp, data: JSON.stringify(data)?.slice(0, MAX_DATA_LENGTH) };
   const line = `Browser: ${message}`;

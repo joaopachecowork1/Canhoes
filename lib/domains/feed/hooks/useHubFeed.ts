@@ -8,6 +8,7 @@ import { countRemainingPosts, toFeedPage, type FeedInfiniteData } from "./feedIn
 import { useHubFeedComments } from "./useHubFeedComments";
 import { useHubFeedPostActions } from "./useHubFeedPostActions";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const PAGE_SIZE = 15;
 
@@ -16,7 +17,7 @@ export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteDat
   const queryClient = useQueryClient();
 
   const postsInfiniteQuery = useInfiniteQuery({
-    queryKey: ["hub-posts", eventId],
+    queryKey: queryKeys.hubPosts(eventId),
     enabled: Boolean(eventId),
     initialPageParam: 0,
     queryFn: async ({ pageParam }) =>
@@ -58,7 +59,7 @@ export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteDat
   }, [hasMorePosts, isFetchingNextPage, postsInfiniteQuery]);
 
   const refreshPosts = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ["hub-posts", eventId] });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.hubPosts(eventId) });
   }, [queryClient, eventId]);
 
   useEffect(() => {

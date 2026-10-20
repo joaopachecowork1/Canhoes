@@ -6,6 +6,7 @@ import type {
   AdminNomineeDto,
   AdminNomineesPagedDto,
 } from "@/lib/api/types";
+import { loadUsersById } from "@/lib/usersById";
 
 /*
  * Moderation of nominations (and stickers, which are nominations with `submissionKind: "stickers"`).
@@ -72,11 +73,10 @@ export async function getAdminNominationsPaged(
     prisma.nominee.findMany({ where, orderBy: { createdAtUtc: "desc" }, skip, take }),
   ]);
 
-  const submitterIds = [...new Set(nominees.map((nominee) => nominee.submittedByUserId))];
-  const submitters = submitterIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: submitterIds } }, select: { id: true, displayName: true, email: true } })
-    : [];
-  const submitterById = new Map(submitters.map((submitter) => [submitter.id, submitter]));
+  const submitterById = await loadUsersById(
+    nominees.map((nominee) => nominee.submittedByUserId),
+    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
+  );
 
   return {
     total,

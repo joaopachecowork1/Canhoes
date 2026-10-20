@@ -1,8 +1,9 @@
 "use client";
 
-import { CheckCircle2, Flame, Loader2, Lock, Vote } from "lucide-react";
+import { CheckCircle2, Flame, Loader2, Lock } from "lucide-react";
+import Link from "next/link";
 
-import type { CastOfficialVoteRequest, EventActiveContextDto, EventVotingBoardDto, EventVotingCategoryDto } from "@/lib/api/types";
+import type { CastOfficialVoteRequest, EventActiveContextDto, EventOverviewDto, EventVotingBoardDto, EventVotingCategoryDto } from "@/lib/api/types";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { useCategorySelection } from "../hooks/useCategorySelection";
 import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmentTabs";
@@ -14,7 +15,9 @@ import { getVotingProgress } from "../rules/votingBoard";
 import { cn } from "@/lib/utils";
 import { CanhoesFeatureCard } from "@/lib/domains/event/components/CanhoesFeatureCard";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -53,6 +56,36 @@ function VotingProgressCard({ voted, total, percentage }: Readonly<{ voted: numb
   );
 }
 
+/** What replaces the ballot when voting is not open: not yet (nominate, or back to the mural) or over (on to the gala). */
+function BallotClosedState({ isOver, canNominate }: Readonly<{ canNominate: boolean; isOver: boolean }>) {
+  let action = { href: "/canhoes", label: copy.backToMural };
+  if (isOver) action = { href: "/canhoes/gala", label: copy.seeGala };
+  else if (canNominate) action = { href: "/canhoes/nomeacoes", label: copy.goNominate };
+
+  return (
+    <EmptyState
+      icon={Lock}
+      title={isOver ? copy.overTitle : copy.closedTitle}
+      description={isOver ? copy.over : copy.closed}
+      tone="official"
+      action={
+        <Button asChild className="w-full">
+          <Link href={action.href}>{action.label}</Link>
+        </Button>
+      }
+    />
+  );
+}
+
+function ClosedBallot({ overview }: Readonly<{ overview: EventOverviewDto | null }>) {
+  return (
+    <div className="space-y-4">
+      <CanhoesModuleHeader module="voting" title={copy.title} description={copy.description} />
+      <BallotClosedState isOver={overview?.activePhase?.type === "RESULTS"} canNominate={Boolean(overview?.modules.nominees)} />
+    </div>
+  );
+}
+
 function BallotComplete() {
   return (
     <Card className="border-[var(--moss)] px-4">
@@ -62,14 +95,14 @@ function BallotComplete() {
 }
 
 export function CanhoesOfficialVotingModule({ initialData, initialContext }: { initialData?: EventVotingBoardDto; initialContext?: EventActiveContextDto | null }) {
-  const { event } = useEventOverview(initialContext);
+  const { event, overview } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
   const { votingBoardQuery, castVoteMutation } = useOfficialVoting(eventId, initialData);
 
   if (votingBoardQuery.isLoading) {
     return (
       <div className="space-y-3">
-        <CanhoesModuleHeader icon={Vote} title={copy.title} description={copy.loadingDescription} />
+        <CanhoesModuleHeader module="voting" title={copy.title} description={copy.loadingDescription} />
         <OfficialVotingLoadingState />
       </div>
     );
@@ -87,13 +120,18 @@ export function CanhoesOfficialVotingModule({ initialData, initialContext }: { i
     );
   }
 
+  if (!votingBoardQuery.data.canVote) return <ClosedBallot overview={overview} />;
+
   return <OfficialBallot board={votingBoardQuery.data} castVoteMutation={castVoteMutation} />;
 }
 
 function OfficialBallot({
   board,
   castVoteMutation,
-}: Readonly<{ board: EventVotingBoardDto; castVoteMutation: ReturnType<typeof useOfficialVoting>["castVoteMutation"] }>) {
+}: Readonly<{
+  board: EventVotingBoardDto;
+  castVoteMutation: ReturnType<typeof useOfficialVoting>["castVoteMutation"];
+}>) {
   const categories = board.categories;
   const { selectedId: selectedCategoryId, setSelectedId: setSelectedCategoryId, selectedItem: selectedCategory } =
     useCategorySelection(categories, (category) => category.id);
@@ -101,7 +139,7 @@ function OfficialBallot({
 
   return (
     <div className="space-y-4">
-      <CanhoesModuleHeader icon={Vote} title={copy.title} description={copy.description} badgeLabel={`${progress.voted}/${progress.total}`} />
+      <CanhoesModuleHeader module="voting" title={copy.title} description={copy.description} />
       <VotingProgressCard voted={progress.voted} total={progress.total} percentage={progress.percentage} />
       <CompactSegmentTabs
         activeId={selectedCategoryId ?? ""}
@@ -173,13 +211,6 @@ function OfficialVotingCategoryCard({
 }>) {
   return (
     <CanhoesFeatureCard title={category.title} description={category.description ?? undefined} icon={Flame}>
-      {canVote ? null : (
-        <p className="flex items-center gap-2 rounded-[var(--radius-md-token)] border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 py-2 text-sm text-[var(--ink-secondary)]">
-          <Lock className="h-4 w-4 shrink-0" aria-hidden />
-          {copy.closed}
-        </p>
-      )}
-
       {category.options.length > 0 ? (
         <div className="space-y-2">
           {category.options.map((option) => (

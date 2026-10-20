@@ -53,7 +53,7 @@ export function ComposeToolbar({
         >
           <ImagePlus className="h-4 w-4" />
           {fileCount > 0 ? (
-            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-fire)] text-xs font-bold text-[var(--text-primary)]">
+            <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[var(--person-amber)] text-xs font-bold text-[var(--text-primary)]">
               {fileCount}
             </span>
           ) : null}
@@ -68,7 +68,7 @@ export function ComposeToolbar({
           className={cn(
             TOOL_CLASS,
             isPollEnabled
-              ? "border-[var(--color-brown)] bg-[var(--color-brown)] text-[var(--ink-primary)] shadow-[var(--shadow-card)]"
+              ? "border-[var(--color-text-muted)] bg-[var(--color-text-muted)] text-[var(--ink-primary)] shadow-[var(--shadow-card)]"
               : IDLE_TOOL_CLASS
           )}
         >

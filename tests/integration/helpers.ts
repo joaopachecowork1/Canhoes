@@ -21,17 +21,17 @@ export function signInAs(user: TestUser | null) {
 type RouteHandler<Params> = (request: NextRequest, context: { params: Promise<Params> }) => Promise<Response>;
 
 /**
- * Calls a route handler the way Next.js does. Each call gets its own client IP so the in-memory
- * rate limiter (keyed by IP) never interferes between tests.
+ * Calls a route handler the way Next.js does. Each call gets its own client IP (unless `ip` is given)
+ * so the in-memory rate limiter (keyed by IP) never interferes between tests.
  */
 export async function callRoute<Params>(
   handler: RouteHandler<Params>,
   params: Params,
-  { method = "GET", body }: { method?: string; body?: unknown } = {}
+  { method = "GET", body, ip, query = "" }: { method?: string; body?: unknown; ip?: string; query?: string } = {}
 ) {
-  const request = new NextRequest("http://localhost/api/test", {
+  const request = new NextRequest(`http://localhost/api/test${query}`, {
     method,
-    headers: { "content-type": "application/json", "x-forwarded-for": randomIp() },
+    headers: { "content-type": "application/json", "x-forwarded-for": ip ?? randomIp() },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   const response = await handler(request, { params: Promise.resolve(params) });
@@ -39,7 +39,8 @@ export async function callRoute<Params>(
   return { status: response.status, body: text ? (JSON.parse(text) as unknown) : null };
 }
 
-function randomIp() {
+/** A random client IP, so calls made outside `callRoute` do not share one rate-limit counter. */
+export function randomIp() {
   return Array.from({ length: 4 }, () => Math.floor(Math.random() * 254) + 1).join(".");
 }
 

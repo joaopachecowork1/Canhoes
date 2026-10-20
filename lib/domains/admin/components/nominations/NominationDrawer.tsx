@@ -47,7 +47,7 @@ function NominationDetails({
       <div className="space-y-2">
         <p className="text-xs font-medium text-[var(--ink-muted)]">{copy.moveTo}</p>
         <Select value={nomination.categoryId ?? "none"} onValueChange={onMove}>
-          <SelectTrigger>
+          <SelectTrigger aria-label={copy.moveTo}>
             <SelectValue placeholder={copy.moveTo} />
           </SelectTrigger>
           <SelectContent>

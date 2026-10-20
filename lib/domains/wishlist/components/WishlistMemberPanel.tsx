@@ -58,14 +58,14 @@ export function WishlistMemberPanel({
                     {wishlistItem.title}
                   </p>
                   {wishlistItem.notes ? (
-                    <p className="line-clamp-2 text-xs text-[var(--color-text-muted)]">{wishlistItem.notes}</p>
+                    <p className="line-clamp-2 text-sm text-[var(--color-text-muted)]">{wishlistItem.notes}</p>
                   ) : null}
-                  {wishlistItem.url ? (
+                  {wishlistItem.url && /^https?:\/\//i.test(wishlistItem.url) ? (
                     <a
                       href={wishlistItem.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-1.5 inline-flex items-center gap-1 text-xs"
+                      className="inline-flex min-h-11 items-center gap-1 text-sm text-[var(--moss-glow)] underline-offset-4 hover:underline"
                     >
                       <LinkIcon className="h-3.5 w-3.5" />
                       {copy.openLink}

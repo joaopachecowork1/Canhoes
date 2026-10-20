@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { deleteUpload, saveUpload } from "@/lib/storage/localStorage";
 import type { EventFeedPostFullDto, PagedResult } from "@/lib/api/types";
 import { PERSON_COLORS } from "@/lib/personColors";
+import { loadUsersById } from "@/lib/usersById";
 
 /*
  * Feed ("mural") posts: the paged list, creating a post with images and a poll, pinning and
@@ -20,7 +21,7 @@ type PollRow = Awaited<ReturnType<typeof loadPostDetails>>["polls"][number];
 /** Authors, comment counts, downvotes, reactions and polls of these posts, in one query each. */
 async function loadPostDetails(postIds: string[], authorIds: string[]) {
   const [authors, comments, downvotes, reactions, polls] = await Promise.all([
-    prisma.user.findMany({ where: { id: { in: authorIds } }, select: { id: true, displayName: true, color: true } }),
+    loadUsersById(authorIds, (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, color: true } })),
     prisma.hubPostComment.groupBy({ by: ["postId"], where: { postId: { in: postIds } }, _count: { _all: true } }),
     prisma.hubPostDownvote.findMany({ where: { postId: { in: postIds } }, select: { postId: true, userId: true } }),
     prisma.hubPostReaction.findMany({ where: { postId: { in: postIds } }, select: { postId: true, userId: true, emoji: true } }),
@@ -72,7 +73,7 @@ async function toFeedPosts(rows: PostRow[], userId: string): Promise<EventFeedPo
     loadPostDetails(postIds, [...new Set(rows.map((row) => row.authorUserId))]),
     loadPostNumbers(rows[0]?.eventId ?? "", postIds),
   ]);
-  const authors = new Map(details.authors.map((author) => [author.id, author]));
+  const { authors } = details;
   const commentCounts = new Map(details.comments.map((entry) => [entry.postId, entry._count._all]));
   const polls = new Map(details.polls.map((poll) => [poll.postId, poll]));
 

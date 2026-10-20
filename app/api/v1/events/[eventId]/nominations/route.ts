@@ -1,6 +1,6 @@
 import { requireProposalsOpen, requireUser } from "@/lib/api/guards";
 import { apiRoute, json, readJson } from "@/lib/api/route";
-import { createNomination } from "@/lib/domains/members/services/members";
+import { createNomination } from "@/lib/domains/members/services/nominations";
 import { CreateNomineeSchema } from "@/lib/zod/nomination";
 
 export const POST = apiRoute<{ eventId: string }>(async (request, { eventId }) => {

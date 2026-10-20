@@ -14,7 +14,8 @@ Todas as variáveis estão em `.env.example`, que é o modelo para o `.env`.
 | `SEED_DEMO_DATA` | não | `true` para criar membros, categorias e posts falsos; por omissão só fora de produção |
 | `UPLOADS_DIR` | não | Pasta dos uploads (por omissão `.data/uploads`) |
 | `AUTH_TRUST_HOST` | atrás de proxy | Constrói os URLs de auth a partir do host reencaminhado |
-| `CANHOES_INTERNAL_URL` | atrás de proxy | URL com que as páginas de servidor chamam a própria API (por omissão `http://localhost:3000`) |
+| `TRUST_CF_CONNECTING_IP` | só com o túnel Cloudflare | `true` faz os limites de pedidos usarem o `CF-Connecting-IP`, que a Cloudflare reescreve. Fora do túnel qualquer pessoa o pode enviar, por isso fica desligado por omissão e os limites usam o `x-forwarded-for`, que quem chama pode forjar; só o limite de login por email resiste a isso |
+| `CANHOES_INTERNAL_URL` | atrás de proxy | URL com que as páginas de servidor chamam a própria API (por omissão `http://localhost:3000`; com `npm run dev`, que serve HTTPS, usa `https://localhost:3000` e `NODE_TLS_REJECT_UNAUTHORIZED=0`) |
 | `DEV_AUTH_BYPASS_ENABLED`, `DEV_AUTH_EMAIL`, `DEV_AUTH_NAME` | só em desenvolvimento | Login automático como admin; ignorado em produção |
 
 ## Comandos
@@ -38,6 +39,7 @@ npm run build              # build de produção (output standalone)
 | Unitários | `**/*.test.ts` ao lado do código | Regras puras: sorteio, resultados, política de admins, quem entra com Google, validação, uploads, proxy |
 | Componentes | `**/*.test.tsx` | Cada módulo de página e o shell como o utilizador os usa: listas, formulários, erros, admin |
 | Integração | `tests/integration/*.int.test.ts` | Route handlers reais contra PostgreSQL: autorização de todas as rotas, feed, admin, membros, voto, convites e login, regras de fase, posse de recursos, sorteio |
+| Browser | `tests/e2e/*.spec.ts` (Playwright) | O mural, publicar, mudar de cor, votar e uma análise de acessibilidade (axe) em quatro páginas, num telemóvel (390 px), com o login de desenvolvimento e uma base de dados com seed |
 | Segurança | CI, job Docker | OWASP ZAP baseline contra a imagem a correr; `npm audit` das dependências de produção |
 
 Os testes de integração exigem uma base de dados cujo nome termina em `_test`, porque cada ficheiro a esvazia (`tests/integration/setup/globalSetup.ts`). O URL vem de `TEST_DATABASE_URL`; por omissão usa a password `canhoes_local`, por isso quem mudou `POSTGRES_PASSWORD` no `.env` define-o:
@@ -45,6 +47,8 @@ Os testes de integração exigem uma base de dados cujo nome termina em `_test`,
 ```bash
 TEST_DATABASE_URL="postgresql://canhoes:<password>@localhost:5433/canhoes_test?schema=public" npm run test:integration
 ```
+
+Os testes de browser (`npm run test:e2e`) arrancam sozinhos o servidor de desenvolvimento na porta 3200 (`playwright.config.ts`) e precisam de uma base de dados migrada e com seed (`DATABASE_URL`). Localmente usam o Chrome instalado; no CI, `npx playwright install --with-deps chromium`. Escrevem na base de dados (um post de teste), por isso não os corras contra dados que queiras guardar.
 
 A cobertura mínima (linhas, statements, funções e branches) está em `vitest.config.mjs` e só sobe.
 
@@ -66,8 +70,10 @@ Numa emergência, `git push --no-verify` salta-o; o CI continua a bloquear o mer
 
 | Job | Passos |
 |---|---|
-| Lint, types, unit tests, knip, audit | `npm ci`, lint, `tsc`, testes unitários, knip, `shellcheck` dos scripts, `npm audit --omit=dev` |
-| Integration and authorization tests | Testes de integração contra um PostgreSQL 17 de serviço |
+| Lint, types, unit tests, knip, audit | `npm ci`, lint, `tsc`, testes unitários e de componentes, knip, `shellcheck` dos scripts, `npm audit --omit=dev` |
+| Integration and authorization tests | PostgreSQL 17 de serviço e `npm run test:coverage` (os três projetos de testes, com os mínimos de cobertura de `vitest.config.mjs`) |
+| Browser tests (Playwright) | PostgreSQL 17, migrations, seed e `npm run test:e2e` |
+| Local setup (Docker e Podman) | `db:up`, migrations, seed, testes de integração e `compose up --build` até `/api/health` responder |
 | Docker image, migrations and OWASP ZAP | Build da imagem, arranque contra uma base vazia (migrations + seed), verificação de que o seed de produção não cria dados de demonstração, varrimento ZAP |
 | Home server deploy | Corre `scripts/update-server.sh` duas vezes com `compose.server.yml`: instalação limpa e redeploy, com backup e dados preservados |
 

@@ -1,6 +1,6 @@
 import { requireEventAccess, requireProposalsOpen, requireUser } from "@/lib/api/guards";
 import { apiRoute, json, readJson } from "@/lib/api/route";
-import { createMeasureProposal, getMeasures } from "@/lib/domains/members/services/members";
+import { createMeasureProposal, getMeasures } from "@/lib/domains/members/services/measures";
 import { CreateMeasureProposalSchema } from "@/lib/zod/nomination";
 
 export const GET = apiRoute<{ eventId: string }>(async (_request, { eventId }) => {

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Flame, Gift, Medal, Ruler, ScrollText, Sticker, Trophy, Vote } from "lucide-react";
+import { Award, Gift, Heart, Medal, Ruler, ScrollText, Sticker, Trophy, Vote } from "lucide-react";
 
 import type { AdminModuleKey } from "@/lib/api/types";
 import messages from "@/messages/pt.json";
@@ -17,7 +17,7 @@ export type CanhoesModule = {
 };
 
 /**
- * Every member-facing area of an edition, in navigation order: the first two open ones go to
+ * Every member-facing area (one icon each, used everywhere the area appears) of an edition, in navigation order: the first two open ones go to
  * the dock and the rest to the menu, so the area of the current phase (ballot, gala) comes
  * first. Admin screens, the shell and the module gates all read labels and links from here.
  */
@@ -26,7 +26,7 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
     key: "voting",
     label: messages.modules.voting.label,
     href: "/canhoes/votacao",
-    icon: Flame,
+    icon: Vote,
     description: messages.modules.voting.description,
     opensIn: messages.modules.voting.opensIn,
   },
@@ -50,7 +50,7 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
     key: "wishlist",
     label: messages.modules.wishlist.label,
     href: "/canhoes/wishlist",
-    icon: Gift,
+    icon: Heart,
     description: messages.modules.wishlist.description,
     opensIn: messages.modules.wishlist.opensIn,
   },
@@ -58,7 +58,7 @@ export const CANHOES_MODULES: readonly CanhoesModule[] = [
     key: "nominees",
     label: messages.modules.nominees.label,
     href: "/canhoes/nomeacoes",
-    icon: Vote,
+    icon: Award,
     description: messages.modules.nominees.description,
     opensIn: messages.modules.nominees.opensIn,
   },

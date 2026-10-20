@@ -25,14 +25,14 @@ export function SecretSantaAssignmentCard({
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
-          <User className="h-4 w-4 text-[var(--color-fire)]" />
+          <User className="h-4 w-4 text-[var(--person-amber)]" />
           {messages.secretSanta.common.yourSecretSanta}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="space-y-3 p-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--moss),var(--neon-cyan))] text-[var(--color-text-primary)] shadow-[var(--glow-green-sm)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,var(--moss),var(--person-teal))] text-[var(--color-text-primary)] shadow-[var(--glow-green-sm)]">
               <User className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">

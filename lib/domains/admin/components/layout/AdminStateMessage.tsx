@@ -19,7 +19,7 @@ const VARIANT_CLASSES: Record<NonNullable<AdminStateMessageProps["variant"]>, st
 
 const TONE_CLASSES: Record<NonNullable<AdminStateMessageProps["tone"]>, string> = {
   default: "border-[var(--border-paper)] bg-[var(--bg-paper)] text-[var(--ink-primary)]",
-  warning: "border-[var(--neon-amber)]/30 bg-[var(--neon-amber)]/10 text-[var(--ink-primary)]",
+  warning: "border-[var(--person-amber)]/30 bg-[var(--person-amber)]/10 text-[var(--ink-primary)]",
   error: "border-[var(--color-danger)]/30 bg-[var(--color-danger)]/10 text-[var(--ink-primary)]",
 };
 

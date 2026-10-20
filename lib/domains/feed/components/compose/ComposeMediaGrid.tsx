@@ -38,7 +38,7 @@ export function ComposeMediaGrid({
         {files.map((selectedFile, index) => (
           <div
             key={`${selectedFile.name}-${selectedFile.size}-${index}`}
-            className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--color-beige-dark)]/25 bg-[var(--color-bg-surface-alt)]"
+            className="group relative aspect-square overflow-hidden rounded-xl border border-[var(--color-border-strong)]/25 bg-[var(--color-bg-surface-alt)]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

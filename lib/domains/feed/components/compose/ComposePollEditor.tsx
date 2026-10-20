@@ -33,7 +33,7 @@ export function ComposePollEditor({
   return (
     <section className="space-y-2.5 rounded-xl border border-[var(--color-veil)]/10 bg-[var(--bg-paper-soft)] p-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-        <BarChart3 className="h-4 w-4 text-[var(--color-fire)]" />
+        <BarChart3 className="h-4 w-4 text-[var(--person-amber)]" />
         {composeCopy.pollLabel}
       </div>
 
@@ -60,7 +60,7 @@ export function ComposePollEditor({
               <button
                 type="button"
                 onClick={() => onRemoveOption(index)}
-                className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-beige-dark)]/25 bg-transparent text-[var(--color-danger)]"
+                className="flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--color-border-strong)]/25 bg-transparent text-[var(--color-danger)]"
                 aria-label={`${composeCopy.removeOption} ${index + 1}`}
                 disabled={disabled}
               >
@@ -74,7 +74,7 @@ export function ComposePollEditor({
           <button
             type="button"
             onClick={onAddOption}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[var(--color-brown)]"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-semibold text-[var(--color-text-muted)]"
             disabled={disabled}
           >
             <PlusCircle className="h-4 w-4" />

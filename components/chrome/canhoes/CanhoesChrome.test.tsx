@@ -34,6 +34,8 @@ describe("CanhoesChrome", () => {
     expect(await within(dock()).findByRole("button", { name: "Votação" })).toBeInTheDocument();
     expect(within(dock()).getByRole("button", { name: "Gala" })).toBeInTheDocument();
     expect(document.title).toBe("Votação · Canhões 2026");
+    // The page names itself in its own heading; the header does not say it a second time.
+    expect(within(screen.getByRole("banner")).queryByText("Votação")).not.toBeInTheDocument();
   });
 
   it("navigates from the dock", async () => {
@@ -72,6 +74,6 @@ describe("CanhoesChrome", () => {
 
   it("offers the post button when the mural is open", async () => {
     renderChrome();
-    expect(await within(dock()).findByRole("button", { name: "Criar publicação" })).toBeInTheDocument();
+    expect(await within(dock()).findByRole("button", { name: "Publicar" })).toBeInTheDocument();
   });
 });

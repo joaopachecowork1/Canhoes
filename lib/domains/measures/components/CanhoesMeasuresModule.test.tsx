@@ -20,7 +20,7 @@ function renderMeasures({ initialData = measures, phaseType = "PROPOSALS" }: { i
   );
 }
 
-const submitButton = () => screen.getByRole("button", { name: "Submeter proposta" });
+const submitButton = () => screen.getByRole("button", { name: "Propor medida" });
 
 describe("CanhoesMeasuresModule", () => {
   it("lists the approved measures and filters them", async () => {
@@ -37,7 +37,7 @@ describe("CanhoesMeasuresModule", () => {
     server.use(apiRoute("get", "events/event-1/measures", []));
     renderMeasures({ initialData: [] });
 
-    expect(await screen.findByText("Sem medidas")).toBeInTheDocument();
+    expect(await screen.findByText("Ainda não há medidas")).toBeInTheDocument();
   });
 
   it("shows the load error", async () => {
@@ -45,7 +45,7 @@ describe("CanhoesMeasuresModule", () => {
     renderMeasures({ initialData: [] });
 
     const alert = await screen.findByRole("alert");
-    expect(within(alert).getByText("Erro ao carregar medidas")).toBeInTheDocument();
+    expect(within(alert).getByText("Não deu para abrir as medidas")).toBeInTheDocument();
   });
 
   it("needs five letters before proposing", async () => {

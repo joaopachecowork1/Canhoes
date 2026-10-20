@@ -7,7 +7,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthContext";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { useAdminStatus } from "@/lib/domains/admin/hooks/useAdminStatus";
-import { cn } from "@/lib/utils";
 import messages from "@/messages/pt.json";
 
 import { CanhoesBottomTabs } from "./CanhoesBottomTabs";
@@ -55,7 +54,6 @@ export function CanhoesChrome({
   const {
     bottomLeftEntries,
     bottomRightEntries,
-    isEventHomePath,
     menuItems,
     pageContext,
     userLabel,
@@ -79,19 +77,17 @@ export function CanhoesChrome({
     >
       <CanhoesHeader
         event={eventOverview.event}
-        isEventHomePath={isEventHomePath}
         isLoading={eventOverview.isLoading}
         isMenuOpen={isMenuOpen}
         onOpenMenu={() => setIsMenuOpen(true)}
         overview={eventOverview.overview}
-        pageContext={pageContext}
         userColor={user?.color}
         userLabel={userLabel}
       />
 
-      <main className="relative z-10 flex-1 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
-        <div className={cn("mx-auto w-full px-4 sm:px-6 lg:px-8", isEventHomePath ? "max-w-[72rem]" : "max-w-[60rem]")}>
-          <div key={pathname} className={cn("animate-fade-in mx-auto w-full", !isEventHomePath && "max-w-[60rem]")}>
+      <main className="relative z-10 flex-1 pt-4 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))]">
+        <div className="mx-auto w-full max-w-[60rem] px-4 sm:px-6 lg:px-8">
+          <div key={pathname} className="animate-fade-in mx-auto w-full">
             {children}
           </div>
         </div>

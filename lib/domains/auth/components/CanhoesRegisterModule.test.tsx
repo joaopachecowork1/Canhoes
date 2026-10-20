@@ -22,7 +22,7 @@ async function fillForm(password = "uma-password") {
   await userEvent.type(screen.getByLabelText("Palavra-passe"), password);
 }
 
-const submitButton = () => screen.getByRole("button", { name: "Criar Conta" });
+const submitButton = () => screen.getByRole("button", { name: "Criar conta" });
 
 describe("CanhoesRegisterModule", () => {
   afterEach(() => vi.useRealTimers());
@@ -42,7 +42,7 @@ describe("CanhoesRegisterModule", () => {
 
     expect(await screen.findByText("Conta criada com sucesso!")).toBeInTheDocument();
     expect(recorder.requests[0]?.body).toEqual({ token: "abc", password: "uma-password", displayName: "Ana" });
-    await userEvent.click(screen.getByRole("button", { name: "Ir para Login" }));
+    await userEvent.click(screen.getByRole("button", { name: "Ir para o login" }));
     expect(router.push).toHaveBeenCalledWith("/canhoes/login");
   });
 
@@ -81,7 +81,7 @@ describe("CanhoesRegisterModule", () => {
   it("locks the form when the link has no token", () => {
     renderRegister("");
 
-    expect(screen.getByText("Token de convite não encontrado no link.")).toBeInTheDocument();
+    expect(screen.getByText("Este link de convite está incompleto. Pede um novo a um admin.")).toBeInTheDocument();
     expect(screen.getByLabelText("Nome visível (Alcunha)")).toBeDisabled();
   });
 });

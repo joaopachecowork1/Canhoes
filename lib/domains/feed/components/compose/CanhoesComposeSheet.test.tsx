@@ -52,7 +52,7 @@ describe("CanhoesComposeSheet", () => {
     await userEvent.type(screen.getByPlaceholderText(/Escreve uma nota rápida/), "  Olá grupo  ");
     await userEvent.click(submit);
 
-    expect(await screen.findByText("Post publicado")).toBeInTheDocument();
+    expect(await screen.findByText("Publicado no mural")).toBeInTheDocument();
     expect(sent).toEqual([{ text: "Olá grupo", mediaUrls: [], pollOptions: null, pollQuestion: null }]);
     expect(onDone).toHaveBeenCalledOnce();
     expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -73,7 +73,7 @@ describe("CanhoesComposeSheet", () => {
     await userEvent.click(screen.getByRole("button", { name: "Adicionar opção" }));
     await userEvent.click(submit);
 
-    await screen.findByText("Post publicado");
+    await screen.findByText("Publicado no mural");
     expect(sent).toEqual([{ text: "Votem", mediaUrls: [], pollQuestion: "Quem ganha?", pollOptions: ["Ana", "Rui"] }]);
   });
 
@@ -90,7 +90,7 @@ describe("CanhoesComposeSheet", () => {
     await userEvent.type(screen.getByPlaceholderText(/Escreve uma nota rápida/), "Fotos");
     await userEvent.click(screen.getByRole("button", { name: "Publicar no mural" }));
 
-    await screen.findByText("Post publicado");
+    await screen.findByText("Publicado no mural");
     expect(sent).toEqual([expect.objectContaining({ mediaUrls: ["/uploads/1.png", "/uploads/2.png"] })]);
   });
 

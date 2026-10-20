@@ -48,6 +48,8 @@ function CarouselImage({
         loading={isEager ? "eager" : "lazy"}
         decoding="async"
         sizes={IMAGE_SIZES}
+        // An address that is not ours (older posts, the demo seed) is not in next.config.mjs, so it is shown as it is.
+        unoptimized={!absMediaUrl(url).startsWith("/")}
         className="cursor-pointer object-contain transition-opacity hover:opacity-90"
         onError={onError}
         onClick={onClick}
@@ -207,7 +209,7 @@ export function MediaCarousel({
           className="group relative overflow-hidden"
           role="region"
           aria-roledescription={copy.roleDescription}
-          aria-label={copy.galleryLabel}
+          aria-label={authorName ? formatMessage(copy.authorGalleryLabel, { name: authorName }) : copy.galleryLabel}
           onKeyDown={handleKeyDown}
           tabIndex={0}
         >

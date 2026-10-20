@@ -255,6 +255,7 @@ model HubPost {
   @@index([createdAtUtc], map: "IX_HubPosts_CreatedAtUtc")
     @@index([eventId, isPinned, createdAtUtc], map: "IX_HubPosts_EventId_IsPinned_CreatedAtUtc")
     @@index([eventId, isPinned, pinnedOrder], map: "IX_HubPosts_EventId_IsPinned_PinnedOrder")
+  @@index([eventId, createdAtUtc], map: "IX_HubPosts_EventId_CreatedAtUtc")
   @@index([isPinned], map: "IX_HubPosts_IsPinned")
   @@map("HubPosts")
 }

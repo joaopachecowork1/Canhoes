@@ -3,6 +3,7 @@ import type { ZodType } from "zod";
 
 import { badRequest, HttpError } from "@/lib/api/httpError";
 import { logger } from "@/lib/logger";
+import { ProposalStatusSchema } from "@/lib/zod/common";
 
 /**
  * Building blocks for route handlers in `app/api`.
@@ -116,6 +117,15 @@ export function readPaging(request: NextRequest, { defaultTake = 50, maxTake = 2
     skip: Math.max(0, skip),
     take: Math.min(maxTake, Math.max(1, take)),
   };
+}
+
+/** The optional `?status=` filter of an admin list: one of pending, approved or rejected, or null when absent (400 for anything else). */
+export function readStatusFilter(request: NextRequest) {
+  const status = request.nextUrl.searchParams.get("status");
+  if (!status) return null;
+  const parsed = ProposalStatusSchema.safeParse(status);
+  if (!parsed.success) throw badRequest("Invalid status filter.");
+  return parsed.data;
 }
 
 function parseInteger(value: string | null) {

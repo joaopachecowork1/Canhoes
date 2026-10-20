@@ -16,6 +16,7 @@ import {
   type FeedInfiniteData,
 } from "./feedInfiniteData";
 import { applyDownvote, applyPollVote, applyPostReaction, applyServerDownvote, applyServerLike } from "./feedPostUpdates";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.feed.useHubFeedPostActions;
 
@@ -40,7 +41,7 @@ function useFeedCache(queryClient: QueryClient, eventId: string | null) {
   return useCallback(
     (update: (feed: FeedInfiniteData | undefined) => FeedInfiniteData | undefined) => {
       if (!eventId) return undefined;
-      const queryKey = ["hub-posts", eventId];
+      const queryKey = queryKeys.hubPosts(eventId);
       const previous = queryClient.getQueryData<FeedInfiniteData>(queryKey);
       queryClient.setQueryData<FeedInfiniteData>(queryKey, update);
       return previous;
@@ -155,7 +156,7 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
 
     try {
       await feedRepo.adminMovePinnedPost(eventId, postId, direction);
-      await queryClient.invalidateQueries({ queryKey: ["hub-posts", eventId] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.hubPosts(eventId) });
     } catch (error) {
       reportFeedError("adminMovePinned", error, { context: { direction, postId }, fallback: copy.movePinnedError });
     }
@@ -164,14 +165,14 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
   const adminDelete = useCallback(async (postId: string) => {
     if (!eventId) return;
 
-    await queryClient.cancelQueries({ queryKey: ["hub-posts", eventId] });
+    await queryClient.cancelQueries({ queryKey: queryKeys.hubPosts(eventId) });
     const previousFeed = updateFeed((feed) => removePostFromFeed(feed, postId));
 
     try {
       await feedRepo.adminDeletePost(eventId, postId);
       toast.success(copy.postRemoved);
     } catch (error) {
-      queryClient.setQueryData(["hub-posts", eventId], previousFeed);
+      queryClient.setQueryData(queryKeys.hubPosts(eventId), previousFeed);
       reportFeedError("adminDelete", error, { context: { postId }, fallback: copy.deleteError });
     }
   }, [queryClient, eventId, updateFeed]);

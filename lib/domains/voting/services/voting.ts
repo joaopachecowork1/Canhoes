@@ -8,6 +8,7 @@ import type {
   EventVoteOptionDto,
   EventProposalDto,
 } from "@/lib/api/types";
+import { loadUsersById } from "@/lib/usersById";
 
 /*
  * The members' side of the awards: the voting board, casting a vote and proposing new categories.
@@ -67,25 +68,20 @@ export async function getVotingBoard(
     where: { eventId },
   });
 
-  const memberUserIds = [...new Set(members.map((m) => m.userId))];
-  const memberUsers = memberUserIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: memberUserIds } }, select: { id: true, displayName: true, email: true } })
-    : [];
-  const memberUserMap = new Map(memberUsers.map((u) => [u.id, u]));
+  const memberUserMap = await loadUsersById(
+    members.map((m) => m.userId),
+    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
+  );
 
   const [nomineeVotes, userVotes] = await Promise.all([
-    categoryIds(categories).length > 0
-      ? prisma.vote.findMany({
-          where: { eventId, userId, categoryId: { in: categoryIds(categories) } },
-          select: { categoryId: true, nomineeId: true },
-        })
-      : Promise.resolve([]),
-    categoryIds(categories).length > 0
-      ? prisma.userVote.findMany({
-          where: { eventId, voterUserId: userId, categoryId: { in: categoryIds(categories) } },
-          select: { categoryId: true, targetUserId: true },
-        })
-      : Promise.resolve([]),
+    prisma.vote.findMany({
+      where: { eventId, userId, categoryId: { in: categoryIds(categories) } },
+      select: { categoryId: true, nomineeId: true },
+    }),
+    prisma.userVote.findMany({
+      where: { eventId, voterUserId: userId, categoryId: { in: categoryIds(categories) } },
+      select: { categoryId: true, targetUserId: true },
+    }),
   ]);
 
   const nomineeVoteMap = new Map(nomineeVotes.map((v) => [v.categoryId, v.nomineeId]));

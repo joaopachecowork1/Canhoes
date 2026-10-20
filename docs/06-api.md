@@ -65,6 +65,9 @@ Legenda da coluna "Quem":
 | POST | `posts/[postId]/comments/[commentId]/reactions` | membro | `toggleCommentReaction` |
 | POST | `uploads` | membro | `saveFeedImages` (multipart, campo `files`, até 4) |
 
+Os limites de pedidos (429 `RATE_LIMIT_EXCEEDED`) e os filtros `?status=` (400 se não for `pending`, `approved` ou `rejected`) estão descritos em [02-requisitos.md](02-requisitos.md) (RNF-03).
+
+
 ## Admin (`/api/v1/events/[eventId]/admin/…`)
 
 Todas exigem admin.

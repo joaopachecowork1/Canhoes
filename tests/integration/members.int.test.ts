@@ -20,7 +20,7 @@ import { GET as getWishlist, POST as addWishlistItem } from "@/app/api/v1/events
 import type { EventActiveContextDto, EventOverviewDto, EventWishlistItemDto, MyNominationDto, NomineeDto, PublicUserDto } from "@/lib/api/types";
 import { prisma } from "@/lib/prisma";
 
-import { addMember, callRoute, createEvent, createMember, createUser, signInAs } from "./helpers";
+import { addMember, callRoute, createEvent, createMember, createUser, signInAs, randomIp } from "./helpers";
 
 let uploadsDir = "";
 beforeAll(async () => {
@@ -38,7 +38,7 @@ type UploadHandler<Params> = (request: NextRequest, context: { params: Promise<P
 async function callUpload<Params>(handler: UploadHandler<Params>, params: Params, files: File[], field = "file") {
   const form = new FormData();
   files.forEach((file) => form.append(field, file));
-  const response = await handler(new NextRequest("http://localhost/api/test", { method: "POST", body: form }), { params: Promise.resolve(params) });
+  const response = await handler(new NextRequest("http://localhost/api/test", { method: "POST", body: form, headers: { "x-forwarded-for": randomIp() } }), { params: Promise.resolve(params) });
   const text = await response.text();
   return { status: response.status, body: text ? (JSON.parse(text) as unknown) : null };
 }

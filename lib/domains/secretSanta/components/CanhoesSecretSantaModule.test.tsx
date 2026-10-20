@@ -57,20 +57,20 @@ describe("CanhoesSecretSantaModule", () => {
 
   it("asks the assigned person to fill their wishlist when it is empty", () => {
     renderSecretSanta({ wishes: [wish("w2", "ana", "Livro")] });
-    expect(screen.getByText(/Ainda não há itens na wishlist/)).toBeInTheDocument();
+    expect(screen.getByText(/Ainda não há nada nesta wishlist/)).toBeInTheDocument();
   });
 
   it("says there is no draw yet", () => {
     renderSecretSanta({ secretSantaOverview: overview({ hasDraw: false, hasAssignment: false, assignedUser: null }) });
 
     expect(screen.getByText("Sorteio por fazer")).toBeInTheDocument();
-    expect(screen.getByText("Ainda não existe sorteio para este evento.")).toBeInTheDocument();
+    expect(screen.getByText("O sorteio ainda não foi feito. Até lá, preenche a tua wishlist.")).toBeInTheDocument();
     expect(screen.queryByText(/Wishlist de/)).not.toBeInTheDocument();
   });
 
   it("says when the draw left you without an assignment", () => {
     renderSecretSanta({ secretSantaOverview: overview({ hasAssignment: false, assignedUser: null }) });
-    expect(screen.getByText(/ainda não há atribuição disponível/)).toBeInTheDocument();
+    expect(screen.getByText(/ainda não tens ninguém atribuído/)).toBeInTheDocument();
   });
 
   it("links to the wishlist while it is open, else back to the event", () => {
@@ -92,7 +92,7 @@ describe("CanhoesSecretSantaModule", () => {
     renderSecretSanta({ secretSantaOverview: null });
 
     const alert = await screen.findByRole("alert");
-    expect(within(alert).getByText("Erro ao carregar o amigo secreto")).toBeInTheDocument();
+    expect(within(alert).getByText("Não deu para abrir o amigo secreto")).toBeInTheDocument();
     expect(within(alert).getByRole("button", { name: "Tentar novamente" })).toBeInTheDocument();
   });
 });

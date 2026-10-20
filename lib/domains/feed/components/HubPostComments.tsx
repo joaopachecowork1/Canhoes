@@ -8,10 +8,10 @@ import { formatMessage } from "@/lib/messages";
 import { feedRepo } from "@/lib/repositories/feedRepo";
 import messages from "@/messages/pt.json";
 
-import { COMMENTS_QUERY_KEY } from "../hooks/useHubFeedComments";
 import { CommentForm, getCommentInputId } from "./CommentForm";
 import { CommentThreadItem } from "./CommentThreadItem";
 import { buildCommentTree, flattenCommentTree } from "./hubPostCommentTree";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.feed.HubPostComments;
 
@@ -41,7 +41,7 @@ type HubPostCommentsProps = {
 /** Loads a post's comments while its thread is open, oldest first, nested under their parents. */
 function usePostComments(eventId: string, postId: string, isOpen: boolean) {
   const { data: fetchedComments } = useQuery({
-    queryKey: [COMMENTS_QUERY_KEY, postId],
+    queryKey: queryKeys.hubComments(postId),
     queryFn: () => feedRepo.getComments(eventId, postId),
     enabled: isOpen,
     staleTime: 30_000,

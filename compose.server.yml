@@ -40,6 +40,8 @@ services:
       DATABASE_URL: "postgresql://canhoes:${POSTGRES_PASSWORD}@postgres:5432/canhoes?schema=public"
       # Cloudflare terminates HTTPS; NextAuth builds its URLs from the forwarded host.
       AUTH_TRUST_HOST: "true"
+      # Cloudflare overwrites CF-Connecting-IP, so the rate limits can use it as the caller's address (only safe because nothing else reaches this port).
+      TRUST_CF_CONNECTING_IP: "true"
     # Reachable only from this machine, for the health check in scripts/update-server.sh.
     ports:
       - "127.0.0.1:3100:3000"

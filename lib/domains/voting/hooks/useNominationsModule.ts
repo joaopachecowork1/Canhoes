@@ -6,6 +6,7 @@ import type { AwardCategoryDto, EventActiveContextDto, MyNominationDto, NomineeD
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { useCategorySelection } from "./useCategorySelection";
+import { queryKeys } from "@/lib/queryKeys";
 
 const EMPTY_CATEGORIES: AwardCategoryDto[] = [];
 const EMPTY_NOMINEES: NomineeDto[] = [];
@@ -22,7 +23,7 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
 
   const categoriesQuery = useQuery({
     ...QUERY_OPTIONS,
-    queryKey: ["nominations", queryEventId, "categories"],
+    queryKey: queryKeys.nominationCategories(queryEventId),
     enabled,
     queryFn: async () => {
       const result = await awardsRepo.getCategories(queryEventId);
@@ -41,7 +42,7 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
 
   const approvedQuery = useQuery({
     ...QUERY_OPTIONS,
-    queryKey: ["nominations", queryEventId, "approved"],
+    queryKey: queryKeys.nominationsApproved(queryEventId),
     enabled,
     queryFn: () => awardsRepo.getApprovedNominees(queryEventId),
   });

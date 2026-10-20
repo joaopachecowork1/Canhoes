@@ -7,7 +7,7 @@ import { MediaCarousel } from "./MediaCarousel";
 const urls = ["/uploads/a.jpg", "/uploads/b.jpg", "/uploads/c.jpg"];
 
 const counter = () => screen.getByText(/^\d \/ 3$/).textContent;
-const gallery = () => screen.getByRole("region", { name: "Galeria de imagens do post" });
+const gallery = () => screen.getByRole("region", { name: "Galeria de imagens da publicação" });
 
 function swipe(element: Element, { fromX, toX, toY = 0 }: { fromX: number; toX: number; toY?: number }) {
   fireEvent.touchStart(element, { touches: [{ clientX: fromX, clientY: 0 }] });
@@ -19,6 +19,17 @@ describe("MediaCarousel", () => {
   it("renders nothing without images", () => {
     const { container } = render(<MediaCarousel urls={["", ""]} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it("tells the galleries of different authors apart", () => {
+    render(<MediaCarousel urls={urls} authorName="Ana" />);
+    expect(screen.getByRole("region", { name: "Galeria de imagens de Ana" })).toBeInTheDocument();
+  });
+
+  it("still shows an image from another address, such as an older post or the demo seed", () => {
+    render(<MediaCarousel urls={["https://picsum.photos/seed/a/600/400"]} authorName="Ana" />);
+
+    expect(screen.getByRole("img", { name: "Imagem de Ana" })).toHaveAttribute("src", "https://picsum.photos/seed/a/600/400");
   });
 
   it("shows a single image without controls and opens it on click", async () => {
@@ -33,7 +44,7 @@ describe("MediaCarousel", () => {
   it("falls back when an image fails to load", () => {
     render(<MediaCarousel urls={["/uploads/a.jpg"]} />);
 
-    fireEvent.error(screen.getByRole("img", { name: "Media do post" }));
+    fireEvent.error(screen.getByRole("img", { name: "Imagem da publicação" }));
     expect(screen.getByText("Imagem indisponível")).toBeInTheDocument();
   });
 

@@ -30,7 +30,6 @@ export function CanhoesBottomTabs({
   showCompose = true,
 }: Readonly<CanhoesBottomTabsProps>) {
   const composeItem: DockItem = {
-    ariaLabel: messages.shell.CanhoesBottomTabs.createPost,
     ariaPressed: isComposeOpen,
     buttonClassName: "bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--glow-green-sm)] hover:bg-[var(--moss-glow)]",
     icon: Plus,
@@ -51,7 +50,7 @@ export function CanhoesBottomTabs({
       aria-label={messages.shell.CanhoesBottomTabs.navLabel}
       className="fixed inset-x-0 bottom-0 z-50"
     >
-      <div className="mx-auto max-w-[calc(var(--page-max-width)+10rem)] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:px-3">
+      <div className="mx-auto max-w-[32rem] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:px-3">
         <Dock
           items={items}
           className="w-full"

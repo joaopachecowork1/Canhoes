@@ -9,9 +9,8 @@ import messages from "@/messages/pt.json";
 
 import { updatePostInFeed, type FeedInfiniteData } from "./feedInfiniteData";
 import { applyCommentReaction, changeCommentCount } from "./feedPostUpdates";
+import { queryKeys } from "@/lib/queryKeys";
 
-export const COMMENTS_QUERY_KEY = "hub-comments";
-const FEED_POSTS_QUERY_KEY = "hub-posts";
 const copy = messages.feed.useHubFeedComments;
 
 type UseHubFeedCommentsArgs = {
@@ -90,7 +89,7 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
 
   const updateCommentCount = useCallback(
     (postId: string, delta: 1 | -1) => {
-      queryClient.setQueryData<FeedInfiniteData>([FEED_POSTS_QUERY_KEY, eventId], (feed) =>
+      queryClient.setQueryData<FeedInfiniteData>(queryKeys.hubPosts(eventId), (feed) =>
         updatePostInFeed(feed, postId, (post) => changeCommentCount(post, delta))
       );
     },
@@ -107,7 +106,7 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
         const newComment = await feedRepo.createComment(eventId, postId, { text, replyToId: stateRef.current.replyingTo[postId] || null });
         markSent(postId);
         if (newComment) {
-          queryClient.setQueryData<HubCommentDto[]>([COMMENTS_QUERY_KEY, postId], (prev) => [...(prev ?? []), newComment]);
+          queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), (prev) => [...(prev ?? []), newComment]);
         }
         updateCommentCount(postId, 1);
         toast.success(copy.commentPublished);
@@ -122,14 +121,14 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
     async (postId: string, commentId: string, emoji: string) => {
       if (!eventId) return;
 
-      queryClient.setQueryData<HubCommentDto[]>([COMMENTS_QUERY_KEY, postId], (prev) =>
+      queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), (prev) =>
         (prev ?? []).map((comment) => (comment.id === commentId ? applyCommentReaction(comment, emoji) : comment))
       );
 
       try {
         await feedRepo.toggleCommentReaction(eventId, postId, commentId, emoji);
       } catch (error) {
-        void queryClient.invalidateQueries({ queryKey: [COMMENTS_QUERY_KEY, postId] });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.hubComments(postId) });
         reportCommentError("toggleCommentReaction", error, { context: { commentId, emoji, postId }, fallback: copy.reactionError });
       }
     },
@@ -140,18 +139,18 @@ export function useHubFeedComments({ eventId, queryClient }: Readonly<UseHubFeed
     async (postId: string, commentId: string) => {
       if (!eventId) return;
 
-      const previous = queryClient.getQueryData<HubCommentDto[]>([COMMENTS_QUERY_KEY, postId]) ?? [];
+      const previous = queryClient.getQueryData<HubCommentDto[]>(queryKeys.hubComments(postId)) ?? [];
       const remaining = previous.filter((comment) => comment.id !== commentId);
       if (remaining.length === previous.length) return;
 
-      queryClient.setQueryData<HubCommentDto[]>([COMMENTS_QUERY_KEY, postId], remaining);
+      queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), remaining);
       updateCommentCount(postId, -1);
 
       try {
         await feedRepo.deleteComment(eventId, postId, commentId);
         toast.success(copy.commentRemoved);
       } catch (error) {
-        queryClient.setQueryData<HubCommentDto[]>([COMMENTS_QUERY_KEY, postId], previous);
+        queryClient.setQueryData<HubCommentDto[]>(queryKeys.hubComments(postId), previous);
         updateCommentCount(postId, 1);
         reportCommentError("deleteComment", error, { context: { commentId, postId }, fallback: copy.deleteError });
       }

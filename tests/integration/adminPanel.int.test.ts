@@ -44,6 +44,19 @@ function createNominee(eventId: string, submittedByUserId: string, title: string
   return prisma.nominee.create({ data: { eventId, categoryId, title, submissionKind: "nominees", submittedByUserId, status: "pending" } });
 }
 
+describe("admin status filters", () => {
+  it.each([
+    ["nominations", getNominations],
+    ["category proposals", getCategoryProposals],
+    ["measure proposals", getMeasureProposals],
+  ])("accepts a known status and refuses an unknown one for %s", async (_name, handler) => {
+    const { params } = await setupAdmin();
+
+    expect((await callRoute(handler, params, { query: "?status=pending" })).status).toBe(200);
+    expect((await callRoute(handler, params, { query: "?status=bogus" })).status).toBe(400);
+  });
+});
+
 describe("admin categories", () => {
   it("creates categories at the end of the list, edits them and lists them in order", async () => {
     const { params } = await setupAdmin();

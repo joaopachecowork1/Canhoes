@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/components/providers/AuthContext";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.admin.AdminMembersSection;
 const QUERY_OPTIONS = { refetchOnWindowFocus: false, staleTime: 1000 * 60 * 2 } as const;
@@ -20,7 +21,7 @@ export function useAdminMembers(eventId: string | null) {
     ...QUERY_OPTIONS,
     enabled: !!eventId,
     queryFn: () => adminRepo.getMembersPaged(id, 0, 50),
-    queryKey: ["canhoes", "admin", "members", eventId, 0, 50],
+    queryKey: queryKeys.admin.membersPage(eventId, 0, 50),
     select: (page) => page.items,
   });
 
@@ -28,7 +29,7 @@ export function useAdminMembers(eventId: string | null) {
     ...QUERY_OPTIONS,
     enabled: !!eventId,
     queryFn: () => adminRepo.getSecretSantaState(id),
-    queryKey: ["canhoes", "admin", "secret-santa-state", eventId],
+    queryKey: queryKeys.admin.secretSantaState(eventId),
   });
 
   const roleMutation = useMutation({
@@ -39,7 +40,7 @@ export function useAdminMembers(eventId: string | null) {
     },
     onSuccess: async (result) => {
       if (!result) return;
-      await Promise.all([queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "members", eventId] }), refreshProfile()]);
+      await Promise.all([queryClient.invalidateQueries({ queryKey: queryKeys.admin.members(eventId) }), refreshProfile()]);
       toast.success(copy.rolesUpdated);
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : copy.roleError),

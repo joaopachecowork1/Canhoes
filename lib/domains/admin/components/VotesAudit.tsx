@@ -13,6 +13,7 @@ import { AdminStateMessage } from "./layout/AdminStateMessage";
 import { ADMIN_CONTENT_CARD_CLASS } from "./adminContentUi";
 import { formatDateTimeUtc } from "./dateUtils";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.admin.VotesAudit;
 
@@ -70,7 +71,7 @@ export function VotesAudit({ eventId }: Readonly<VotesAuditProps>) {
   const votesQuery = useQuery({
     enabled: Boolean(eventId),
     queryFn: () => adminRepo.getVotesPaged(eventId ?? "", 0, 1000),
-    queryKey: ["canhoes", "admin", "votes-audit", eventId],
+    queryKey: queryKeys.admin.votesAudit(eventId),
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 2,
   });

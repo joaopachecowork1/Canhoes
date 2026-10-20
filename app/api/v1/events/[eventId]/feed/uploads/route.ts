@@ -1,9 +1,11 @@
+import { enforceRateLimit } from "@/lib/api/rateLimit";
 import { badRequest } from "@/lib/api/httpError";
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
 import { apiRoute, json } from "@/lib/api/route";
 import { MAX_IMAGES_PER_POST, saveFeedImages } from "@/lib/domains/feed/services/feedPosts";
 
 export const POST = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
+  enforceRateLimit(request, "strict");
   const user = await requireUser();
   await requireEventAccess(eventId, user);
 

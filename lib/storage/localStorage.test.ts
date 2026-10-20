@@ -33,6 +33,19 @@ describe("local upload storage", () => {
     await expect(readUpload(saved.url.replace("/uploads/", "").split("/"))).rejects.toThrow();
   });
 
+  it("rejects a file whose bytes are not the image its type claims", async () => {
+    const disguised = new File(["<script>alert(1)</script>"], "payload.png", { type: "image/png" });
+    await expect(saveUpload(disguised, ["events"])).rejects.toBeInstanceOf(UploadValidationError);
+  });
+
+  it.each([
+    ["image/jpeg", [0xff, 0xd8, 0xff, 0xe0]],
+    ["image/gif", [0x47, 0x49, 0x46, 0x38]],
+    ["image/webp", [0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]],
+  ])("accepts real %s bytes", async (type, bytes) => {
+    await expect(saveUpload(new File([new Uint8Array(bytes)], "image", { type }), ["events"])).resolves.toMatchObject({ contentType: type });
+  });
+
   it("rejects unsupported files", async () => {
     const file = new File(["not an image"], "payload.txt", { type: "text/plain" });
     await expect(saveUpload(file, ["events"])).rejects.toBeInstanceOf(UploadValidationError);

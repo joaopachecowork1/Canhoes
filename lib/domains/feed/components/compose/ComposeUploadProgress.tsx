@@ -8,7 +8,7 @@ export function ComposeUploadProgress({
   progress: number;
 }>) {
   return (
-    <div className="space-y-2 rounded-2xl border border-[var(--color-beige-dark)]/25 bg-[var(--color-bg-surface-alt)] p-3">
+    <div className="space-y-2 rounded-2xl border border-[var(--color-border-strong)]/25 bg-[var(--color-bg-surface-alt)] p-3">
       <div className="flex items-center justify-between text-xs font-medium text-[var(--text-primary)]">
         <span>{label}</span>
         <span>{progress}%</span>

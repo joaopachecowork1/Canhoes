@@ -20,7 +20,7 @@ export function WishlistPreviewCard({
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
-          <Gift className="h-4 w-4 text-[var(--color-fire)]" />
+          <Gift className="h-4 w-4 text-[var(--person-amber)]" />
           {copy.title}
         </CardTitle>
       </CardHeader>

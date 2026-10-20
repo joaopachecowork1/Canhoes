@@ -24,7 +24,7 @@ function NominationsBoard({ nominations }: Readonly<{ nominations: Nominations }
   return (
     <div className="space-y-4">
       <CanhoesModuleHeader
-        icon={Trophy}
+        module="nominees"
         title={copy.title}
         description={copy.description}
         badgeLabel={formatCount(nominations.categories.length, copy.categoryOne, copy.categoryOther)}
@@ -69,7 +69,7 @@ export function CanhoesNominationsModule({
   if (nominations.isLoading && nominations.categories.length === 0) {
     return (
       <div className="space-y-3">
-        <CanhoesModuleHeader icon={Trophy} title={copy.title} description={copy.loadingDescription} />
+        <CanhoesModuleHeader module="nominees" title={copy.title} description={copy.loadingDescription} />
         <NominationsLoadingState />
       </div>
     );

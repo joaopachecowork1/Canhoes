@@ -65,7 +65,6 @@ export function useCanhoesShellNavigation({
     bottomLeftEntries: [toEntry(HOME_NAV_ITEM), ...dockItems.slice(0, 1).map(toEntry)],
     bottomRightEntries: [...dockItems.slice(1).map(toEntry), rightEntry],
     menuItems,
-    isEventHomePath: isHomePath(pathname),
     pageContext: getPageContext(pathname),
     userLabel: resolveUserLabel(user),
   };

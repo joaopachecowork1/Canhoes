@@ -66,7 +66,7 @@ export function SecretSantaContent({
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
-          <User className="h-4 w-4 text-[var(--color-fire)]" />
+          <User className="h-4 w-4 text-[var(--person-amber)]" />
           {messages.secretSanta.common.yourSecretSanta}
         </CardTitle>
       </CardHeader>

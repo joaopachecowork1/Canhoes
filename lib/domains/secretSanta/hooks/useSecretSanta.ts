@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { eventRepo } from "@/lib/repositories/eventRepo";
 import type { EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
+import { queryKeys } from "@/lib/queryKeys";
 
 /** What the page shows: the person you give to (once assigned) and their wishlist items. */
 function toSecretSantaView(overview: EventSecretSantaOverviewDto | undefined, wishlistItems: EventWishlistItemDto[]) {
@@ -24,7 +25,7 @@ export function useSecretSanta(
   initialWishlistData?: PagedResult<EventWishlistItemDto> | null
 ) {
   const { data: overview, isLoading, error, refetch } = useQuery({
-    queryKey: ["secretSantaOverview", eventId],
+    queryKey: queryKeys.secretSantaOverview(eventId),
     queryFn: () => eventRepo.getSecretSantaOverview(eventId ?? ""),
     enabled: !!eventId,
     staleTime: 1000 * 60 * 5,
@@ -33,7 +34,7 @@ export function useSecretSanta(
 
   const hasAssignment = Boolean(overview?.hasAssignment);
   const { data: wishlistData } = useQuery({
-    queryKey: ["wishlist", eventId, 0, 1000],
+    queryKey: queryKeys.secretSantaWishlist(eventId),
     queryFn: () => eventRepo.getWishlist(eventId ?? "", 0, 1000),
     enabled: !!eventId && hasAssignment,
     initialData: hasAssignment ? (initialWishlistData ?? undefined) : undefined,

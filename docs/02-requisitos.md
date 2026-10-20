@@ -28,7 +28,7 @@ Os requisitos descrevem o comportamento atual da aplicação. Cada um aponta par
 
 | ID | Requisito | Código | Teste |
 |---|---|---|---|
-| RF-20 | Cada membro gere a sua wishlist (título, link, notas, imagem). Todos os membros do evento veem as wishlists do evento. | `lib/domains/members/services/members.ts` | `ownership.int.test.ts` |
+| RF-20 | Cada membro gere a sua wishlist (título, link, notas, imagem). Todos os membros do evento veem as wishlists do evento. | `lib/domains/members/services/wishlist.ts` | `ownership.int.test.ts` |
 | RF-21 | O admin sorteia o amigo secreto entre os membros do evento e pode repetir o sorteio enquanto não o revelar. | `lib/domains/admin/services/secretSanta.ts` | `secretSanta.int.test.ts` |
 | RF-22 | O admin revela o sorteio; a partir daí cada membro vê a quem dá o presente e quantos itens tem a wishlist dessa pessoa. | `secretSanta.ts` (`revealSecretSantaDraw`), `lib/domains/secretSanta/services/secretSanta.ts` | `secretSanta.int.test.ts` |
 
@@ -101,7 +101,7 @@ As regras de fase vivem em funções puras em `lib/domains/event/rules/eventRule
 |---|---|---|
 | RNF-01 | **Segurança.** Toda a rota de API exige sessão, exceto login, registo, health, telemetria e ficheiros enviados. | Guards em cada route handler; matriz em `tests/integration/authorization.int.test.ts`, que descobre todas as rotas e falha se uma nova ficar sem cobertura |
 | RNF-02 | **Segurança.** Uploads só de JPEG, PNG, GIF e WebP até 10 MB, com nomes gerados no servidor e caminhos validados contra path traversal. | `lib/storage/localStorage.ts`; `localStorage.test.ts`, `ownership.int.test.ts` |
-| RNF-03 | **Segurança.** Votos e likes têm limite de pedidos por IP (5 e 20 por 10 s). | `lib/api/rateLimit.ts` |
+| RNF-03 | **Segurança.** Limite de pedidos por IP e por tipo: estrito (5 por 10 s) nos votos, no registo e nos uploads; normal (20 por 10 s) nos likes, posts, comentários e telemetria; 10 tentativas por minuto no login, contadas por IP e também por email (o limite por email vale mesmo que o IP seja forjado; o custo é que alguém pode bloquear durante um minuto o login de uma pessoa ao falhar com o email dela). Atrás do túnel (`TRUST_CF_CONNECTING_IP=true`, só em `compose.server.yml`) o IP vem do `CF-Connecting-IP`; sem nenhum cabeçalho de proxy (compose simples, dev local) não há como distinguir quem chama e os limites por IP não se aplicam (só o do login por email continua), por isso a app nunca deve ficar exposta diretamente à internet (em `compose.server.yml` a porta só abre em 127.0.0.1). As imagens dos posts só podem ser ficheiros enviados para a app (`/uploads/...`). Os uploads só aceitam imagens cujos primeiros bytes correspondem ao tipo (JPEG, PNG, GIF, WebP). | `lib/api/rateLimit.ts` |
 | RNF-04 | **Segurança.** Cabeçalhos `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` e `Permissions-Policy` em todas as respostas. | `next.config.mjs`; varrimento OWASP ZAP na CI |
 | RNF-05 | **Segurança.** Passwords com bcrypt; sessões JWT de 24 h; o utilizador e o `isAdmin` são relidos da base de dados em cada pedido. | `auth.ts`, `invitations.ts` |
 | RNF-06 | **Usabilidade.** Mobile-first (375 px de base), alvos de toque de 44 px, texto de conteúdo de 16 px, bottom sheets em vez de modais. | Convenções em `CLAUDE.md` |

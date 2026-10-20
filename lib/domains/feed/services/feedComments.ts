@@ -4,6 +4,7 @@ import type { HubCommentDto } from "@/lib/api/types";
 import { PERSON_COLORS } from "@/lib/personColors";
 
 import { assertPostInEvent } from "./feedAccess";
+import { loadUsersById } from "@/lib/usersById";
 
 /* Comments of feed posts: the thread, replies, emoji reactions and deleting. */
 
@@ -33,11 +34,10 @@ export async function getPostComments(
     },
   });
 
-  const commentUserIds = [...new Set(comments.map((c) => c.userId))];
-  const commentUsers = commentUserIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: commentUserIds } }, select: { id: true, displayName: true, color: true } })
-    : [];
-  const commentUserMap = new Map(commentUsers.map((u) => [u.id, u]));
+  const commentUserMap = await loadUsersById(
+    comments.map((c) => c.userId),
+    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, color: true } })
+  );
 
   return comments.map((c) => {
     const reactionCounts: Record<string, number> = {};

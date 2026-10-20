@@ -49,6 +49,16 @@ function renderAdmin(section: AdminSectionId = "conteudo") {
   return renderWithProviders(<CanhoesAdminModule section={section} initialContext={makeEventContext({ isAdmin: true })} />);
 }
 
+describe("CanhoesAdminModule — page header", () => {
+  it("names the page like every other area does, with a visible title and its description", () => {
+    renderAdmin();
+
+    const title = screen.getByRole("heading", { level: 1, name: "Admin" });
+    expect(title).not.toHaveClass("sr-only");
+    expect(screen.getByText("Fases, propostas, membros e todas as áreas do evento.")).toBeInTheDocument();
+  });
+});
+
 describe("CanhoesAdminModule — content queue", () => {
   it("shows pending nominations and proposals with the queue count", async () => {
     serveAdmin();
@@ -58,6 +68,14 @@ describe("CanhoesAdminModule — content queue", () => {
     expect(await screen.findByText("Melhor sticker")).toBeInTheDocument();
     expect(screen.getByText("Quem perder paga uma rodada")).toBeInTheDocument();
     expect(within(screen.getByRole("button", { name: /Fila/ })).getByText("3")).toBeInTheDocument();
+  });
+
+  it("has a page heading and names the category filter for screen readers", async () => {
+    serveAdmin();
+    renderAdmin();
+
+    expect(screen.getByRole("heading", { level: 1, name: "Admin" })).toBeInTheDocument();
+    expect(await screen.findByRole("combobox", { name: "Filtrar categoria" })).toBeInTheDocument();
   });
 
   it("approves a nomination from its drawer", async () => {
@@ -122,7 +140,7 @@ describe("CanhoesAdminModule — content queue", () => {
     server.use(apiRoute("get", `${ADMIN}/bootstrap`, { message: "boom" }, 500));
     renderAdmin();
 
-    expect(await screen.findByText("Erro ao carregar o admin")).toBeInTheDocument();
+    expect(await screen.findByText("Não deu para abrir o admin")).toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: "Tentar novamente" }).length).toBeGreaterThan(0);
   });
 });

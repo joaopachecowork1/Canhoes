@@ -31,7 +31,7 @@ export function CanhoesFileTrigger({
         className
       )}
     >
-      <Upload className={cn("h-4 w-4 text-[var(--color-beige)]", iconClassName)} />
+      <Upload className={cn("h-4 w-4 text-[var(--color-text-secondary)]", iconClassName)} />
       <span className="truncate">{fileName ?? placeholder}</span>
       <input
         type="file"

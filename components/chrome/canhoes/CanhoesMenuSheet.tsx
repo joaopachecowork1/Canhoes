@@ -1,12 +1,13 @@
 "use client";
 
-import { ChevronRight, LogOut, Shield } from "lucide-react";
+import { ChevronRight, CircleHelp, LogOut, Shield } from "lucide-react";
 import Link from "next/link";
 
+import { useStoredFlag, WELCOME_DISMISSED_STORAGE_KEY } from "@/lib/domains/event/hooks/useStoredFlag";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
-import type { CanhoesNavItem } from "./canhoesNavigation";
+import { areaColorVar, type CanhoesNavItem } from "./canhoesNavigation";
 import { PersonColorPicker } from "./PersonColorPicker";
 import messages from "@/messages/pt.json";
 
@@ -32,6 +33,8 @@ export function CanhoesMenuSheet({
   open: boolean;
   pathname: string | null;
 }>) {
+  const [, setIsWelcomeDismissed] = useStoredFlag(WELCOME_DISMISSED_STORAGE_KEY, true);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -66,7 +69,7 @@ export function CanhoesMenuSheet({
           {isAdmin ? (
             <MenuLink
               item={{
-                id: "admin-areas",
+                id: "admin",
                 label: copy.allAreas,
                 href: "/canhoes/admin/configuracoes",
                 icon: Shield,
@@ -77,22 +80,39 @@ export function CanhoesMenuSheet({
             />
           ) : null}
 
-          <button
-            type="button"
-            onClick={() => {
+          <MenuLink
+            item={{ id: "welcome", label: copy.welcomeAgain, href: "/canhoes", icon: CircleHelp, description: copy.welcomeAgainDescription }}
+            isActive={false}
+            onSelect={() => {
+              setIsWelcomeDismissed(false);
+              onOpenChange(false);
+            }}
+          />
+
+          <LogoutButton
+            onLogout={() => {
               onOpenChange(false);
               onLogout();
             }}
-            className="mt-2 flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 text-left text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]"
-          >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--bg-paper)]">
-              <LogOut className="h-5 w-5" aria-hidden />
-            </span>
-            <span className="text-base font-semibold">{copy.logout}</span>
-          </button>
+          />
         </nav>
       </SheetContent>
     </Sheet>
+  );
+}
+
+function LogoutButton({ onLogout }: Readonly<{ onLogout: () => void }>) {
+  return (
+    <button
+      type="button"
+      onClick={onLogout}
+      className="mt-2 flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 text-left text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--bg-paper)]">
+        <LogOut className="h-5 w-5" aria-hidden />
+      </span>
+      <span className="text-base font-semibold">{copy.logout}</span>
+    </button>
   );
 }
 
@@ -108,12 +128,13 @@ function MenuLink({
       href={item.href}
       onClick={onSelect}
       aria-current={isActive ? "page" : undefined}
+      style={{ "--area": areaColorVar(item.id) }}
       className={cn(
         "flex min-h-14 items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-[var(--bg-paper)] active:bg-[var(--bg-paper)]",
         isActive && "bg-[var(--bg-paper)]"
       )}
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--moss)] text-[var(--on-moss)]">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--area,var(--moss))] text-[var(--on-person)]">
         <Icon className="h-5 w-5" aria-hidden />
       </span>
       <span className="min-w-0 flex-1">

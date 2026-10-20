@@ -64,7 +64,9 @@ export async function registerWithInvitation(input: { token: string; password: s
   const email = invitation.email;
 
   return prisma.$transaction(async (tx) => {
-    await tx.userInvitation.update({ where: { id: invitation.id }, data: { usedAtUtc: new Date() } });
+    // Claiming the invitation is the check that counts: two simultaneous requests both pass the one above.
+    const claimed = await tx.userInvitation.updateMany({ where: { id: invitation.id, usedAtUtc: null }, data: { usedAtUtc: new Date() } });
+    if (claimed.count === 0) throw new InvitationError("INVITATION_USED");
 
     const existingUser = await tx.user.findUnique({ where: { email } });
     const user = existingUser

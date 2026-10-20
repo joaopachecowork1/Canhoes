@@ -46,6 +46,15 @@ describe("feed posts", () => {
     expect(feed.items[0]?.poll?.options.map((option) => option.text)).toEqual(["Tasca", "Pizza"]);
   });
 
+  it("only accepts media that was uploaded here", async () => {
+    const { event, ana } = await setupFeed();
+    signInAs(ana);
+
+    const response = await callRoute(createPost, { eventId: event.id }, { method: "POST", body: { text: "Foto", mediaUrls: ["https://tracker.example/pixel.png"] } });
+
+    expect(response.status).toBe(400);
+  });
+
   it("rejects a poll with a single option", async () => {
     const { event, ana } = await setupFeed();
     signInAs(ana);

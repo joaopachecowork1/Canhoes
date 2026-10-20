@@ -143,7 +143,7 @@ Cada membro veste uma; a base de dados guarda a chave (`lib/personColors.ts`) e 
 - **Coral** (#ff6b6b), **Âmbar** (#ffb547), **Turquesa** (#4fd1c5), **Azul** (#6c8cff), **Rosa** (#f472b6), **Lima** (#a3e635), **Violeta** (#b388ff), **Céu** (#38bdf8).
 
 ### Tertiary (cores de área)
-Cada área mantém uma cor no cabeçalho, no dock e na página (`--area-*`, resolvida por `areaColorVar`): mural turquesa, votação verde de relvado, nomeações âmbar, categorias azul, gala rosa, amigo secreto coral, wishlist violeta, stickers lima, medidas céu, admin lilás-muted.
+Cada área mantém uma cor no dock e na página (`--area-*`, resolvida por `areaColorVar`). São mais poeirentas do que as cores de pessoa e nunca coincidem com elas (um teste em `lib/designTokens.test.ts` garante-o): mural #5fb7b0, votação verde de relvado, nomeações #d9a441, categorias #7a93e8, gala #d97fb0, amigo secreto #e07a6f, wishlist #a98be0, stickers #a9c94a, medidas #5aa9d6, admin lilás-muted. O cabeçalho fixo não repete o nome da página: é o título (h1) da própria página, com o ícone na cor da área, que o diz.
 
 ### Neutral
 - **Capa Roxo-Noite** (#170d22, `--color-bg-base`): fundo da página e do `html`.
@@ -184,7 +184,7 @@ Cada área mantém uma cor no cabeçalho, no dock e na página (`--area-*`, reso
 
 ## Layout
 
-Mobile-first, base de 375px, breakpoints só para expandir. Conteúdo em coluna única centrada até `--page-max-width` (72rem), com margens de 16px (24px em `sm`, 32px em `lg`) e colunas de cartões com intervalos de 12 a 16px. O cabeçalho é fixo no topo; o dock é fixo em baixo com a área de segurança (`env(safe-area-inset-bottom)`) e um botão "Post" verde ao centro. Todo o alvo tocável tem pelo menos 44px (`min-h-11`; botões e inputs com 44px, opções de voto com 56px). Abas de pílula fazem scroll horizontal com snap e a ativa centra-se sozinha.
+Mobile-first, base de 375px, breakpoints só para expandir. Cabeçalho, conteúdo e dock partilham a mesma coluna centrada de 60rem (o dock fica compacto, 32rem, em ecrãs largos), com margens de 16px (24px em `sm`, 32px em `lg`) e colunas de cartões com intervalos de 12 a 16px. O cabeçalho é fixo no topo; o dock é fixo em baixo com a área de segurança (`env(safe-area-inset-bottom)`) e um botão "Post" verde ao centro. Todo o alvo tocável tem pelo menos 44px (`min-h-11`; botões e inputs com 44px, opções de voto com 56px). Abas de pílula fazem scroll horizontal com snap e a ativa centra-se sozinha.
 
 ## Elevation & Depth
 
@@ -255,4 +255,4 @@ Cartão elevado de 1rem com borda de 2px: `danger` coral, `official` verde, `soc
 - **Don't** usar sombras duras deslocadas nem contornos de brilho.
 - **Don't** voltar às fontes antigas (Orbitron, DM Sans, JetBrains Mono) nem ao verde-oliva.
 
-Não canonizado (defeitos que a build carrega): variante `neon` do `Button` (`bg-neon-glow`, `text-neon-green`), tokens órfãos herdados (`--bark`, `--beige`, `--sand`, `--neon-*`, `--color-fire`) e o alias enganador `--font-mono` (é Barlow Condensed); `EmptyState` tem um mapa de tons vazio.
+Não canonizado (defeitos que a build ainda carrega): o alias enganador `--font-mono` (é Barlow Condensed) e o mapa de tons vazio do `EmptyState`. Os tokens herdados do tema anterior (`--bark`, `--beige`, `--sand`, `--neon-*`, `--color-fire`) e a variante `neon` do `Button` já foram removidos.

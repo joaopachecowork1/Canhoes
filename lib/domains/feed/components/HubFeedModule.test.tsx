@@ -55,7 +55,7 @@ describe("HubFeedModule", () => {
 
     const strip = await screen.findByRole("list", { name: "Membros" });
     expect(await within(strip).findByText("Rui Costa")).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Cola aqui o teu post" }));
+    await userEvent.click(screen.getByRole("button", { name: "Cola aqui a tua publicação" }));
 
     expect(onOpenCompose).toHaveBeenCalledOnce();
     globalThis.removeEventListener(OPEN_COMPOSE_SHEET_EVENT, onOpenCompose);
@@ -64,14 +64,14 @@ describe("HubFeedModule", () => {
   it("shows the empty mural", async () => {
     servePosts([]);
     renderFeed();
-    expect(await screen.findByText("O mural social ainda não tem registos publicados")).toBeInTheDocument();
+    expect(await screen.findByText("Ainda ninguém publicou no mural")).toBeInTheDocument();
   });
 
   it("offers a retry when the posts fail to load", async () => {
     servePosts([]);
     server.use(http.get(POSTS, () => HttpResponse.json({ message: "boom" }, { status: 500 })));
     renderFeed();
-    expect(await screen.findByText("Erro ao carregar o mural")).toBeInTheDocument();
+    expect(await screen.findByText("Não deu para abrir o mural. Tenta outra vez.")).toBeInTheDocument();
 
     servePosts([post({ text: "Voltou" })]);
     await userEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
@@ -123,7 +123,7 @@ describe("HubFeedModule", () => {
     await userEvent.click(await screen.findByRole("button", { name: "1 comentários" }));
     expect(await screen.findByText("Concordo")).toBeInTheDocument();
 
-    await userEvent.type(screen.getByPlaceholderText(/Acrescenta contexto/), "Também acho");
+    await userEvent.type(screen.getByPlaceholderText(/Escreve um comentário/), "Também acho");
     await userEvent.click(screen.getByRole("button", { name: "Enviar resposta" }));
 
     expect(await screen.findByText("Comentário publicado")).toBeInTheDocument();
@@ -162,8 +162,8 @@ describe("HubFeedModule", () => {
     server.use(http.post(`${POSTS}/post-1/poll/vote`, () => new HttpResponse(null, { status: 204 })));
     renderFeed();
 
-    await userEvent.click(await screen.findByRole("button", { name: /^Rui: 0 votos/ }));
-    expect(await screen.findByRole("button", { name: /^Rui: 1 voto, 50%/ })).toHaveAttribute("aria-pressed", "true");
+    await userEvent.click(await screen.findByRole("button", { name: /^Rui.*0 · 0%/ }));
+    expect(await screen.findByRole("button", { name: /^Rui.*1 · 50%/ })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText(/2 votos registados/)).toBeInTheDocument();
   });
 
@@ -178,10 +178,12 @@ describe("HubFeedModule", () => {
     );
     renderFeed();
 
-    await userEvent.click(await screen.findByRole("button", { name: "Carregar mais posts manualmente" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Carregar mais publicações manualmente" }));
     expect(await screen.findByText("Página 2")).toBeInTheDocument();
     expect(lastSkip).toBe(15); // the next page starts after the first 15 posts
   });
+
+  const openPostMenu = async () => userEvent.click(await screen.findByRole("button", { name: "Opções da publicação" }));
 
   describe("as admin", () => {
     it("pins a post", async () => {
@@ -190,9 +192,11 @@ describe("HubFeedModule", () => {
       server.use(http.post(`${POSTS}/post-1/pin`, () => HttpResponse.json({ pinned: true, pinnedOrder: 0 })));
       renderFeed();
 
-      await userEvent.click(await screen.findByRole("button", { name: "Fixar post" }));
+      await openPostMenu();
+      await userEvent.click(await screen.findByRole("button", { name: "Fixar publicação" }));
       expect(await screen.findByText("Fixado")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Subir post fixado" })).toBeInTheDocument();
+      await openPostMenu();
+      expect(await screen.findByRole("button", { name: "Subir publicação fixada" })).toBeInTheDocument();
     });
 
     it("deletes a post after confirming", async () => {
@@ -201,10 +205,11 @@ describe("HubFeedModule", () => {
       server.use(http.delete(`${POSTS}/post-1`, () => new HttpResponse(null, { status: 204 })));
       renderFeed();
 
-      await userEvent.click(await screen.findByRole("button", { name: "Eliminar post" }));
+      await openPostMenu();
+      await userEvent.click(await screen.findByRole("button", { name: "Eliminar publicação" }));
       await userEvent.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Eliminar" }));
 
-      expect(await screen.findByText("Post removido")).toBeInTheDocument();
+      expect(await screen.findByText("Publicação removida")).toBeInTheDocument();
       await waitFor(() => expect(screen.queryByText("Para apagar")).not.toBeInTheDocument());
     });
   });
@@ -250,9 +255,9 @@ describe("HubFeedModule", () => {
       server.use(refuse("post", "/post-1/poll/vote"));
       renderFeed();
 
-      await userEvent.click(await screen.findByRole("button", { name: /^Ana: 0 votos/ }));
+      await userEvent.click(await screen.findByRole("button", { name: /^Ana.*0 · 0%/ }));
       expect(await screen.findByText(/Recusado pelo servidor/)).toBeInTheDocument();
-      expect(await screen.findByRole("button", { name: /^Ana: 0 votos/ })).toHaveAttribute("aria-pressed", "false");
+      expect(await screen.findByRole("button", { name: /^Ana.*0 · 0%/ })).toHaveAttribute("aria-pressed", "false");
     });
 
     it("keeps the post when it cannot be pinned or deleted", async () => {
@@ -261,11 +266,13 @@ describe("HubFeedModule", () => {
       server.use(refuse("post", "/post-1/pin"), refuse("delete", "/post-1"));
       renderFeed();
 
-      await userEvent.click(await screen.findByRole("button", { name: "Fixar post" }));
+      await openPostMenu();
+      await userEvent.click(await screen.findByRole("button", { name: "Fixar publicação" }));
       expect(await screen.findByText(/Recusado pelo servidor/)).toBeInTheDocument();
       expect(screen.queryByText("Fixado")).not.toBeInTheDocument();
 
-      await userEvent.click(screen.getByRole("button", { name: "Eliminar post" }));
+      await openPostMenu();
+      await userEvent.click(await screen.findByRole("button", { name: "Eliminar publicação" }));
       await userEvent.click(within(screen.getByRole("alertdialog")).getByRole("button", { name: "Eliminar" }));
       await waitFor(() => expect(screen.getAllByText(/Recusado pelo servidor/).length).toBeGreaterThan(0));
       expect(screen.getByText("Fica")).toBeInTheDocument();
@@ -283,8 +290,9 @@ describe("HubFeedModule", () => {
       );
       renderFeed();
 
-      const [, moveSecondUp] = await screen.findAllByRole("button", { name: "Subir post fixado" });
-      await userEvent.click(moveSecondUp);
+      const [, secondPostMenu] = await screen.findAllByRole("button", { name: "Opções da publicação" });
+      await userEvent.click(secondPostMenu);
+      await userEvent.click(await screen.findByRole("button", { name: "Subir publicação fixada" }));
       await waitFor(() => expect(directions).toEqual([{ direction: "up" }]));
     });
   });

@@ -2,7 +2,6 @@
 
 import { CanhoesFileTrigger } from "@/lib/domains/event/components/CanhoesFileTrigger";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { WishlistFormState } from "../hooks/useCanhoesWishlist";
@@ -27,12 +26,7 @@ export function WishlistForm({
   onSubmit,
 }: WishlistFormProps) {
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle>{copy.title}</CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-4">
+    <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label htmlFor="wishlist-title-input">{copy.titleLabel}</label>
@@ -77,7 +71,6 @@ export function WishlistForm({
             {isSaving ? messages.common.saving : copy.submit}
           </Button>
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

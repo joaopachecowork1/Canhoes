@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.categories.CategoryProposalForm;
 const MIN_NAME_LENGTH = 3;
@@ -45,7 +46,7 @@ export function CategoryProposalForm({ canPropose, eventId }: Readonly<{ canProp
       setName("");
       setDescription("");
       setKind(DEFAULT_KIND);
-      await queryClient.invalidateQueries({ queryKey: ["categories", eventId] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.categories(eventId) });
       toast.success(copy.sent);
     } catch (error) {
       logFrontendError("CanhoesCategories.handleProposalSubmit", error, { eventId });
@@ -59,8 +60,8 @@ export function CategoryProposalForm({ canPropose, eventId }: Readonly<{ canProp
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-fire)]/12">
-            <Trophy className="h-4 w-4 text-[var(--color-fire)]" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--person-amber)]/12">
+            <Trophy className="h-4 w-4 text-[var(--person-amber)]" />
           </div>
           {copy.title}
         </CardTitle>

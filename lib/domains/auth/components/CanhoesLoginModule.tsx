@@ -64,7 +64,7 @@ function OrDivider() {
 function DevLoginOption({ onLogin }: Readonly<{ onLogin: () => void }>) {
   return (
     <>
-      <div className="rounded-lg border border-dashed border-[var(--neon-amber)] px-3 py-2 text-sm text-[var(--neon-amber)]">
+      <div className="rounded-lg border border-dashed border-[var(--person-amber)] px-3 py-2 text-sm text-[var(--person-amber)]">
         {copy.devModeNotice}
       </div>
       <Button variant="outline" className="w-full" onClick={onLogin}>

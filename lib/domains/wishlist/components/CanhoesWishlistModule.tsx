@@ -1,8 +1,10 @@
 "use client";
 
-import { Gift, Inbox } from "lucide-react";
+import { Inbox } from "lucide-react";
+import { useState } from "react";
 
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
+import { FormSheet } from "@/lib/domains/event/components/FormSheet";
 import { CompactSegmentTabs } from "@/lib/domains/event/components/CompactSegmentTabs";
 import { useAuth } from "@/components/providers/AuthContext";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -104,6 +106,7 @@ export function CanhoesWishlistModule({
   initialWishlistItems,
 }: CanhoesWishlistModuleProps) {
   const { user } = useAuth();
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const wishlist = useCanhoesWishlist({
     initialContext,
     initialMembers,
@@ -113,20 +116,22 @@ export function CanhoesWishlistModule({
   return (
     <div className="space-y-4">
       <CanhoesModuleHeader
-        icon={Gift}
+        module="wishlist"
         title={copy.title}
         description={copy.description}
         badgeLabel={formatCount(wishlist.wishlistItems.length, messages.common.item, messages.common.items)}
         badgeVariant="secondary"
       />
 
-      <WishlistForm
-        formState={wishlist.formState}
-        isSaving={wishlist.isSaving}
-        canSubmit={wishlist.canSubmit}
-        onChange={(update) => wishlist.setFormState((current) => ({ ...current, ...update }))}
-        onSubmit={() => void wishlist.createWishlistItem()}
-      />
+      <FormSheet isOpen={isFormOpen} onOpenChange={setIsFormOpen} title={messages.wishlist.WishlistForm.title} triggerLabel={copy.addItem}>
+        <WishlistForm
+          formState={wishlist.formState}
+          isSaving={wishlist.isSaving}
+          canSubmit={wishlist.canSubmit}
+          onChange={(update) => wishlist.setFormState((current) => ({ ...current, ...update }))}
+          onSubmit={() => void wishlist.createWishlistItem().then((isSaved) => setIsFormOpen(!isSaved))}
+        />
+      </FormSheet>
 
       <WishlistContent wishlist={wishlist} userId={user?.id ?? null} />
     </div>

@@ -54,7 +54,7 @@ describe("CanhoesNominationsModule", () => {
     });
     renderNominations();
 
-    expect(await screen.findByText("Aguarda aprovação")).toBeInTheDocument();
+    expect(await screen.findByText("À espera do OK de um admin")).toBeInTheDocument();
     expect(screen.getByText("Rui")).toBeInTheDocument();
     for (const tab of [/Canhão do Ano/, /Melhor Foto/]) {
       expect(within(screen.getByRole("button", { name: tab })).getByText("Enviado")).toBeInTheDocument();
@@ -78,11 +78,11 @@ describe("CanhoesNominationsModule", () => {
     renderNominations();
 
     await userEvent.type(await screen.findByPlaceholderText("Ex.: Nome da pessoa ou item"), " Rui ");
-    await userEvent.click(screen.getByRole("button", { name: "Submeter" }));
+    await userEvent.click(screen.getByRole("button", { name: "Enviar nomeação" }));
 
-    expect(await screen.findByText("Nomeação submetida. Aguarda aprovação.")).toBeInTheDocument();
+    expect(await screen.findByText("Nomeação enviada! Aparece na votação assim que um admin der o OK.")).toBeInTheDocument();
     expect(recorder.requests[0]?.body).toEqual({ categoryId: "cat-1", title: "Rui" });
-    expect(screen.getByText("Aguarda aprovação")).toBeInTheDocument();
+    expect(screen.getByText("À espera do OK de um admin")).toBeInTheDocument();
     expect(within(screen.getByRole("button", { name: /Canhão do Ano/ })).getByText("Enviado")).toBeInTheDocument();
   });
 
@@ -92,11 +92,11 @@ describe("CanhoesNominationsModule", () => {
     renderNominations();
 
     await userEvent.type(await screen.findByPlaceholderText("Ex.: Nome da pessoa ou item"), "Rui");
-    await userEvent.click(screen.getByRole("button", { name: "Submeter" }));
+    await userEvent.click(screen.getByRole("button", { name: "Enviar nomeação" }));
 
     expect(await screen.findByText(/Já nomeaste/)).toBeInTheDocument();
     expect(titleInput()).toBeInTheDocument();
-    expect(screen.queryByText("Aguarda aprovação")).not.toBeInTheDocument();
+    expect(screen.queryByText("À espera do OK de um admin")).not.toBeInTheDocument();
   });
 
   it("needs a title of two letters", async () => {
@@ -104,15 +104,15 @@ describe("CanhoesNominationsModule", () => {
     renderNominations();
 
     await userEvent.type(await screen.findByPlaceholderText("Ex.: Nome da pessoa ou item"), "R");
-    expect(screen.getByRole("button", { name: "Submeter" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Enviar nomeação" })).toBeDisabled();
     await userEvent.type(titleInput(), "u");
-    expect(screen.getByRole("button", { name: "Submeter" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Enviar nomeação" })).toBeEnabled();
   });
 
   it("is closed outside the proposals phase", async () => {
     serveNominations();
     renderNominations("VOTING");
-    expect(await screen.findByText("Nomeações oficiais fechadas")).toBeInTheDocument();
+    expect(await screen.findByText("As nomeações estão fechadas")).toBeInTheDocument();
   });
 
   it("shows the load error", async () => {
@@ -121,6 +121,6 @@ describe("CanhoesNominationsModule", () => {
     renderNominations();
 
     const alert = await screen.findByRole("alert");
-    expect(within(alert).getByText("Erro ao carregar nomeações oficiais")).toBeInTheDocument();
+    expect(within(alert).getByText("Não deu para abrir as nomeações")).toBeInTheDocument();
   });
 });

@@ -38,17 +38,18 @@
   --person-violet: #b388ff;
   --person-sky: #38bdf8;
   --on-person: #170d22;
-  /* Area tabs: each area keeps one colour across header, dock and page. */
-  --area-feed: var(--person-teal);
+  /* Area tabs: each area keeps one colour across the dock and its page. Dustier than --person-*, so a member's frame is never mistaken for an area. */
+  --area-feed: #5fb7b0;
   --area-voting: var(--moss);
-  --area-nominees: var(--person-amber);
-  --area-categories: var(--person-blue);
-  --area-gala: var(--person-pink);
-  --area-secret-santa: var(--person-coral);
-  --area-wishlist: var(--person-violet);
-  --area-stickers: var(--person-lime);
-  --area-measures: var(--person-sky);
+  --area-nominees: #d9a441;
+  --area-categories: #7a93e8;
+  --area-gala: #d97fb0;
+  --area-secret-santa: #e07a6f;
+  --area-wishlist: #a98be0;
+  --area-stickers: #a9c94a;
+  --area-measures: #5aa9d6;
   --area-admin: var(--color-text-muted);
+  --area-welcome: var(--color-text-muted);
   --shadow-elevation-sm: 0 6px 14px rgba(5, 0, 12, 0.45);
   --shadow-elevation-md: 0 10px 24px rgba(5, 0, 12, 0.5);
   --font-display: var(--font-barlow-condensed);
@@ -68,18 +69,10 @@
   --ink-primary: var(--color-text-primary);
   --ink-secondary: var(--color-text-secondary);
   --ink-muted: var(--color-text-muted);
-  --bark: #8a5a3c;
-  --beige: #ffd9a8;
-  --sand: #e8c39a;
-  --neon-green: var(--moss);
-  --neon-amber: var(--person-amber);
-  --neon-cyan: var(--person-teal);
-  --neon-red: var(--person-coral);
   --accent-purple-soft: #c9b6ef;
   --accent-purple-deep: #5b3f8c;
   --glow-green-sm: 0 6px 16px rgba(47, 191, 113, 0.28);
   --danger: var(--color-danger);
-  --fire: var(--person-amber);
   --border-subtle: var(--color-border);
   --border-moss: rgba(47, 191, 113, 0.5);
   --border-neon: var(--color-border-strong);
@@ -92,7 +85,6 @@
   --shadow-layered: 0 18px 40px rgba(5, 0, 12, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
   --shadow-panel: 0 20px 48px rgba(5, 0, 12, 0.6);
   --shadow-modal: 0 28px 80px rgba(5, 0, 12, 0.7);
-  --page-max-width: 72rem;
   --radius-sm-token: 0.75rem;
   --radius-md-token: 0.875rem;
   --radius-lg-token: 1rem;
@@ -100,14 +92,8 @@
   --destructive: var(--danger);
   --color-bg-card: var(--bg-deep);
   --color-bg-surface-alt: var(--bg-surface);
-  --color-title: var(--moss-light);
-  --color-title-light: var(--moss-glow);
   --color-danger-hover: #ff5252;
   --color-moss: var(--moss);
-  --color-beige: var(--beige);
-  --color-beige-dark: var(--sand);
-  --color-brown: var(--bark);
-  --color-fire: var(--fire);
 }
 
 /* Kept before the Tailwind layers on purpose: utilities on the same element win over these. */
@@ -152,12 +138,9 @@
 
 @import "tailwindcss";
 
-/* Extra Tailwind utilities: text-canhoes-gold, text-neon-green, shadow-neon, animate-fade-in. */
+/* Extra Tailwind utilities: text-canhoes-gold, animate-fade-in. */
 @theme {
   --color-canhoes-gold: #ffd166;
-  --color-neon-green: #5fe39a;
-
-  --shadow-neon: 0 6px 16px rgba(47, 191, 113, 0.3);
 
   --animate-fade-in: fade-in 0.18s ease-out;
 
@@ -165,10 +148,6 @@
     from { opacity: 0; transform: scale(0.96) translateY(4px); }
     to { opacity: 1; transform: scale(1) translateY(0); }
   }
-}
-
-@utility bg-neon-glow {
-  background-image: linear-gradient(180deg, rgba(47, 191, 113, 0.18), rgba(47, 191, 113, 0.1));
 }
 
 @layer base {

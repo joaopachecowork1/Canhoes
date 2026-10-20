@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { PagedResult, PublicUserDto } from "@/lib/api/types";
 import { AdminRoleChangeError, assertAdminRoleChangeAllowed } from "./adminRolePolicy";
+import { loadUsersById } from "@/lib/usersById";
 
 /* Event members as the admin sees them, and promoting or demoting admins (rules in `adminRolePolicy.ts`). */
 
@@ -18,11 +19,10 @@ export async function getAdminMembersPaged(
     skip, take,
   });
 
-  const userIds = [...new Set(members.map((m) => m.userId))];
-  const users = userIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } })
-    : [];
-  const userMap = new Map(users.map((u) => [u.id, u]));
+  const userMap = await loadUsersById(
+    members.map((m) => m.userId),
+    (where) => prisma.user.findMany({ where, select: { id: true, email: true, displayName: true, isAdmin: true, color: true } })
+  );
 
   const items = members
     .map((m) => {

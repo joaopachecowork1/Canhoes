@@ -50,8 +50,8 @@ type CategoryNominationCardProps = Readonly<{
 
 function PendingNomination({ label }: Readonly<{ label: string | null }>) {
   return (
-    <div className="flex min-h-14 flex-wrap items-center gap-2 rounded-xl border-2 border-dashed border-[var(--neon-amber)] px-3 py-2">
-      <Badge className="border border-[var(--neon-amber)] bg-transparent text-[var(--neon-amber)]">
+    <div className="flex min-h-14 flex-wrap items-center gap-2 rounded-xl border-2 border-dashed border-[var(--person-amber)] px-3 py-2">
+      <Badge className="border border-[var(--person-amber)] bg-transparent text-[var(--person-amber)]">
         <Clock className="mr-1 h-3.5 w-3.5" />
         {copy.pending}
       </Badge>
@@ -121,7 +121,7 @@ function ApprovedNomineesList({ nominees }: Readonly<{ nominees: NomineeDto[] }>
   return (
     <div className="space-y-2 pt-1">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-[var(--ink-primary)]">{copy.approvedTitle}</h4>
+        <h2 className="text-sm font-medium text-[var(--ink-primary)]">{copy.approvedTitle}</h2>
         <span className="font-[family-name:var(--font-mono)] text-xs text-[var(--ink-muted)]">{formatCount(nominees.length, copy.approvedOne, copy.approvedOther)}</span>
       </div>
       {nominees.length === 0 ? (

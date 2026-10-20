@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { useAdminBootstrap } from "@/lib/domains/admin/hooks/useAdminBootstrap";
+import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { ApiError } from "@/lib/api/canhoesClient";
@@ -18,6 +19,7 @@ import { AdminContentSection } from "./layout/AdminContentSection";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
 import { AdminControlCenter } from "./event/AdminControlCenter";
 import { AdminMembersSection } from "./users/AdminMembersSection";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.admin.CanhoesAdminModule;
 
@@ -27,25 +29,11 @@ type CanhoesAdminModuleProps = {
   initialContext?: EventActiveContextDto | null;
 };
 
-/** Every admin query of the edition, so one refresh after a write updates every tab. */
-function adminQueryKeys(eventId: string | null) {
-  return [
-    ["adminBootstrap", eventId],
-    ["admin", "proposals", "categories", "pending", eventId],
-    ["admin", "proposals", "measures", "pending", eventId],
-    ["canhoes", "admin", "nominations", "summary", "pending", eventId],
-    ["canhoes", "admin", "categories", eventId],
-    ["canhoes", "admin", "votes", "audit", eventId],
-    ["canhoes", "admin", "members", eventId, 0, 50],
-    ["canhoes", "admin", "secret-santa-state", eventId],
-  ];
-}
-
 function usePendingNominationCount(eventId: string | null) {
   return useQuery({
     enabled: !!eventId,
     queryFn: () => adminRepo.getNominationsPaged(eventId ?? "", 0, 1, "pending"),
-    queryKey: ["canhoes", "admin", "nominations", "summary", "pending", eventId],
+    queryKey: queryKeys.admin.nominationsPendingCount(eventId),
     refetchOnWindowFocus: false,
     select: (data) => data.total,
     staleTime: 1000 * 60 * 2,
@@ -134,7 +122,7 @@ export default function CanhoesAdminModule({ section, initialEventId, initialCon
 
   const handleRefresh = useCallback(async () => {
     await Promise.all([
-      ...adminQueryKeys(resolvedEventId).map((queryKey) => queryClient.invalidateQueries({ queryKey })),
+      ...queryKeys.admin.afterWrite(resolvedEventId).map((queryKey) => queryClient.invalidateQueries({ queryKey })),
       refreshOverview(),
     ]);
   }, [resolvedEventId, queryClient, refreshOverview]);
@@ -143,6 +131,7 @@ export default function CanhoesAdminModule({ section, initialEventId, initialCon
 
   return (
     <div className="space-y-5">
+      <CanhoesModuleHeader module="admin" title={copy.title} description={copy.description} />
       {bootstrap.error ? <AdminLoadError error={bootstrap.error} onRetry={() => void handleRefresh()} /> : null}
 
       <AdminSectionView

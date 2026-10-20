@@ -26,7 +26,9 @@ describe("CanhoesOfficialVotingModule", () => {
   it("shows the first category's options and switches category from the tabs", async () => {
     renderVoting();
 
-    expect(screen.getByText("Votaste em 0 de 2 categorias oficiais")).toBeInTheDocument();
+    expect(screen.getByText("Já votaste em 0 de 2 categorias")).toBeInTheDocument();
+    expect(screen.queryByText("0/2")).not.toBeInTheDocument(); // the progress is said once
+    expect(screen.getByRole("heading", { level: 1, name: "Votação" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Ana" })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("button", { name: "Melhor Foto" }));
@@ -56,7 +58,7 @@ describe("CanhoesOfficialVotingModule", () => {
 
     await userEvent.click(screen.getByRole("button", { name: "Rui" }));
 
-    expect(await screen.findByText("Votaste em 1 de 2 categorias oficiais")).toBeInTheDocument();
+    expect(await screen.findByText("Já votaste em 1 de 2 categorias")).toBeInTheDocument();
     resolveVote();
     expect(recorder.requests).toEqual([
       { method: "POST", url: "/api/v1/events/event-1/votes", body: { categoryId: "cat-1", selectionId: "opt-rui" } },
@@ -71,19 +73,43 @@ describe("CanhoesOfficialVotingModule", () => {
     await userEvent.click(screen.getByRole("button", { name: "Rui" }));
 
     expect(await screen.findByText(/Votação fechada/)).toBeInTheDocument();
-    expect(screen.getByText("Votaste em 0 de 2 categorias oficiais")).toBeInTheDocument();
+    expect(screen.getByText("Já votaste em 0 de 2 categorias")).toBeInTheDocument();
   });
 
-  it("locks the options when the ballot is closed", () => {
-    renderVoting(votingBoard([bestCanhao], false));
+  it("replaces the ballot with one clear state while voting has not opened, with nominating as the way forward", () => {
+    renderWithProviders(
+      <CanhoesOfficialVotingModule initialData={votingBoard([bestCanhao], false)} initialContext={makeEventContext({ phaseType: "PROPOSALS", modules: { voting: false, nominees: true } })} />
+    );
 
-    expect(screen.getByText("Boletim encerrado")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Ana" })).toBeDisabled();
+    expect(screen.getByText("A votação ainda não abriu")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Nomear alguém" })).toHaveAttribute("href", "/canhoes/nomeacoes");
+    // Nothing to tap and no empty progress: the options, the tabs and the 0% bar are gone.
+    expect(screen.queryByRole("button", { name: "Ana" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Já votaste em/)).not.toBeInTheDocument();
+  });
+
+  it("sends back to the mural when there is nothing to nominate either", () => {
+    renderWithProviders(
+      <CanhoesOfficialVotingModule initialData={votingBoard([bestCanhao], false)} initialContext={makeEventContext({ phaseType: "DRAW", modules: { voting: false, nominees: false } })} />
+    );
+
+    expect(screen.getByRole("link", { name: "Voltar ao mural" })).toHaveAttribute("href", "/canhoes");
+    expect(screen.queryByRole("link", { name: "Nomear alguém" })).not.toBeInTheDocument();
+  });
+
+  it("says the voting is over, and points to the gala, once the results phase has started", () => {
+    renderWithProviders(
+      <CanhoesOfficialVotingModule initialData={votingBoard([bestCanhao], false)} initialContext={makeEventContext({ phaseType: "RESULTS", modules: { voting: true } })} />
+    );
+
+    expect(screen.getByText("A votação terminou")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ver a gala" })).toHaveAttribute("href", "/canhoes/gala");
+    expect(screen.queryByText(/Já votaste em/)).not.toBeInTheDocument();
   });
 
   it("celebrates a complete ballot", () => {
     renderVoting(votingBoard([{ ...bestCanhao, myOptionId: "opt-ana" }]));
-    expect(screen.getByText("Boletim oficial completo")).toBeInTheDocument();
+    expect(screen.getByText("Votaste em todas as categorias")).toBeInTheDocument();
   });
 
   it("offers a retry when the ballot fails to load", async () => {
@@ -91,7 +117,7 @@ describe("CanhoesOfficialVotingModule", () => {
     renderVoting(null);
 
     const alert = await screen.findByRole("alert");
-    expect(within(alert).getByText("Erro ao carregar boletim oficial")).toBeInTheDocument();
+    expect(within(alert).getByText("Não deu para abrir a votação")).toBeInTheDocument();
     expect(within(alert).getByRole("button", { name: "Tentar novamente" })).toBeInTheDocument();
   });
 });

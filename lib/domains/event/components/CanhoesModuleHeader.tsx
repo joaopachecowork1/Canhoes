@@ -1,29 +1,32 @@
 "use client";
 
 import type { ComponentProps, ReactNode } from "react";
-import type { LucideIcon } from "lucide-react";
-
+import { ADMIN_NAV_ITEM } from "@/components/chrome/canhoes/canhoesNavigation";
+import type { AdminModuleKey } from "@/lib/api/types";
+import { CANHOES_MODULE_BY_KEY } from "@/lib/modules";
 import { Badge } from "@/components/ui/badge";
 
 type CanhoesModuleHeaderProps = {
   badgeLabel?: ReactNode;
   badgeVariant?: ComponentProps<typeof Badge>["variant"];
   description: string;
-  icon: LucideIcon;
+  /** The area this page belongs to; its icon is the one the dock and the menu show. */
+  module: AdminModuleKey | "admin";
   title: string;
 };
 
 /**
  * Cabeçalho padrão para módulos do evento Canhões.
- * Inclui ícone, título, descrição e uma badge opcional de estado.
+ * Inclui o ícone da área, título, descrição e uma badge opcional de estado.
  */
 export function CanhoesModuleHeader({
   badgeLabel,
   badgeVariant = "outline",
   description,
-  icon: Icon,
+  module,
   title,
 }: Readonly<CanhoesModuleHeaderProps>) {
+  const Icon = module === "admin" ? ADMIN_NAV_ITEM.icon : CANHOES_MODULE_BY_KEY[module].icon;
   return (
     <div className="flex flex-col gap-4 border-b border-[var(--border-subtle)] pb-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="space-y-1.5">

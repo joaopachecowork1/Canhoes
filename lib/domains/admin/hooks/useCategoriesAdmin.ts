@@ -22,6 +22,7 @@ import {
   type CategoryFormState,
   type CategorySheetState,
 } from "../components/categories/categoryTypes";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.admin.CategoriesAdmin;
 const EMPTY_AWARD_CATEGORIES: AwardCategoryDto[] = [];
@@ -38,19 +39,19 @@ function useCategoryQueries(eventId: string | null) {
     ...QUERY_OPTIONS,
     enabled,
     queryFn: () => adminRepo.getCategories(id),
-    queryKey: ["canhoes", "admin", "categories", eventId],
+    queryKey: queryKeys.admin.categories(eventId),
   });
   const nominationsSummaryQuery = useQuery({
     ...QUERY_OPTIONS,
     enabled,
     queryFn: () => adminRepo.getNominationsPaged(id, 0, 1000),
-    queryKey: ["canhoes", "admin", "nominations", "summary", eventId],
+    queryKey: queryKeys.admin.nominationsAll(eventId),
   });
   const votesQuery = useQuery({
     ...QUERY_OPTIONS,
     enabled,
     queryFn: () => adminRepo.getVotesPaged(id, 0, 1000),
-    queryKey: ["canhoes", "admin", "votes", "audit", eventId],
+    queryKey: queryKeys.admin.votesAudit(eventId),
     select: (data) => data.votes,
   });
 
@@ -77,7 +78,7 @@ function useCategoryMutations(eventId: string | null, onDone: () => Promise<void
   const queryClient = useQueryClient();
   const id = eventId ?? "";
   const refresh = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["canhoes", "admin", "categories", eventId] });
+    await queryClient.invalidateQueries({ queryKey: queryKeys.admin.categories(eventId) });
     await onDone();
   };
 

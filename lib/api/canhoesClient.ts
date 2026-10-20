@@ -57,7 +57,7 @@ function toTimeoutError(error: unknown) {
 }
 
 /**
- * Calls `/api/<path>` and returns the parsed JSON. Errors throw `ApiError`, except 401 and 403,
+ * Calls `/api/<path>` and returns the parsed JSON. Errors throw `ApiError`, except 401 and 403 on a GET,
  * which return null unless `throwOnUnauthorized` is set.
  * Identical GETs in flight are shared, so components can load the same data without care.
  */
@@ -84,7 +84,8 @@ export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {
       const body = await readBody(response);
       if (response.ok) return body as T;
 
-      if (isAuthStatus(response.status) && !canhoes?.throwOnUnauthorized) return null as T;
+      // A refused read shows an empty screen, but a refused write must never look like it worked.
+      if (isAuthStatus(response.status) && method === "GET" && !canhoes?.throwOnUnauthorized) return null as T;
       throw new ApiError(readErrorMessage(body, response), response.status, body);
     } catch (error) {
       throw toTimeoutError(error);

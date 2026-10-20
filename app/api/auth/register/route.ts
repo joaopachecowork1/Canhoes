@@ -1,3 +1,4 @@
+import { enforceRateLimit } from "@/lib/api/rateLimit";
 import { z } from "zod";
 
 import { apiRoute, json, readJson } from "@/lib/api/route";
@@ -10,6 +11,7 @@ const registerSchema = z.object({
 });
 
 export const POST = apiRoute(async (request) => {
+  enforceRateLimit(request, "strict");
   const registration = await readJson(request, registerSchema);
   return json(await registerWithInvitation(registration), 201);
 });

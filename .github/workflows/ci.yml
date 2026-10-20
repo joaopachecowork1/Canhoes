@@ -69,6 +69,41 @@ jobs:
       # below the thresholds in vitest.config.mjs. Only this job has PostgreSQL.
       - run: npm run test:coverage
 
+  e2e:
+    # The main flows and an accessibility scan in a real browser (tests/e2e), on a seeded database.
+    name: Browser tests (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: canhoes
+          POSTGRES_USER: canhoes
+          POSTGRES_PASSWORD: canhoes_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U canhoes -d canhoes"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://canhoes:canhoes_ci@localhost:5432/canhoes?schema=public
+      NEXTAUTH_SECRET: ci-e2e-secret
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npx prisma migrate deploy
+      - run: npm run db:seed
+      - run: npm run test:e2e
+
   local-setup:
     # The README steps on a clean machine, with each engine: PostgreSQL from docker-compose.yml,
     # migrations, seed and the integration tests, then the whole stack in containers.

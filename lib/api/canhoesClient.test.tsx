@@ -32,10 +32,15 @@ describe("canhoesFetch", () => {
     expect(error).toMatchObject({ status: 422, message: "Nome em falta", details: { code: "X" } });
   });
 
-  it("returns null on 401/403 unless asked to throw", async () => {
+  it("returns null for a refused read unless asked to throw", async () => {
     server.use(http.get("*/api/v1/secret", () => new HttpResponse(null, { status: 403, statusText: "Forbidden" })));
     await expect(canhoesFetch("v1/secret")).resolves.toBeNull();
     await expect(canhoesFetch("v1/secret", { canhoes: { throwOnUnauthorized: true } })).rejects.toMatchObject({ status: 403 });
+  });
+
+  it.each(["POST", "PUT", "PATCH", "DELETE"])("never reports a refused %s as a success", async (method) => {
+    server.use(http.all("*/api/v1/secret", () => new HttpResponse(null, { status: 401, statusText: "Unauthorized" })));
+    await expect(canhoesFetch("v1/secret", { method })).rejects.toMatchObject({ status: 401 });
   });
 
   it("shares one request between identical GETs in flight", async () => {

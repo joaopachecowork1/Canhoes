@@ -1,58 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
 import { ArrowUpRight, ChevronDown, ChevronUp } from "lucide-react";
 
+import { areaColorVar } from "@/components/chrome/canhoes/canhoesNavigation";
 import type { EventActiveContextDto } from "@/lib/api/types";
 import type { CanhoesModule } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 import messages from "@/messages/pt.json";
 
+import { useStoredFlag } from "../hooks/useStoredFlag";
 import { pickDashboardModules } from "../rules/homeDashboard";
+import { CanhoesWelcomeCard } from "./CanhoesWelcomeCard";
 
 const copy = messages.event.CanhoesHomeDashboard;
-const DASHBOARD_COLLAPSED_STORAGE_KEY = "canhoes:home-dashboard-collapsed";
+const SHORTCUTS_EXPANDED_STORAGE_KEY = "canhoes:home-shortcuts-expanded";
 const FOCUS_RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--moss-glow)]";
-
-const preferenceListeners = new Set<() => void>();
-
-function subscribeToPreference(onChange: () => void) {
-  preferenceListeners.add(onChange);
-  globalThis.addEventListener("storage", onChange);
-  return () => {
-    preferenceListeners.delete(onChange);
-    globalThis.removeEventListener("storage", onChange);
-  };
-}
-
-// When storage is refused (private windows), the choice lives here for the rest of the visit.
-let unsavedCollapsed: boolean | null = null;
-
-function readCollapsed() {
-  if (unsavedCollapsed !== null) return unsavedCollapsed;
-  try {
-    return globalThis.localStorage.getItem(DASHBOARD_COLLAPSED_STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
-/** Collapsed or not, remembered in this browser; the server render is always expanded. */
-function useCollapsedPreference() {
-  const isCollapsed = useSyncExternalStore(subscribeToPreference, readCollapsed, () => false);
-
-  const handleToggle = () => {
-    try {
-      globalThis.localStorage.setItem(DASHBOARD_COLLAPSED_STORAGE_KEY, String(!isCollapsed));
-    } catch {
-      unsavedCollapsed = !isCollapsed;
-    }
-    preferenceListeners.forEach((notify) => notify());
-  };
-
-  return { isCollapsed, handleToggle };
-}
 
 function NextStepCard({ module }: Readonly<{ module: CanhoesModule | undefined }>) {
   if (!module) {
@@ -99,13 +62,15 @@ function ShortcutGrid({ modules }: Readonly<{ modules: CanhoesModule[] }>) {
           <Link
             key={module.key}
             href={module.href}
+            style={{ "--area": areaColorVar(module.key) }}
             className={cn(
-              "flex min-h-20 items-center gap-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 py-3 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)]",
+              "flex min-h-20 items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-3 text-base font-semibold text-[var(--text-primary)] shadow-[var(--shadow-elevation-sm)] transition-colors hover:bg-[var(--page)]",
               FOCUS_RING,
-              module.key === "secretSanta" && "text-[var(--text-primary)]",
             )}
           >
-            <Icon className="h-4 w-4 shrink-0 text-[var(--moss-glow)]" aria-hidden />
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-[var(--area,var(--moss))] text-[var(--on-person)]">
+              <Icon className="h-5 w-5" aria-hidden />
+            </span>
             <span className="min-w-0 truncate">{module.label}</span>
           </Link>
         );
@@ -115,39 +80,35 @@ function ShortcutGrid({ modules }: Readonly<{ modules: CanhoesModule[] }>) {
 }
 
 export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiveContextDto | null }>) {
-  const { isCollapsed, handleToggle } = useCollapsedPreference();
+  // The shortcuts repeat the dock and the menu, so they start folded; the choice is remembered in this browser.
+  const [isExpanded, setIsExpanded] = useStoredFlag(SHORTCUTS_EXPANDED_STORAGE_KEY, false);
   const { nextStep, shortcuts } = pickDashboardModules(context?.overview.modules ?? {}, context?.overview.activePhase?.type);
-  const ToggleIcon = isCollapsed ? ChevronDown : ChevronUp;
+  const ToggleIcon = isExpanded ? ChevronUp : ChevronDown;
 
   return (
     <section aria-label={copy.sectionLabel} className="space-y-3">
+      <CanhoesWelcomeCard />
       <div className="flex items-center justify-between gap-3">
-        <div>
-          {isCollapsed ? (
-            <p className="mt-1 text-sm text-[var(--text-muted)]">{copy.collapsedHint}</p>
-          ) : (
-            <h1 id="dashboard-title" className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
-              {copy.title}
-            </h1>
-          )}
-        </div>
+        <h1 id="dashboard-title" className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+          {copy.title}
+        </h1>
         <button
           type="button"
-          onClick={handleToggle}
+          onClick={() => setIsExpanded(!isExpanded)}
           aria-controls="current-edition-actions"
-          aria-expanded={!isCollapsed}
+          aria-expanded={isExpanded}
           className={cn(
             "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]",
             FOCUS_RING,
           )}
         >
           <ToggleIcon className="h-4 w-4" aria-hidden />
-          {isCollapsed ? copy.show : copy.hide}
+          {isExpanded ? copy.hide : copy.show}
         </button>
       </div>
 
-      <div id="current-edition-actions" hidden={isCollapsed} className="space-y-3">
-        <NextStepCard module={nextStep} />
+      <NextStepCard module={nextStep} />
+      <div id="current-edition-actions" hidden={!isExpanded}>
         <ShortcutGrid modules={shortcuts} />
       </div>
     </section>

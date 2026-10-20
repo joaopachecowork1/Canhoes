@@ -10,7 +10,7 @@ const badgeVariants = cva("inline-flex min-h-7 items-center justify-center round
             secondary: "border-[var(--color-veil)]/10 bg-[var(--color-veil)]/8 text-[var(--color-text-secondary)] shadow-none hover:bg-[var(--color-veil)]/12",
             destructive: "border-[var(--color-danger)]/22 bg-[var(--color-danger)]/10 text-[var(--color-danger)] shadow-none hover:bg-[var(--color-danger)]/15",
             outline: "border-[var(--color-border-strong)] bg-[var(--color-veil)]/6 text-[var(--accent-purple-soft)] shadow-none hover:bg-[var(--color-veil)]/10",
-            amber: "border-[var(--neon-amber)]/40 bg-[var(--neon-amber)]/12 text-[var(--neon-amber)] shadow-none hover:bg-[var(--neon-amber)]/18",
+            amber: "border-[var(--person-amber)]/40 bg-[var(--person-amber)]/12 text-[var(--person-amber)] shadow-none hover:bg-[var(--person-amber)]/18",
             cyan: "border-[var(--moss)]/18 bg-[var(--color-veil)]/8 text-[var(--text-muted)] shadow-none hover:text-[var(--text-primary)] hover:border-[var(--moss)]/30",
         },
     },

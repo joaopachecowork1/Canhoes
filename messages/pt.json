@@ -1,9 +1,8 @@
 {
   "shell": {
     "CanhoesBottomTabs": {
-      "createPost": "Criar publicação",
       "navLabel": "Navegação principal do evento",
-      "post": "Post"
+      "post": "Publicar"
     },
     "CanhoesChrome": {
       "eventSubtitle": "Prémios da edição",
@@ -15,7 +14,9 @@
       "allAreas": "Todas as áreas",
       "allAreasDescription": "As áreas fechadas estão disponíveis no Admin.",
       "logout": "Terminar sessão",
-      "otherAreasLabel": "Outras áreas"
+      "otherAreasLabel": "Outras áreas",
+      "welcomeAgain": "Ver as boas-vindas",
+      "welcomeAgainDescription": "Como funciona a app, em três passos."
     },
     "common": {
       "menu": "Mais"
@@ -55,38 +56,39 @@
   },
   "feed": {
     "HubFeedList": {
-      "emptyTitle": "O mural social ainda não tem registos publicados",
-      "emptyDescription": "Abre o mural com uma fotografia, um aviso rápido ou uma sondagem para o grupo."
+      "emptyTitle": "Ainda ninguém publicou no mural",
+      "emptyDescription": "Sê o primeiro: partilha uma foto, um aviso ou uma sondagem com o grupo."
     },
     "HubFeedModule": {
-      "loadError": "Erro ao carregar o mural",
+      "loadError": "Não deu para abrir o mural. Tenta outra vez.",
       "currentUserFallback": "Tu",
       "membersLabel": "Membros",
-      "composeSlot": "Cola aqui o teu post",
+      "composeSlot": "Cola aqui a tua publicação",
       "title": "Mural"
     },
     "HubPostComments": {
-      "empty": "Este registo ainda não tem respostas.",
-      "placeholder": "Acrescenta contexto, piada interna ou detalhe útil para o grupo.",
+      "empty": "Ainda ninguém comentou.",
+      "placeholder": "Escreve um comentário, uma piada interna...",
       "submit": "Enviar resposta",
-      "noComments": "Sem comentários ainda",
+      "noComments": "Sem comentários",
       "commentCountOne": "{count} comentário",
       "commentCountOther": "{count} comentários"
     },
     "MediaCarousel": {
       "unavailable": "Imagem indisponível",
-      "unavailableDetail": "O post ficou registado, mas o ficheiro ainda não está acessível no arquivo.",
+      "unavailableDetail": "A publicação existe, mas a imagem ainda não carregou. Tenta mais tarde.",
       "previous": "Imagem anterior",
       "next": "Próxima imagem",
       "goTo": "Ir para imagem {number}",
       "authorImageAlt": "Imagem de {name}",
-      "postMediaAlt": "Media do post",
+      "postMediaAlt": "Imagem da publicação",
       "slideAlt": "Imagem {number} de {total}",
-      "galleryLabel": "Galeria de imagens do post",
-      "roleDescription": "carousel"
+      "galleryLabel": "Galeria de imagens da publicação",
+      "roleDescription": "carousel",
+      "authorGalleryLabel": "Galeria de imagens de {name}"
     },
     "compose": {
-      "sheetTitle": "Novo registo",
+      "sheetTitle": "Nova publicação",
       "sheetDescription": "Partilha uma foto, um texto ou uma sondagem curta para manter o grupo dentro desta fase.",
       "mediaLabel": "Imagens",
       "pollLabel": "Sondagem",
@@ -99,10 +101,10 @@
       "uploading": "A enviar imagens...",
       "unsupportedFormat": "formato não suportado",
       "fileTooLargeLabel": "máximo",
-      "maxImagesLabel": "Máximo de imagens por post",
-      "published": "Post publicado",
-      "publishError": "Não foi possível publicar",
-      "mediaOrderLabel": "Ordem das imagens no post",
+      "maxImagesLabel": "Máximo de imagens por publicação",
+      "published": "Publicado no mural",
+      "publishError": "A publicação não foi enviada. Tenta outra vez.",
+      "mediaOrderLabel": "Ordem das imagens na publicação",
       "moveLeft": "Mover imagem para a esquerda",
       "moveRight": "Mover imagem para a direita",
       "removeImage": "Remover imagem",
@@ -111,29 +113,29 @@
       "optimized": "{count} imagem(ns) otimizadas para upload rápido",
       "pollIncomplete": "Preenche a pergunta e pelo menos duas opções da sondagem.",
       "noActiveEvent": "Não há evento ativo para publicar no mural.",
-      "uploadFailed": "Falha ao enviar as imagens",
+      "uploadFailed": "As imagens não subiram. Tenta outra vez.",
       "payloadTooLarge": "As imagens escolhidas são demasiado pesadas para publicar."
     },
     "useHubFeedPostActions": {
       "reactionUpdated": "Reação atualizada",
-      "reactionError": "Não foi possível atualizar a reação do post.",
-      "downvoteError": "Não foi possível atualizar o downvote do post.",
-      "pollVoteError": "Não foi possível registar o teu voto.",
-      "pinError": "Não foi possível atualizar o destaque do post.",
-      "movePinnedError": "Não foi possível reordenar o post fixado.",
-      "postRemoved": "Post removido",
-      "deleteError": "Não foi possível remover o post."
+      "reactionError": "A reação não ficou registada. Tenta outra vez.",
+      "downvoteError": "O voto contra não ficou registado. Tenta outra vez.",
+      "pollVoteError": "O teu voto não ficou registado. Tenta outra vez.",
+      "pinError": "Não foi possível mudar o destaque da publicação.",
+      "movePinnedError": "Não foi possível mudar a ordem das publicações fixadas.",
+      "postRemoved": "Publicação removida",
+      "deleteError": "A publicação não foi apagada. Tenta outra vez."
     },
     "useHubFeedComments": {
       "commentPublished": "Comentário publicado",
-      "publishError": "Não foi possível publicar o comentário.",
-      "reactionError": "Não foi possível atualizar a reação.",
+      "publishError": "O comentário não foi enviado. Tenta outra vez.",
+      "reactionError": "A reação não ficou registada. Tenta outra vez.",
       "commentRemoved": "Comentário removido",
-      "deleteError": "Não foi possível remover o comentário."
+      "deleteError": "O comentário não foi apagado. Tenta outra vez."
     },
     "FeedLoadMore": {
-      "loading": "A carregar mais posts...",
-      "loadMoreLabel": "Carregar mais posts manualmente",
+      "loading": "A carregar mais publicações...",
+      "loadMoreLabel": "Carregar mais publicações manualmente",
       "loadMore": "Carregar mais ({count} restantes)"
     },
     "PollBox": {
@@ -142,14 +144,16 @@
       "changeVoteHint": ". Podes trocar o teu voto enquanto a sondagem estiver ativa."
     },
     "PostHeader": {
+      "menuLabel": "Opções da publicação",
+      "menuTitle": "Gerir publicação",
       "pinned": "Fixado",
-      "moveUp": "Subir post fixado",
-      "moveDown": "Descer post fixado",
-      "unpin": "Desafixar post",
-      "pin": "Fixar post",
-      "deleteTitle": "Eliminar Publicação?",
+      "moveUp": "Subir publicação fixada",
+      "moveDown": "Descer publicação fixada",
+      "unpin": "Desafixar publicação",
+      "pin": "Fixar publicação",
+      "deleteTitle": "Eliminar publicação?",
       "deleteDescription": "Esta publicação vai ser removida permanentemente do Mural Social. Esta ação não pode ser desfeita.",
-      "deleteLabel": "Eliminar post",
+      "deleteLabel": "Eliminar publicação",
       "number": "Nº {number}"
     },
     "PostVoteBar": {
@@ -178,17 +182,17 @@
     },
     "ImageLightbox": {
       "dialogLabel": "Visualizador de imagem",
-      "imageAlt": "Imagem do post"
+      "imageAlt": "Imagem da publicação"
     },
     "useHubFeed": {
-      "loadError": "Erro ao carregar o feed."
+      "loadError": "Não deu para abrir o mural. Tenta outra vez."
     }
   },
   "app": {
     "CanhoesError": {
-      "title": "Esta área falhou",
-      "alertTitle": "Erro ao carregar esta secção",
-      "alertDescription": "O erro ficou isolado nesta área. Tenta novamente para recuperar o conteúdo ou volta ao evento.",
+      "title": "Algo correu mal",
+      "alertTitle": "Não deu para abrir esta área",
+      "alertDescription": "O resto da app continua a funcionar. Tenta outra vez ou volta ao mural.",
       "reload": "Recarregar"
     },
     "ForbiddenPage": {
@@ -288,9 +292,9 @@
     },
     "CanhoesLoginModule": {
       "tagline": "O espaço do grupo para partilhar, votar e preparar o amigo secreto.",
-      "errorTitle": "Falha no login",
-      "errorCode": "Codigo: {code}",
-      "devModeNotice": "Modo desenvolvimento ativo. Bypass auth local ligado.",
+      "errorTitle": "Não foi possível entrar",
+      "errorCode": "Código: {code}",
+      "devModeNotice": "Modo de desenvolvimento: o login local está ligado.",
       "devLogin": "Entrar em modo desenvolvimento",
       "or": "Ou",
       "googleLogin": "Continuar com Google",
@@ -298,30 +302,30 @@
       "authErrors": {
         "CredentialsSignin": "Email ou palavra-passe errados.",
         "AccessDenied": "Esta conta ainda não foi convidada. Pede um convite a um admin e entra com o email do convite.",
-        "Callback": "O regresso da Google falhou. Tenta novamente em alguns segundos.",
-        "Configuration": "O login Google não está configurado corretamente neste deploy.",
-        "OAuthAccountNotLinked": "Esta conta já existe com outro método de acesso.",
-        "OAuthCallback": "A Google autenticou, mas o callback do login falhou.",
-        "OAuthCreateAccount": "Não foi possível criar a sessão depois da autenticação Google.",
-        "OAuthSignin": "Não foi possível iniciar o login Google.",
-        "SessionRequired": "Esta página precisa de uma sessão válida. Faz login novamente.",
-        "default": "Não foi possível concluir o login Google. Tenta novamente."
+        "Callback": "A Google não respondeu como esperado. Tenta outra vez daqui a pouco.",
+        "Configuration": "O login com Google não está configurado. Fala com um admin.",
+        "OAuthAccountNotLinked": "Este email já tem conta com outro método de entrada. Entra como entraste da primeira vez.",
+        "OAuthCallback": "A Google confirmou a tua conta, mas a entrada falhou. Tenta outra vez.",
+        "OAuthCreateAccount": "A Google confirmou a tua conta, mas não conseguimos abrir a sessão. Tenta outra vez.",
+        "OAuthSignin": "Não foi possível começar o login com Google. Tenta outra vez.",
+        "SessionRequired": "Entra primeiro para ver esta página.",
+        "default": "Não foi possível entrar com Google. Tenta outra vez."
       }
     },
     "CanhoesRegisterModule": {
-      "missingToken": "Token de convite não encontrado no link.",
-      "genericError": "Erro ao criar conta.",
-      "badRequestError": "Não foi possível criar a conta.",
+      "missingToken": "Este link de convite está incompleto. Pede um novo a um admin.",
+      "genericError": "Não foi possível criar a conta. Tenta outra vez.",
+      "badRequestError": "Não foi possível criar a conta. Confirma os dados ou pede um novo convite.",
       "successTitle": "Conta criada com sucesso!",
-      "successRedirecting": "A redirecionar para a página de login...",
-      "goToLogin": "Ir para Login",
+      "successRedirecting": "A levar-te para o login...",
+      "goToLogin": "Ir para o login",
       "intro": "Foste convidado para o evento. Preenche os teus dados para aceder.",
-      "errorTitle": "Erro no registo",
+      "errorTitle": "A conta não foi criada",
       "displayNameLabel": "Nome visível (Alcunha)",
       "displayNamePlaceholder": "O teu nome ou alcunha",
       "passwordPlaceholder": "Mínimo 8 caracteres",
       "submitting": "A criar conta...",
-      "submit": "Criar Conta",
+      "submit": "Criar conta",
       "googleHint": "Preferes usar a conta Google? Entra com o email para onde recebeste o convite.",
       "googleLogin": "Entrar com Google"
     }
@@ -329,22 +333,31 @@
   "event": {
     "CanhoesHomeDashboard": {
       "sectionLabel": "Edição atual",
-      "collapsedHint": "Atalhos ocultos",
       "title": "Olá, o que fazemos agora?",
-      "show": "Mostrar",
-      "hide": "Esconder",
+      "show": "Mostrar atalhos",
+      "hide": "Esconder atalhos",
       "nextStep": "Próximo passo",
       "emptyTitle": "O mural está pronto.",
       "emptyDescription": "Partilha uma atualização com o grupo.",
       "shortcutsLabel": "Atalhos da edição"
     },
+    "CanhoesWelcomeCard": {
+      "title": "Bem-vindo aos Canhões do Ano",
+      "intro": "O ritual anual do grupo: nomeamos, votamos nos canhões e fazemos o amigo secreto. A app abre uma área de cada vez, conforme a fase.",
+      "steps": [
+        "Escolhe a tua cor: abre o menu, no canto de cima, e toca numa cor.",
+        "Preenche a tua wishlist, para o teu amigo secreto acertar.",
+        "Quando houver propostas ou votação, o próximo passo aparece aqui."
+      ],
+      "dismiss": "Percebi"
+    },
     "EventModuleGate": {
       "checkingAccess": "A validar acesso",
-      "errorTitle": "Erro ao abrir {module}",
-      "errorDescription": "Não foi possível confirmar o estado do evento agora. Tenta novamente para recuperar esta área.",
+      "errorTitle": "Não deu para abrir {module}",
+      "errorDescription": "Não conseguimos confirmar o estado do evento agora. Tenta outra vez.",
       "lockedTitle": "{module} indisponível",
-      "lockedDescription": "Esta área não está aberta para ti na configuração atual do evento ou na fase ativa.",
-      "lockedHint": "Isto pode acontecer se a fase do evento mudou ou se um admin ocultou este módulo."
+      "lockedDescription": "Esta área não está aberta para ti neste momento.",
+      "lockedHint": "Pode abrir noutra fase do evento. Se achas que devia estar aberta, fala com um admin."
     }
   },
   "wishlist": {
@@ -353,7 +366,7 @@
       "titleLabel": "Título",
       "titlePlaceholder": "Ex.: Mouse sem fios",
       "urlLabel": "URL",
-      "urlPlaceholder": "URL opcional",
+      "urlPlaceholder": "https://… (opcional)",
       "notesLabel": "Notas",
       "notesPlaceholder": "Notas opcionais",
       "imagePlaceholder": "Adicionar imagem (opcional)",
@@ -363,64 +376,70 @@
     "WishlistMemberPanel": {
       "youBadge": "tu",
       "adminBadge": "admin",
-      "empty": "Sem itens nesta wishlist.",
+      "empty": "Ainda não há nada nesta wishlist.",
       "openLink": "Abrir link",
       "deleteTitle": "Remover da Wishlist?",
       "deleteDescription": "Vais remover este item da tua wishlist. Esta ação não pode ser desfeita.",
       "deleteLabel": "Apagar item"
     },
     "useCanhoesWishlist": {
-      "loadError": "Não foi possível carregar a wishlist desta edição.",
+      "loadError": "Não foi possível carregar a wishlist. Tenta outra vez.",
       "itemAdded": "Item adicionado",
-      "saveError": "Não foi possível guardar este item da wishlist.",
+      "imageUploadError": "O item foi adicionado, mas a imagem não subiu. Apaga-o e tenta de novo, se a quiseres.",
+      "saveError": "O item não foi guardado. Tenta outra vez.",
       "itemRemoved": "Item removido",
-      "deleteError": "Não foi possível remover este item da wishlist."
+      "deleteError": "O item não foi removido. Tenta outra vez."
     },
     "CanhoesWishlistModule": {
       "title": "Wishlist",
       "description": "Toda a gente vê a wishlist de toda a gente. Só tu vês o teu amigo secreto.",
-      "loadErrorTitle": "Erro ao carregar wishlist",
-      "emptyTitle": "Sem membros",
-      "emptyDescription": "Ainda não há membros na wishlist."
+      "loadErrorTitle": "Não deu para abrir a wishlist",
+      "emptyTitle": "Ainda não há ninguém aqui",
+      "emptyDescription": "Quando os membros entrarem no evento, as wishlists aparecem aqui.",
+      "addItem": "Adicionar à minha wishlist"
     }
   },
   "gala": {
     "CanhoesGalaModule": {
       "title": "Gala",
-      "description": "Os três mais votados de cada categoria.",
+      "description": "Quem ganhou cada categoria e quem ficou logo atrás.",
       "winner": "Vencedor",
-      "loadError": "Não foi possível carregar os resultados da gala.",
-      "loadErrorTitle": "Erro ao carregar resultados",
-      "empty": "Sem resultados ainda.",
-      "noNominees": "Sem nomeações aprovadas."
+      "place": "{position}.º",
+      "loadError": "Não foi possível carregar os resultados. Tenta outra vez.",
+      "loadErrorTitle": "Não deu para abrir os resultados",
+      "noNominees": "Esta categoria não teve nomeações.",
+      "emptyTitle": "A gala ainda não tem resultados",
+      "emptyDescription": "Os vencedores de cada categoria aparecem aqui quando a votação fechar.",
+      "noVotesTitle": "Ninguém votou este ano",
+      "noVotesDescription": "Não houve votos nesta edição, por isso não há vencedores.",
+      "backToMural": "Voltar ao mural"
     }
   },
   "measures": {
     "CanhoesMeasuresModule": {
       "title": "Medidas",
       "description": "Regras e castigos para a gala, propostos pelo grupo.",
-      "phaseBadge": "Fase: {phase}",
       "formTitle": "Propor medida",
       "textLabel": "Texto",
       "textPlaceholder": "Ex.: Quem perder paga uma rodada",
-      "pendingHint": "A proposta fica pendente até aprovação de um admin.",
-      "submitLabel": "Submeter proposta",
+      "pendingHint": "Um admin tem de dar o OK antes de a medida aparecer.",
+      "submitLabel": "Propor medida",
       "submit": "Propor",
       "proposalsClosed": "Propostas fechadas",
       "proposed": "Medida proposta",
-      "submitError": "Não foi possível submeter a medida.",
+      "submitError": "A medida não foi enviada. Tenta outra vez.",
       "approvedTitle": "Medidas aprovadas",
       "searchPlaceholder": "Procurar medida",
-      "loadError": "Não foi possível carregar as medidas desta edição.",
-      "loadErrorTitle": "Erro ao carregar medidas",
-      "emptyTitle": "Sem medidas",
-      "emptyDescription": "Ainda não há medidas nesta edição."
+      "loadError": "Não foi possível carregar as medidas. Tenta outra vez.",
+      "loadErrorTitle": "Não deu para abrir as medidas",
+      "emptyTitle": "Ainda não há medidas",
+      "emptyDescription": "Ninguém propôs regras ou castigos para a gala. Que tal começares tu?"
     }
   },
   "secretSanta": {
     "AssignedWishlistPanel": {
       "title": "Wishlist de {name}",
-      "empty": "Ainda não há itens na wishlist. Diz ao teu amigo secreto para adicionar.",
+      "empty": "Ainda não há nada nesta wishlist. Lembra o teu amigo secreto de a preencher.",
       "viewProduct": "Ver produto"
     },
     "common": {
@@ -431,81 +450,88 @@
       "secretBadge": "shhh"
     },
     "SecretSantaContent": {
-      "loadErrorTitle": "Erro ao carregar o amigo secreto",
-      "drawWithoutAssignment": "O sorteio existe, mas ainda não há atribuição disponível para o teu perfil.",
-      "noDraw": "Ainda não existe sorteio para este evento."
+      "loadErrorTitle": "Não deu para abrir o amigo secreto",
+      "drawWithoutAssignment": "O sorteio já foi feito, mas ainda não tens ninguém atribuído. Fala com um admin.",
+      "noDraw": "O sorteio ainda não foi feito. Até lá, preenche a tua wishlist."
     },
     "WishlistPreviewCard": {
-      "title": "A tua preparação",
+      "title": "A tua wishlist",
       "yourWishlist": "A tua wishlist",
-      "hint": "Quanto mais clara estiver, mais fácil é manter o ritual equilibrado."
+      "hint": "Quanto mais claro o que queres, mais fácil é acertar no presente."
     },
     "CanhoesSecretSantaModule": {
       "title": "Amigo Secreto",
       "description": "Descobre a quem ofereces e escolhe um presente com ajuda da wishlist.",
       "drawDone": "Sorteio feito",
       "drawPending": "Sorteio por fazer",
-      "loadError": "Erro ao carregar amigo secreto.",
+      "loadError": "Não deu para abrir o amigo secreto. Tenta outra vez.",
       "openWishlist": "Abrir wishlist"
     }
   },
   "voting": {
     "CanhoesOfficialVotingModule": {
-      "title": "Boletim oficial",
-      "loadingDescription": "Participação oficial com uma escolha validada por categoria.",
-      "description": "Área oficial de voto, separada das sondagens do mural.",
-      "loadErrorTitle": "Erro ao carregar boletim oficial",
-      "loadError": "Não foi possível abrir o boletim oficial.",
-      "voteError": "Não foi possível registar o voto. Tenta novamente.",
-      "progress": "Votaste em {voted} de {total} categorias oficiais",
+      "title": "Votação",
+      "loadingDescription": "A escolher o teu vencedor em cada categoria.",
+      "description": "Escolhe um vencedor por categoria. As sondagens do mural são à parte.",
+      "loadErrorTitle": "Não deu para abrir a votação",
+      "loadError": "Não foi possível abrir a votação. Tenta outra vez.",
+      "voteError": "O teu voto não ficou registado. Tenta outra vez.",
+      "progress": "Já votaste em {voted} de {total} categorias",
       "votedBadge": "Votado",
-      "complete": "Boletim oficial completo",
-      "closed": "Boletim encerrado"
+      "complete": "Votaste em todas as categorias",
+      "closedTitle": "A votação ainda não abriu",
+      "closed": "Abre na fase de Votação. Até lá, nomeia quem achas que merece um canhão.",
+      "goNominate": "Nomear alguém",
+      "backToMural": "Voltar ao mural",
+      "overTitle": "A votação terminou",
+      "over": "Os resultados estão na gala.",
+      "seeGala": "Ver a gala"
     },
     "CategoryNominationCard": {
-      "pending": "Aguarda aprovação",
+      "pending": "À espera do OK de um admin",
       "alreadyNominated": "Já nomeaste nesta categoria",
       "titlePlaceholder": "Ex.: Nome da pessoa ou item",
       "lengthHint": "{min} a {max} caracteres.",
-      "submitting": "A submeter...",
-      "submit": "Submeter",
-      "submitError": "Não foi possível submeter a nomeação.",
-      "imageUploadError": "Nomeação criada, mas falhou o upload da imagem.",
-      "submitted": "Nomeação submetida. Aguarda aprovação.",
+      "submitting": "A enviar...",
+      "submit": "Enviar nomeação",
+      "submitError": "A nomeação não foi enviada. Tenta outra vez.",
+      "imageUploadError": "A nomeação foi enviada, mas a imagem não subiu. Tenta juntá-la mais tarde.",
+      "submitted": "Nomeação enviada! Aparece na votação assim que um admin der o OK.",
       "approvedTitle": "Nomeações aprovadas",
       "approvedOne": "aprovada",
       "approvedOther": "aprovadas",
-      "noApproved": "Ainda sem nomeações aprovadas nesta categoria oficial."
+      "noApproved": "Ainda ninguém foi nomeado nesta categoria. Sê tu o primeiro."
     },
     "CanhoesNominationsModule": {
-      "title": "Nomeações oficiais",
-      "loadingDescription": "Área oficial para propor um nome por categoria durante a fase de propostas.",
-      "description": "Cada membro pode submeter uma nomeação oficial por categoria.",
+      "title": "Nomeações",
+      "loadingDescription": "A abrir as categorias onde podes nomear alguém.",
+      "description": "Nomeia uma pessoa (ou coisa) por categoria. Só podes nomear uma vez em cada.",
       "categoryOne": "categoria",
       "categoryOther": "categorias",
       "sentBadge": "Enviado",
-      "loadErrorTitle": "Erro ao carregar nomeações oficiais",
-      "loadError": "Não foi possível carregar a área oficial de nomeações.",
-      "noCategoriesTitle": "Sem categorias oficiais abertas",
-      "noCategoriesDescription": "A área oficial de nomeações fica disponível quando existirem categorias ativas.",
-      "closedTitle": "Nomeações oficiais fechadas",
-      "closedDescription": "Esta área oficial volta a abrir na fase de propostas."
+      "loadErrorTitle": "Não deu para abrir as nomeações",
+      "loadError": "Não foi possível carregar as nomeações. Tenta outra vez.",
+      "noCategoriesTitle": "Ainda não há categorias para nomear",
+      "noCategoriesDescription": "Quando houver categorias ativas, podes nomear aqui. Entretanto, propõe uma na área Categorias.",
+      "closedTitle": "As nomeações estão fechadas",
+      "closedDescription": "Voltam a abrir na fase de propostas."
     }
   },
   "stickers": {
     "CanhoesStickerSubmitModule": {
       "title": "Stickers",
-      "description": "Escolhe a imagem do teu sticker do ano, confirma a pré-visualização e submete-a para aprovação.",
-      "formKicker": "Submissão",
+      "description": "Escolhe a imagem do teu sticker, vê a pré-visualização e envia. Um admin dá o OK antes de aparecer.",
       "formTitle": "Enviar um novo sticker",
-      "loadError": "Não foi possível carregar os stickers desta edição.",
-      "loadErrorTitle": "Erro ao carregar stickers",
-      "galleryKicker": "Galeria",
-      "galleryTitle": "Stickers submetidos",
+      "openForm": "Enviar um sticker",
+      "closed": "Envio de stickers fechado",
+      "loadError": "Não foi possível carregar os stickers. Tenta outra vez.",
+      "loadErrorTitle": "Não deu para abrir os stickers",
+      "galleryTitle": "Stickers enviados",
       "imagesOnly": "Só podes enviar imagens",
       "imageTooLarge": "A imagem excede 15MB",
-      "submitted": "Sticker submetido",
-      "submitError": "Não foi possível submeter o sticker."
+      "submitted": "Sticker enviado!",
+      "imageUploadError": "O sticker foi enviado, mas a imagem não subiu. Fala com um admin ou envia outro.",
+      "submitError": "O sticker não foi enviado. Tenta outra vez."
     },
     "StickerSubmitForm": {
       "categoryLabel": "Categoria",
@@ -513,28 +539,27 @@
       "titleLabel": "Título",
       "titlePlaceholder": "Ex: O sticker mais lendário",
       "imageLabel": "Imagem",
-      "pendingHint": "O sticker fica pendente até um admin aprovar.",
+      "pendingHint": "Um admin tem de dar o OK antes de o sticker aparecer.",
       "previewAlt": "Preview do sticker",
-      "closed": "Nomeações fechadas",
-      "submitting": "A submeter...",
-      "submit": "Submeter sticker"
+      "submitting": "A enviar...",
+      "submit": "Enviar sticker"
     },
     "StickerFeedList": {
       "justNow": "Agora mesmo",
       "hoursAgo": "{hours}h",
-      "emptyTitle": "Sem stickers",
-      "emptyDescription": "Ainda não há stickers com imagem para mostrar."
+      "emptyTitle": "Ainda não há stickers",
+      "emptyDescription": "Envia o primeiro: toca no botão acima."
     }
   },
   "categories": {
     "CanhoesCategoriesModule": {
-      "title": "Categorias oficiais",
-      "description": "Consulta as categorias oficiais e propõe novas enquanto a fase de propostas estiver aberta.",
+      "title": "Categorias",
+      "description": "Vê as categorias da gala e propõe novas enquanto a fase de propostas estiver aberta.",
       "searchPlaceholder": "Procurar categoria oficial",
-      "loadError": "Não foi possível carregar as categorias desta edição.",
-      "loadErrorTitle": "Erro ao carregar categorias oficiais",
-      "emptyTitle": "Sem categorias oficiais",
-      "emptyDescription": "Ainda não há categorias oficiais nesta edição.",
+      "loadError": "Não foi possível carregar as categorias. Tenta outra vez.",
+      "loadErrorTitle": "Não deu para abrir as categorias",
+      "emptyTitle": "Ainda não há categorias",
+      "emptyDescription": "Propõe a primeira categoria da gala.",
       "noDescription": "Sem descrição adicional.",
       "active": "Ativa",
       "inactive": "Inativa"
@@ -544,16 +569,16 @@
       "nameLabel": "Nome",
       "namePlaceholder": "Ex.: Melhor sticker de sempre",
       "kindLabel": "Como se vota",
-      "kindPlaceholder": "Selecione o formato",
+      "kindPlaceholder": "Escolhe como se vota",
       "kindNominees": "Vota-se nas nomeações",
       "kindMember": "Vota-se num membro",
       "descriptionLabel": "Descrição",
       "descriptionPlaceholder": "Dá contexto ao canhão...",
-      "reviewHint": "A proposta entra em revisão antes de ficar oficial.",
+      "reviewHint": "Um admin vê a proposta antes de a categoria ficar oficial.",
       "submit": "Propor",
       "closed": "Propostas fechadas",
       "sent": "Proposta enviada",
-      "sendError": "Não foi possível enviar a proposta de categoria."
+      "sendError": "A proposta não foi enviada. Tenta outra vez."
     }
   },
   "admin": {
@@ -571,16 +596,16 @@
       "updated": "Categoria atualizada.",
       "deleted": "Categoria apagada.",
       "title": "Catalogo oficial",
-      "description": "Toca numa categoria para editar, rever dependências e ajustar o estado sem sair do contexto admin.",
+      "description": "Toca numa categoria para a editar, ver o que depende dela ou mudar o estado.",
       "summary": "{active} ativas · {inactive} inativas · {userVote} de voto oficial",
       "newCategory": "Nova categoria",
       "loading": "A carregar categorias...",
       "empty": "Ainda não existem categorias oficiais nesta edição.",
       "noEvent": "Falta uma edição ativa para gerir categorias.",
-      "loadError": "Não foi possível carregar as categorias."
+      "loadError": "Não foi possível carregar as categorias. Tenta outra vez."
     },
     "CategoryListItem": {
-      "noDescription": "Sem descrição editorial definida.",
+      "noDescription": "Sem descrição.",
       "nominee": "nomeação",
       "nominees": "nomeações"
     },
@@ -598,11 +623,11 @@
     "CategoryEditorDrawer": {
       "createTitle": "Nova categoria",
       "editTitle": "Editar categoria",
-      "createDescription": "Cria a categoria oficial sem sair do contexto mobile.",
+      "createDescription": "Cria uma categoria oficial para a gala.",
       "editDescription": "Atualiza nome, tipo e estado da categoria selecionada.",
-      "noDependencies": "Sem dependências conhecidas. O backend confirma o apagamento final.",
+      "noDependencies": "Nada depende desta categoria. Se a apagares, desaparece de vez.",
       "activeTitle": "Categoria ativa",
-      "activeHint": "Desativa a categoria sem a apagar da auditoria.",
+      "activeHint": "Desativa para a esconder dos membros sem a apagar.",
       "delete": "Apagar categoria",
       "deleteUnavailable": "Apagamento indisponível nesta categoria.",
       "create": "Criar categoria",
@@ -615,17 +640,17 @@
       "confirm": "Confirmar"
     },
     "PendingProposals": {
-      "noEvent": "Falta uma edição ativa para abrir a moderação.",
+      "noEvent": "Não há nenhum evento ativo. Escolhe um em Admin › Evento.",
       "loading": "A carregar propostas...",
       "panels": {
         "category": {
           "title": "Categorias em revisão",
-          "description": "Revê, corrige e fecha propostas de categoria sem sair da fila de revisão.",
+          "description": "Aprova, corrige ou rejeita as categorias propostas.",
           "emptyMessage": "Sem propostas de categoria pendentes."
         },
         "measure": {
           "title": "Medidas em revisão",
-          "description": "Fecha medidas propostas com o mesmo fluxo de aprovação e rejeição.",
+          "description": "Aprova ou rejeita as medidas propostas.",
           "emptyMessage": "Sem medidas pendentes."
         }
       }
@@ -672,16 +697,16 @@
       "emptyInCategory": "Sem nomeações pendentes nesta categoria.",
       "noCategory": "Sem categoria",
       "currentCategory": "Categoria atual: {name}",
-      "submittedBy": "Submetido por {name}",
+      "submittedBy": "Proposto por {name}",
       "moveTo": "Mover para categoria",
       "approveLabel": "Aprovar nomeação \"{name}\"",
       "rejectLabel": "Rejeitar nomeação \"{name}\"",
       "rejectTitle": "Tens a certeza?",
-      "rejectDescription": "Esta ação remove a nomeação da lista pública.",
+      "rejectDescription": "A nomeação sai da lista pública e quem a propôs deixa de a ver.",
       "rejectConfirm": "Confirmar rejeição"
     },
     "AdminNominationsSection": {
-      "noEvent": "Falta uma edição ativa para moderar nomeações.",
+      "noEvent": "Não há nenhum evento ativo. Escolhe um em Admin › Evento.",
       "loading": "A carregar nomeações...",
       "loadError": "Não foi possível carregar as nomeações."
     },
@@ -704,7 +729,7 @@
       "generating": "A gerar...",
       "submit": "Gerar Convite",
       "generated": "Convite gerado com sucesso.",
-      "error": "Erro ao gerar convite.",
+      "error": "Não foi possível gerar o convite. Tenta outra vez.",
       "badRequest": "Não foi possível gerar o convite.",
       "copied": "Link de convite copiado!",
       "copyLabel": "Copiar link de convite",
@@ -738,7 +763,7 @@
       "loading": "A carregar auditoria de votos...",
       "loadError": "Não foi possível carregar a auditoria de votos.",
       "title": "Histórico de votos",
-      "description": "Lista crua de todos os votos submetidos para garantir transparência operacional.",
+      "description": "Todos os votos, um a um, para conferires se está tudo certo.",
       "filterPlaceholder": "Filtrar por membro, categoria ou opção...",
       "noMatch": "Nenhum voto corresponde ao filtro aplicado.",
       "chose": "escolheu"
@@ -768,7 +793,7 @@
       "resultsTab": "Resultados"
     },
     "AdminControlCenter": {
-      "noEvent": "Falta uma edição ativa para abrir os controlos.",
+      "noEvent": "Não há nenhum evento ativo. Escolhe um evento para abrir os controlos.",
       "activeEvent": "Evento ativo",
       "chooseEvent": "Escolher evento",
       "phase": "Fase",
@@ -783,12 +808,14 @@
       "moduleSwitchLabel": "{module} ligada"
     },
     "CanhoesAdminModule": {
-      "errorTitle": "Erro ao carregar o admin",
-      "loadError": "Não foi possível carregar o admin.",
-      "errorHint": "Atualiza a edição ou confirma o backend antes de continuar a moderação."
+      "errorTitle": "Não deu para abrir o admin",
+      "loadError": "Não foi possível carregar o admin. Tenta outra vez.",
+      "errorHint": "Atualiza a edição ou confirma o backend antes de continuar a moderação.",
+      "title": "Admin",
+      "description": "Fases, propostas, membros e todas as áreas do evento."
     },
     "useAdminMutation": {
-      "error": "Ocorreu um erro ao processar o pedido."
+      "error": "Não foi possível concluir. Tenta outra vez."
     },
     "useProposalModeration": {
       "approved": {
@@ -817,7 +844,7 @@
     "none": "Sem fase"
   },
   "errors": {
-    "fallback": "Ocorreu um erro",
+    "fallback": "Algo correu mal. Tenta outra vez.",
     "checkConnection": "Verifica a ligação ao servidor.",
     "byStatus": {
       "400": "O pedido não é válido.",
@@ -826,12 +853,12 @@
       "404": "O recurso pedido já não existe.",
       "409": "O estado mudou entretanto. Atualiza a página e tenta outra vez.",
       "422": "Os dados enviados não são válidos.",
-      "500": "O servidor falhou a processar o pedido.",
+      "500": "O servidor teve um problema. Tenta outra vez daqui a pouco.",
       "502": "O backend não respondeu a tempo.",
       "503": "O backend está temporariamente indisponível."
     },
     "byCode": {
-      "UNHANDLED_SERVER_ERROR": "O servidor encontrou um erro inesperado.",
+      "UNHANDLED_SERVER_ERROR": "O servidor teve um problema inesperado. Tenta outra vez.",
       "RATE_LIMIT_EXCEEDED": "Demasiados pedidos seguidos. Espera um pouco e tenta outra vez."
     }
   }

@@ -23,7 +23,7 @@ export default defineConfig({
       exclude: ["**/*.test.{ts,tsx}", "**/*.d.ts", "lib/api/types.ts", "lib/generated/**"],
       // shortcut: a ratchet just under today's numbers (unit + component + integration); raise it
       // with every batch of tests until branches reach 90 too.
-      thresholds: { lines: 92, statements: 90, functions: 88, branches: 79 },
+      thresholds: { lines: 93, statements: 92, functions: 90, branches: 83 },
     },
     projects: [
       {

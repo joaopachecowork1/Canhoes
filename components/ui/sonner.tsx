@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -26,20 +25,20 @@ const Toaster = ({ ...props }: ToasterProps) => {
           cancelButton:
             "!bg-[var(--color-bg-surface-alt)] !text-[var(--color-text-primary)]",
           closeButton:
-            "!border-[var(--color-beige-dark)]/25 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+            "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
           description: "!text-[var(--color-text-muted)]",
           error:
             "!border-[var(--color-danger)]/25 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
           info:
-            "!border-[var(--color-beige-dark)]/25 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+            "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
           loading:
-            "!border-[var(--color-beige-dark)]/25 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+            "!border-[var(--color-border-strong)] !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
           success:
             "!border-[var(--color-moss)]/22 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
           toast:
             "!rounded-[var(--radius-md-token)] !border !shadow-[var(--shadow-layered)]",
           warning:
-            "!border-[var(--color-fire)]/20 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
+            "!border-[var(--person-amber)]/20 !bg-[var(--color-bg-card)] !text-[var(--color-text-primary)]",
         },
       }}
       icons={{
@@ -49,14 +48,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
         error: <OctagonXIcon className="size-4" />,
         loading: <Loader2Icon className="size-4 animate-spin" />,
       }}
-      style={
-        {
-          "--normal-bg": "var(--color-bg-card)",
-          "--normal-text": "var(--color-text-primary)",
-          "--normal-border": "var(--border-subtle)",
-          "--border-radius": "var(--radius-md-token)",
-        } as CSSProperties
-      }
+      style={{
+        "--normal-bg": "var(--color-bg-card)",
+        "--normal-text": "var(--color-text-primary)",
+        "--normal-border": "var(--border-subtle)",
+        "--border-radius": "var(--radius-md-token)",
+      }}
       {...props}
     />
   );

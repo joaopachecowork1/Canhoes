@@ -8,6 +8,7 @@ import type { AwardCategoryDto, NomineeDto } from "@/lib/api/types";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.stickers.CanhoesStickerSubmitModule;
 const MAX_STICKER_BYTES = 15 * 1024 * 1024;
@@ -22,14 +23,14 @@ export function useStickerData(
 ) {
   const queryClient = useQueryClient();
   const categoriesQuery = useQuery({
-    queryKey: ["stickerCategories", eventId],
+    queryKey: queryKeys.stickerCategories(eventId),
     queryFn: () => awardsRepo.getCategories(eventId ?? "").then((result) => result.items),
     enabled: !!eventId,
     staleTime: STALE_TIME_MS,
     initialData: initialCategories,
   });
   const nomineesQuery = useQuery({
-    queryKey: ["approvedNominees", eventId],
+    queryKey: queryKeys.approvedNominees(eventId),
     queryFn: () => awardsRepo.getApprovedNominees(eventId ?? ""),
     enabled: !!eventId,
     staleTime: STALE_TIME_MS,
@@ -48,8 +49,8 @@ export function useStickerData(
     errorMessage: error ? getErrorMessage(error, copy.loadError) : null,
     refresh: () =>
       Promise.all([
-        queryClient.invalidateQueries({ queryKey: ["stickerCategories", eventId] }),
-        queryClient.invalidateQueries({ queryKey: ["approvedNominees", eventId] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.stickerCategories(eventId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.approvedNominees(eventId) }),
       ]),
   };
 }
@@ -95,8 +96,9 @@ export function useStickerSubmission({ eventId, isProposalPhase, onSubmitted }: 
     setFile(nextFile);
   };
 
+  /** Sends the sticker; resolves to whether it went through, so the form can close. */
   const handleSubmit = async () => {
-    if (!canSubmit || !eventId) return;
+    if (!canSubmit || !eventId) return false;
 
     setIsSubmitting(true);
     try {
@@ -105,15 +107,27 @@ export function useStickerSubmission({ eventId, isProposalPhase, onSubmitted }: 
         title: title.trim(),
         kind: "stickers",
       });
-      if (file) await awardsRepo.uploadNomineeImage(eventId, createdNominee.id, file);
+      // The sticker exists from here on: a failed image must not make a retry send it again.
+      const isImageMissing = file
+        ? await awardsRepo.uploadNomineeImage(eventId, createdNominee.id, file).then(
+            () => false,
+            (uploadError) => {
+              logFrontendError("CanhoesStickerSubmit.uploadImage", uploadError);
+              return true;
+            },
+          )
+        : false;
 
       setTitle("");
       setFile(null);
       await onSubmitted();
-      toast.success(copy.submitted);
+      if (isImageMissing) toast.warning(copy.imageUploadError);
+      else toast.success(copy.submitted);
+      return true;
     } catch (error) {
       logFrontendError("CanhoesStickerSubmit.handleSubmit", error);
       toast.error(getErrorMessage(error, copy.submitError));
+      return false;
     } finally {
       setIsSubmitting(false);
     }

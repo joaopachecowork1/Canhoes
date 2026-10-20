@@ -8,28 +8,21 @@ import type { AdminNomineeDto } from "@/lib/api/types";
 import { getErrorMessage } from "@/lib/errors";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const NOMINATIONS_PAGE_SIZE = 50;
 const NOMINATIONS_PAGE = 0;
 
 function getCategoriesQueryKey(eventId: string) {
-  return ["canhoes", "admin", "categories", eventId] as const;
+  return queryKeys.admin.categories(eventId);
 }
 
 function getNominationsQueryKey(eventId: string) {
-  return [
-    "canhoes",
-    "admin",
-    "nominations",
-    eventId,
-    NOMINATIONS_PAGE,
-    NOMINATIONS_PAGE_SIZE,
-    "pending",
-  ] as const;
+  return queryKeys.admin.nominationsPage(eventId, NOMINATIONS_PAGE, NOMINATIONS_PAGE_SIZE);
 }
 
 function getPendingSummaryQueryKey(eventId: string) {
-  return ["canhoes", "admin", "nominations", "summary", "pending", eventId] as const;
+  return queryKeys.admin.nominationsPendingCount(eventId);
 }
 
 type NominationsQueryData = { nominations: AdminNomineeDto[] };

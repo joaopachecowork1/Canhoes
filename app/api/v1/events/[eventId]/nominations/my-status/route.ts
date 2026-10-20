@@ -1,6 +1,6 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
 import { apiRoute, json } from "@/lib/api/route";
-import { getMyNominations } from "@/lib/domains/members/services/members";
+import { getMyNominations } from "@/lib/domains/members/services/nominations";
 
 export const GET = apiRoute<{ eventId: string }>(async (_request, { eventId }) => {
   const user = await requireUser();

@@ -11,7 +11,7 @@ const copy = messages.shell.CanhoesPhaseHud;
 const PILL_CLASS =
   "inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-lg px-2.5 font-[family-name:var(--font-display)] text-sm font-extrabold uppercase tracking-[0.04em]";
 
-/** The active phase as a pitch-green pill in the header. */
+/** The active phase as a quiet outlined label: it says where the event is, it is not something to tap. */
 export function CanhoesPhaseHud({
   isLoading = false,
   overview,
@@ -29,5 +29,5 @@ export function CanhoesPhaseHud({
   }
   if (!overview) return null;
 
-  return <span className={`${PILL_CLASS} bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--glow-green-sm)]`}>{getPhaseLabel(overview.activePhase?.type)}</span>;
+  return <span className={`${PILL_CLASS} border border-[var(--moss)]/60 text-[var(--moss-glow)]`}>{getPhaseLabel(overview.activePhase?.type)}</span>;
 }

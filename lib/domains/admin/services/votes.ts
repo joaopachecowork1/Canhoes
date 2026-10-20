@@ -5,6 +5,7 @@ import type {
   AdminCategoryResultDto,
 } from "@/lib/api/types";
 import { KindUserVote } from "./constants";
+import { loadUsersById } from "@/lib/usersById";
 
 /* What the admin sees of the voting: every individual vote and the official results so far. */
 
@@ -19,9 +20,7 @@ export async function getAdminVotesPaged(
     select: { id: true },
   })).map((c) => c.id);
 
-  const totalVotes = categoryIds.length > 0
-    ? await prisma.vote.count({ where: { categoryId: { in: categoryIds } } })
-    : 0;
+  const totalVotes = await prisma.vote.count({ where: { categoryId: { in: categoryIds } } });
 
   if (totalVotes === 0) {
     return { total: 0, votes: [], skip, take, hasMore: false };
@@ -35,15 +34,13 @@ export async function getAdminVotesPaged(
 
   const catIds = [...new Set(pagedVotes.map((v) => v.categoryId))];
   const nomineeIds = [...new Set(pagedVotes.map((v) => v.nomineeId))];
-  const voterUserIds = [...new Set(pagedVotes.map((v) => v.userId))];
-  const [categories, nominees, users] = await Promise.all([
-    catIds.length > 0 ? prisma.awardCategory.findMany({ where: { id: { in: catIds } }, select: { id: true, name: true } }) : Promise.resolve([]),
-    nomineeIds.length > 0 ? prisma.nominee.findMany({ where: { id: { in: nomineeIds } }, select: { id: true, title: true } }) : Promise.resolve([]),
-    voterUserIds.length > 0 ? prisma.user.findMany({ where: { id: { in: voterUserIds } }, select: { id: true, displayName: true, email: true } }) : Promise.resolve([]),
+  const [categories, nominees, userMap] = await Promise.all([
+    prisma.awardCategory.findMany({ where: { id: { in: catIds } }, select: { id: true, name: true } }),
+    prisma.nominee.findMany({ where: { id: { in: nomineeIds } }, select: { id: true, title: true } }),
+    loadUsersById(pagedVotes.map((v) => v.userId), (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })),
   ]);
   const catMap = new Map(categories.map((c) => [c.id, c.name]));
   const nomMap = new Map(nominees.map((n) => [n.id, n.title]));
-  const userMap = new Map(users.map((u) => [u.id, u]));
 
   return {
     total: totalVotes,
@@ -83,11 +80,8 @@ function tallyCategory(votes: UserVoteRow[], nameOf: (userId: string) => string)
 
 /** Display name (else email) of each user, for labelling votes. */
 async function getUserNames(userIds: string[]) {
-  const users = userIds.length > 0
-    ? await prisma.user.findMany({ where: { id: { in: userIds } }, select: { id: true, displayName: true, email: true } })
-    : [];
-  const names = new Map(users.map((user) => [user.id, user.displayName ?? user.email]));
-  return (userId: string) => names.get(userId) ?? "Unknown";
+  const users = await loadUsersById(userIds, (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }));
+  return (userId: string) => users.get(userId)?.displayName ?? users.get(userId)?.email ?? "Unknown";
 }
 
 /** Official results per category so far, for the admin, at any phase (members only see them in RESULTS). */
@@ -104,9 +98,7 @@ export async function getAdminOfficialResultsPaged(
   ]);
 
   const categoryIds = categories.map((category) => category.id);
-  const userVotes = categoryIds.length > 0
-    ? await prisma.userVote.findMany({ where: { eventId, categoryId: { in: categoryIds } } })
-    : [];
+  const userVotes = await prisma.userVote.findMany({ where: { eventId, categoryId: { in: categoryIds } } });
   const nameOf = await getUserNames([...new Set(userVotes.flatMap((vote) => [vote.voterUserId, vote.targetUserId]))]);
 
   const items = categories.map((category): AdminCategoryResultDto => {

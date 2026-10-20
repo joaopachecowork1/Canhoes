@@ -1,24 +1,26 @@
 "use client";
 
-import { Medal, Trophy } from "lucide-react";
+import { Trophy } from "lucide-react";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 
-import { CanhoesMediaThumb } from "@/lib/domains/event/components/CanhoesMediaThumb";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { getErrorMessage } from "@/lib/errors";
 import { Skeleton } from "@/components/ui/skeleton";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
-import { cn, formatCount } from "@/lib/utils";
 import type { EventActiveContextDto, PublicCategoryResultDto } from "@/lib/api/types";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
+
+import { formatVotes, GalaCategoryResult } from "./GalaCategoryResult";
 
 const copy = messages.gala.CanhoesGalaModule;
-const formatVotes = (count: number) => formatCount(count, messages.common.vote, messages.common.votes);
 
 function GalaLoadingState() {
   return (
@@ -44,82 +46,15 @@ function GalaLoadingState() {
   );
 }
 
-function renderPlacementIcon(position: number) {
-  return position === 0 ? (
-    <Trophy className="h-4 w-4 text-[var(--color-fire)]" />
-  ) : (
-    <Medal className="h-4 w-4 text-[var(--color-beige)]" />
-  );
-}
-
-function NomineeRankCard({
-  nominee,
-  rank,
-}: Readonly<{
-  nominee: PublicCategoryResultDto["top"][number];
-  rank: number;
-}>) {
-  const isWinner = rank === 0;
-
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-3 rounded-[var(--radius-md-token)] border px-3 py-3 transition-colors duration-200",
-        isWinner
-          ? "border-[var(--moss)]/40 bg-[var(--moss)]/8"
-          : "border-[var(--color-veil)]/10 hover:border-[var(--moss)]/15"
-      )}
-      style={{ animationDelay: `${rank * 0.08}s` }}
-    >
-      <CanhoesMediaThumb alt={nominee.title} src={nominee.imageUrl} />
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-base font-semibold text-[var(--ink-primary)]">
-            {renderPlacementIcon(rank)} {`#${rank + 1}`}
-          </span>
-          <span className="truncate font-semibold text-[var(--ink-primary)]">
-            {nominee.title}
-          </span>
-        </div>
-        <p className="body-small text-[var(--ink-secondary)]">{formatVotes(nominee.voteCount)}</p>
-      </div>
-
-      {isWinner ? <Badge variant="default">{copy.winner}</Badge> : null}
-    </div>
-  );
-}
-
-function CategoryResultCard({ categoryResult }: Readonly<{ categoryResult: PublicCategoryResultDto }>) {
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="flex flex-wrap items-center justify-between gap-2">
-          <span>{categoryResult.categoryName}</span>
-          <Badge variant="amber">{formatVotes(categoryResult.totalVotes)}</Badge>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-3">
-        <div className="space-y-3">
-          {categoryResult.top.length === 0 ? (
-            <p className="body-small text-[var(--ink-secondary)]">{copy.noNominees}</p>
-          ) : (
-            categoryResult.top.map((nominee, index) => <NomineeRankCard key={nominee.nomineeId} nominee={nominee} rank={index} />)
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
 function GalaResults({
   errorMessage,
   isLoading,
+  isResultsPhase,
   onRetry,
   resultsByCategory,
-}: Readonly<{ errorMessage: string | null; isLoading: boolean; onRetry: () => void; resultsByCategory: PublicCategoryResultDto[] }>) {
+}: Readonly<{ errorMessage: string | null; isLoading: boolean; isResultsPhase: boolean; onRetry: () => void; resultsByCategory: PublicCategoryResultDto[] }>) {
   if (isLoading) return <GalaLoadingState />;
+  const hasNoRanking = resultsByCategory.every((categoryResult) => categoryResult.top.length === 0);
 
   // A failed refetch keeps the results already on screen under the error.
   return (
@@ -127,11 +62,18 @@ function GalaResults({
       {errorMessage ? (
         <ErrorAlert title={copy.loadErrorTitle} description={errorMessage} actionLabel={messages.common.retry} onAction={onRetry} />
       ) : null}
-      {resultsByCategory.length === 0 && !errorMessage ? <p className="body-small text-[var(--ink-secondary)]">{copy.empty}</p> : null}
-      {resultsByCategory.length > 0 ? (
+      {hasNoRanking && !errorMessage ? (
+        <EmptyState
+          icon={Trophy}
+          title={isResultsPhase ? copy.noVotesTitle : copy.emptyTitle}
+          description={isResultsPhase ? copy.noVotesDescription : copy.emptyDescription}
+          action={<Button asChild variant="outline" className="w-full"><Link href="/canhoes">{copy.backToMural}</Link></Button>}
+        />
+      ) : null}
+      {!hasNoRanking ? (
         <div className="space-y-4">
           {resultsByCategory.map((categoryResult) => (
-            <CategoryResultCard key={categoryResult.categoryId} categoryResult={categoryResult} />
+            <GalaCategoryResult key={categoryResult.categoryId} categoryResult={categoryResult} />
           ))}
         </div>
       ) : null}
@@ -144,11 +86,11 @@ export function CanhoesGalaModule({ initialContext, initialResults }: {
     initialContext?: EventActiveContextDto | null;
     initialResults?: PublicCategoryResultDto[];
 }) {
-  const { event } = useEventOverview(initialContext);
+  const { event, overview } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
 
   const { data: resultsByCategory = [], isLoading, error, refetch } = useQuery({
-    queryKey: ["galaResults", eventId],
+    queryKey: queryKeys.galaResults(eventId),
     queryFn: () => awardsRepo.getResults(eventId ?? ""),
     enabled: !!eventId,
     staleTime: 1000 * 60 * 2,
@@ -159,10 +101,11 @@ export function CanhoesGalaModule({ initialContext, initialResults }: {
 
   return (
     <div className="space-y-4">
-      <CanhoesModuleHeader icon={Trophy} title={copy.title} description={copy.description} badgeLabel={formatVotes(totalVotes)} />
+      <CanhoesModuleHeader module="gala" title={copy.title} description={copy.description} badgeLabel={totalVotes > 0 ? formatVotes(totalVotes) : undefined} />
       <GalaResults
         errorMessage={error ? getErrorMessage(error, copy.loadError) : null}
         isLoading={isLoading}
+        isResultsPhase={overview?.activePhase?.type === "RESULTS"}
         onRetry={() => void refetch()}
         resultsByCategory={resultsByCategory}
       />

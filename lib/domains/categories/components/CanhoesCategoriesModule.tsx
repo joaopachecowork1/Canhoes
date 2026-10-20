@@ -3,15 +3,13 @@
 import type { CSSProperties } from "react";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Flame, Inbox, Search, Trophy } from "lucide-react";
+import { Inbox, Search, Trophy } from "lucide-react";
 
 import type { EventActiveContextDto, AwardCategoryDto } from "@/lib/api/types";
 import { getErrorMessage } from "@/lib/errors";
-import { formatMessage } from "@/lib/messages";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
-import { getPhaseLabel } from "@/lib/canhoesEvent";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -21,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import messages from "@/messages/pt.json";
 
 import { CategoryProposalForm } from "./CategoryProposalForm";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.categories.CanhoesCategoriesModule;
 
@@ -105,7 +104,7 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
   const [search, setSearch] = useState("");
 
   const { data: categoryList = [], isLoading, error } = useQuery({
-    queryKey: ["categories", eventId],
+    queryKey: queryKeys.categories(eventId),
     queryFn: () => awardsRepo.getCategories(eventId ?? "").then((result) => result.items),
     enabled: !!eventId,
     staleTime: 1000 * 60 * 2,
@@ -119,10 +118,9 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
     <div className="space-y-5">
       <div className="sticky top-0 z-10 -mx-4 px-4 pb-4 pt-2 backdrop-blur-xl bg-[var(--bg-void)]/80 border-b border-[var(--color-veil)]/5">
         <CanhoesModuleHeader
-          icon={Flame}
+          module="categories"
           title={copy.title}
           description={copy.description}
-          badgeLabel={overview ? formatMessage(messages.measures.CanhoesMeasuresModule.phaseBadge, { phase: getPhaseLabel(overview.activePhase?.type) }) : undefined}
         />
       </div>
 
@@ -142,7 +140,7 @@ export function CanhoesCategoriesModule({ initialContext, initialCategories }: {
             categories={filteredCategories}
             errorMessage={error ? getErrorMessage(error, copy.loadError) : null}
             isLoading={isLoading || isOverviewLoading}
-            onRetry={() => void queryClient.invalidateQueries({ queryKey: ["categories", eventId] })}
+            onRetry={() => void queryClient.invalidateQueries({ queryKey: queryKeys.categories(eventId) })}
           />
         </CardContent>
       </Card>

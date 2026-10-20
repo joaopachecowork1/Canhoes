@@ -187,3 +187,14 @@ tests/component/       setup e helpers dos testes de componentes
 tests/integration/     testes contra PostgreSQL real
 docs/                  esta documentação
 ```
+
+## Aspeto: a "Caderneta de Cromos"
+
+O sistema visual está descrito em `DESIGN.md` (na raiz); aqui ficam só as regras que o código impõe:
+
+- Os tokens vivem em `app/globals.css`; nunca se escrevem cores à mão nos componentes.
+- Cada pessoa tem uma cor (`User.color`, uma de `lib/personColors.ts`, sorteada ao criar a conta e mudada no menu) e cada área tem a sua (`--area-*`). `CanhoesChrome` põe a cor da área atual em `--area` (tipado em `lib/react-css.d.ts`) e os componentes leem `var(--area, var(--moss))`.
+- O verde (`--moss`) é só para a fase, a ação principal e o que está "colado" (estado concluído). Texto sobre cor usa `--on-moss` ou `--on-person`.
+- Estados são marcas impressas: lugar vazio tracejado (`EmptyState`, o lugar "Cola aqui o teu post"), lugar preenchido a verde sólido (opção votada, `aria-pressed`).
+- Cada post tem um número (`postNumber`), calculado no servidor pela data de criação, por isso não muda ao fazer scroll.
+- Listas de membros partilham uma só query (`useEventMembers`).

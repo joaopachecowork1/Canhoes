@@ -48,7 +48,7 @@ function RegisterHeading() {
         <div className="flex justify-center">
           <CanhoesBrandMark compact />
         </div>
-        <p className="body-small text-[var(--beige)]/78">{copy.intro}</p>
+        <p className="body-small text-[var(--color-text-secondary)]/78">{copy.intro}</p>
       </div>
     </>
   );

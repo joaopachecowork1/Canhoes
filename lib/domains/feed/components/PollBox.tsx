@@ -21,9 +21,9 @@ export function PollBox({
     <section className="border border-[var(--color-veil)]/5 bg-[var(--color-veil)]/2.5 shadow-none rounded-[1.25rem] p-4 sm:p-5">
       <div className="space-y-4">
         <div className="space-y-1">
-          <h3 className="heading-3 text-[var(--text-primary)]">
+          <h2 className="heading-3 text-[var(--text-primary)]">
             {poll.question}
-          </h3>
+          </h2>
         </div>
 
         <div className="space-y-3">
@@ -38,7 +38,6 @@ export function PollBox({
                 type="button"
                 onClick={() => onVote(option.id)}
                 aria-pressed={isActive}
-                aria-label={`${option.text}: ${formatCount(option.voteCount, messages.common.vote, messages.common.votes)}, ${percentage}%`}
                 className={cn(
                   "relative min-h-11 w-full overflow-hidden rounded-[var(--radius-md-token)] border px-4 py-3 text-left transition-colors duration-200 ease-out",
                   isActive
@@ -54,11 +53,7 @@ export function PollBox({
                       : "bg-[var(--color-veil)]/6"
                   )}
                   style={{ transform: `scaleX(${percentage / 100})` }}
-                  role="progressbar"
-                  aria-valuenow={percentage}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-label={`${option.text}: ${percentage}%`}
+                  aria-hidden
                 />
 
                 <span className="relative flex items-center justify-between gap-3">

@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Flame, Gavel, Inbox } from "lucide-react";
+import { Gavel, Inbox } from "lucide-react";
 import { toast } from "sonner";
 
 import type { EventActiveContextDto, GalaMeasureDto } from "@/lib/api/types";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
-import { getPhaseLabel } from "@/lib/canhoesEvent";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
@@ -19,8 +18,8 @@ import { ErrorAlert } from "@/components/ui/error-alert";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
-import { formatMessage } from "@/lib/messages";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.measures.CanhoesMeasuresModule;
 
@@ -70,7 +69,7 @@ function MeasureProposalForm({ eventId, isProposalPhase }: Readonly<{ eventId: s
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2">
-          <Gavel className="h-4 w-4 text-[var(--color-fire)]" />
+          <Gavel className="h-4 w-4 text-[var(--person-amber)]" />
           {copy.formTitle}
         </CardTitle>
       </CardHeader>
@@ -131,7 +130,7 @@ function MeasureList({
 
 function useMeasures(eventId: string | null, initialData: GalaMeasureDto[] | undefined) {
   return useQuery({
-    queryKey: ["measures", eventId],
+    queryKey: queryKeys.measures(eventId),
     queryFn: () => awardsRepo.getMeasures(eventId ?? ""),
     enabled: !!eventId,
     // An empty server list is not worth seeding: it would hide the first fetch's loading state.
@@ -156,10 +155,9 @@ export function CanhoesMeasuresModule({ initialData, initialContext }: { initial
   return (
     <div className="space-y-4">
       <CanhoesModuleHeader
-        icon={Flame}
+        module="measures"
         title={copy.title}
         description={copy.description}
-        badgeLabel={phaseType ? formatMessage(copy.phaseBadge, { phase: getPhaseLabel(phaseType) }) : undefined}
       />
 
       <MeasureProposalForm eventId={eventId} isProposalPhase={phaseType === "PROPOSALS"} />
@@ -175,7 +173,7 @@ export function CanhoesMeasuresModule({ initialData, initialContext }: { initial
             errorMessage={error ? getErrorMessage(error, copy.loadError) : null}
             isLoading={isLoading}
             measures={filteredMeasures}
-            onRetry={() => void queryClient.invalidateQueries({ queryKey: ["measures", eventId] })}
+            onRetry={() => void queryClient.invalidateQueries({ queryKey: queryKeys.measures(eventId) })}
           />
         </CardContent>
       </Card>

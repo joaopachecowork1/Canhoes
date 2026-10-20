@@ -1,11 +1,13 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Pin, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Ellipsis, Pin, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
 import { PersonCromo } from "@/components/ui/person-cromo";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { formatDateTime } from "./hubUtils";
 import { formatMessage } from "@/lib/messages";
 import { useRelativeTime } from "@/lib/postUtils";
@@ -13,8 +15,7 @@ import messages from "@/messages/pt.json";
 
 const copy = messages.feed.PostHeader;
 
-const ICON_BUTTON_CLASS =
-  "size-11 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]";
+const MENU_ACTION_CLASS = "w-full justify-start gap-3";
 
 type PostAdminActionsProps = {
   isPinned?: boolean;
@@ -24,39 +25,62 @@ type PostAdminActionsProps = {
   onAdminDelete?: () => void;
 };
 
-/** Pin, reorder (pinned posts only) and delete buttons for admins. */
+/** One button that opens the admin's actions on a post (pin, reorder pinned posts, delete) in a bottom sheet. */
 function PostAdminActions({ isPinned, onAdminPin, onAdminMoveUp, onAdminMoveDown, onAdminDelete }: Readonly<PostAdminActionsProps>) {
+  const [isOpen, setIsOpen] = useState(false);
+  const run = (action?: () => void) => () => {
+    setIsOpen(false);
+    action?.();
+  };
+
   return (
-    <div className="flex items-center gap-1">
-      {isPinned ? (
-        <>
-          <Button variant="ghost" size="sm" className={ICON_BUTTON_CLASS} onClick={onAdminMoveUp} aria-label={copy.moveUp}>
-            <ArrowUp className="h-3.5 w-3.5" />
-          </Button>
-          <Button variant="ghost" size="sm" className={ICON_BUTTON_CLASS} onClick={onAdminMoveDown} aria-label={copy.moveDown}>
-            <ArrowDown className="h-3.5 w-3.5" />
-          </Button>
-        </>
-      ) : null}
-      <Button variant="ghost" size="sm" className={ICON_BUTTON_CLASS} onClick={onAdminPin} aria-label={isPinned ? copy.unpin : copy.pin}>
-        <Pin className="h-3.5 w-3.5" />
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="size-11 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]"
+        onClick={() => setIsOpen(true)}
+        aria-label={copy.menuLabel}
+      >
+        <Ellipsis className="h-5 w-5" aria-hidden />
       </Button>
-      <ConfirmDeleteAction
-        onConfirm={onAdminDelete || (() => {})}
-        title={copy.deleteTitle}
-        description={copy.deleteDescription}
-        trigger={
-          <Button
-            variant="ghost"
-            size="sm"
-            className="size-11 rounded-full p-0 text-[var(--text-muted)] hover:bg-[var(--bg-surface)] hover:text-[var(--danger)]"
-            aria-label={copy.deleteLabel}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
-        }
-      />
-    </div>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetContent side="bottom" aria-describedby={undefined}>
+          <SheetHeader>
+            <SheetTitle>{copy.menuTitle}</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-2 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)]">
+            <Button variant="outline" className={MENU_ACTION_CLASS} onClick={run(onAdminPin)}>
+              <Pin className="h-5 w-5" aria-hidden />
+              {isPinned ? copy.unpin : copy.pin}
+            </Button>
+            {isPinned ? (
+              <>
+                <Button variant="outline" className={MENU_ACTION_CLASS} onClick={run(onAdminMoveUp)}>
+                  <ArrowUp className="h-5 w-5" aria-hidden />
+                  {copy.moveUp}
+                </Button>
+                <Button variant="outline" className={MENU_ACTION_CLASS} onClick={run(onAdminMoveDown)}>
+                  <ArrowDown className="h-5 w-5" aria-hidden />
+                  {copy.moveDown}
+                </Button>
+              </>
+            ) : null}
+            <ConfirmDeleteAction
+              onConfirm={run(onAdminDelete)}
+              title={copy.deleteTitle}
+              description={copy.deleteDescription}
+              trigger={
+                <Button variant="outline" className={`${MENU_ACTION_CLASS} text-[var(--danger)]`}>
+                  <Trash2 className="h-5 w-5" aria-hidden />
+                  {copy.deleteLabel}
+                </Button>
+              }
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
 
@@ -77,8 +101,8 @@ export function PostHeader({
   const relativeTime = useRelativeTime(createdAtUtc);
 
   return (
-    <div className="flex items-start justify-between gap-2">
-      <div className="flex min-w-0 items-center gap-2">
+    <div className="flex flex-wrap items-start justify-between gap-2">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
         <PersonCromo name={authorName} color={authorColor} />
 
         <div className="min-w-0 space-y-0.5">

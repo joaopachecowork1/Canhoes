@@ -1,7 +1,5 @@
 "use client";
 
-import { Gift } from "lucide-react";
-
 import type { EventActiveContextDto, EventSecretSantaOverviewDto, EventWishlistItemDto, PagedResult } from "@/lib/api/types";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
@@ -40,7 +38,7 @@ export function CanhoesSecretSantaModule({ initialContext, initialSecretSantaOve
   return (
     <div className="space-y-4">
       <CanhoesModuleHeader
-        icon={Gift}
+        module="secretSanta"
         title={copy.title}
         description={copy.description}
         badgeLabel={secretSanta.hasDraw ? copy.drawDone : copy.drawPending}

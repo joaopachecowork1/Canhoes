@@ -6,9 +6,9 @@ O que a aplicação ainda não faz como devia, por prioridade. Cada linha diz on
 
 | Lacuna | Onde | Como resolver |
 |---|---|---|
-| Não há Content-Security-Policy. O ZAP regista-a como alerta triado (10038). | `next.config.mjs` | Definir a CSP com nonces no `proxy.ts`, com o domínio final do deploy. |
+| Não há Content-Security-Policy (o HSTS já está). O ZAP regista-a como alerta triado (10038). Uma CSP em modo só-relatório sem destino para os relatórios não serve de nada. | `next.config.mjs` | Definir a CSP com nonces no `proxy.ts`, com o domínio final do deploy, e um destino `report-to` para a pôr primeiro em relatório. |
 | Os módulos fechados só são bloqueados no servidor para a votação e a gala; o mural, a wishlist, as categorias e as nomeações respondem a qualquer membro mesmo com o módulo desligado. | `app/api/v1/events/[eventId]/**/route.ts` | Trocar `requireEventAccess` por `requireModule` nessas rotas e acrescentar os casos à matriz de autorização. |
-| As páginas de servidor chamam a própria API com `fetch(..., { next: { revalidate: 60 } })` e os cookies do utilizador. É preciso confirmar que a cache de dados do Next.js não partilha respostas entre utilizadores. | `lib/api/canhoesServerClient.ts` | Chamar os serviços diretamente nas páginas de servidor (sem HTTP nem cache partilhada), o que também remove `CANHOES_INTERNAL_URL`. |
+| As páginas de servidor chamam a própria API com `fetch(..., { cache: "no-store" })` e os cookies do utilizador (sem cache de dados partilhada entre utilizadores, mas com um pedido HTTP a mais por página). | `lib/api/canhoesServerClient.ts` | Chamar os serviços diretamente nas páginas de servidor (sem HTTP nem cache partilhada), o que também remove `CANHOES_INTERNAL_URL`. |
 | Os ficheiros enviados são públicos para quem tiver o URL (os nomes são aleatórios e impossíveis de adivinhar). | `app/api/uploads/[...path]/route.ts` | Aceitável para o grupo; exigir sessão se as fotos passarem a ser sensíveis. |
 
 ## Dados e regras
@@ -25,4 +25,3 @@ O que a aplicação ainda não faz como devia, por prioridade. Cada linha diz on
 | Lacuna | Onde | Como resolver |
 |---|---|---|
 | O mesmo domínio vive em `components/`, `lib/domains/*/components` e `hooks/`, e há componentes com mais de 500 linhas (admin e mural). | `lib/domains/admin/components`, `lib/domains/feed` | Fase 2 do plano: `features/<nome>/` com UI, hooks e serviços juntos, e componentes partidos por responsabilidade. |
-| A configuração do Prisma está em `package.json#prisma`, que o Prisma 7 remove. | `package.json` | Passar para `prisma.config.ts` na atualização para o Prisma 7. |

@@ -68,7 +68,7 @@ describe("ImageLightbox", () => {
     const { onClose } = renderLightbox({ images: ["/uploads/a.jpg"], authorName: undefined });
 
     expect(document.body.style.overflow).toBe("hidden");
-    expect(screen.getByRole("img", { name: "Imagem do post" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Imagem da publicação" })).toBeInTheDocument();
     expect(screen.queryByText(/\/ 1/)).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Fechar" }));
     expect(onClose).toHaveBeenCalled();

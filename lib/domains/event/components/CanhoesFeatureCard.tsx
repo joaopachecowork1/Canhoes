@@ -29,7 +29,7 @@ const VARIANT_CLASSES = {
     card: "",
     header: "space-y-1 pb-3",
     title: "text-[var(--text-primary)]",
-    icon: "text-[var(--neon-green)]",
+    icon: "text-[var(--moss-glow)]",
     description: "text-[var(--text-muted)]",
   },
 } as const;

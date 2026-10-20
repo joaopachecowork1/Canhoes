@@ -9,13 +9,14 @@ import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import messages from "@/messages/pt.json";
 
 import { applyVoteSelection } from "../rules/votingBoard";
+import { queryKeys } from "@/lib/queryKeys";
 
 const REFRESH_INTERVAL_MS = 20_000;
 
 /** The ballot, refreshed every 20s while the tab is visible, and an optimistic vote. */
 export function useOfficialVoting(eventId: string | null, initialData: EventVotingBoardDto | undefined) {
   const queryClient = useQueryClient();
-  const queryKey = ["official-voting", eventId ?? ""];
+  const queryKey = queryKeys.officialVoting(eventId);
 
   const votingBoardQuery = useQuery({
     queryKey,

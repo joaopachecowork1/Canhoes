@@ -36,6 +36,17 @@ describe("invitations", () => {
     expect((await callRoute(register, {}, { method: "POST", body: registration(token) })).body).toMatchObject({ code: "INVITATION_USED" });
   });
 
+  it("lets only one of two simultaneous registrations use the same invitation", async () => {
+    const { token } = await inviteAsAdmin("race@example.test");
+
+    const results = await Promise.all([
+      callRoute(register, {}, { method: "POST", body: registration(token) }),
+      callRoute(register, {}, { method: "POST", body: registration(token) }),
+    ]);
+
+    expect(results.map((result) => result.status).sort()).toEqual([201, 400]);
+  });
+
   it("refuses unknown and expired invitations, and short passwords", async () => {
     const { token } = await inviteAsAdmin("late@example.test");
     await prisma.userInvitation.update({ where: { token }, data: { expiresAtUtc: new Date(Date.now() - 1000) } });
@@ -64,8 +75,8 @@ function credentialsProvider(id: string) {
 }
 
 describe("email and password sign-in", () => {
-  const authorize = (email: string, password: string) =>
-    credentialsProvider("credentials").options.authorize({ email, password }, { headers: {}, body: {}, method: "POST", query: {} });
+  const authorize = (email: string, password: string, ip = "unknown") =>
+    credentialsProvider("credentials").options.authorize({ email, password }, { headers: { "x-forwarded-for": ip }, body: {}, method: "POST", query: {} });
 
   it("accepts the right password for an email in any case, and refuses everything else", async () => {
     await prisma.user.create({
@@ -77,6 +88,39 @@ describe("email and password sign-in", () => {
     expect(await authorize("ana@example.test", "errada")).toBeNull();
     expect(await authorize("ninguem@example.test", "segredo123")).toBeNull();
     expect(await authorize("", "")).toBeNull();
+  });
+
+  const createPasswordUser = async (email: string) =>
+    prisma.user.create({
+      data: { email, externalId: `credentials:${email}`, displayName: email, isAdmin: false, passwordHash: await bcrypt.hash("segredo123", 4) },
+    });
+
+  it("stops guessing passwords: after ten attempts from one IP even the right one is refused", async () => {
+    await createPasswordUser("bia@example.test");
+    // Different emails, so only the IP counter can be what stops the eleventh attempt.
+    for (let attempt = 0; attempt < 10; attempt++) await authorize(`palpite${attempt}@example.test`, "errada", "198.51.100.7");
+
+    expect(await authorize("bia@example.test", "segredo123", "198.51.100.7")).toBeNull();
+    expect(await authorize("bia@example.test", "segredo123", "198.51.100.8")).toMatchObject({ email: "bia@example.test" });
+  });
+
+  it("stops guessing one account's password even when every attempt claims a different IP", async () => {
+    await createPasswordUser("carla@example.test");
+    await createPasswordUser("duarte@example.test");
+    for (let attempt = 0; attempt < 10; attempt++) await authorize("Carla@example.test", "errada", `198.51.100.${100 + attempt}`);
+
+    expect(await authorize("carla@example.test", "segredo123", "198.51.100.200")).toBeNull();
+    expect(await authorize("duarte@example.test", "segredo123", "198.51.100.201")).toMatchObject({ email: "duarte@example.test" });
+  });
+
+  it("does not spend a shared IP's budget on attempts already refused for their account", async () => {
+    await createPasswordUser("elisa@example.test");
+    await createPasswordUser("filipe@example.test");
+    for (let attempt = 0; attempt < 10; attempt++) await authorize("elisa@example.test", "errada", `198.51.100.${150 + attempt}`);
+    // Twelve more against the locked account, all from the house's one address.
+    for (let attempt = 0; attempt < 12; attempt++) await authorize("elisa@example.test", "errada", "198.51.100.210");
+
+    expect(await authorize("filipe@example.test", "segredo123", "198.51.100.210")).toMatchObject({ email: "filipe@example.test" });
   });
 });
 
@@ -123,6 +167,25 @@ describe("session tokens", () => {
     expect(await signIn("ana@example.test", "credentials")).toBe(true);
     expect(await signIn(null)).toBe(false);
     expect(await signIn("stranger@example.test")).toBe(false);
+  });
+
+  it("keeps an anonymous token without admin rights, and ignores providers it does not know", async () => {
+    expect(await jwt({})).toMatchObject({ isAdmin: false });
+
+    const user = await createUser();
+    const token = await jwt({ email: user.email }, { provider: "github", providerAccountId: "gh-1", type: "oauth" });
+    expect(token).toMatchObject({ externalId: "gh-1", dbUserId: user.id });
+    expect(token.authMode).toBeUndefined();
+  });
+
+  it("sends NextAuth's own log lines to the app logger without failing", () => {
+    const log = authOptions.logger;
+    expect(() => {
+      log?.error?.("OAUTH_CALLBACK_ERROR", new Error("boom") as never);
+      log?.error?.("SIGNIN_OAUTH_ERROR", { error: new Error("denied"), providerId: "google" } as never);
+      log?.warn?.("NEXTAUTH_URL");
+      log?.debug?.("adapter_error", { detail: 1 });
+    }).not.toThrow();
   });
 
   it("copies the user id, admin flag and sign-in mode into the session", async () => {

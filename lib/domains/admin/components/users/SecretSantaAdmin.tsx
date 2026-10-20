@@ -41,11 +41,11 @@ function DrawStatus({ isLocked }: Readonly<{ isLocked: boolean }>) {
   return (
     <div className="rounded-[var(--radius-lg-token)] border border-[var(--moss)]/20 bg-[var(--moss)]/5 p-4">
       <div className="flex items-start gap-3">
-        <div className="rounded-full bg-[var(--neon-green)] p-1.5">
+        <div className="rounded-full bg-[var(--moss-glow)] p-1.5">
           <Lock className="h-3 w-3 text-black" />
         </div>
         <div className="space-y-1">
-          <p className="text-sm font-semibold text-[var(--neon-green)]">{isLocked ? copy.revealed : copy.notRevealed}</p>
+          <p className="text-sm font-semibold text-[var(--moss-glow)]">{isLocked ? copy.revealed : copy.notRevealed}</p>
           <p className="text-xs text-[var(--ink-muted)]">{isLocked ? copy.revealedHint : copy.notRevealedHint}</p>
         </div>
       </div>
@@ -146,9 +146,9 @@ export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
           </div>
 
           <div className="space-y-4">
-            {isLocked ? <AdminDetailPanel className="border-[var(--neon-amber)]/30 bg-[var(--neon-amber)]/5">{copy.lockedNotice}</AdminDetailPanel> : null}
+            {isLocked ? <AdminDetailPanel className="border-[var(--person-amber)]/30 bg-[var(--person-amber)]/5">{copy.lockedNotice}</AdminDetailPanel> : null}
             <DrawActions actions={actions} canDraw={canDraw} canReveal={state.hasDraw && !isLocked} hasDraw={state.hasDraw} onRefresh={onRefresh} />
-            {!canDraw && !isLocked ? <p className="text-center text-xs text-[var(--neon-amber)]">{copy.notEnoughMembers}</p> : null}
+            {!canDraw && !isLocked ? <p className="text-center text-xs text-[var(--person-amber)]">{copy.notEnoughMembers}</p> : null}
           </div>
 
           {state.hasDraw ? <DrawStatus isLocked={isLocked} /> : null}

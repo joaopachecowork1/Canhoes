@@ -8,8 +8,10 @@ import { getErrorMessage } from "@/lib/errors";
 import { PERSON_COLORS, personColorVar, type PersonColor } from "@/lib/personColors";
 import { authRepo } from "@/lib/repositories/authRepo";
 import messages from "@/messages/pt.json";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.shell.PersonColorPicker;
+
 
 /** The palette as a row of swatches; picking one saves it and refreshes the session. */
 export function PersonColorPicker() {
@@ -19,7 +21,7 @@ export function PersonColorPicker() {
     mutationFn: (color: PersonColor) => authRepo.setMyColor(color),
     onSuccess: async () => {
       await refreshProfile();
-      await queryClient.invalidateQueries();
+      await queryClient.invalidateQueries({ predicate: (query) => queryKeys.colorRoots.includes(query.queryKey[0]) });
     },
     onError: (error) => toast.error(getErrorMessage(error, copy.saveError)),
   });

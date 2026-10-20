@@ -1,4 +1,5 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
+import { enforceRateLimit } from "@/lib/api/rateLimit";
 import { apiRoute, json, readJson } from "@/lib/api/route";
 import { createComment, getPostComments } from "@/lib/domains/feed/services/feedComments";
 import { CreateFeedCommentSchema } from "@/lib/zod/feed";
@@ -12,6 +13,7 @@ export const GET = apiRoute<PostParams>(async (_request, { eventId, postId }) =>
 });
 
 export const POST = apiRoute<PostParams>(async (request, { eventId, postId }) => {
+  enforceRateLimit(request, "standard");
   const user = await requireUser();
   await requireEventAccess(eventId, user);
   const { text, replyToId } = await readJson(request, CreateFeedCommentSchema);

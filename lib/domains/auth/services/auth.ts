@@ -5,6 +5,8 @@ import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
+import { HttpError } from "@/lib/api/httpError";
+import { enforceAccountRateLimit, enforceRateLimit } from "@/lib/api/rateLimit";
 import { isDevelopmentAuthEnabled } from "@/lib/domains/auth/services/developmentAuth";
 import { isDatabaseUserId } from "@/lib/domains/auth/services/userIdentity";
 import { resolveDevelopmentAdmin, resolveUser, type ResolvedUser } from "./authService";
@@ -17,6 +19,30 @@ import { authorizeGoogleSignIn } from "./signInAccess";
  */
 
 const developmentLoginEnabled = isDevelopmentAuthEnabled();
+
+/**
+ * Whether this IP or this email made too many login attempts; the email counter holds even when the IP is faked.
+ * A throttled attempt looks like a wrong password, so it tells a guesser nothing.
+ */
+function isLoginThrottled(email: string, requestHeaders: Record<string, unknown> = {}) {
+  const headers = new Headers(Object.entries(requestHeaders).map(([name, value]): [string, string] => [name, String(value)]));
+  try {
+    // The account first: an attempt it refuses must not also use up the budget of a house that shares one IP.
+    enforceAccountRateLimit(email, "login");
+    enforceRateLimit({ headers }, "login");
+    return false;
+  } catch (error) {
+    if (error instanceof HttpError) return true;
+    throw error;
+  }
+}
+
+/** The user with this email when the password matches, otherwise null (no such user, no password set, or a wrong one). */
+async function findUserWithPassword(email: string, password: string) {
+  const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+  if (!user?.passwordHash) return null;
+  return (await bcrypt.compare(password, user.passwordHash)) ? user : null;
+}
 
 type AuthMode = NonNullable<JWT["authMode"]>;
 
@@ -66,30 +92,11 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-        
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase() }
-        });
-        
-        if (!user || !user.passwordHash) {
-          return null; // User not found or has no password set
-        }
-        
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.passwordHash);
-        
-        if (!isPasswordValid) {
-          return null;
-        }
-        
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.displayName ?? user.email,
-        };
+      async authorize(credentials, request) {
+        if (!credentials?.email || !credentials?.password || isLoginThrottled(credentials.email, request?.headers)) return null;
+
+        const user = await findUserWithPassword(credentials.email, credentials.password);
+        return user && { id: user.id, email: user.email, name: user.displayName ?? user.email };
       }
     }),
     ...(developmentLoginEnabled

@@ -1,6 +1,6 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
 import { apiRoute, json, readJson, readPaging } from "@/lib/api/route";
-import { createWishlistItem, getWishlistItems } from "@/lib/domains/members/services/members";
+import { createWishlistItem, getWishlistItems } from "@/lib/domains/members/services/wishlist";
 import { CreateWishlistItemSchema } from "@/lib/zod/wishlist";
 
 export const GET = apiRoute<{ eventId: string }>(async (request, { eventId }) => {

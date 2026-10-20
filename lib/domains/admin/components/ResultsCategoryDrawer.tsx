@@ -23,16 +23,16 @@ type AdminCategoryNomineeResult = {
 };
 
 function getParticipationClass(rate: number) {
-  if (rate < 0.5) return "text-[var(--neon-red)]";
-  if (rate < 0.8) return "text-[var(--neon-amber)]";
-  return "text-[var(--neon-green)]";
+  if (rate < 0.5) return "text-[var(--person-coral)]";
+  if (rate < 0.8) return "text-[var(--person-amber)]";
+  return "text-[var(--moss-glow)]";
 }
 
 function getRankMeta(index: number) {
   if (index === 0) {
     return {
-      fillClass: "bg-[var(--neon-amber)]",
-      iconClassName: "text-[var(--neon-amber)]",
+      fillClass: "bg-[var(--person-amber)]",
+      iconClassName: "text-[var(--person-amber)]",
       Icon: Award,
     };
   }
@@ -47,14 +47,14 @@ function getRankMeta(index: number) {
 
   if (index === 2) {
     return {
-      fillClass: "bg-[var(--bark)]",
-      iconClassName: "text-[var(--bark)]",
+      fillClass: "bg-[var(--color-text-muted)]",
+      iconClassName: "text-[var(--color-text-muted)]",
       Icon: Medal,
     };
   }
 
   return {
-    fillClass: "bg-[var(--bark)]",
+    fillClass: "bg-[var(--color-text-muted)]",
     iconClassName: "text-[var(--ink-muted)]",
     Icon: null,
   };

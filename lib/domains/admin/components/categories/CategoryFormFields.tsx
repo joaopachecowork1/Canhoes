@@ -72,7 +72,7 @@ export function CategoryFormFields({ form, isBusy, onChange }: FieldsProps) {
       <div className="space-y-2">
         <Label className={LABEL_CLASS}>{messages.categories.CategoryProposalForm.kindLabel}</Label>
         <Select value={form.kind} onValueChange={(value: string) => onChange({ kind: value })} disabled={isBusy}>
-          <SelectTrigger>
+          <SelectTrigger aria-label={messages.categories.CategoryProposalForm.kindLabel}>
             <SelectValue placeholder={copy.kindPlaceholder} />
           </SelectTrigger>
           <SelectContent className="z-[100]">

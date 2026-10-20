@@ -205,12 +205,11 @@ Por omissão os ficheiros ficam em `.data/uploads`, fora do Git; `UPLOADS_DIR` m
 | Pasta | O que tem |
 |---|---|
 | `app/` | Páginas (`app/canhoes`) e API (`app/api`) |
-| `components/` | Interface partilhada: `chrome` (navegação), `modules` (páginas de cada módulo), `providers` (sessão e TanStack Query) e `ui` (componentes base) |
-| `hooks/` | Hooks React usados por várias páginas |
-| `lib/` | Lógica: `domains/<área>` (componentes e serviços de cada área), `api` (cliente, guards, rotas, rate limit), `repositories`, `zod`, `storage` e `logger.ts` |
+| `components/` | Interface partilhada: `chrome` (cabeçalho, dock e menu), `animations`, `providers` (sessão e TanStack Query) e `ui` (componentes base) |
+| `lib/` | Lógica: `domains/<área>` (componentes, hooks, regras e serviços de cada área), `api` (cliente, guards, rotas, rate limit), `repositories`, `zod`, `storage` e `logger.ts` |
 | `prisma/` | Schema, migrations e seed |
 | `scripts/` | Base de dados local (`db.mjs`), arranque do contentor e deploy no servidor |
-| `tests/integration/` | Testes dos route handlers contra PostgreSQL |
+| `tests/` | `integration/` (route handlers contra PostgreSQL) e `component/` (fixtures, MSW e mocks dos testes de componentes) |
 | `deploy/systemd/` | Timer que instala cada merge no servidor |
 | `docs/` | Negócio, requisitos, arquitetura e operação |
 | `public/` | Ícone e imagem de partilha |
@@ -230,6 +229,7 @@ npx tsc --noEmit
 npm test
 npm run test:component     # componentes e hooks em jsdom
 npm run test:integration   # precisa de PostgreSQL com uma base de dados canhoes_test
+npm run test:e2e           # browser (Playwright): precisa de DATABASE_URL com seed
 npm run knip
 npm run build
 ```

@@ -1,14 +1,14 @@
 "use client";
 
-import { Cigarette } from "lucide-react";
+import { useState } from "react";
 
 import type { EventActiveContextDto, AwardCategoryDto, NomineeDto } from "@/lib/api/types";
 import { CanhoesModuleHeader } from "@/lib/domains/event/components/CanhoesModuleHeader";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
-import { getPhaseLabel } from "@/lib/canhoesEvent";
-import { formatMessage } from "@/lib/messages";
+import { FormSheet } from "@/lib/domains/event/components/FormSheet";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import messages from "@/messages/pt.json";
@@ -68,7 +68,6 @@ function StickerGallery({ isReady, stickers }: Readonly<{ isReady: boolean; stic
     <section className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
-          <p>{copy.galleryKicker}</p>
           <h2 className="heading-3 text-[var(--color-text-primary)]">{copy.galleryTitle}</h2>
         </div>
         <Badge variant="secondary">{stickers.length}</Badge>
@@ -96,36 +95,40 @@ export function CanhoesStickerSubmitModule({ initialContext, initialStickerCateg
   const stickers = useStickerData(eventId, { initialCategories: initialStickerCategories, initialNominees: initialApprovedNominees });
   const submission = useStickerSubmission({ eventId, isProposalPhase, onSubmitted: stickers.refresh });
 
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
   return (
     <div className="space-y-4">
       <CanhoesModuleHeader
-        icon={Cigarette}
+        module="stickers"
         title={copy.title}
         description={copy.description}
-        badgeLabel={phaseType ? formatMessage(messages.measures.CanhoesMeasuresModule.phaseBadge, { phase: getPhaseLabel(phaseType) }) : undefined}
       />
 
-      <Card>
-        <CardHeader className="space-y-1 pb-4">
-          <p>{copy.formKicker}</p>
-          <CardTitle>{copy.formTitle}</CardTitle>
-        </CardHeader>
+      {isProposalPhase ? (
+        <FormSheet isOpen={isFormOpen} onOpenChange={setIsFormOpen} title={copy.formTitle} triggerLabel={copy.openForm}>
+          <StickerSubmitForm
+            categories={stickers.stickerCategories}
+            onSubmit={() => void submission.handleSubmit().then((isSent) => setIsFormOpen(!isSent))}
+            submission={submission}
+          />
+        </FormSheet>
+      ) : (
+        <Button type="button" className="w-full" disabled>
+          {copy.closed}
+        </Button>
+      )}
 
-        <CardContent className="space-y-4">
-          {stickers.errorMessage ? (
-            <ErrorAlert
-              title={copy.loadErrorTitle}
-              description={stickers.errorMessage}
-              actionLabel={messages.common.retry}
-              onAction={() => void stickers.refresh()}
-            />
-          ) : null}
+      {stickers.errorMessage ? (
+        <ErrorAlert
+          title={copy.loadErrorTitle}
+          description={stickers.errorMessage}
+          actionLabel={messages.common.retry}
+          onAction={() => void stickers.refresh()}
+        />
+      ) : null}
 
-          {stickers.isLoading && stickers.isEmpty ? <StickerSubmitLoadingState /> : null}
-
-          <StickerSubmitForm categories={stickers.stickerCategories} isProposalPhase={isProposalPhase} submission={submission} />
-        </CardContent>
-      </Card>
+      {stickers.isLoading && stickers.isEmpty ? <StickerSubmitLoadingState /> : null}
 
       <StickerGallery stickers={stickers.stickersWithImage} isReady={!stickers.isLoading && !stickers.errorMessage} />
     </div>

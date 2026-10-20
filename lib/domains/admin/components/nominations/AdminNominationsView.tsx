@@ -39,7 +39,7 @@ function CategoryFilter({ categories, onChange, value }: Readonly<{ categories: 
   return (
     <div className="lg:w-64">
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger aria-label={copy.filterPlaceholder}>
           <SelectValue placeholder={copy.filterPlaceholder} />
         </SelectTrigger>
         <SelectContent>

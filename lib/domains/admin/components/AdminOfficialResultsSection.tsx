@@ -15,6 +15,7 @@ import messages from "@/messages/pt.json";
 
 import { ADMIN_CONTENT_CARD_CLASS, AdminSelectableButton } from "./adminContentUi";
 import { ResultsCategoryDrawer } from "./ResultsCategoryDrawer";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.admin.AdminOfficialResultsSection;
 const EMPTY_ADMIN_CATEGORY_RESULTS: AdminCategoryResultDto[] = [];
@@ -59,7 +60,7 @@ function ResultsHeader({ refreshedAt }: Readonly<{ refreshedAt: string | null }>
 function useOfficialResults(eventId: string | null, isAdmin: boolean) {
   const queryEventId = eventId ?? "";
   return useQuery<AdminCategoryResultDto[]>({
-    queryKey: ["canhoes", "admin", "official-results", queryEventId],
+    queryKey: queryKeys.admin.officialResults(queryEventId),
     enabled: Boolean(eventId) && isAdmin,
     queryFn: async () => (await adminRepo.getOfficialResultsPaged(queryEventId)).items,
     placeholderData: keepPreviousData,

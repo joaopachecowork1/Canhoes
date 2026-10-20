@@ -5,6 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { useAuth } from "@/components/providers/AuthContext";
+import { useEventMembers } from "@/lib/domains/event/hooks/useEventMembers";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { eventRepo } from "@/lib/repositories/eventRepo";
@@ -12,9 +13,9 @@ import type { EventActiveContextDto, EventWishlistItemDto, PublicUserDto } from 
 import messages from "@/messages/pt.json";
 
 import { groupWishlistItemsByUser, MIN_WISHLIST_TITLE_LENGTH, pickSelectedMemberId } from "../rules/wishlistRules";
+import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.wishlist.useCanhoesWishlist;
-const WISHLIST_ITEMS_QUERY_KEY = "wishlistItems";
 const STALE_TIME_MS = 1000 * 60 * 2;
 
 export type WishlistFormState = {
@@ -38,16 +39,10 @@ type UseCanhoesWishlistOptions = {
 };
 
 function useWishlistQueries(eventId: string | null, { initialMembers, initialWishlistItems }: UseCanhoesWishlistOptions) {
-  const membersQuery = useQuery({
-    queryKey: ["wishlistMembers", eventId],
-    queryFn: () => eventRepo.getMembers(eventId ?? "").then((response) => (Array.isArray(response) ? response : [])),
-    enabled: !!eventId,
-    staleTime: STALE_TIME_MS,
-    initialData: initialMembers,
-  });
+  const membersQuery = useEventMembers(eventId, initialMembers);
 
   const itemsQuery = useQuery({
-    queryKey: [WISHLIST_ITEMS_QUERY_KEY, eventId],
+    queryKey: queryKeys.wishlistItems(eventId),
     queryFn: () => eventRepo.getWishlist(eventId ?? "", 0, 1000).then((response) => response.items),
     enabled: !!eventId,
     staleTime: STALE_TIME_MS,
@@ -71,8 +66,9 @@ function useWishlistMutations(eventId: string | null) {
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const canSubmit = formState.title.trim().length >= MIN_WISHLIST_TITLE_LENGTH;
 
+  /** Adds the item; resolves to whether it was saved, so the form can close. */
   const createWishlistItem = async () => {
-    if (!canSubmit || !eventId) return;
+    if (!canSubmit || !eventId) return false;
 
     setIsSaving(true);
     try {
@@ -81,15 +77,25 @@ function useWishlistMutations(eventId: string | null) {
         title: formState.title.trim(),
         url: formState.url.trim() || null,
       });
-      if (formState.selectedFile) {
-        await eventRepo.uploadWishlistImage(eventId, createdItem.id, formState.selectedFile);
-      }
+      // The item exists from here on: a failed image must not make a retry create it again.
+      const isImageMissing = formState.selectedFile
+        ? await eventRepo.uploadWishlistImage(eventId, createdItem.id, formState.selectedFile).then(
+            () => false,
+            (uploadError) => {
+              logFrontendError("CanhoesWishlist.uploadImage", uploadError);
+              return true;
+            },
+          )
+        : false;
       setFormState(EMPTY_WISHLIST_FORM);
-      await queryClient.invalidateQueries({ queryKey: [WISHLIST_ITEMS_QUERY_KEY, eventId] });
-      toast.success(copy.itemAdded);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.wishlistItems(eventId) });
+      if (isImageMissing) toast.warning(copy.imageUploadError);
+      else toast.success(copy.itemAdded);
+      return true;
     } catch (createError) {
       logFrontendError("CanhoesWishlist.handleCreate", createError);
       toast.error(getErrorMessage(createError, copy.saveError));
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -101,7 +107,7 @@ function useWishlistMutations(eventId: string | null) {
 
     try {
       await eventRepo.deleteWishlistItem(eventId, wishlistItemId);
-      queryClient.setQueryData<EventWishlistItemDto[]>([WISHLIST_ITEMS_QUERY_KEY, eventId], (previousItems) =>
+      queryClient.setQueryData<EventWishlistItemDto[]>(queryKeys.wishlistItems(eventId), (previousItems) =>
         (previousItems ?? []).filter((item) => item.id !== wishlistItemId)
       );
       toast.success(copy.itemRemoved);
@@ -114,7 +120,7 @@ function useWishlistMutations(eventId: string | null) {
   };
 
   const retryLoading = () =>
-    eventId ? queryClient.invalidateQueries({ queryKey: [WISHLIST_ITEMS_QUERY_KEY, eventId] }) : Promise.resolve();
+    eventId ? queryClient.invalidateQueries({ queryKey: queryKeys.wishlistItems(eventId) }) : Promise.resolve();
 
   return { formState, setFormState, isSaving, deletingItemId, canSubmit, createWishlistItem, deleteWishlistItem, retryLoading };
 }

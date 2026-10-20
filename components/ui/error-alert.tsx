@@ -33,7 +33,7 @@ const TONE_CLASSES: Record<ErrorAlertTone, { border: string; icon: string; title
   },
   social: {
     border: "border-[var(--person-violet)]/40 text-[var(--text-primary)]",
-    icon: "text-[var(--neon-green)]",
+    icon: "text-[var(--moss-glow)]",
     title: "text-[var(--color-text-primary)]",
     body: "text-[var(--text-secondary)]",
     action: "border-[var(--color-veil)]/12 text-[var(--color-text-primary)] hover:bg-[var(--color-veil)]/8",

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { PublicCategoryResultDto } from "@/lib/api/types";
 import { KindUserVote } from "@/lib/domains/admin/services/constants";
+import { loadUsersById } from "@/lib/usersById";
 
 const TOP_PLACES = 5;
 
@@ -45,13 +46,13 @@ export async function getResults(eventId: string): Promise<PublicCategoryResultD
     prisma.nominee.findMany({ where: { eventId, status: "approved" } }),
     prisma.eventMember.findMany({ where: { eventId }, select: { userId: true } }),
   ]);
-  const users = await prisma.user.findMany({
-    where: { id: { in: members.map((member) => member.userId) } },
-    select: { id: true, displayName: true, email: true },
-  });
+  const users = await loadUsersById(
+    members.map((member) => member.userId),
+    (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } })
+  );
 
   const people = new Map<string, Candidate>(
-    users.map((user) => [user.id, { title: user.displayName ?? user.email, imageUrl: null }])
+    [...users.values()].map((user) => [user.id, { title: user.displayName ?? user.email, imageUrl: null }])
   );
   const nomineeCandidates = new Map<string, Candidate>(
     nominees.map((nominee) => [nominee.id, { title: nominee.title, imageUrl: nominee.imageUrl }])

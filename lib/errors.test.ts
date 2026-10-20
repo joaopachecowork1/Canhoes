@@ -55,6 +55,6 @@ describe("getErrorMessage", () => {
 
   it("uses the fallback for anything that is not an Error", () => {
     expect(getErrorMessage("ups", "F")).toBe("F");
-    expect(getErrorMessage(undefined)).toBe("Ocorreu um erro");
+    expect(getErrorMessage(undefined)).toBe("Algo correu mal. Tenta outra vez.");
   });
 });
