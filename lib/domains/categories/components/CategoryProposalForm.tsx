@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Trophy } from "lucide-react";
 import { toast } from "sonner";
 
+import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ import { queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.categories.CategoryProposalForm;
 const MIN_NAME_LENGTH = 3;
-const DEFAULT_KIND = "0";
+const DEFAULT_KIND = String(CATEGORY_KIND.NOMINEE);
 
 function getSubmitLabel(isSubmitting: boolean, canPropose: boolean) {
   if (isSubmitting) return messages.common.sending;
@@ -59,8 +60,8 @@ function ProposalFields({
             <SelectValue placeholder={copy.kindPlaceholder} />
           </SelectTrigger>
           <SelectContent className="z-[100]">
-            <SelectItem value="0">{copy.kindNominees}</SelectItem>
-            <SelectItem value="1">{copy.kindMember}</SelectItem>
+            <SelectItem value={String(CATEGORY_KIND.NOMINEE)}>{copy.kindNominees}</SelectItem>
+            <SelectItem value={String(CATEGORY_KIND.USER_VOTE)}>{copy.kindMember}</SelectItem>
           </SelectContent>
         </Select>
       </div>

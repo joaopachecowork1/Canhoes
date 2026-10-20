@@ -35,6 +35,24 @@ function renderNominations(phaseType = "PROPOSALS") {
 const titleInput = () => screen.getByPlaceholderText("Ex.: Nome da pessoa ou item");
 
 describe("CanhoesNominationsModule", () => {
+  it("offers only the categories that take nominations, not the ones voted on a person or a sticker", async () => {
+    serveNominations();
+    renderWithProviders(
+      <CanhoesNominationsModule
+        initialCategories={[
+          category({ id: "nom", name: "Melhor Foto", kind: 0 }),
+          category({ id: "person", name: "Pessoa do ano", kind: 1 }),
+          category({ id: "sticker", name: "Sticker do ano", kind: 2 }),
+        ]}
+        initialContext={makeEventContext({ phaseType: "PROPOSALS", modules: { nominees: true } })}
+      />,
+    );
+
+    expect(await screen.findByRole("button", { name: "Melhor Foto" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Pessoa do ano" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Sticker do ano" })).not.toBeInTheDocument();
+  });
+
   it("shows the approved nominations of the selected category only", async () => {
     serveNominations({
       approved: [

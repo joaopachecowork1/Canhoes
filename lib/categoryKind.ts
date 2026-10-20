@@ -7,3 +7,8 @@ export const CATEGORY_KIND = {
   /** Os membros enviam uma imagem de sticker. */
   STICKER: 2,
 } as const;
+
+/** Diz se os membros nomeiam alguém nesta categoria (as de pessoa e as de sticker têm outro caminho). */
+export function canNominate(kind: number) {
+  return kind === CATEGORY_KIND.NOMINEE;
+}

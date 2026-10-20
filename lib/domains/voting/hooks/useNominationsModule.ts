@@ -4,6 +4,7 @@ import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-quer
 
 import type { AwardCategoryDto, EventActiveContextDto, MyNominationDto, NomineeDto } from "@/lib/api/types";
 import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
+import { canNominate } from "@/lib/categoryKind";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import { useCategorySelection } from "./useCategorySelection";
 import { queryKeys } from "@/lib/queryKeys";
@@ -31,11 +32,9 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
     ...QUERY_OPTIONS,
     queryKey: queryKeys.nominationCategories(queryEventId),
     enabled,
-    queryFn: async () => {
-      const result = await awardsRepo.getCategories(queryEventId);
-      // As categorias do tipo 1 escolhem-se entre os membros, não por nomeação.
-      return result.items.filter((category) => category.isActive && category.kind !== 1);
-    },
+    queryFn: async () => (await awardsRepo.getCategories(queryEventId)).items,
+    // No `select`, para valer também para os dados iniciais do servidor: só entram as categorias com nomeações.
+    select: (categories) => categories.filter((category) => category.isActive && canNominate(category.kind)),
     // Os dados iniciais vêm do servidor e evitam um primeiro pedido.
     initialData: initialCategories,
   });
