@@ -44,7 +44,10 @@ test("publishes a post that then shows at the top of the mural", async ({ page }
 test("changes the person's colour from the menu and keeps it after a reload", async ({ page }) => {
   await page.getByRole("button", { name: "Abrir mais opções" }).click();
   // The radio is visually hidden; its swatch is the label around it.
+  // The swatch looks picked as soon as it is tapped; reloading before the save lands would read the old colour.
+  const saved = page.waitForResponse((response) => response.url().endsWith("/v1/me/color") && response.ok());
   await page.locator("label", { has: page.getByRole("radio", { name: "Rosa" }) }).click();
+  await saved;
   await expect(page.getByRole("radio", { name: "Rosa" })).toBeChecked();
 
   await page.reload();
