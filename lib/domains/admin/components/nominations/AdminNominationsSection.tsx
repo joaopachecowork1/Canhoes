@@ -11,13 +11,7 @@ import messages from "@/messages/pt.json";
 const copy = messages.admin.AdminNominationsSection;
 
 /** Carrega as nomeações do evento e mostra a vista de moderação, ou o estado de erro/carregamento. */
-export function AdminNominationsSection({
-  eventId,
-  loading,
-}: Readonly<{
-  eventId: string | null;
-  loading: boolean;
-}>) {
+export function AdminNominationsSection({ eventId }: Readonly<{ eventId: string | null }>) {
   const nominations = useAdminNominations(eventId);
 
   if (!eventId) {
@@ -25,7 +19,7 @@ export function AdminNominationsSection({
   }
 
   // só mostra "a carregar" quando ainda não há nomeações para mostrar
-  if (loading || (nominations.isLoading && nominations.nominations.length === 0)) {
+  if (nominations.isLoading && nominations.nominations.length === 0) {
     return <AdminStateMessage>{copy.loading}</AdminStateMessage>;
   }
 

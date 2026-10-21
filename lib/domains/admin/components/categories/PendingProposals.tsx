@@ -1,10 +1,10 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
 import { AdminStateMessage } from "@/lib/domains/admin/components/layout/AdminStateMessage";
 
 import { ADMIN_CONTENT_CARD_CLASS } from "../adminContentUi";
+import { useAdminProposals } from "../../hooks/useAdminProposals";
 import { useProposalModeration, type ProposalKind } from "../../hooks/useProposalModeration";
 import { ProposalReviewItem, type ProposalRow } from "./ProposalReviewItem";
 import messages from "@/messages/pt.json";
@@ -13,9 +13,6 @@ const copy = messages.admin.PendingProposals;
 
 type PendingProposalsProps = {
   eventId: string | null;
-  categoryProposals: CategoryProposalDto[];
-  measureProposals: MeasureProposalDto[];
-  loading: boolean;
   onUpdate: () => Promise<void>;
 };
 
@@ -31,13 +28,8 @@ export function PendingProposals({ eventId, ...props }: Readonly<PendingProposal
 }
 
 /** Dois painéis lado a lado, um por tipo de proposta, com a moderação partilhada. */
-function ProposalQueue({
-  eventId,
-  categoryProposals,
-  measureProposals,
-  loading,
-  onUpdate,
-}: Readonly<PendingProposalsProps & { eventId: string }>) {
+function ProposalQueue({ eventId, onUpdate }: Readonly<PendingProposalsProps & { eventId: string }>) {
+  const { categoryProposals, measureProposals, isLoading: loading } = useAdminProposals(eventId);
   const moderation = useProposalModeration(eventId, onUpdate);
 
   // as propostas passam a linhas comuns, com o rascunho editável de cada tipo

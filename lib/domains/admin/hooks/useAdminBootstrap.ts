@@ -22,3 +22,8 @@ export function useAdminBootstrap(eventId: string | null, enabled = true) {
     refetch,
   };
 }
+
+/** O total de membros do evento, do contador do arranque do admin (0 até chegar). */
+export function useAdminMemberCount(eventId: string | null) {
+  return useAdminBootstrap(eventId).summary?.membersTotal ?? 0;
+}

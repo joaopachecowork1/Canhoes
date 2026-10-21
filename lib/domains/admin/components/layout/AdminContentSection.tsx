@@ -4,7 +4,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { BarChart2, FolderTree, Gavel } from "lucide-react";
 
 import { PillTabs } from "@/components/ui/pill-tabs";
-import type { CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
+import { useAdminBootstrap } from "../../hooks/useAdminBootstrap";
+import { useAdminProposals } from "../../hooks/useAdminProposals";
+import { usePendingNominationCount } from "../../hooks/usePendingNominationCount";
 import { AdminNominationsSection } from "../nominations/AdminNominationsSection";
 import { AdminOfficialResultsSection } from "../AdminOfficialResultsSection";
 import { CategoriesAdmin } from "../categories/CategoriesAdmin";
@@ -25,38 +27,22 @@ function isContentView(value: string | null): value is ContentViewId {
 }
 
 type AdminContentSectionProps = {
-  categoryProposals: CategoryProposalDto[];
-  categoriesCount: number;
   eventId: string | null;
-  loading: boolean;
-  measureProposals: MeasureProposalDto[];
-  memberCount: number;
-  officialResultsCount: number;
-  pendingNominationCount: number;
   onUpdate: () => Promise<void>;
 };
 
 /** Renderiza a vista ativa; a fila de revisão (nomeações e propostas) é a vista por omissão. */
 function ContentView({
   activeView,
-  categoryProposals,
   eventId,
-  loading,
-  measureProposals,
-  memberCount,
   onUpdate,
-}: Readonly<
-  { activeView: ContentViewId } & Pick<
-    AdminContentSectionProps,
-    "categoryProposals" | "eventId" | "loading" | "measureProposals" | "memberCount" | "onUpdate"
-  >
->) {
+}: Readonly<{ activeView: ContentViewId } & AdminContentSectionProps>) {
   if (activeView === "categorias") return <CategoriesAdmin eventId={eventId} onUpdate={onUpdate} />;
 
   if (activeView === "resultados") {
     return (
       <div className="space-y-6">
-        <AdminOfficialResultsSection eventId={eventId} memberCount={memberCount} />
+        <AdminOfficialResultsSection eventId={eventId} />
         <VotesAudit eventId={eventId} />
       </div>
     );
@@ -64,30 +50,14 @@ function ContentView({
 
   return (
     <div className="space-y-6">
-      <AdminNominationsSection eventId={eventId} loading={loading} />
-      <PendingProposals
-        categoryProposals={categoryProposals}
-        eventId={eventId}
-        loading={loading}
-        measureProposals={measureProposals}
-        onUpdate={onUpdate}
-      />
+      <AdminNominationsSection eventId={eventId} />
+      <PendingProposals eventId={eventId} onUpdate={onUpdate} />
     </div>
   );
 }
 
 /** Secção "Conteúdo" do admin: separadores (na query `view`) para a fila de revisão, as categorias e os resultados. */
-export function AdminContentSection({
-  categoryProposals,
-  categoriesCount,
-  eventId,
-  loading,
-  measureProposals,
-  memberCount,
-  officialResultsCount,
-  pendingNominationCount,
-  onUpdate,
-}: Readonly<AdminContentSectionProps>) {
+export function AdminContentSection({ eventId, onUpdate }: Readonly<AdminContentSectionProps>) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,11 +66,15 @@ export function AdminContentSection({
   const viewParam = searchParams.get("view");
   const activeView = isContentView(viewParam) ? viewParam : DEFAULT_VIEW;
 
+  // Os contadores dos separadores leem as mesmas queries que as vistas, que a cache partilha.
+  const { summary } = useAdminBootstrap(eventId);
+  const { categoryProposals, measureProposals } = useAdminProposals(eventId);
+  const { data: pendingNominationCount = 0 } = usePendingNominationCount(eventId);
   const queueCount = pendingNominationCount + categoryProposals.length + measureProposals.length;
   const tabs = [
     { id: "queue", label: copy.queueTab, icon: Gavel, count: queueCount },
-    { id: "categorias", label: copy.categoriesTab, icon: FolderTree, count: categoriesCount },
-    { id: "resultados", label: copy.resultsTab, icon: BarChart2, count: officialResultsCount },
+    { id: "categorias", label: copy.categoriesTab, icon: FolderTree, count: summary?.categoriesTotal ?? 0 },
+    { id: "resultados", label: copy.resultsTab, icon: BarChart2, count: summary?.officialResultsCategoriesCount ?? 0 },
   ].map(({ count, ...tab }) => ({ ...tab, badge: count > 0 ? count : undefined }));
 
   const handleSelectView = (nextView: string) => {
@@ -128,15 +102,7 @@ export function AdminContentSection({
         className="text-[var(--color-text-primary)]"
       />
 
-      <ContentView
-        activeView={activeView}
-        categoryProposals={categoryProposals}
-        eventId={eventId}
-        loading={loading}
-        measureProposals={measureProposals}
-        memberCount={memberCount}
-        onUpdate={onUpdate}
-      />
+      <ContentView activeView={activeView} eventId={eventId} onUpdate={onUpdate} />
     </div>
   );
 }

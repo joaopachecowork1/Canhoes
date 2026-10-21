@@ -13,6 +13,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import messages from "@/messages/pt.json";
 
+import { useAdminMemberCount } from "../hooks/useAdminBootstrap";
 import { ADMIN_CONTENT_CARD_CLASS, AdminSelectableButton } from "./adminContentUi";
 import { ResultsCategoryDrawer } from "./ResultsCategoryDrawer";
 import { queryKeys } from "@/lib/queryKeys";
@@ -84,14 +85,9 @@ function useOfficialResults(eventId: string | null, isAdmin: boolean) {
 }
 
 /** Secção do admin com os resultados oficiais: lista de categorias e gaveta de detalhe da escolhida. */
-export function AdminOfficialResultsSection({
-  eventId,
-  memberCount,
-}: Readonly<{
-  eventId: string | null;
-  memberCount: number;
-}>) {
+export function AdminOfficialResultsSection({ eventId }: Readonly<{ eventId: string | null }>) {
   const isAdmin = useIsAdmin();
+  const memberCount = useAdminMemberCount(eventId);
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const resultsQuery = useOfficialResults(eventId, isAdmin);

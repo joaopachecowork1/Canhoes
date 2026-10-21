@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { useAdminBootstrap } from "@/lib/domains/admin/hooks/useAdminBootstrap";
@@ -10,16 +10,14 @@ import { useEventOverview } from "@/lib/domains/event/hooks/useEventOverview";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { ApiError } from "@/lib/api/canhoesClient";
 import type { EventActiveContextDto } from "@/lib/api/types";
-import { adminRepo } from "@/lib/repositories/adminRepo";
 import messages from "@/messages/pt.json";
 
 import type { AdminSectionId } from "./adminSections";
-import { useAdminProposals } from "../hooks/useAdminProposals";
 import { AdminContentSection } from "./layout/AdminContentSection";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
 import { AdminControlCenter } from "./event/AdminControlCenter";
 import { AdminMembersSection } from "./users/AdminMembersSection";
-import { invalidateAfterAdminWrite, queryKeys } from "@/lib/queryKeys";
+import { invalidateAfterAdminWrite } from "@/lib/queryKeys";
 
 const copy = messages.admin.CanhoesAdminModule;
 
@@ -28,18 +26,6 @@ type CanhoesAdminModuleProps = {
   initialEventId?: string | null;
   initialContext?: EventActiveContextDto | null;
 };
-
-/** Conta as nomeações por rever (pedido de uma só linha, só interessa o total). */
-function usePendingNominationCount(eventId: string | null) {
-  return useQuery({
-    enabled: !!eventId,
-    queryFn: () => adminRepo.getNominationsPaged(eventId ?? "", 0, 1, "pending"),
-    queryKey: queryKeys.admin.nominationsPendingCount(eventId),
-    refetchOnWindowFocus: false,
-    select: (data) => data.total,
-    staleTime: 1000 * 60 * 2,
-  });
-}
 
 /** Regista no log do cliente o erro de arranque do admin, com o estado e detalhes quando vêm da API. */
 function useLogBootstrapError(error: unknown) {
@@ -79,19 +65,16 @@ function AdminLoadError({ error, onRetry }: Readonly<{ error: unknown; onRetry: 
 }
 
 type Bootstrap = ReturnType<typeof useAdminBootstrap>;
-type Proposals = ReturnType<typeof useAdminProposals>;
 
 /** Escolhe o conteúdo da secção ativa; o conteúdo é a secção por omissão. */
 function AdminSectionView({
   bootstrap,
-  content,
   eventId,
   loading,
   onRefresh,
   section,
 }: Readonly<{
   bootstrap: Bootstrap;
-  content: Pick<Proposals, "categoryProposals" | "measureProposals"> & { pendingNominationCount: number };
   eventId: string | null;
   loading: boolean;
   onRefresh: () => Promise<void>;
@@ -110,20 +93,7 @@ function AdminSectionView({
     );
   }
 
-  const { summary } = bootstrap;
-  return (
-    <AdminContentSection
-      categoryProposals={content.categoryProposals}
-      categoriesCount={summary?.categoriesTotal ?? 0}
-      eventId={eventId}
-      memberCount={summary?.membersTotal ?? 0}
-      officialResultsCount={summary?.officialResultsCategoriesCount ?? 0}
-      pendingNominationCount={content.pendingNominationCount}
-      loading={loading}
-      measureProposals={content.measureProposals}
-      onUpdate={onRefresh}
-    />
-  );
+  return <AdminContentSection eventId={eventId} onUpdate={onRefresh} />;
 }
 
 /** Módulo do admin: cabeçalho, erro de arranque e a secção escolhida (conteúdo, membros ou evento). */
@@ -138,10 +108,6 @@ export default function CanhoesAdminModule({
   const resolvedEventId = activeEvent?.id ?? initialEventId ?? null;
   const eventId = activeEvent?.id ?? null;
   const bootstrap = useAdminBootstrap(resolvedEventId);
-  const { categoryProposals, measureProposals, isLoading: proposalsLoading } = useAdminProposals(resolvedEventId);
-  const { data: pendingNominationCount = 0, isLoading: pendingCountLoading } =
-    usePendingNominationCount(resolvedEventId);
-  const loading = bootstrap.loading || proposalsLoading || pendingCountLoading;
 
   const handleRefresh = useCallback(async () => {
     // invalida as queries do admin e o overview em paralelo
@@ -158,10 +124,9 @@ export default function CanhoesAdminModule({
       <AdminSectionView
         section={section}
         eventId={eventId}
-        loading={loading}
+        loading={bootstrap.loading}
         onRefresh={handleRefresh}
         bootstrap={bootstrap}
-        content={{ categoryProposals, measureProposals, pendingNominationCount }}
       />
     </div>
   );
