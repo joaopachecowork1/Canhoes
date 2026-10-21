@@ -26,6 +26,68 @@ function isPublicGoogleSignInEnabled() {
   return process.env.AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN?.trim().toLowerCase() === "true";
 }
 
+type PrismaTx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+/** Garante a criação ou elevação a admin do utilizador convidado. */
+async function resolveInvitedUser(
+  tx: PrismaTx,
+  input: { email: string; externalId: string; displayName: string | null },
+  existingUser: { id: string; isAdmin: boolean } | null,
+  shouldBeAdmin: boolean,
+) {
+  if (existingUser) {
+    if (shouldBeAdmin && !existingUser.isAdmin) {
+      return tx.user.update({
+        where: { id: existingUser.id },
+        data: { isAdmin: true },
+        select: { id: true, isAdmin: true },
+      });
+    }
+    return existingUser;
+  }
+
+  return tx.user.create({
+    data: {
+      email: input.email,
+      externalId: input.externalId,
+      displayName: input.displayName ?? input.email,
+      isAdmin: shouldBeAdmin,
+    },
+    select: { id: true, isAdmin: true },
+  });
+}
+
+/** Inscreve o utilizador no evento do convite ou no evento ativo pré-definido. */
+async function enrollInTargetEvent(
+  tx: PrismaTx,
+  userId: string,
+  eventId: string | null | undefined,
+  shouldBeAdmin: boolean,
+) {
+  const targetEventId =
+    eventId ??
+    (
+      await tx.event.findFirst({
+        where: { isActive: true },
+        orderBy: { createdAtUtc: "asc" },
+        select: { id: true },
+      })
+    )?.id;
+
+  if (!targetEventId) return;
+
+  await tx.eventMember.upsert({
+    where: { eventId_userId: { eventId: targetEventId, userId } },
+    update: shouldBeAdmin ? { role: "admin" } : {},
+    create: {
+      eventId: targetEventId,
+      userId,
+      role: shouldBeAdmin ? "admin" : "participant",
+      joinedAtUtc: new Date(),
+    },
+  });
+}
+
 /** Aplica a política de acesso e cria a participação num primeiro login público com Google. */
 export async function authorizeGoogleSignIn(input: { email: string; externalId: string; displayName: string | null }) {
   const email = input.email.trim().toLowerCase();
@@ -58,29 +120,9 @@ export async function authorizeGoogleSignIn(input: { email: string; externalId: 
       await tx.userInvitation.update({ where: { id: invitation.id }, data: { usedAtUtc: now } });
     }
 
-    const invitedUser =
-      user ??
-      (await tx.user.create({
-        data: { email, externalId: input.externalId, displayName: input.displayName ?? email, isAdmin: false },
-        select: { id: true, isAdmin: true },
-      }));
-    // Evento do convite, ou o evento ativo mais antigo no login público.
-    const eventId =
-      invitation?.eventId ??
-      (
-        await tx.event.findFirst({
-          where: { isActive: true },
-          orderBy: { createdAtUtc: "asc" },
-          select: { id: true },
-        })
-      )?.id;
-    if (eventId) {
-      await tx.eventMember.upsert({
-        where: { eventId_userId: { eventId, userId: invitedUser.id } },
-        update: {},
-        create: { eventId, userId: invitedUser.id, role: "participant", joinedAtUtc: now },
-      });
-    }
+    const shouldBeAdmin = Boolean(invitation && (invitation.isAdmin || invitation.role === "admin"));
+    const invitedUser = await resolveInvitedUser(tx, input, user, shouldBeAdmin);
+    await enrollInTargetEvent(tx, invitedUser.id, invitation?.eventId, shouldBeAdmin);
   });
   return true;
 }

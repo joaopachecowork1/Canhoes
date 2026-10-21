@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { apiRoute } from "@/tests/component/api";
 import { makeEventContext } from "@/tests/component/eventContext";
+import { renderWithProviders } from "@/tests/component/renderWithProviders";
+import { server } from "@/tests/component/server";
 
 import { CanhoesHomeDashboard } from "./CanhoesHomeDashboard";
 
@@ -10,7 +13,7 @@ describe("CanhoesHomeDashboard", () => {
   afterEach(() => localStorage.clear());
 
   it("points to the area of the active phase and up to three shortcuts", async () => {
-    render(
+    renderWithProviders(
       <CanhoesHomeDashboard
         context={makeEventContext({
           phaseType: "VOTING",
@@ -26,7 +29,7 @@ describe("CanhoesHomeDashboard", () => {
   });
 
   it("colours each shortcut with its area's colour", async () => {
-    render(
+    renderWithProviders(
       <CanhoesHomeDashboard
         context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
       />,
@@ -37,13 +40,29 @@ describe("CanhoesHomeDashboard", () => {
     expect(shortcuts.querySelector("a")?.style.getPropertyValue("--area")).toBe("var(--area-wishlist)");
   });
 
-  it("invites to post when no area is open", () => {
-    render(<CanhoesHomeDashboard context={null} />);
+  it("invites to post when no area is open and hides the shortcuts button", () => {
+    server.use(apiRoute("get", "events/active/context", null, 404));
+    renderWithProviders(<CanhoesHomeDashboard context={null} />);
     expect(screen.getByText("O mural está pronto.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /atalhos/i })).not.toBeInTheDocument();
+  });
+
+  it("loads the overview from the client cache when the server context is null", async () => {
+    server.use(
+      apiRoute(
+        "get",
+        "events/active/context",
+        makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } }),
+      ),
+    );
+    renderWithProviders(<CanhoesHomeDashboard context={null} />);
+
+    expect(await screen.findByRole("link", { name: /Próximo passo.*Votação/ })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Mostrar atalhos" })).toBeInTheDocument();
   });
 
   it("keeps the shortcuts folded until asked, with the next step always in view", () => {
-    render(
+    renderWithProviders(
       <CanhoesHomeDashboard
         context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
       />,
@@ -55,7 +74,7 @@ describe("CanhoesHomeDashboard", () => {
   });
 
   it("opens the shortcuts and remembers it", async () => {
-    const { unmount } = render(
+    const { unmount } = renderWithProviders(
       <CanhoesHomeDashboard
         context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
       />,
@@ -66,7 +85,7 @@ describe("CanhoesHomeDashboard", () => {
     expect(localStorage.getItem("canhoes:home-shortcuts-expanded")).toBe("true");
     unmount();
 
-    render(
+    renderWithProviders(
       <CanhoesHomeDashboard
         context={makeEventContext({ phaseType: "VOTING", modules: { voting: true, wishlist: true } })}
       />,
@@ -75,7 +94,9 @@ describe("CanhoesHomeDashboard", () => {
   });
 
   it("welcomes a first visit once and explains what to do first", async () => {
-    const { unmount } = render(<CanhoesHomeDashboard context={makeEventContext({ modules: { wishlist: true } })} />);
+    const { unmount } = renderWithProviders(
+      <CanhoesHomeDashboard context={makeEventContext({ modules: { wishlist: true } })} />,
+    );
 
     expect(await screen.findByRole("heading", { name: "Bem-vindo aos Canhões do Ano" })).toBeInTheDocument();
     expect(screen.getByText(/Preenche a tua wishlist/)).toBeInTheDocument();
@@ -84,14 +105,14 @@ describe("CanhoesHomeDashboard", () => {
     expect(screen.queryByRole("heading", { name: "Bem-vindo aos Canhões do Ano" })).not.toBeInTheDocument();
     unmount();
 
-    render(<CanhoesHomeDashboard context={makeEventContext({ modules: { wishlist: true } })} />);
+    renderWithProviders(<CanhoesHomeDashboard context={makeEventContext({ modules: { wishlist: true } })} />);
     expect(screen.queryByRole("heading", { name: "Bem-vindo aos Canhões do Ano" })).not.toBeInTheDocument();
   });
 
   it("keeps the welcome away from someone who already dismissed it in this browser", () => {
     localStorage.setItem("canhoes:welcome-dismissed", "true");
 
-    render(<CanhoesHomeDashboard context={makeEventContext({ modules: { wishlist: true } })} />);
+    renderWithProviders(<CanhoesHomeDashboard context={makeEventContext({ modules: { wishlist: true } })} />);
 
     expect(screen.queryByRole("heading", { name: "Bem-vindo aos Canhões do Ano" })).not.toBeInTheDocument();
   });

@@ -34,6 +34,8 @@ model UserInvitation {
   usedAtUtc       DateTime? @map("UsedAtUtc") @db.Timestamptz(6)
   createdAtUtc    DateTime  @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   eventId         String?   @map("EventId")
+  role            String    @default("participant") @map("Role")
+  isAdmin         Boolean   @default(false) @map("IsAdmin")
 
   @@index([token], map: "IX_UserInvitations_TokenIdx")
   @@map("UserInvitations")
@@ -422,10 +424,10 @@ model EventGathering {
   createdAtUtc  DateTime        @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   updatedAtUtc  DateTime        @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
 
-  post                    HubPost?                   @relation(fields: [postId], references: [id], onDelete: SetNull)
-  dateOptions             EventGatheringDateOption[]
-  rsvps                   EventGatheringRsvp[]
-  dateVotes               EventGatheringDateVote[]
+  post        HubPost?                   @relation(fields: [postId], references: [id], onDelete: SetNull)
+  dateOptions EventGatheringDateOption[]
+  rsvps       EventGatheringRsvp[]
+  dateVotes   EventGatheringDateVote[]
 
   @@index([eventId], map: "IX_EventGatherings_EventId")
   @@map("EventGatherings")

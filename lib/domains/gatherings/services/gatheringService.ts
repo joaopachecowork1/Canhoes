@@ -85,7 +85,7 @@ export async function loadGatheringsForPosts(
 }
 
 /** Obtém os detalhes completos de um encontro pelo seu ID. */
-export async function getGatheringDetails(gatheringId: string, userId: string): Promise<EventGatheringDto> {
+async function getGatheringDetails(gatheringId: string, userId: string): Promise<EventGatheringDto> {
   const gathering = await prisma.eventGathering.findUnique({
     where: { id: gatheringId },
     include: {

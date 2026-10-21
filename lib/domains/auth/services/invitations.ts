@@ -26,15 +26,25 @@ class InvitationError extends HttpError {
   }
 }
 
+export type InvitationRole = "participant" | "admin";
+
 /**
- * Convida alguém a criar uma conta com email e password. Não há envio de email:
+ * Convida alguém a criar uma conta com email e password ou Google. Não há envio de email:
  * o admin recebe o link e partilha-o. Voltar a convidar um email substitui o token anterior.
  */
-export async function createInvitation(input: { email: string; eventId: string | null; invitedByUserId: string }) {
+export async function createInvitation(input: {
+  email: string;
+  eventId: string | null;
+  invitedByUserId: string;
+  role?: InvitationRole;
+}) {
   const email = input.email.trim().toLowerCase();
   // Quem já tem conta não precisa de convite.
   const existingUser = await prisma.user.findUnique({ where: { email }, select: { id: true } });
   if (existingUser) throw new InvitationError("USER_ALREADY_EXISTS");
+
+  const role = input.role === "admin" ? "admin" : "participant";
+  const isAdmin = role === "admin";
 
   // Token aleatório e data de expiração.
   const token = crypto.randomBytes(32).toString("hex");
@@ -42,19 +52,26 @@ export async function createInvitation(input: { email: string; eventId: string |
   expiresAtUtc.setDate(expiresAtUtc.getDate() + INVITATION_TTL_DAYS);
 
   // Um convite por email: criar ou substituir, voltando a deixá-lo por usar.
-  const invitation = { token, expiresAtUtc, invitedByUserId: input.invitedByUserId, eventId: input.eventId };
+  const invitation = {
+    token,
+    expiresAtUtc,
+    invitedByUserId: input.invitedByUserId,
+    eventId: input.eventId,
+    role,
+    isAdmin,
+  };
   await prisma.userInvitation.upsert({
     where: { email },
     update: { ...invitation, usedAtUtc: null },
     create: { email, ...invitation },
   });
 
-  return { inviteUrl: `/canhoes/register?token=${token}` };
+  return { inviteUrl: `/canhoes/register?token=${token}`, role, isAdmin };
 }
 
 /**
  * Cria a conta para um convite válido (ou define a password numa conta existente com esse email)
- * e, se o convite veio de um evento, inscreve o utilizador como participante.
+ * e, se o convite veio de um evento, inscreve o utilizador como participante ou administrador.
  */
 export async function registerWithInvitation(input: { token: string; password: string; displayName: string }) {
   // Validação do convite, antes de gastar tempo a calcular o hash.
@@ -65,6 +82,7 @@ export async function registerWithInvitation(input: { token: string; password: s
 
   const passwordHash = await bcrypt.hash(input.password, PASSWORD_HASH_ROUNDS);
   const email = invitation.email;
+  const shouldBeAdmin = Boolean(invitation.isAdmin || invitation.role === "admin");
 
   return prisma.$transaction(async (tx) => {
     // Reclamar o convite é a verificação que conta: dois pedidos em simultâneo passam ambos a anterior.
@@ -79,7 +97,11 @@ export async function registerWithInvitation(input: { token: string; password: s
     const user = existingUser
       ? await tx.user.update({
           where: { email },
-          data: { passwordHash, displayName: existingUser.displayName || input.displayName },
+          data: {
+            passwordHash,
+            displayName: existingUser.displayName || input.displayName,
+            ...(shouldBeAdmin ? { isAdmin: true } : {}),
+          },
         })
       : await tx.user.create({
           data: {
@@ -87,7 +109,7 @@ export async function registerWithInvitation(input: { token: string; password: s
             externalId: `credentials:${email}`,
             displayName: input.displayName,
             passwordHash,
-            isAdmin: false,
+            isAdmin: shouldBeAdmin,
           },
         });
 
@@ -95,8 +117,13 @@ export async function registerWithInvitation(input: { token: string; password: s
     if (invitation.eventId) {
       await tx.eventMember.upsert({
         where: { eventId_userId: { eventId: invitation.eventId, userId: user.id } },
-        update: {},
-        create: { eventId: invitation.eventId, userId: user.id, role: "participant", joinedAtUtc: new Date() },
+        update: shouldBeAdmin ? { role: "admin" } : {},
+        create: {
+          eventId: invitation.eventId,
+          userId: user.id,
+          role: shouldBeAdmin ? "admin" : "participant",
+          joinedAtUtc: new Date(),
+        },
       });
     }
 

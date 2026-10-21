@@ -26,6 +26,19 @@ describe("canhoesServerFetch", () => {
     });
   });
 
+  it("uses NEXTAUTH_URL or VERCEL_URL when CANHOES_INTERNAL_URL is unset", async () => {
+    vi.stubEnv("NEXTAUTH_URL", "https://canhoes.app");
+    fetchMock.mockResolvedValue(Response.json({ ok: true }));
+
+    await canhoesServerFetch("status");
+    expect(fetchMock.mock.calls[0]?.[0]).toBe("https://canhoes.app/api/v1/status");
+
+    vi.unstubAllEnvs();
+    vi.stubEnv("VERCEL_URL", "preview.vercel.app");
+    await canhoesServerFetch("status");
+    expect(fetchMock.mock.calls[1]?.[0]).toBe("https://preview.vercel.app/api/v1/status");
+  });
+
   it.each([401, 403, 500])("answers null on a %i", async (status) => {
     fetchMock.mockResolvedValue(new Response(null, { status }));
     await expect(canhoesServerFetch("events/x")).resolves.toBeNull();

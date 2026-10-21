@@ -10,6 +10,7 @@ const inviteSchema = z.object({
     .string()
     .nullish()
     .transform((eventId) => eventId?.trim() || null),
+  role: z.enum(["participant", "admin"]).default("participant"),
 });
 
 /** POST /admin/invites: cria um convite para um email, opcionalmente ligado a um evento */
@@ -18,7 +19,7 @@ export const POST = apiRoute(async (request) => {
   const admin = await requireAdmin();
 
   // Valida o corpo do pedido.
-  const { email, eventId } = await readJson(request, inviteSchema);
+  const { email, eventId, role } = await readJson(request, inviteSchema);
 
-  return json(await createInvitation({ email, eventId, invitedByUserId: admin.id }));
+  return json(await createInvitation({ email, eventId, invitedByUserId: admin.id, role }));
 });

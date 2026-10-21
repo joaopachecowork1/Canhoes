@@ -9,6 +9,7 @@ import type { CanhoesModule } from "@/lib/modules";
 import { cn } from "@/lib/utils";
 import messages from "@/messages/pt.json";
 
+import { useEventOverview } from "../hooks/useEventOverview";
 import { useStoredFlag } from "../hooks/useStoredFlag";
 import { pickDashboardModules } from "../rules/homeDashboard";
 import { CanhoesWelcomeCard } from "./CanhoesWelcomeCard";
@@ -82,14 +83,18 @@ function ShortcutGrid({ modules }: Readonly<{ modules: CanhoesModule[] }>) {
   );
 }
 
+/** O painel inicial com o próximo passo da fase ativa e os atalhos para outras áreas abertas. */
 export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiveContextDto | null }>) {
   // Os atalhos repetem a dock e o menu, por isso começam recolhidos; a escolha fica guardada neste browser.
   const [isExpanded, setIsExpanded] = useStoredFlag(SHORTCUTS_EXPANDED_STORAGE_KEY, false);
+  const { overview } = useEventOverview(context);
+  const activeOverview = overview ?? context?.overview;
   const { nextStep, shortcuts } = pickDashboardModules(
-    context?.overview.modules ?? {},
-    context?.overview.activePhase?.type,
+    activeOverview?.modules ?? {},
+    activeOverview?.activePhase?.type,
   );
   const ToggleIcon = isExpanded ? ChevronUp : ChevronDown;
+  const hasShortcuts = shortcuts.length > 0;
 
   return (
     <section aria-label={copy.sectionLabel} className="space-y-3">
@@ -98,25 +103,29 @@ export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiv
         <h1 id="dashboard-title" className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
           {copy.title}
         </h1>
-        <button
-          type="button"
-          onClick={() => setIsExpanded(!isExpanded)}
-          aria-controls="current-edition-actions"
-          aria-expanded={isExpanded}
-          className={cn(
-            "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]",
-            FOCUS_RING,
-          )}
-        >
-          <ToggleIcon className="h-4 w-4" aria-hidden />
-          {isExpanded ? copy.hide : copy.show}
-        </button>
+        {hasShortcuts ? (
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            aria-controls="current-edition-actions"
+            aria-expanded={isExpanded}
+            className={cn(
+              "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]",
+              FOCUS_RING,
+            )}
+          >
+            <ToggleIcon className="h-4 w-4" aria-hidden />
+            {isExpanded ? copy.hide : copy.show}
+          </button>
+        ) : null}
       </div>
 
       <NextStepCard module={nextStep} />
-      <div id="current-edition-actions" hidden={!isExpanded}>
-        <ShortcutGrid modules={shortcuts} />
-      </div>
+      {hasShortcuts ? (
+        <div id="current-edition-actions" hidden={!isExpanded}>
+          <ShortcutGrid modules={shortcuts} />
+        </div>
+      ) : null}
     </section>
   );
 }

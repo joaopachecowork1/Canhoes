@@ -5,8 +5,8 @@ import type * as T from "@/lib/api/types";
 export const adminRepo = {
   getBootstrap: (eventId: string) => canhoesFetch<T.EventAdminBootstrapDto>(`/v1/events/${eventId}/admin/bootstrap`),
 
-  inviteUser: (payload: { email: string; eventId: string }) =>
-    canhoesFetch<{ inviteUrl: string }>("/admin/invites", {
+  inviteUser: (payload: { email: string; eventId?: string | null; role?: "participant" | "admin" }) =>
+    canhoesFetch<{ inviteUrl: string; role?: string; isAdmin?: boolean }>("/admin/invites", {
       method: "POST",
       body: JSON.stringify(payload),
       canhoes: { throwOnUnauthorized: true },

@@ -300,7 +300,33 @@ describe("CanhoesAdminModule — members", () => {
     await userEvent.click(screen.getByRole("button", { name: "Gerar Convite" }));
 
     expect(await screen.findByText("Convite gerado!")).toBeInTheDocument();
+    expect(screen.getByText("Acesso: Membro")).toBeInTheDocument();
     expect(screen.getByDisplayValue(/register\?token=abc/)).toBeInTheDocument();
+  });
+
+  it("generates an invite link for an admin", async () => {
+    serveAdmin();
+    const recorder = recordRequests();
+    server.use(
+      http.post("*/api/admin/invites", async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json({ inviteUrl: "/canhoes/register?token=admin-token" });
+      }),
+    );
+    renderAdmin("membros");
+
+    await userEvent.click(await screen.findByRole("button", { name: "Administrador" }));
+    await userEvent.type(screen.getByPlaceholderText("Email do utilizador"), "novo-admin@canhoes.pt");
+    await userEvent.click(screen.getByRole("button", { name: "Gerar Convite" }));
+
+    expect(await screen.findByText("Convite gerado!")).toBeInTheDocument();
+    expect(screen.getByText("Acesso: Administrador")).toBeInTheDocument();
+    expect(screen.getByDisplayValue(/register\?token=admin-token/)).toBeInTheDocument();
+    expect(recorder.requests[0]?.body).toEqual({
+      email: "novo-admin@canhoes.pt",
+      eventId: "event-1",
+      role: "admin",
+    });
   });
 
   it("repeats and reveals the draw only after confirming", async () => {

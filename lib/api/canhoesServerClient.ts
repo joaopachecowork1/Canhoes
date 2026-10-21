@@ -6,7 +6,10 @@ import { logger } from "@/lib/logger";
  * Devolve null sem sessão (401/403) ou em caso de erro, que fica registado.
  */
 export async function canhoesServerFetch<T>(path: string): Promise<T | null> {
-  const baseUrl = process.env.CANHOES_INTERNAL_URL || "http://localhost:3000";
+  const baseUrl =
+    process.env.CANHOES_INTERNAL_URL ||
+    process.env.NEXTAUTH_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
   // Aceita o caminho com ou sem barra inicial.
   const normalizedPath = path.startsWith("/") ? path.slice(1) : path;
   const url = `${baseUrl}/api/v1/${normalizedPath}`;

@@ -24,16 +24,9 @@ const shouldSeedDemoData = process.env.SEED_DEMO_DATA
 // Escolhe um elemento ao acaso de uma lista.
 const randomEl = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-async function main() {
-  console.log("Seeding admins and the event...");
-
-  // 1. Garante os admins (a password só é definida se ainda não tiverem uma)
+// Garante os admins (a password só é definida se ainda não tiverem uma).
+async function seedAdmins(adminPassword) {
   const seededAdmins = [];
-  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
-  if (adminPassword && adminPassword.length < 8) {
-    throw new Error("ADMIN_PASSWORD must contain at least 8 characters.");
-  }
-
   for (const email of adminEmails()) {
     const user = await prisma.user.upsert({
       where: { email },
@@ -55,6 +48,18 @@ async function main() {
     }
     seededAdmins.push(user);
   }
+  return seededAdmins;
+}
+
+async function main() {
+  console.log("Seeding admins and the event...");
+
+  // 1. Garante os admins
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+  if (adminPassword && adminPassword.length < 8) {
+    throw new Error("ADMIN_PASSWORD must contain at least 8 characters.");
+  }
+  const seededAdmins = await seedAdmins(adminPassword);
 
   // 2. Evento e estado
   const eventId = "canhoes-local";
