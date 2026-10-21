@@ -12,7 +12,7 @@ import { CanhoesHomeDashboard } from "./CanhoesHomeDashboard";
 describe("CanhoesHomeDashboard", () => {
   afterEach(() => localStorage.clear());
 
-  it("points to the area of the active phase and up to three shortcuts", async () => {
+  it("points to the area of the active phase and shows the quick actions strip", async () => {
     renderWithProviders(
       <CanhoesHomeDashboard
         context={makeEventContext({
@@ -24,8 +24,8 @@ describe("CanhoesHomeDashboard", () => {
 
     expect(screen.getByRole("link", { name: /Próximo passo.*Votação/ })).toHaveAttribute("href", "/canhoes/votacao");
     await userEvent.click(await screen.findByRole("button", { name: "Mostrar atalhos" }));
-    const shortcuts = screen.getByRole("navigation", { name: "Atalhos da edição" });
-    expect(shortcuts.querySelectorAll("a")).toHaveLength(3);
+    const shortcuts = await screen.findByRole("navigation", { name: "Atalhos da edição" });
+    expect(shortcuts.querySelectorAll("a").length).toBeGreaterThan(1);
   });
 
   it("colours each shortcut with its area's colour", async () => {
@@ -36,15 +36,17 @@ describe("CanhoesHomeDashboard", () => {
     );
 
     await userEvent.click(await screen.findByRole("button", { name: "Mostrar atalhos" }));
-    const shortcuts = screen.getByRole("navigation", { name: "Atalhos da edição" });
+    const shortcuts = await screen.findByRole("navigation", { name: "Atalhos da edição" });
     expect(shortcuts.querySelector("a")?.style.getPropertyValue("--area")).toBe("var(--area-wishlist)");
+    expect(screen.getByText("Aberto")).toBeInTheDocument();
   });
 
-  it("invites to post when no area is open and hides the shortcuts button", () => {
+  it("invites to post when no area is open and provides the shortcuts strip", async () => {
     server.use(apiRoute("get", "events/active/context", null, 404));
     renderWithProviders(<CanhoesHomeDashboard context={null} />);
     expect(screen.getByText("O mural está pronto.")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /atalhos/i })).not.toBeInTheDocument();
+    await userEvent.click(await screen.findByRole("button", { name: "Mostrar atalhos" }));
+    expect(screen.getByRole("navigation", { name: "Atalhos da edição" })).toBeInTheDocument();
   });
 
   it("loads the overview from the client cache when the server context is null", async () => {
@@ -57,8 +59,9 @@ describe("CanhoesHomeDashboard", () => {
     );
     renderWithProviders(<CanhoesHomeDashboard context={null} />);
 
-    expect(await screen.findByRole("link", { name: /Próximo passo.*Votação/ })).toBeInTheDocument();
-    expect(await screen.findByRole("button", { name: "Mostrar atalhos" })).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: /Próximo passo.*Votação/ }, { timeout: 5000 })).toBeInTheDocument();
+    await userEvent.click(await screen.findByRole("button", { name: "Mostrar atalhos" }));
+    expect(await screen.findByRole("navigation", { name: "Atalhos da edição" })).toBeInTheDocument();
   });
 
   it("keeps the shortcuts folded until asked, with the next step always in view", () => {

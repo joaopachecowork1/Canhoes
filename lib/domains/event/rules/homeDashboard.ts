@@ -9,17 +9,19 @@ const PHASE_MODULES: Record<string, string> = {
   RESULTS: "gala",
 };
 
-// Número máximo de atalhos mostrados além do próximo passo.
-const SHORTCUT_COUNT = 3;
+/** Um atalho para uma área do evento na faixa rápida do mural, com indicação se está aberta. */
+export type DashboardShortcut = CanhoesModule & {
+  isOpen: boolean;
+};
 
 /**
- * O "próximo passo" do painel inicial (a área aberta da fase ativa, senão a wishlist) e até três
- * outras áreas abertas como atalhos. O mural é a própria página inicial, por isso nunca é atalho.
+ * O "próximo passo" do painel inicial (a área aberta da fase ativa, senão a wishlist) e todos os
+ * outros módulos da edição como atalhos da faixa rápida, ordenando os abertos primeiro.
  */
 export function pickDashboardModules(
   modules: EventModulesDto,
   activePhaseType: EventPhaseDto["type"] | undefined,
-): { nextStep: CanhoesModule | undefined; shortcuts: CanhoesModule[] } {
+): { nextStep: CanhoesModule | undefined; shortcuts: DashboardShortcut[] } {
   const isOpen = (module: CanhoesModule) => Boolean(modules[module.key]);
   const phaseModuleKey = activePhaseType ? PHASE_MODULES[activePhaseType] : undefined;
 
@@ -27,9 +29,18 @@ export function pickDashboardModules(
     CANHOES_MODULES.find((module) => module.key === phaseModuleKey && isOpen(module)) ??
     CANHOES_MODULES.find((module) => module.key === "wishlist" && isOpen(module));
 
-  const shortcuts = CANHOES_MODULES.filter(
-    (module) => module.key !== "feed" && module.key !== nextStep?.key && isOpen(module),
-  ).slice(0, SHORTCUT_COUNT);
+  const candidateModules = CANHOES_MODULES.filter((module) => module.key !== "feed" && module.key !== nextStep?.key);
+
+  const shortcuts: DashboardShortcut[] = candidateModules
+    .map((module) => ({
+      ...module,
+      isOpen: isOpen(module),
+    }))
+    .sort((a, b) => {
+      if (a.isOpen && !b.isOpen) return -1;
+      if (!a.isOpen && b.isOpen) return 1;
+      return 0;
+    });
 
   return { nextStep, shortcuts };
 }

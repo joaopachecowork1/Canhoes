@@ -367,7 +367,8 @@
       "nextStep": "Próximo passo",
       "emptyTitle": "O mural está pronto.",
       "emptyDescription": "Partilha uma atualização com o grupo.",
-      "shortcutsLabel": "Atalhos da edição"
+      "shortcutsLabel": "Atalhos da edição",
+      "openBadge": "Aberto"
     },
     "CanhoesWelcomeCard": {
       "title": "Bem-vindo aos Canhões do Ano",

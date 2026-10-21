@@ -21,10 +21,11 @@ function renderHeader(eventName: string) {
 }
 
 describe("CanhoesHeader", () => {
-  it("names the edition under the brand", () => {
+  it("renders the brand mark cleanly without subtitle", () => {
     renderHeader("Canhões 2026");
 
-    expect(screen.getByText("Canhões 2026")).toBeInTheDocument();
+    expect(screen.getByText("Canhões do Ano")).toBeInTheDocument();
+    expect(screen.queryByText("Canhões 2026")).not.toBeInTheDocument();
   });
 
   it("does not say the app's name twice when the edition has the same name", () => {

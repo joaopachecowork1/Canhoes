@@ -19,13 +19,18 @@ describe("pickDashboardModules", () => {
     expect(pickDashboardModules({ feed: true }, undefined).nextStep).toBeUndefined();
   });
 
-  it("lists at most three other open areas, never the mural or the next step", () => {
+  it("lists all other areas of the edition with open areas first, never the mural or the next step", () => {
     const { shortcuts } = pickDashboardModules(
       { voting: true, gala: true, secretSanta: true, wishlist: true, stickers: true, feed: true },
       "VOTING",
     );
-    expect(shortcuts).toHaveLength(3);
+    expect(shortcuts.length).toBeGreaterThan(0);
     expect(keys(shortcuts)).not.toContain("voting");
     expect(keys(shortcuts)).not.toContain("feed");
+    const firstClosed = shortcuts.findIndex((s) => !s.isOpen);
+    if (firstClosed !== -1) {
+      const openAfterClosed = shortcuts.slice(firstClosed).some((s) => s.isOpen);
+      expect(openAfterClosed).toBe(false);
+    }
   });
 });

@@ -41,7 +41,6 @@ function MenuButton({ isMenuOpen, onOpenMenu }: Readonly<Pick<CanhoesHeaderProps
 
 /** Capa de álbum fixa no topo: marca e edição, a fase e o cromo do próprio membro. A página dá o próprio título. */
 export function CanhoesHeader({
-  event,
   isLoading,
   isMenuOpen,
   onOpenMenu,
@@ -49,14 +48,11 @@ export function CanhoesHeader({
   userColor,
   userLabel,
 }: Readonly<CanhoesHeaderProps>) {
-  // A edição costuma ter o nome da app; dizê-lo duas vezes por baixo do logótipo não acrescenta nada.
-  const editionName = event?.name && event.name !== messages.common.appName ? event.name : undefined;
-
   return (
     <header className="sticky top-0 z-40 bg-[var(--bg-surface)] shadow-[var(--shadow-elevation-sm)]">
       <div className="mx-auto w-full max-w-[60rem] space-y-3 px-4 pb-3 pt-[calc(env(safe-area-inset-top,0px)+0.75rem)] sm:px-6 lg:px-8">
         <div className="flex items-center gap-2">
-          <CanhoesBrandMark className="flex-1" subtitle={editionName ?? messages.shell.CanhoesChrome.eventSubtitle} />
+          <CanhoesBrandMark className="flex-1" compact />
           <CanhoesPhaseHud isLoading={isLoading} overview={overview} />
           <PersonCromo name={userLabel} color={userColor} size="sm" />
           <span className="sr-only">{userLabel}</span>
