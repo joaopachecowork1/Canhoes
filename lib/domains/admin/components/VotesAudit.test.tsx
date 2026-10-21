@@ -5,7 +5,7 @@ import { screen, waitFor } from "@testing-library/react";
 import { vote } from "@/tests/component/fixtures";
 import { renderWithProviders } from "@/tests/component/renderWithProviders";
 import { server } from "@/tests/component/server";
-import { queryKeys } from "@/lib/queryKeys";
+import { invalidateAfterAdminWrite } from "@/lib/queryKeys";
 
 import { VotesAudit } from "./VotesAudit";
 
@@ -21,9 +21,7 @@ describe("VotesAudit", () => {
     const { queryClient } = renderWithProviders(<VotesAudit eventId="event-1" />);
     expect(await screen.findByText("Canhão do Ano")).toBeInTheDocument();
 
-    await Promise.all(
-      queryKeys.admin.afterWrite("event-1").map((queryKey) => queryClient.invalidateQueries({ queryKey })),
-    );
+    await invalidateAfterAdminWrite(queryClient, "event-1");
 
     await waitFor(() => expect(requests).toBe(2));
   });

@@ -8,7 +8,7 @@ import { getErrorMessage } from "@/lib/errors";
 import { PERSON_COLORS, personColorVar, type PersonColor } from "@/lib/personColors";
 import { authRepo } from "@/lib/repositories/authRepo";
 import messages from "@/messages/pt.json";
-import { queryKeys } from "@/lib/queryKeys";
+import { invalidatePersonColor } from "@/lib/queryKeys";
 
 const copy = messages.shell.PersonColorPicker;
 
@@ -21,7 +21,7 @@ export function PersonColorPicker() {
     onSuccess: async () => {
       // Primeiro a sessão (o cromo do cabeçalho), depois as queries que mostram a cor de cada pessoa.
       await refreshProfile();
-      await queryClient.invalidateQueries({ predicate: (query) => queryKeys.colorRoots.includes(query.queryKey[0]) });
+      await invalidatePersonColor(queryClient);
     },
     onError: (error) => toast.error(getErrorMessage(error, copy.saveError)),
   });

@@ -4,6 +4,8 @@
  * pelo mesmo prefixo, por isso invalidar o prefixo atualiza todas as variantes (páginas, filtros).
  */
 
+import type { QueryClient } from "@tanstack/react-query";
+
 /** O evento da página atual, que só se conhece depois de a visão geral carregar. */
 type EventId = string | null | undefined;
 
@@ -24,11 +26,7 @@ export const queryKeys = {
   officialVoting: (eventId: EventId) => ["official-voting", eventId ?? ""] as const,
   nominationCategories: (eventId: string) => ["nominations", eventId, "categories"] as const,
   nominationsApproved: (eventId: string) => ["nominations", eventId, "approved"] as const,
-  /**
-   * As listas em cache que mostram a cor de uma pessoa: `authorColor` em publicações e comentários, `PublicUserDto.color` nas listas
-   * de membros (faixa do mural, wishlist, admin). Atualizam quando alguém muda a sua; um ecrã novo que mostre uma cor tem de juntar aqui a sua raiz.
-   */
-  colorRoots: ["hub-posts", "hub-comments", "eventMembers", "canhoes"] as readonly unknown[],
+  nominationsMine: (eventId: string) => ["nominations", eventId, "my-status"] as const,
   admin: {
     /** Todas as queries de admin de um evento, exceto `bootstrap` e `proposals`: uma só invalidação atualiza-as todas. */
     all: (eventId: EventId) => ["canhoes", "admin", eventId] as const,
@@ -48,13 +46,31 @@ export const queryKeys = {
     membersPage: (eventId: EventId, skip: number, take: number) =>
       ["canhoes", "admin", eventId, "members", skip, take] as const,
     secretSantaState: (eventId: EventId) => ["canhoes", "admin", eventId, "secret-santa-state"] as const,
-    /** O que invalidar depois de qualquer escrita de admin, para todos os separadores desse evento ficarem atualizados. */
-    afterWrite: (eventId: EventId) =>
-      [
-        ["canhoes", "admin", eventId],
-        ["adminBootstrap", eventId],
-        ["admin", "proposals", eventId],
-        ["eventMembers", eventId],
-      ] as const,
   },
 };
+
+/**
+ * Depois de qualquer escrita de admin, atualiza todas as listas do admin desse evento (os separadores
+ * ficam todos em dia) e a dos membros, porque uma escrita pode mudar quem a app mostra.
+ */
+export function invalidateAfterAdminWrite(queryClient: QueryClient, eventId: EventId) {
+  const roots = [
+    queryKeys.admin.all(eventId),
+    queryKeys.admin.bootstrap(eventId),
+    queryKeys.admin.proposals(eventId),
+    queryKeys.eventMembers(eventId),
+  ];
+
+  return Promise.all(roots.map((queryKey) => queryClient.invalidateQueries({ queryKey })));
+}
+
+/** As raízes de cache cujas listas mostram a cor de uma pessoa; um ecrã novo que mostre uma cor tem de juntar aqui a sua. */
+const COLOR_ROOTS: readonly unknown[] = ["hub-posts", "hub-comments", "eventMembers", "canhoes"];
+
+/**
+ * Quando alguém muda a sua cor, atualiza as listas que a mostram: `authorColor` em publicações e comentários
+ * e `PublicUserDto.color` nas listas de membros (faixa do mural, wishlist, admin).
+ */
+export function invalidatePersonColor(queryClient: QueryClient) {
+  return queryClient.invalidateQueries({ predicate: (query) => COLOR_ROOTS.includes(query.queryKey[0]) });
+}

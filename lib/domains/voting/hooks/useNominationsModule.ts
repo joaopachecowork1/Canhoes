@@ -13,9 +13,6 @@ const EMPTY_CATEGORIES: AwardCategoryDto[] = [];
 const EMPTY_NOMINEES: NomineeDto[] = [];
 const EMPTY_MY_NOMINATIONS: MyNominationDto[] = [];
 
-/** Chave da query das nomeações do próprio utilizador, partilhada com a atualização otimista em `useSubmitNomination`. */
-export const myNominationsKey = (eventId: string) => ["nominations", eventId, "my-status"];
-
 // `keepPreviousData` evita piscar vazio ao mudar de evento.
 const QUERY_OPTIONS = {
   placeholderData: keepPreviousData,
@@ -41,7 +38,7 @@ function useNominationQueries(eventId: string | null, initialCategories?: AwardC
 
   const myNominationsQuery = useQuery({
     ...QUERY_OPTIONS,
-    queryKey: myNominationsKey(queryEventId),
+    queryKey: queryKeys.nominationsMine(queryEventId),
     enabled,
     queryFn: () => awardsRepo.getMyNominations(queryEventId),
   });
@@ -82,7 +79,8 @@ export function useNominationsModule(
     (category) => category.id,
   );
 
-  const refreshMyNominations = () => queryClient.invalidateQueries({ queryKey: myNominationsKey(queryEventId) });
+  const refreshMyNominations = () =>
+    queryClient.invalidateQueries({ queryKey: queryKeys.nominationsMine(queryEventId) });
 
   return {
     ...remote,

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { queryKeys } from "./queryKeys";
+import { QueryClient } from "@tanstack/react-query";
+
+import { invalidateAfterAdminWrite, invalidatePersonColor, queryKeys } from "./queryKeys";
 
 describe("queryKeys", () => {
   it("keeps every admin list of an event under one prefix, so one invalidation refreshes them all", () => {
@@ -33,7 +35,45 @@ describe("queryKeys", () => {
     expect(queryKeys.admin.membersPage("e", 0, 50).slice(0, 4)).toEqual(queryKeys.admin.members("e"));
   });
 
-  it("refreshes the member list after any admin write, since it changes who the mural and the wishlist show", () => {
-    expect(queryKeys.admin.afterWrite("e")).toContainEqual(queryKeys.eventMembers("e"));
+  it("keeps the nominations of the user next to the other nomination keys", () => {
+    expect(queryKeys.nominationsMine("e")).toEqual(["nominations", "e", "my-status"]);
+  });
+});
+
+/** A client with one cached query per key, to see which ones a refresh marks as stale. */
+function clientWith(keys: readonly (readonly unknown[])[]) {
+  const queryClient = new QueryClient();
+  for (const key of keys) queryClient.setQueryData(key, "cached");
+  const isStale = (key: readonly unknown[]) => queryClient.getQueryState(key)?.isInvalidated === true;
+  return { queryClient, isStale };
+}
+
+describe("invalidateAfterAdminWrite", () => {
+  it("refreshes every admin list of the event and the member list, since an admin write changes who the app shows", async () => {
+    const keys = [
+      queryKeys.admin.members("e"),
+      queryKeys.admin.bootstrap("e"),
+      queryKeys.admin.categoryProposals("e"),
+      queryKeys.eventMembers("e"),
+    ];
+    const { queryClient, isStale } = clientWith([...keys, queryKeys.admin.members("other"), queryKeys.categories("e")]);
+
+    await invalidateAfterAdminWrite(queryClient, "e");
+
+    for (const key of keys) expect(isStale(key)).toBe(true);
+    expect(isStale(queryKeys.admin.members("other"))).toBe(false);
+    expect(isStale(queryKeys.categories("e"))).toBe(false);
+  });
+});
+
+describe("invalidatePersonColor", () => {
+  it("refreshes the lists that show a person's colour and leaves the others alone", async () => {
+    const shown = [queryKeys.hubPosts("e"), queryKeys.hubComments("p"), queryKeys.eventMembers("e")];
+    const { queryClient, isStale } = clientWith([...shown, queryKeys.categories("e")]);
+
+    await invalidatePersonColor(queryClient);
+
+    for (const key of shown) expect(isStale(key)).toBe(true);
+    expect(isStale(queryKeys.categories("e"))).toBe(false);
   });
 });

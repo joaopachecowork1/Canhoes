@@ -6,10 +6,9 @@ import { toast } from "sonner";
 
 import type { MyNominationDto } from "@/lib/api/types";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
+import { queryKeys } from "@/lib/queryKeys";
 import { awardsRepo } from "@/lib/repositories/awardsRepo";
 import messages from "@/messages/pt.json";
-
-import { myNominationsKey } from "./useNominationsModule";
 
 const copy = messages.voting.CategoryNominationCard;
 /** Limites de tamanho do título de uma nomeação. */
@@ -38,7 +37,7 @@ export function useSubmitNomination({
   const [pendingLabel, setPendingLabel] = useState<string | null>(null);
   const titleTrimmed = title.trim();
   const isValidTitle = titleTrimmed.length >= NOMINATION_TITLE_MIN && titleTrimmed.length <= NOMINATION_TITLE_MAX;
-  const mineKey = myNominationsKey(eventId);
+  const mineKey = queryKeys.nominationsMine(eventId);
 
   const mutation = useMutation({
     // O título viaja como variável da mutação: o onMutate limpa o campo antes de o mutationFn correr.

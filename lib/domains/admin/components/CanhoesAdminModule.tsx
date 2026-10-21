@@ -19,7 +19,7 @@ import { AdminContentSection } from "./layout/AdminContentSection";
 import { AdminStateMessage } from "./layout/AdminStateMessage";
 import { AdminControlCenter } from "./event/AdminControlCenter";
 import { AdminMembersSection } from "./users/AdminMembersSection";
-import { queryKeys } from "@/lib/queryKeys";
+import { invalidateAfterAdminWrite, queryKeys } from "@/lib/queryKeys";
 
 const copy = messages.admin.CanhoesAdminModule;
 
@@ -145,10 +145,7 @@ export default function CanhoesAdminModule({
 
   const handleRefresh = useCallback(async () => {
     // invalida as queries do admin e o overview em paralelo
-    await Promise.all([
-      ...queryKeys.admin.afterWrite(resolvedEventId).map((queryKey) => queryClient.invalidateQueries({ queryKey })),
-      refreshOverview(),
-    ]);
+    await Promise.all([invalidateAfterAdminWrite(queryClient, resolvedEventId), refreshOverview()]);
   }, [resolvedEventId, queryClient, refreshOverview]);
 
   useLogBootstrapError(bootstrap.error);
