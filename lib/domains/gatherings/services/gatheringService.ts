@@ -84,6 +84,61 @@ export async function loadGatheringsForPosts(
   return map;
 }
 
+/** Obtém os detalhes completos de um encontro pelo seu ID. */
+export async function getGatheringDetails(gatheringId: string, userId: string): Promise<EventGatheringDto> {
+  const gathering = await prisma.eventGathering.findUnique({
+    where: { id: gatheringId },
+    include: {
+      dateOptions: {
+        orderBy: { sortOrder: "asc" },
+        include: { votes: true },
+      },
+      rsvps: true,
+    },
+  });
+
+  if (!gathering) throw notFound("Gathering not found");
+
+  const rsvpUserIds = [...new Set(gathering.rsvps.map((r) => r.userId))];
+  const users = await loadUsersById(rsvpUserIds, (where) =>
+    prisma.user.findMany({ where, select: { id: true, displayName: true, color: true } }),
+  );
+
+  const myRsvpRecord = gathering.rsvps.find((r) => r.userId === userId);
+
+  return {
+    id: gathering.id,
+    eventId: gathering.eventId,
+    title: gathering.title,
+    description: gathering.description,
+    location: gathering.location,
+    status: gathering.status as EventGatheringStatus,
+    confirmedDate: gathering.confirmedDate,
+    postId: gathering.postId,
+    createdAtUtc: gathering.createdAtUtc.toISOString(),
+    dateOptions: gathering.dateOptions.map((opt) => ({
+      id: opt.id,
+      dateText: opt.dateText,
+      sortOrder: opt.sortOrder,
+      voteCount: opt.votes.length,
+      hasVoted: opt.votes.some((v) => v.userId === userId),
+    })),
+    rsvps: gathering.rsvps.map((r) => {
+      const user = users.get(r.userId);
+      return {
+        userId: r.userId,
+        userName: user?.displayName ?? "Membro",
+        userColor: user?.color ?? PERSON_COLORS[0],
+        status: r.status as EventGatheringRsvpStatus,
+        note: r.note,
+        updatedAtUtc: r.updatedAtUtc.toISOString(),
+      };
+    }),
+    myRsvp: (myRsvpRecord?.status as EventGatheringRsvpStatus) ?? null,
+    myRsvpNote: myRsvpRecord?.note ?? null,
+  };
+}
+
 /** Alterna a disponibilidade de um membro para uma opção de data (múltipla escolha). */
 export async function toggleGatheringDateVote(
   gatheringId: string,
