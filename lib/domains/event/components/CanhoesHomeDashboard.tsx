@@ -83,6 +83,31 @@ function ShortcutGrid({ modules }: Readonly<{ modules: CanhoesModule[] }>) {
   );
 }
 
+function ShortcutsToggleButton({
+  isExpanded,
+  onToggle,
+}: Readonly<{
+  isExpanded: boolean;
+  onToggle: () => void;
+}>) {
+  const ToggleIcon = isExpanded ? ChevronUp : ChevronDown;
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-controls="current-edition-actions"
+      aria-expanded={isExpanded}
+      className={cn(
+        "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]",
+        FOCUS_RING,
+      )}
+    >
+      <ToggleIcon className="h-4 w-4" aria-hidden />
+      {isExpanded ? copy.hide : copy.show}
+    </button>
+  );
+}
+
 /** O painel inicial com o próximo passo da fase ativa e os atalhos para outras áreas abertas. */
 export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiveContextDto | null }>) {
   // Os atalhos repetem a dock e o menu, por isso começam recolhidos; a escolha fica guardada neste browser.
@@ -93,7 +118,6 @@ export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiv
     activeOverview?.modules ?? {},
     activeOverview?.activePhase?.type,
   );
-  const ToggleIcon = isExpanded ? ChevronUp : ChevronDown;
   const hasShortcuts = shortcuts.length > 0;
 
   return (
@@ -104,19 +128,7 @@ export function CanhoesHomeDashboard({ context }: Readonly<{ context: EventActiv
           {copy.title}
         </h1>
         {hasShortcuts ? (
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            aria-controls="current-edition-actions"
-            aria-expanded={isExpanded}
-            className={cn(
-              "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-paper)] px-3 text-sm font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)]",
-              FOCUS_RING,
-            )}
-          >
-            <ToggleIcon className="h-4 w-4" aria-hidden />
-            {isExpanded ? copy.hide : copy.show}
-          </button>
+          <ShortcutsToggleButton isExpanded={isExpanded} onToggle={() => setIsExpanded(!isExpanded)} />
         ) : null}
       </div>
 
