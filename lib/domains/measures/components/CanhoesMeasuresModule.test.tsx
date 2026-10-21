@@ -15,13 +15,14 @@ import { CanhoesMeasuresModule } from "./CanhoesMeasuresModule";
 const measures = [measure(), measure({ id: "m-2", text: "Quem chegar atrasado canta" })];
 
 function renderMeasures({
+  canSubmitProposal,
   initialData = measures,
   phaseType = "PROPOSALS",
-}: { initialData?: GalaMeasureDto[]; phaseType?: string } = {}) {
+}: { canSubmitProposal?: boolean; initialData?: GalaMeasureDto[]; phaseType?: string } = {}) {
   return renderWithProviders(
     <CanhoesMeasuresModule
       initialData={initialData}
-      initialContext={makeEventContext({ phaseType, modules: { measures: true } })}
+      initialContext={makeEventContext({ canSubmitProposal, phaseType, modules: { measures: true } })}
     />,
   );
 }
@@ -29,6 +30,16 @@ function renderMeasures({
 const submitButton = () => screen.getByRole("button", { name: "Propor medida" });
 
 describe("CanhoesMeasuresModule", () => {
+  it("follows what the server allows, not the phase name", async () => {
+    renderMeasures({ canSubmitProposal: false });
+    expect(submitButton()).toHaveTextContent("Propostas fechadas");
+  });
+
+  it("opens the form for whoever the server lets propose, even outside the proposals phase", async () => {
+    renderMeasures({ canSubmitProposal: true, phaseType: "VOTING" });
+    expect(submitButton()).toHaveTextContent(/^Propor$/);
+  });
+
   it("lists the approved measures and filters them", async () => {
     renderMeasures();
     expect(screen.getByText("Ninguém sai antes da meia-noite")).toBeInTheDocument();

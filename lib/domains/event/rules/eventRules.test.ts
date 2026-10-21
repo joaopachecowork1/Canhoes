@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { readModuleSwitches, resolveMemberModules, type EventRulesState } from "./eventRules";
+import { phaseSwitches, readModuleSwitches, resolveMemberModules, type EventRulesState } from "./eventRules";
 
 function openModules(state: Partial<EventRulesState>) {
   const modules = resolveMemberModules({
@@ -52,5 +52,14 @@ describe("readModuleSwitches", () => {
 
   it.each([null, undefined, "feed", [true], 3])("reads %o as no switches", (value) => {
     expect(readModuleSwitches(value)).toEqual({});
+  });
+});
+
+describe("phaseSwitches", () => {
+  it("shows the nominations only while proposals are open and the results only in the gala", () => {
+    expect(phaseSwitches("DRAW")).toEqual({ nominationsVisible: false, resultsVisible: false });
+    expect(phaseSwitches("PROPOSALS")).toEqual({ nominationsVisible: true, resultsVisible: false });
+    expect(phaseSwitches("VOTING")).toEqual({ nominationsVisible: false, resultsVisible: false });
+    expect(phaseSwitches("RESULTS")).toEqual({ nominationsVisible: false, resultsVisible: true });
   });
 });

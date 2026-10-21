@@ -171,7 +171,6 @@ export function CanhoesMeasuresModule({
 
   const { data: measures = [], isLoading, error } = useMeasures(eventId, initialData);
 
-  const phaseType = overview?.activePhase?.type;
   const searchTerm = search.trim().toLowerCase();
   const filteredMeasures = searchTerm
     ? measures.filter((measure) => measure.text.toLowerCase().includes(searchTerm))
@@ -181,7 +180,7 @@ export function CanhoesMeasuresModule({
     <div className="space-y-4">
       <CanhoesModuleHeader module="measures" title={copy.title} description={copy.description} />
 
-      <MeasureProposalForm eventId={eventId} isProposalPhase={phaseType === "PROPOSALS"} />
+      <MeasureProposalForm eventId={eventId} isProposalPhase={Boolean(overview?.permissions.canSubmitProposal)} />
 
       <Card>
         <CardHeader className="pb-2">

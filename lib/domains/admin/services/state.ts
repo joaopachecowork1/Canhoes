@@ -6,7 +6,12 @@ import type {
   AdminListCountsDto,
   EventAdminBootstrapDto,
 } from "@/lib/api/types";
-import { readModuleSwitches, resolveMemberModules, type PhaseType } from "@/lib/domains/event/rules/eventRules";
+import {
+  phaseSwitches,
+  readModuleSwitches,
+  resolveMemberModules,
+  type PhaseType,
+} from "@/lib/domains/event/rules/eventRules";
 import { CANHOES_MODULES } from "@/lib/modules";
 
 import { CATEGORY_KIND } from "@/lib/categoryKind";
@@ -123,21 +128,12 @@ export async function updateAdminPhase(eventId: string, phaseType: PhaseType): P
   ]);
 
   // Mantém o estado do evento coerente com a fase: o que está visível depende dela.
-  const legacyPhase = LEGACY_PHASE_NAMES[phaseType];
+  const phaseState = { phase: LEGACY_PHASE_NAMES[phaseType], ...phaseSwitches(phaseType) };
 
   await prisma.canhoesEventState.upsert({
     where: { eventId },
-    create: {
-      eventId,
-      phase: legacyPhase,
-      nominationsVisible: phaseType === "PROPOSALS",
-      resultsVisible: phaseType === "RESULTS",
-    },
-    update: {
-      phase: legacyPhase,
-      nominationsVisible: phaseType === "PROPOSALS",
-      resultsVisible: phaseType === "RESULTS",
-    },
+    create: { eventId, ...phaseState },
+    update: phaseState,
   });
 
   return getAdminState(eventId);

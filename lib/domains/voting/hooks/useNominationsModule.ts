@@ -88,8 +88,8 @@ export function useNominationsModule(
     ...remote,
     eventId,
     queryEventId,
-    // Só se pode nomear na fase de propostas.
-    isPhaseOpen: overview?.activePhase?.type === "PROPOSALS",
+    // Quem pode nomear decide-o o servidor (fase de propostas e nomeações visíveis; os admins passam sempre).
+    isPhaseOpen: Boolean(overview?.permissions.canSubmitProposal),
     isLoading: isOverviewLoading || isLoading,
     categories,
     selectedCategory,

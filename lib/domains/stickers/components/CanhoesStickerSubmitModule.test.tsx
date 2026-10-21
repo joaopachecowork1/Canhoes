@@ -17,10 +17,14 @@ const approved = [
   nominee({ id: "s2", title: "Sem imagem", imageUrl: null }),
 ];
 
-function renderStickers({ phaseType = "PROPOSALS", stickers = approved } = {}) {
+function renderStickers({
+  canSubmitProposal,
+  phaseType = "PROPOSALS",
+  stickers = approved,
+}: { canSubmitProposal?: boolean; phaseType?: string; stickers?: typeof approved } = {}) {
   return renderWithProviders(
     <CanhoesStickerSubmitModule
-      initialContext={makeEventContext({ phaseType, modules: { stickers: true } })}
+      initialContext={makeEventContext({ canSubmitProposal, phaseType, modules: { stickers: true } })}
       initialStickerCategories={[stickerCategory, category()]}
       initialApprovedNominees={stickers}
     />,
@@ -33,6 +37,16 @@ const submitButton = () => screen.getByRole("button", { name: "Enviar sticker" }
 const fileInput = () => document.querySelector<HTMLInputElement>('input[type="file"]');
 
 describe("CanhoesStickerSubmitModule", () => {
+  it("follows what the server allows, not the phase name", () => {
+    renderStickers({ canSubmitProposal: false });
+    expect(screen.getByRole("button", { name: "Envio de stickers fechado" })).toBeDisabled();
+  });
+
+  it("opens the form for whoever the server lets propose, even outside the proposals phase", () => {
+    renderStickers({ canSubmitProposal: true, phaseType: "VOTING" });
+    expect(screen.getByRole("button", { name: "Enviar um sticker" })).toBeEnabled();
+  });
+
   it("shows only the approved stickers that have an image", () => {
     renderStickers();
 

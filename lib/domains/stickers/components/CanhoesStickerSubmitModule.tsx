@@ -97,8 +97,8 @@ export function CanhoesStickerSubmitModule({
 }) {
   const { overview, event } = useEventOverview(initialContext);
   const eventId = event?.id ?? null;
-  const phaseType = overview?.activePhase?.type;
-  const isProposalPhase = phaseType === "PROPOSALS";
+  // O servidor diz se o utilizador pode propor agora (fase de propostas e nomeações visíveis; os admins passam sempre).
+  const isProposalPhase = Boolean(overview?.permissions.canSubmitProposal);
   const stickers = useStickerData(eventId, {
     initialCategories: initialStickerCategories,
     initialNominees: initialApprovedNominees,

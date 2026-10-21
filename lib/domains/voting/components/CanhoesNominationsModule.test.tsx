@@ -23,11 +23,11 @@ function serveNominations({ mine = [], approved = [] }: { mine?: MyNominationDto
   );
 }
 
-function renderNominations(phaseType = "PROPOSALS") {
+function renderNominations(phaseType = "PROPOSALS", canSubmitProposal?: boolean) {
   return renderWithProviders(
     <CanhoesNominationsModule
       initialCategories={categories}
-      initialContext={makeEventContext({ phaseType, modules: { nominees: true } })}
+      initialContext={makeEventContext({ canSubmitProposal, phaseType, modules: { nominees: true } })}
     />,
   );
 }
@@ -137,6 +137,18 @@ describe("CanhoesNominationsModule", () => {
     expect(screen.getByRole("button", { name: "Enviar nomeação" })).toBeDisabled();
     await userEvent.type(titleInput(), "u");
     expect(screen.getByRole("button", { name: "Enviar nomeação" })).toBeEnabled();
+  });
+
+  it("follows what the server allows, not the phase name", async () => {
+    serveNominations();
+    renderNominations("PROPOSALS", false);
+    expect(await screen.findByText("As nomeações estão fechadas")).toBeInTheDocument();
+  });
+
+  it("opens for whoever the server lets propose, even outside the proposals phase", async () => {
+    serveNominations();
+    renderNominations("VOTING", true);
+    expect(await screen.findByRole("button", { name: "Enviar nomeação" })).toBeInTheDocument();
   });
 
   it("is closed outside the proposals phase", async () => {
