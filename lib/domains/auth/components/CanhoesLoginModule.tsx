@@ -95,6 +95,7 @@ export function CanhoesLoginModule() {
       setIsSigningIn(false);
     } else if (result?.ok) {
       router.push(callbackUrl);
+      router.refresh();
     }
   };
 

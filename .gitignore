@@ -82,3 +82,4 @@ certificates
 # Playwright output
 test-results/
 playwright-report/
+.neon

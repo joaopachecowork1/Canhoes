@@ -183,6 +183,27 @@ const cases: [string, () => Promise<unknown>, string, string, unknown?][] = [
     { direction: "up" },
   ],
   ["feedRepo.adminDeletePost", () => feedRepo.adminDeletePost("e1", "p1"), "DELETE", "/v1/events/e1/feed/posts/p1"],
+  [
+    "feedRepo.voteGatheringDate",
+    () => feedRepo.voteGatheringDate("e1", "g1", "opt1"),
+    "POST",
+    "/v1/events/e1/gatherings/g1/vote-date",
+    { optionId: "opt1" },
+  ],
+  [
+    "feedRepo.confirmGatheringDate",
+    () => feedRepo.confirmGatheringDate("e1", "g1", "12 Dez"),
+    "POST",
+    "/v1/events/e1/gatherings/g1/confirm-date",
+    { dateText: "12 Dez" },
+  ],
+  [
+    "feedRepo.submitGatheringRsvp",
+    () => feedRepo.submitGatheringRsvp("e1", "g1", { status: "GOING", note: "Sim" }),
+    "POST",
+    "/v1/events/e1/gatherings/g1/rsvp",
+    { status: "GOING", note: "Sim" },
+  ],
 
   [
     "authRepo.registerWithInvite",
@@ -367,6 +388,12 @@ const cases: [string, () => Promise<unknown>, string, string, unknown?][] = [
     "POST",
     "/v1/events/e1/admin/secret-santa/draw",
     {},
+  ],
+  [
+    "adminRepo.resetSecretSanta",
+    () => adminRepo.resetSecretSanta("e1"),
+    "POST",
+    "/v1/events/e1/admin/secret-santa/reset",
   ],
   [
     "adminRepo.revealSecretSanta",

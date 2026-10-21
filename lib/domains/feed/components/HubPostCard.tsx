@@ -1,33 +1,27 @@
 "use client";
 
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import { MessageSquare } from "lucide-react";
 
 import { BlurFade } from "@/components/animations/BlurFade";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import type { EventFeedPostFullDto } from "@/lib/api/types";
+import type { EventFeedPostFullDto, EventGatheringRsvpStatus } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 import { formatMessage } from "@/lib/messages";
 import { HEART_REACTION } from "@/lib/reactions";
 import messages from "@/messages/pt.json";
 
+import { GatheringBox } from "./GatheringBox";
+
 import { getPostMediaUrls } from "./hubUtils";
 import { ImageLightbox } from "./ImageLightbox";
+import { PostCommentsSection } from "./PostCommentsSection";
 import { PostHeader } from "./PostHeader";
 import { PostText } from "./PostText";
 import { PostVoteBar } from "./PostVoteBar";
 
 const copy = messages.feed.HubPostCard;
-
-// carregados sob pedido (sem SSR) para aliviar o bundle inicial do feed
-const LazyHubPostComments = dynamic(
-  () => import("./HubPostComments").then((module) => ({ default: module.HubPostComments })),
-  {
-    loading: () => null,
-    ssr: false,
-  },
-);
 
 const LazyMediaCarousel = dynamic(
   () => import("./MediaCarousel").then((module) => ({ default: module.MediaCarousel })),
@@ -41,6 +35,12 @@ const LazyPollBox = dynamic(() => import("./PollBox").then((module) => ({ defaul
   loading: () => <FeedPollFallback />,
   ssr: false,
 });
+
+type GatheringCardActions = {
+  onVoteDate: (gatheringId: string, optionId: string) => void;
+  onConfirmDate: (gatheringId: string, dateText: string) => void;
+  onRsvp: (gatheringId: string, status: EventGatheringRsvpStatus, note?: string) => void;
+};
 
 interface HubPostCardProps {
   post: EventFeedPostFullDto;
@@ -63,25 +63,9 @@ interface HubPostCardProps {
   onAdminPin: (postId: string) => void;
   onAdminMovePinned: (postId: string, direction: "up" | "down") => void;
   onAdminDelete: (postId: string) => void;
+  gatheringActions?: GatheringCardActions;
   setReplyingTo: (postId: string, commentId: string | null) => void;
 }
-
-type PostCommentsSectionProps = Pick<
-  HubPostCardProps,
-  | "commentDraft"
-  | "currentUserId"
-  | "currentUserImage"
-  | "currentUserName"
-  | "eventId"
-  | "onAddComment"
-  | "onCommentDraftChange"
-  | "onDeleteComment"
-  | "onToggleComments"
-  | "openComments"
-  | "post"
-  | "replyingToId"
-  | "setReplyingTo"
->;
 
 /** O botão com a contagem que abre e fecha os comentários. */
 function CommentToggleButton({
@@ -107,37 +91,6 @@ function CommentToggleButton({
   );
 }
 
-/** A conversa recolhível por baixo de um post; desloca-se para a vista quando aberta. */
-function PostCommentsSection({ post, openComments, ...commentProps }: Readonly<PostCommentsSectionProps>) {
-  const commentsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (openComments && commentsRef.current) {
-      commentsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [openComments]);
-
-  return (
-    <div
-      ref={commentsRef}
-      className={cn(
-        "grid w-full transition duration-200 ease-out",
-        openComments ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0 mt-0",
-      )}
-    >
-      <div className="overflow-hidden">
-        <LazyHubPostComments
-          postId={post.id}
-          postAuthorName={post.authorName}
-          commentCount={post.commentCount}
-          openComments={openComments}
-          {...commentProps}
-        />
-      </div>
-    </div>
-  );
-}
-
 /** Estado do visualizador de imagens: se está aberto e em que imagem. */
 function useLightbox() {
   const [isOpen, setIsOpen] = useState(false);
@@ -151,6 +104,49 @@ function useLightbox() {
   return { isOpen, index, handleOpen, handleClose: () => setIsOpen(false) };
 }
 
+function PostMainBody({
+  post,
+  index,
+  isAdmin,
+  lightbox,
+  gatheringActions,
+  onVotePoll,
+}: {
+  post: EventFeedPostFullDto;
+  index: number;
+  isAdmin: boolean;
+  lightbox: ReturnType<typeof useLightbox>;
+  gatheringActions?: GatheringCardActions;
+  onVotePoll: (postId: string, optionId: string) => void;
+}) {
+  const resolvedMediaUrls = getPostMediaUrls(post);
+
+  return (
+    <CardContent className="space-y-3 px-4 pb-2 pt-2 sm:px-5">
+      <PostText text={post.text} />
+      {resolvedMediaUrls.length > 0 ? (
+        <LazyMediaCarousel
+          urls={resolvedMediaUrls}
+          aspect="video"
+          onImageClick={lightbox.handleOpen}
+          authorName={post.authorName}
+          isPriority={index < 2}
+        />
+      ) : null}
+      {post.poll ? <LazyPollBox poll={post.poll} onVote={(optionId) => onVotePoll(post.id, optionId)} /> : null}
+      {post.gathering && gatheringActions ? (
+        <GatheringBox
+          gathering={post.gathering}
+          isAdmin={isAdmin}
+          onVoteDate={gatheringActions.onVoteDate}
+          onConfirmDate={gatheringActions.onConfirmDate}
+          onRsvp={gatheringActions.onRsvp}
+        />
+      ) : null}
+    </CardContent>
+  );
+}
+
 /** Um post do feed: cabeçalho, texto, imagens, sondagem, votos e comentários. */
 function HubPostCardComponent({
   post,
@@ -162,6 +158,7 @@ function HubPostCardComponent({
   onAdminPin,
   onAdminMovePinned,
   onAdminDelete,
+  gatheringActions,
   ...commentProps
 }: Readonly<HubPostCardProps>) {
   const lightbox = useLightbox();
@@ -193,19 +190,14 @@ function HubPostCardComponent({
           />
         </CardHeader>
 
-        <CardContent className="space-y-3 px-4 pb-2 pt-2 sm:px-5">
-          <PostText text={post.text} />
-          {resolvedMediaUrls.length > 0 ? (
-            <LazyMediaCarousel
-              urls={resolvedMediaUrls}
-              aspect="video"
-              onImageClick={lightbox.handleOpen}
-              authorName={post.authorName}
-              isPriority={index < 2}
-            />
-          ) : null}
-          {post.poll ? <LazyPollBox poll={post.poll} onVote={(optionId) => onVotePoll(post.id, optionId)} /> : null}
-        </CardContent>
+        <PostMainBody
+          post={post}
+          index={index}
+          isAdmin={isAdmin}
+          lightbox={lightbox}
+          gatheringActions={gatheringActions}
+          onVotePoll={onVotePoll}
+        />
 
         <CardFooter className="flex flex-col items-stretch gap-2 bg-transparent px-4 py-3 sm:px-5">
           <div className="flex flex-row items-center justify-between w-full">

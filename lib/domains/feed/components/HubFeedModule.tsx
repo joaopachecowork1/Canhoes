@@ -63,6 +63,9 @@ function HubFeedStateList({ state }: Readonly<{ state: HubFeedState }>) {
     adminPin,
     adminMovePinned,
     adminDelete,
+    voteGatheringDate,
+    confirmGatheringDate,
+    submitGatheringRsvp,
     currentUserId,
     currentUserImage,
     currentUserName,
@@ -95,6 +98,9 @@ function HubFeedStateList({ state }: Readonly<{ state: HubFeedState }>) {
       onAdminPin={adminPin}
       onAdminMovePinned={adminMovePinned}
       onAdminDelete={adminDelete}
+      onVoteGatheringDate={voteGatheringDate}
+      onConfirmGatheringDate={confirmGatheringDate}
+      onGatheringRsvp={submitGatheringRsvp}
       setReplyingTo={setReplyingTo}
       sentinelRef={sentinelRef}
     />

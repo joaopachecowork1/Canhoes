@@ -37,7 +37,9 @@ async function main() {
   for (const email of adminEmails()) {
     const user = await prisma.user.upsert({
       where: { email },
-      update: {},
+      update: {
+        isAdmin: true,
+      },
       create: {
         externalId: `seed:${email}`,
         email,
@@ -101,7 +103,9 @@ async function main() {
   for (const admin of seededAdmins) {
     await prisma.eventMember.upsert({
       where: { eventId_userId: { eventId, userId: admin.id } },
-      update: {},
+      update: {
+        role: "admin",
+      },
       create: {
         eventId,
         userId: admin.id,

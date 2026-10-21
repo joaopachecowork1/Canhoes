@@ -51,10 +51,11 @@
   --area-categories: #7a93e8;
   --area-gala: #d97fb0;
   --area-secret-santa: #e07a6f;
-  --area-wishlist: #a98be0;
+  --area-wishlist: #f43f5e;
   --area-stickers: #a9c94a;
   --area-measures: #5aa9d6;
-  --area-admin: var(--color-text-muted);
+  --area-admin: #f59e0b;
+  --area-menu: var(--moss-glow);
   --area-welcome: var(--color-text-muted);
 
   /* Sombras de elevação, tipografia e movimento. */

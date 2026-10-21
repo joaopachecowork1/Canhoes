@@ -117,6 +117,43 @@ export type EventFeedPostFullDto = {
   likedByMe: boolean;
   downvotedByMe: boolean;
   poll: EventFeedPollDto | null;
+  gathering: EventGatheringDto | null;
+};
+
+export type EventGatheringStatus = "POLLING" | "CONFIRMED" | "CANCELLED";
+export type EventGatheringRsvpStatus = "GOING" | "NOT_GOING" | "MAYBE";
+
+export type EventGatheringDateOptionDto = {
+  id: string;
+  dateText: string;
+  sortOrder: number;
+  voteCount: number;
+  hasVoted: boolean;
+};
+
+export type EventGatheringRsvpDto = {
+  userId: string;
+  userName: string;
+  userColor: string;
+  status: EventGatheringRsvpStatus;
+  note: string | null;
+  updatedAtUtc: string;
+};
+
+export type EventGatheringDto = {
+  id: string;
+  eventId: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  status: EventGatheringStatus;
+  confirmedDate: string | null;
+  postId: string | null;
+  createdAtUtc: string;
+  dateOptions: EventGatheringDateOptionDto[];
+  rsvps: EventGatheringRsvpDto[];
+  myRsvp: EventGatheringRsvpStatus | null;
+  myRsvpNote: string | null;
 };
 
 /** Corpo do pedido para criar um post do feed. */
@@ -126,6 +163,10 @@ export type CreateEventFeedPostRequest = {
   mediaUrls?: string[] | null;
   pollQuestion?: string | null;
   pollOptions?: string[] | null;
+  gatheringTitle?: string | null;
+  gatheringDescription?: string | null;
+  gatheringLocation?: string | null;
+  gatheringDates?: string[] | null;
 };
 
 /** O evento ativo com o respetivo overview. */

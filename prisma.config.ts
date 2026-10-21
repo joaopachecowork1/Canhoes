@@ -16,7 +16,7 @@ export default {
     seed: "tsx prisma/seed.mjs",
   },
   datasource: {
-    // `prisma generate` não precisa de base de dados, por isso um URL em falta só falha nos comandos que ligam.
-    url: process.env.DATABASE_URL ?? "",
+    // As migrações do Prisma precisam de ligação direta (unpooled); em runtime usa-se o pooler.
+    url: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || "",
   },
 } satisfies PrismaConfig;

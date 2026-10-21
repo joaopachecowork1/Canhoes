@@ -93,6 +93,51 @@ function usePollDraft() {
   return { isEnabled, setIsEnabled, question, setQuestion, options, changeOption, addOption, removeOption, reset };
 }
 
+/** O rascunho de um encontro/jantar: título, local, notas e opções de datas. */
+function useGatheringDraft() {
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+  const [dates, setDates] = useState<string[]>([""]);
+
+  const changeDate = useCallback((index: number, value: string) => {
+    setDates((current) => current.map((d, currentIndex) => (currentIndex === index ? value : d)));
+  }, []);
+
+  const addDate = useCallback(() => {
+    setDates((current) => (current.length < 10 ? [...current, ""] : current));
+  }, []);
+
+  const removeDate = useCallback((index: number) => {
+    setDates((current) => (current.length > 1 ? current.filter((_, currentIndex) => currentIndex !== index) : [""]));
+  }, []);
+
+  const reset = useCallback(() => {
+    setIsEnabled(false);
+    setTitle("");
+    setLocation("");
+    setDescription("");
+    setDates([""]);
+  }, []);
+
+  return {
+    isEnabled,
+    setIsEnabled,
+    title,
+    setTitle,
+    location,
+    setLocation,
+    description,
+    setDescription,
+    dates,
+    changeDate,
+    addDate,
+    removeDate,
+    reset,
+  };
+}
+
 /** Porque é que um ficheiro recebido é recusado, ou null quando pode ser adicionado. */
 function getFileRejection(file: File) {
   if (!isAcceptedImage(file)) return copy.unsupportedFormat;
@@ -139,6 +184,7 @@ export function useComposer() {
   const { media, setFiles, removeFile, moveFile } = useMediaDraft();
   const files = media.map((entry) => entry.file);
   const poll = usePollDraft();
+  const gathering = useGatheringDraft();
 
   // Ficheiros em sequência (não em paralelo) para respeitar o limite e a ordem escolhida.
   const addFiles = useCallback(
@@ -150,11 +196,13 @@ export function useComposer() {
   );
 
   const { reset: resetPoll } = poll;
+  const { reset: resetGathering } = gathering;
   const reset = useCallback(() => {
     setText("");
     setFiles([]);
     resetPoll();
-  }, [resetPoll, setFiles]);
+    resetGathering();
+  }, [resetPoll, resetGathering, setFiles]);
 
   return {
     text,
@@ -165,6 +213,7 @@ export function useComposer() {
     removeFile,
     moveFile,
     poll,
+    gathering,
     reset,
   };
 }

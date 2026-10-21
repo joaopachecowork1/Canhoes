@@ -2,6 +2,7 @@ import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { HttpError } from "@/lib/api/httpError";
+import { deleteCloudUpload, isCloudStorageConfigured, readCloudUpload, saveCloudUpload } from "./cloudStorage";
 
 // Tamanho máximo de uma imagem: 10 MB.
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -52,7 +53,7 @@ function safePath(segments: string[]) {
   return target;
 }
 
-/** Guarda uma imagem (JPEG, PNG, GIF ou WebP, até 10 MB) em `UPLOADS_DIR` e devolve o URL público `/uploads/...`. */
+/** Guarda uma imagem (JPEG, PNG, GIF ou WebP, até 10 MB) localmente ou no R2/S3 e devolve o URL público `/uploads/...`. */
 export async function saveUpload(file: File, folders: string[]) {
   // Validação: tipo declarado, tamanho e assinatura real do conteúdo.
   const extension = ALLOWED_TYPES[file.type];
@@ -63,6 +64,10 @@ export async function saveUpload(file: File, folders: string[]) {
 
   const content = new Uint8Array(await file.arrayBuffer());
   if (!hasImageSignature(file.type, content)) throw new UploadValidationError("The file is not a valid image.");
+
+  if (isCloudStorageConfigured()) {
+    return saveCloudUpload(file, folders, content, extension);
+  }
 
   // Nome aleatório e pastas limpas de tudo o que não seja letra, número, _ ou -.
   const fileName = `${crypto.randomUUID().replaceAll("-", "")}${extension}`;
@@ -84,6 +89,10 @@ export async function saveUpload(file: File, folders: string[]) {
 
 /** Lê um upload guardado e o seu tipo de conteúdo; o caminho não pode sair de `UPLOADS_DIR`. */
 export async function readUpload(segments: string[]) {
+  if (isCloudStorageConfigured()) {
+    return readCloudUpload(segments.join("/"));
+  }
+
   const physicalPath = safePath(segments);
   const extension = path.extname(physicalPath).toLowerCase();
   const contentType =
@@ -95,6 +104,13 @@ export async function readUpload(segments: string[]) {
 export async function deleteUpload(url: string) {
   const prefix = "/uploads/";
   if (!url.startsWith(prefix)) return;
-  const segments = url.slice(prefix.length).split("/").filter(Boolean);
+  const key = url.slice(prefix.length);
+
+  if (isCloudStorageConfigured()) {
+    await deleteCloudUpload(key);
+    return;
+  }
+
+  const segments = key.split("/").filter(Boolean);
   await unlink(safePath(segments)).catch(() => undefined);
 }

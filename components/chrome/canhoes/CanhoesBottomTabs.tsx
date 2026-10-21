@@ -64,7 +64,7 @@ export function CanhoesBottomTabs({
 function toDockItem(entry: CanhoesBottomTabEntry): DockItem {
   const areaId = entry.item.id === HOME_NAV_ITEM.id ? "feed" : entry.item.id;
   return {
-    accent: entry.item.id === MENU_NAV_ITEM.id ? "var(--text-primary)" : areaColorVar(areaId),
+    accent: entry.item.id === MENU_NAV_ITEM.id ? "var(--area-menu)" : areaColorVar(areaId),
     ariaLabel: entry.item.label,
     icon: entry.item.icon,
     isActive: Boolean(entry.isActive),

@@ -186,6 +186,7 @@ export const post = (overrides: Partial<EventFeedPostFullDto> = {}): EventFeedPo
   likedByMe: false,
   downvotedByMe: false,
   poll: null,
+  gathering: null,
   ...overrides,
 });
 

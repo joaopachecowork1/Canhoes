@@ -17,6 +17,7 @@ import { CANHOES_MODULES } from "@/lib/modules";
 import { CATEGORY_KIND } from "@/lib/categoryKind";
 
 import { toPhaseDto, toEventSummary } from "./constants";
+import { resetSecretSantaDraw } from "./secretSanta";
 
 /*
  * O painel de controlo do admin para um evento: a fase ativa, os interruptores das áreas e os
@@ -135,6 +136,11 @@ export async function updateAdminPhase(eventId: string, phaseType: PhaseType): P
     create: { eventId, ...phaseState },
     update: phaseState,
   });
+
+  // Se o admin voltou atrás para a fase de sorteio (DRAW), desfaz o sorteio anterior.
+  if (phaseType === "DRAW") {
+    await resetSecretSantaDraw(eventId);
+  }
 
   return getAdminState(eventId);
 }

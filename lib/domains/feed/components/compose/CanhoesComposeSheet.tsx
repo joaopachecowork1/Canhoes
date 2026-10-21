@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import messages from "@/messages/pt.json";
 
 import { isPollReady, MAX_MEDIA_FILES, MAX_POLL_OPTIONS } from "../../rules/composeRules";
+import { ComposeGatheringEditor } from "./ComposeGatheringEditor";
 import { ComposeMediaGrid } from "./ComposeMediaGrid";
 import { ComposePollEditor } from "./ComposePollEditor";
 import { ComposeToolbar } from "./ComposeToolbar";
@@ -58,30 +59,64 @@ function ComposeAuthPrompt() {
   );
 }
 
+function useComposeFormSubmit(
+  composer: ReturnType<typeof useComposer>,
+  eventId: string | null,
+  onPublished: () => void,
+) {
+  const { status, publish } = usePublishPost(eventId);
+  const { poll, gathering } = composer;
+  const isSubmitting = status !== "idle";
+
+  const hasContent = composer.text.trim().length > 0 || (gathering.isEnabled && gathering.title.trim().length > 0);
+  const canSubmit = hasContent && (!poll.isEnabled || isPollReady(poll.question, poll.options)) && !isSubmitting;
+
+  const handleSubmit = async () => {
+    const text = composer.text.trim() || (gathering.isEnabled ? gathering.title : "");
+    const isPublished = await publish({ text, files: composer.files, poll, gathering });
+    if (!isPublished) return;
+    composer.reset();
+    onPublished();
+  };
+
+  return { canSubmit, handleSubmit, isSubmitting, status };
+}
+
+function ComposeFormGathering({ gathering }: Readonly<{ gathering: ReturnType<typeof useComposer>["gathering"] }>) {
+  if (!gathering.isEnabled) return null;
+  return (
+    <ComposeGatheringEditor
+      title={gathering.title}
+      onTitleChange={gathering.setTitle}
+      location={gathering.location}
+      onLocationChange={gathering.setLocation}
+      description={gathering.description}
+      onDescriptionChange={gathering.setDescription}
+      dates={gathering.dates}
+      onDateChange={gathering.changeDate}
+      onAddDate={gathering.addDate}
+      onRemoveDate={gathering.removeDate}
+    />
+  );
+}
+
 /** O formulário de publicação: texto, imagens e sondagem, com os botões de ação. */
 function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
   const { event: activeEvent } = useEventOverview();
+  const { user } = useAuth();
+  const isAdmin = Boolean(user?.isAdmin);
   const composer = useComposer();
-  const { status, publish } = usePublishPost(activeEvent?.id ?? null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { poll } = composer;
-  const isSubmitting = status !== "idle";
-  const canSubmit =
-    composer.text.trim().length > 0 && (!poll.isEnabled || isPollReady(poll.question, poll.options)) && !isSubmitting;
+  const { canSubmit, handleSubmit, isSubmitting, status } = useComposeFormSubmit(
+    composer,
+    activeEvent?.id ?? null,
+    onPublished,
+  );
+  const { poll, gathering } = composer;
 
   const handleFiles = async (fileList: FileList | null) => {
     await composer.addFiles(fileList);
-
-    // limpa o campo para se poder escolher o mesmo ficheiro outra vez
     if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleSubmit = async () => {
-    const isPublished = await publish({ text: composer.text, files: composer.files, poll });
-    if (!isPublished) return;
-
-    composer.reset();
-    onPublished();
   };
 
   return (
@@ -118,16 +153,21 @@ function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
             question={poll.question}
           />
         ) : null}
+
+        <ComposeFormGathering gathering={gathering} />
       </div>
 
       <ComposeToolbar
         canSubmit={canSubmit}
         fileCount={composer.files.length}
         isPollEnabled={poll.isEnabled}
+        isAdmin={isAdmin}
+        isGatheringEnabled={gathering.isEnabled}
         isSubmitting={isSubmitting}
         onPickImages={() => fileInputRef.current?.click()}
         onSubmit={() => void handleSubmit()}
         onTogglePoll={() => poll.setIsEnabled((isEnabled) => !isEnabled)}
+        onToggleGathering={() => gathering.setIsEnabled((isEnabled) => !isEnabled)}
       />
 
       <input
@@ -142,10 +182,7 @@ function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
   );
 }
 
-/**
- * Folha inferior para escrever um post do mural com até 4 imagens ou uma sondagem. A estrutura só a monta
- * enquanto aberta, por isso fechá-la descarta o rascunho.
- */
+/** Folha inferior para escrever um post do mural com até 4 imagens ou uma sondagem. */
 export function CanhoesComposeSheet({
   open,
   onOpenChange,

@@ -3,6 +3,8 @@ import type { QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import type { EventFeedPostFullDto } from "@/lib/api/types";
+
+import { useGatheringPostActions } from "./useGatheringPostActions";
 import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { feedRepo } from "@/lib/repositories/feedRepo";
 import { HEART_REACTION } from "@/lib/reactions";
@@ -216,6 +218,10 @@ function useAdminPostActions(queryClient: QueryClient, eventId: string | null) {
 export function useHubFeedPostActions({ eventId, queryClient }: Readonly<UseHubFeedPostActionsArgs>) {
   const { toggleReaction, toggleDownvote, runOptimistic } = usePostVotes(queryClient, eventId);
   const { adminPin, adminMovePinned, adminDelete } = useAdminPostActions(queryClient, eventId);
+  const { voteGatheringDate, confirmGatheringDate, submitGatheringRsvp } = useGatheringPostActions(
+    queryClient,
+    eventId,
+  );
 
   const votePoll = useCallback(
     async (postId: string, optionId: string) => {
@@ -240,5 +246,8 @@ export function useHubFeedPostActions({ eventId, queryClient }: Readonly<UseHubF
     adminPin,
     adminMovePinned,
     adminDelete,
+    voteGatheringDate,
+    confirmGatheringDate,
+    submitGatheringRsvp,
   };
 }

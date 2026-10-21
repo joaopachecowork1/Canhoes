@@ -66,16 +66,23 @@ class SecretSantaDrawError extends HttpError {
 // Aleatoriedade criptográfica em [0, 1), para o sorteio não ser previsível.
 const secureRandom = () => crypto.randomInt(0, 2 ** 32) / 2 ** 32;
 
-/** Sorteia (ou volta a sortear) os pares entre os membros do evento. Recusado depois de o sorteio ser revelado. */
+function parseDrawOptions(options?: string | { eventCode?: string; force?: boolean }) {
+  const eventCode = typeof options === "string" ? options : options?.eventCode;
+  const force = typeof options === "object" && Boolean(options?.force);
+  return { eventCode, force };
+}
+
+/** Sorteia (ou volta a sortear) os pares entre os membros do evento. Recusado depois de o sorteio ser revelado (a não ser com force: true). */
 export async function executeSecretSantaDraw(
   eventId: string,
   createdByUserId: string,
-  eventCode?: string,
+  options?: string | { eventCode?: string; force?: boolean },
 ): Promise<EventAdminSecretSantaStateDto> {
+  const { eventCode, force } = parseDrawOptions(options);
   const code = eventCode?.trim() || (await getEventCode(eventId));
 
-  // Um sorteio revelado já não se repete.
-  if ((await findLatestDraw(code))?.isLocked) throw new SecretSantaDrawError("DRAW_REVEALED");
+  // Um sorteio revelado já não se repete sem forçar.
+  if (!force && (await findLatestDraw(code))?.isLocked) throw new SecretSantaDrawError("DRAW_REVEALED");
 
   // São precisos pelo menos dois participantes.
   const members = await prisma.eventMember.findMany({ where: { eventId }, select: { userId: true } });
@@ -90,14 +97,23 @@ export async function executeSecretSantaDraw(
   // Numa só transação: apagar o sorteio anterior e gravar o novo, para nunca ficar a meio.
   await prisma.$transaction(async (tx) => {
     // Verifica-se outra vez dentro da transação: uma revelação pode ter chegado depois da verificação acima.
+    if (!force) {
+      const previousDraws = await tx.secretSantaDraw.findMany({
+        where: { eventCode: code },
+        select: { id: true, isLocked: true },
+      });
+      if (previousDraws.some((previousDraw) => previousDraw.isLocked)) throw new SecretSantaDrawError("DRAW_REVEALED");
+    }
+
     const previousDraws = await tx.secretSantaDraw.findMany({
       where: { eventCode: code },
-      select: { id: true, isLocked: true },
+      select: { id: true },
     });
-    if (previousDraws.some((previousDraw) => previousDraw.isLocked)) throw new SecretSantaDrawError("DRAW_REVEALED");
     // Substitui o sorteio anterior (atribuições primeiro, por causa da chave estrangeira).
-    await tx.secretSantaAssignment.deleteMany({ where: { drawId: { in: previousDraws.map((draw) => draw.id) } } });
-    await tx.secretSantaDraw.deleteMany({ where: { eventCode: code } });
+    if (previousDraws.length > 0) {
+      await tx.secretSantaAssignment.deleteMany({ where: { drawId: { in: previousDraws.map((draw) => draw.id) } } });
+      await tx.secretSantaDraw.deleteMany({ where: { eventCode: code } });
+    }
 
     const draw = await tx.secretSantaDraw.create({
       data: { eventCode: code, createdByUserId, isLocked: false },
@@ -115,8 +131,40 @@ export async function executeSecretSantaDraw(
         nominationsVisible: true,
         resultsVisible: false,
         secretSantaEventCode: code,
+        hasSecretSantaDraw: false,
       },
-      update: { secretSantaEventCode: code },
+      update: { secretSantaEventCode: code, hasSecretSantaDraw: false },
+    });
+  });
+
+  return getAdminSecretSantaState(eventId);
+}
+
+/** Desfaz e limpa todo o sorteio do Amigo Secreto deste evento. */
+export async function resetSecretSantaDraw(eventId: string): Promise<EventAdminSecretSantaStateDto> {
+  const code = await getEventCode(eventId);
+
+  await prisma.$transaction(async (tx) => {
+    const previousDraws = await tx.secretSantaDraw.findMany({
+      where: { eventCode: code },
+      select: { id: true },
+    });
+    if (previousDraws.length > 0) {
+      await tx.secretSantaAssignment.deleteMany({ where: { drawId: { in: previousDraws.map((draw) => draw.id) } } });
+      await tx.secretSantaDraw.deleteMany({ where: { eventCode: code } });
+    }
+
+    await tx.canhoesEventState.upsert({
+      where: { eventId },
+      create: {
+        eventId,
+        phase: "gala",
+        nominationsVisible: true,
+        resultsVisible: false,
+        secretSantaEventCode: code,
+        hasSecretSantaDraw: false,
+      },
+      update: { hasSecretSantaDraw: false },
     });
   });
 

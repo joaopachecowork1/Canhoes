@@ -17,6 +17,13 @@ export type PostDraft = {
   text: string;
   files: File[];
   poll: { isEnabled: boolean; question: string; options: string[] };
+  gathering?: {
+    isEnabled: boolean;
+    title: string;
+    location: string;
+    description: string;
+    dates: string[];
+  };
 };
 
 /** Porque é que um rascunho ainda não pode ser enviado, ou null quando pode. */
@@ -36,12 +43,28 @@ async function uploadImages(eventId: string, files: File[]) {
 
 /** Monta o pedido de criação; sem sondagem ativa, a pergunta e as opções vão a null. */
 function toCreatePostRequest(draft: PostDraft, text: string, mediaUrls: string[]) {
-  if (!draft.poll.isEnabled) return { text, mediaUrls, pollOptions: null, pollQuestion: null };
+  const pollData = draft.poll.isEnabled
+    ? {
+        pollOptions: getFilledPollOptions(draft.poll.options),
+        pollQuestion: draft.poll.question.trim() || null,
+      }
+    : { pollOptions: null, pollQuestion: null };
+
+  const gatheringData =
+    draft.gathering?.isEnabled && draft.gathering.title.trim()
+      ? {
+          gatheringTitle: draft.gathering.title.trim(),
+          gatheringLocation: draft.gathering.location.trim() || null,
+          gatheringDescription: draft.gathering.description.trim() || null,
+          gatheringDates: draft.gathering.dates.map((d) => d.trim()).filter((d) => d.length > 0),
+        }
+      : {};
+
   return {
     text,
     mediaUrls,
-    pollOptions: getFilledPollOptions(draft.poll.options),
-    pollQuestion: draft.poll.question.trim() || null,
+    ...pollData,
+    ...gatheringData,
   };
 }
 

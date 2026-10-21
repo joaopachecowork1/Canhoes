@@ -81,4 +81,26 @@ export const feedRepo = {
 
   adminDeletePost: (eventId: string, postId: string) =>
     canhoesFetch<void>(`/v1/events/${eventId}/feed/posts/${postId}`, { method: "DELETE" }),
+
+  voteGatheringDate: (eventId: string, gatheringId: string, optionId: string) =>
+    canhoesFetch<T.EventGatheringDto>(`/v1/events/${eventId}/gatherings/${gatheringId}/vote-date`, {
+      method: "POST",
+      body: JSON.stringify({ optionId }),
+    }),
+
+  confirmGatheringDate: (eventId: string, gatheringId: string, dateText: string) =>
+    canhoesFetch<T.EventGatheringDto>(`/v1/events/${eventId}/gatherings/${gatheringId}/confirm-date`, {
+      method: "POST",
+      body: JSON.stringify({ dateText }),
+    }),
+
+  submitGatheringRsvp: (
+    eventId: string,
+    gatheringId: string,
+    payload: { status: T.EventGatheringRsvpStatus; note?: string | null },
+  ) =>
+    canhoesFetch<T.EventGatheringDto>(`/v1/events/${eventId}/gatherings/${gatheringId}/rsvp`, {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
 };

@@ -14,6 +14,10 @@ export const CreateFeedPostSchema = z
     mediaUrls: z.array(uploadedMediaUrl).max(4).nullable().optional(),
     pollQuestion: z.string().trim().max(512).nullable().optional(),
     pollOptions: z.array(z.string().trim().min(1).max(256)).max(6).nullable().optional(),
+    gatheringTitle: z.string().trim().max(256).nullable().optional(),
+    gatheringDescription: z.string().trim().max(2000).nullable().optional(),
+    gatheringLocation: z.string().trim().max(256).nullable().optional(),
+    gatheringDates: z.array(z.string().trim().min(1).max(128)).max(10).nullable().optional(),
   })
   .strict()
   .superRefine((post, context) => {
@@ -58,4 +62,20 @@ export const ToggleFeedReactionSchema = z.object({
 /** Valida o voto numa opção de sondagem. */
 export const VoteFeedPollSchema = z.object({
   optionId: z.string().min(1, "optionId is required"),
+});
+
+/** Valida o voto numa data de encontro. */
+export const VoteGatheringDateSchema = z.object({
+  optionId: z.string().min(1, "optionId is required"),
+});
+
+/** Valida a confirmação da data de um encontro pelo admin. */
+export const ConfirmGatheringDateSchema = z.object({
+  dateText: z.string().trim().min(1, "dateText is required").max(128),
+});
+
+/** Valida o RSVP de um membro para um encontro. */
+export const SubmitGatheringRsvpSchema = z.object({
+  status: z.enum(["GOING", "NOT_GOING", "MAYBE"]),
+  note: z.string().trim().max(512).nullable().optional(),
 });

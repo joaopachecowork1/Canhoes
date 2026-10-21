@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { Eye, Gift, Lock, RefreshCw, Shuffle, Users } from "lucide-react";
+import { Eye, Gift, Lock, RefreshCw, RotateCcw, Shuffle, Users } from "lucide-react";
 
 import type { EventAdminSecretSantaStateDto } from "@/lib/api/types";
 import { adminRepo } from "@/lib/repositories/adminRepo";
@@ -59,7 +59,7 @@ function DrawStatus({ isLocked }: Readonly<{ isLocked: boolean }>) {
   );
 }
 
-/** Ações do admin sobre o sorteio (sortear, repetir, revelar), cada uma com confirmação quando é destrutiva. */
+/** Ações do admin sobre o sorteio (sortear, repetir, reiniciar, revelar), cada uma com confirmação quando é destrutiva. */
 function useSecretSantaActions({ eventId, state, onRefresh }: Readonly<SecretSantaAdminProps>) {
   const drawMutation = useAdminMutation({
     mutationFn: (payload?: unknown) => adminRepo.drawSecretSanta(eventId, payload),
@@ -71,14 +71,30 @@ function useSecretSantaActions({ eventId, state, onRefresh }: Readonly<SecretSan
     onSuccess: onRefresh,
     successMessage: copy.revealedToast,
   });
+  const resetMutation = useAdminMutation({
+    mutationFn: () => adminRepo.resetSecretSanta(eventId),
+    onSuccess: onRefresh,
+    successMessage: copy.resetToast,
+  });
 
   return {
     isDrawing: drawMutation.isPending,
-    isBusy: drawMutation.isPending || revealMutation.isPending,
+    isResetting: resetMutation.isPending,
+    isBusy: drawMutation.isPending || revealMutation.isPending || resetMutation.isPending,
     handleDraw: () => {
+      // se já estiver bloqueado, pede confirmação de força
+      if (state.isLocked) {
+        if (!confirm(copy.forceRedrawConfirm)) return;
+        drawMutation.mutate({ force: true });
+        return;
+      }
       // repetir o sorteio apaga o anterior, por isso pede confirmação
       if (state.hasDraw && !confirm(copy.redrawConfirm)) return;
       drawMutation.mutate({});
+    },
+    handleReset: () => {
+      if (!confirm(copy.resetConfirm)) return;
+      resetMutation.mutate();
     },
     handleReveal: () => {
       // revelar é definitivo: depois disso o sorteio já não se repete
@@ -88,16 +104,18 @@ function useSecretSantaActions({ eventId, state, onRefresh }: Readonly<SecretSan
   };
 }
 
-/** Botões de sortear/repetir, revelar e sincronizar. */
+/** Botões de sortear/repetir, revelar, reiniciar e sincronizar. */
 function DrawActions({
   actions,
   canDraw,
+  canReset,
   canReveal,
   hasDraw,
   onRefresh,
 }: Readonly<{
   actions: ReturnType<typeof useSecretSantaActions>;
   canDraw: boolean;
+  canReset: boolean;
   canReveal: boolean;
   hasDraw: boolean;
   onRefresh: () => Promise<void>;
@@ -105,7 +123,7 @@ function DrawActions({
   const DrawIcon = actions.isDrawing ? RefreshCw : Shuffle;
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
       <Button
         type="button"
         onClick={actions.handleDraw}
@@ -125,6 +143,18 @@ function DrawActions({
         <Eye className="h-4 w-4" />
         {copy.reveal}
       </Button>
+      {hasDraw ? (
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={actions.handleReset}
+          disabled={!canReset || actions.isBusy}
+          className="min-h-12 gap-2"
+        >
+          <RotateCcw className={cn("h-4 w-4", actions.isResetting && "animate-spin")} />
+          {copy.reset}
+        </Button>
+      ) : null}
       <Button
         type="button"
         variant="outline"
@@ -143,9 +173,11 @@ function DrawActions({
 export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
   const { state, onRefresh } = props;
   const actions = useSecretSantaActions(props);
-  // um sorteio bloqueado é um sorteio revelado: os membros veem-no e já não se pode repetir
   const isLocked = state.isLocked;
-  const canDraw = state.memberCount >= MIN_MEMBERS_FOR_DRAW && !isLocked;
+  // O admin pode sortear sempre que houver membros suficientes (com force se estiver locked)
+  const canDraw = state.memberCount >= MIN_MEMBERS_FOR_DRAW;
+  const canReset = state.hasDraw;
+  const canReveal = state.hasDraw && !isLocked;
 
   return (
     <div className="space-y-4">
@@ -188,11 +220,12 @@ export function SecretSantaAdmin(props: Readonly<SecretSantaAdminProps>) {
             <DrawActions
               actions={actions}
               canDraw={canDraw}
-              canReveal={state.hasDraw && !isLocked}
+              canReset={canReset}
+              canReveal={canReveal}
               hasDraw={state.hasDraw}
               onRefresh={onRefresh}
             />
-            {!canDraw && !isLocked ? (
+            {!canDraw ? (
               <p className="text-center text-xs text-[var(--person-amber)]">{copy.notEnoughMembers}</p>
             ) : null}
           </div>

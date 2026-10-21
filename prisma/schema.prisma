@@ -19,7 +19,7 @@ model User {
   isAdmin      Boolean  @map("IsAdmin")
   // A palette key (lib/personColors.ts), drawn at random when the user is created; the member can change it.
   color        String   @default(dbgenerated("(ARRAY['coral'::text, 'amber'::text, 'teal'::text, 'blue'::text, 'pink'::text, 'lime'::text, 'violet'::text, 'sky'::text])[floor(((random() * (8)::double precision) + (1)::double precision))]")) @map("Color")
-  createdAt    DateTime @map("CreatedAt") @default(now()) @db.Timestamptz(6)
+  createdAt    DateTime @default(now()) @map("CreatedAt") @db.Timestamptz(6)
 
   @@index([isAdmin], map: "IX_Users_IsAdmin")
   @@map("Users")
@@ -32,7 +32,7 @@ model UserInvitation {
   invitedByUserId String    @map("InvitedByUserId") @db.Uuid
   expiresAtUtc    DateTime  @map("ExpiresAtUtc") @db.Timestamptz(6)
   usedAtUtc       DateTime? @map("UsedAtUtc") @db.Timestamptz(6)
-  createdAtUtc    DateTime  @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc    DateTime  @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   eventId         String?   @map("EventId")
 
   @@index([token], map: "IX_UserInvitations_TokenIdx")
@@ -43,7 +43,7 @@ model Event {
   id           String   @id(map: "PK_Events") @default(uuid()) @map("Id") @db.VarChar(64)
   name         String   @map("Name") @db.VarChar(128)
   isActive     Boolean  @map("IsActive")
-  createdAtUtc DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([isActive], map: "IX_Events_IsActive")
   @@map("Events")
@@ -101,7 +101,7 @@ model Nominee {
   imageUrl          String?  @map("ImageUrl")
   submittedByUserId String   @map("SubmittedByUserId") @db.Uuid
   status            String   @map("Status")
-  createdAtUtc      DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc      DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([categoryId, status], map: "IX_Nominees_CategoryId_Status")
   @@index([eventId, status], map: "IX_Nominees_EventId_Status")
@@ -111,14 +111,14 @@ model Nominee {
 }
 
 model CategoryProposal {
-  id                String   @id(map: "PK_CategoryProposals") @default(uuid()) @map("Id")
-  eventId           String   @map("EventId")
-  name              String   @map("Name")
-  description       String?  @map("Description")
-  kind              Int      @default(0) @map("Kind")
-  proposedByUserId  String   @map("ProposedByUserId") @db.Uuid
-  status            String   @map("Status")
-  createdAtUtc      DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  id               String   @id(map: "PK_CategoryProposals") @default(uuid()) @map("Id")
+  eventId          String   @map("EventId")
+  name             String   @map("Name")
+  description      String?  @map("Description")
+  kind             Int      @default(0) @map("Kind")
+  proposedByUserId String   @map("ProposedByUserId") @db.Uuid
+  status           String   @map("Status")
+  createdAtUtc     DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([eventId, status, createdAtUtc], map: "IX_CategoryProposals_EventId_Status_CreatedAtUtc")
   @@index([proposedByUserId], map: "IX_CategoryProposals_ProposedByUserId")
@@ -131,19 +131,19 @@ model GalaMeasure {
   eventId      String   @map("EventId")
   text         String   @map("Text")
   isActive     Boolean  @map("IsActive")
-  createdAtUtc DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([eventId, isActive], map: "IX_Measures_EventId_IsActive")
   @@map("Measures")
 }
 
 model MeasureProposal {
-  id                String   @id(map: "PK_MeasureProposals") @default(uuid()) @map("Id")
-  eventId           String   @map("EventId")
-  text              String   @map("Text")
-  proposedByUserId  String   @map("ProposedByUserId") @db.Uuid
-  status            String   @map("Status")
-  createdAtUtc      DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  id               String   @id(map: "PK_MeasureProposals") @default(uuid()) @map("Id")
+  eventId          String   @map("EventId")
+  text             String   @map("Text")
+  proposedByUserId String   @map("ProposedByUserId") @db.Uuid
+  status           String   @map("Status")
+  createdAtUtc     DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([eventId, status, createdAtUtc], map: "IX_MeasureProposals_EventId_Status_CreatedAtUtc")
   @@index([proposedByUserId], map: "IX_MeasureProposals_ProposedByUserId")
@@ -156,8 +156,8 @@ model Vote {
   categoryId   String   @map("CategoryId")
   nomineeId    String   @map("NomineeId")
   userId       String   @map("UserId") @db.Uuid
-  createdAtUtc DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
-  updatedAtUtc DateTime @map("UpdatedAtUtc") @default(now()) @updatedAt @db.Timestamptz(6)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  updatedAtUtc DateTime @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
   eventId      String   @default("") @map("EventId")
 
   @@unique([categoryId, userId], map: "IX_Votes_CategoryId_UserId")
@@ -168,12 +168,12 @@ model Vote {
 }
 
 model UserVote {
-  id            String   @id(map: "PK_UserVotes") @default(uuid()) @map("Id")
-  categoryId    String   @map("CategoryId")
-  voterUserId   String   @map("VoterUserId") @db.Uuid
-  targetUserId  String   @map("TargetUserId") @db.Uuid
-  updatedAtUtc  DateTime @map("UpdatedAtUtc") @default(now()) @updatedAt @db.Timestamptz(6)
-  eventId       String   @default("") @map("EventId")
+  id           String   @id(map: "PK_UserVotes") @default(uuid()) @map("Id")
+  categoryId   String   @map("CategoryId")
+  voterUserId  String   @map("VoterUserId") @db.Uuid
+  targetUserId String   @map("TargetUserId") @db.Uuid
+  updatedAtUtc DateTime @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
+  eventId      String   @default("") @map("EventId")
 
   @@unique([categoryId, voterUserId], map: "IX_UserVotes_CategoryId_VoterUserId")
   @@index([eventId, categoryId, voterUserId], map: "IX_UserVotes_EventId_CategoryId_VoterUserId")
@@ -183,15 +183,15 @@ model UserVote {
 }
 
 model WishlistItem {
-  id            String   @id(map: "PK_WishlistItems") @default(uuid()) @map("Id")
-  eventId       String   @map("EventId")
-  userId        String   @map("UserId") @db.Uuid
-  title         String   @map("Title")
-  url           String?  @map("Url")
-  notes         String?  @map("Notes")
-  imageUrl      String?  @map("ImageUrl")
-  createdAtUtc  DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
-  updatedAtUtc  DateTime @map("UpdatedAtUtc") @default(now()) @updatedAt @db.Timestamptz(6)
+  id           String   @id(map: "PK_WishlistItems") @default(uuid()) @map("Id")
+  eventId      String   @map("EventId")
+  userId       String   @map("UserId") @db.Uuid
+  title        String   @map("Title")
+  url          String?  @map("Url")
+  notes        String?  @map("Notes")
+  imageUrl     String?  @map("ImageUrl")
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  updatedAtUtc DateTime @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
 
   @@index([eventId], map: "IX_WishlistItems_EventId")
   @@index([userId], map: "IX_WishlistItems_UserId")
@@ -201,7 +201,7 @@ model WishlistItem {
 model SecretSantaDraw {
   id              String   @id(map: "PK_SecretSantaDraws") @default(uuid()) @map("Id")
   eventCode       String   @map("EventCode")
-  createdAtUtc    DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc    DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   createdByUserId String   @map("CreatedByUserId") @db.Uuid
   isLocked        Boolean  @map("IsLocked")
 
@@ -210,10 +210,10 @@ model SecretSantaDraw {
 }
 
 model SecretSantaAssignment {
-  id               String @id(map: "PK_SecretSantaAssignments") @default(uuid()) @map("Id")
-  drawId           String @map("DrawId")
-  giverUserId      String @map("GiverUserId") @db.Uuid
-  receiverUserId   String @map("ReceiverUserId") @db.Uuid
+  id             String @id(map: "PK_SecretSantaAssignments") @default(uuid()) @map("Id")
+  drawId         String @map("DrawId")
+  giverUserId    String @map("GiverUserId") @db.Uuid
+  receiverUserId String @map("ReceiverUserId") @db.Uuid
 
   @@index([drawId], map: "IX_SecretSantaAssignments_DrawId")
   @@index([giverUserId], map: "IX_SecretSantaAssignments_GiverUserId")
@@ -222,41 +222,42 @@ model SecretSantaAssignment {
 }
 
 model CanhoesEventState {
-  id                    Int     @id(map: "PK_CanhoesEventState") @default(autoincrement()) @map("Id")
-  eventId               String  @unique(map: "IX_CanhoesEventState_EventId") @map("EventId")
-  phase                 String  @map("Phase")
-  nominationsVisible    Boolean @map("NominationsVisible")
-  resultsVisible        Boolean @map("ResultsVisible")
-  moduleVisibilityJson  Json    @default("{}") @map("ModuleVisibilityJson")
-  hasSecretSantaDraw    Boolean @default(false) @map("HasSecretSantaDraw")
-  secretSantaEventCode  String? @map("SecretSantaEventCode")
+  id                   Int     @id(map: "PK_CanhoesEventState") @default(autoincrement()) @map("Id")
+  eventId              String  @unique(map: "IX_CanhoesEventState_EventId") @map("EventId")
+  phase                String  @map("Phase")
+  nominationsVisible   Boolean @map("NominationsVisible")
+  resultsVisible       Boolean @map("ResultsVisible")
+  moduleVisibilityJson Json    @default("{}") @map("ModuleVisibilityJson")
+  hasSecretSantaDraw   Boolean @default(false) @map("HasSecretSantaDraw")
+  secretSantaEventCode String? @map("SecretSantaEventCode")
 
   @@map("CanhoesEventState")
 }
 
 model HubPost {
-  id            String   @id(map: "PK_HubPosts") @default(uuid()) @map("Id") @db.VarChar(64)
-  eventId       String   @map("EventId") @db.VarChar(64)
-  authorUserId  String   @map("AuthorUserId") @db.Uuid
-  text          String   @map("Text") @db.VarChar(4000)
-  mediaUrl      String?  @map("MediaUrl") @db.VarChar(1024)
-    mediaUrlsJson Json     @default("[]") @map("MediaUrlsJson")
-    isPinned      Boolean  @map("IsPinned")
-    pinnedOrder   Int?     @map("PinnedOrder")
-    createdAtUtc  DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  id            String            @id(map: "PK_HubPosts") @default(uuid()) @map("Id") @db.VarChar(64)
+  eventId       String            @map("EventId") @db.VarChar(64)
+  authorUserId  String            @map("AuthorUserId") @db.Uuid
+  text          String            @map("Text") @db.VarChar(4000)
+  mediaUrl      String?           @map("MediaUrl") @db.VarChar(1024)
+  mediaUrlsJson Json              @default("[]") @map("MediaUrlsJson")
+  isPinned      Boolean           @map("IsPinned")
+  pinnedOrder   Int?              @map("PinnedOrder")
+  createdAtUtc  DateTime          @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   /// The "Nº" shown on the post: the event's count when it was created. Kept when older posts are deleted.
-  number        Int      @default(0) @map("Number")
+  number        Int               @default(0) @map("Number")
   comments      HubPostComment[]
   downvotes     HubPostDownvote[]
   likes         HubPostLike[]
   media         HubPostMedia[]
   polls         HubPostPoll?
   reactions     HubPostReaction[]
+  gathering     EventGathering?
 
   @@index([authorUserId], map: "IX_HubPosts_AuthorUserId")
   @@index([createdAtUtc], map: "IX_HubPosts_CreatedAtUtc")
-    @@index([eventId, isPinned, createdAtUtc], map: "IX_HubPosts_EventId_IsPinned_CreatedAtUtc")
-    @@index([eventId, isPinned, pinnedOrder], map: "IX_HubPosts_EventId_IsPinned_PinnedOrder")
+  @@index([eventId, isPinned, createdAtUtc], map: "IX_HubPosts_EventId_IsPinned_CreatedAtUtc")
+  @@index([eventId, isPinned, pinnedOrder], map: "IX_HubPosts_EventId_IsPinned_PinnedOrder")
   @@index([eventId, createdAtUtc], map: "IX_HubPosts_EventId_CreatedAtUtc")
   @@index([isPinned], map: "IX_HubPosts_IsPinned")
   @@map("HubPosts")
@@ -266,7 +267,7 @@ model HubPostDownvote {
   id           String   @id(map: "PK_HubPostDownvotes") @default(uuid()) @map("Id") @db.VarChar(64)
   postId       String   @map("PostId") @db.VarChar(64)
   userId       String   @map("UserId") @db.Uuid
-  createdAtUtc DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   post HubPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -277,17 +278,17 @@ model HubPostDownvote {
 }
 
 model HubPostComment {
-  id         String                   @id(map: "PK_HubPostComments") @default(uuid()) @map("Id") @db.VarChar(64)
-  postId     String                   @map("PostId") @db.VarChar(64)
-  userId     String                   @map("UserId") @db.Uuid
-  text       String                   @map("Text") @db.VarChar(2000)
-  replyToId  String?                  @map("ReplyToId") @db.VarChar(64)
-  createdAtUtc DateTime               @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
-  reactions  HubPostCommentReaction[]
+  id           String                   @id(map: "PK_HubPostComments") @default(uuid()) @map("Id") @db.VarChar(64)
+  postId       String                   @map("PostId") @db.VarChar(64)
+  userId       String                   @map("UserId") @db.Uuid
+  text         String                   @map("Text") @db.VarChar(2000)
+  replyToId    String?                  @map("ReplyToId") @db.VarChar(64)
+  createdAtUtc DateTime                 @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  reactions    HubPostCommentReaction[]
 
-  post       HubPost                  @relation(fields: [postId], references: [id], onDelete: Cascade)
-  replyTo    HubPostComment?          @relation("HubPostCommentReplies", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  replies    HubPostComment[]         @relation("HubPostCommentReplies")
+  post    HubPost          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  replyTo HubPostComment?  @relation("HubPostCommentReplies", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies HubPostComment[] @relation("HubPostCommentReplies")
 
   @@index([postId], map: "IX_HubPostComments_PostId")
   @@index([postId, createdAtUtc], map: "IX_HubPostComments_PostId_CreatedAtUtc")
@@ -301,7 +302,7 @@ model HubPostReaction {
   postId       String   @map("PostId") @db.VarChar(64)
   userId       String   @map("UserId") @db.Uuid
   emoji        String   @map("Emoji") @db.VarChar(16)
-  createdAtUtc DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   post HubPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -312,11 +313,11 @@ model HubPostReaction {
 }
 
 model HubPostCommentReaction {
-  id        String         @id(map: "PK_HubPostCommentReactions") @default(uuid()) @map("Id") @db.VarChar(64)
-  commentId String         @map("CommentId") @db.VarChar(64)
-  userId    String         @map("UserId") @db.Uuid
-  emoji     String         @map("Emoji") @db.VarChar(16)
-  createdAtUtc DateTime    @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  id           String   @id(map: "PK_HubPostCommentReactions") @default(uuid()) @map("Id") @db.VarChar(64)
+  commentId    String   @map("CommentId") @db.VarChar(64)
+  userId       String   @map("UserId") @db.Uuid
+  emoji        String   @map("Emoji") @db.VarChar(16)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   comment HubPostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
@@ -327,11 +328,11 @@ model HubPostCommentReaction {
 }
 
 model HubPostPoll {
-  postId      String              @id(map: "PK_HubPostPolls") @map("PostId") @db.VarChar(64)
-  question    String              @map("Question") @db.VarChar(512)
-  createdAtUtc DateTime           @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
-  options     HubPostPollOption[]
-  votes       HubPostPollVote[]
+  postId       String              @id(map: "PK_HubPostPolls") @map("PostId") @db.VarChar(64)
+  question     String              @map("Question") @db.VarChar(512)
+  createdAtUtc DateTime            @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  options      HubPostPollOption[]
+  votes        HubPostPollVote[]
 
   post HubPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -339,10 +340,10 @@ model HubPostPoll {
 }
 
 model HubPostPollOption {
-  id        String      @id(map: "PK_HubPostPollOptions") @default(uuid()) @map("Id")
-  postId    String      @map("PostId") @db.VarChar(64)
-  text      String      @map("Text") @db.VarChar(256)
-  sortOrder Int         @map("SortOrder")
+  id        String @id(map: "PK_HubPostPollOptions") @default(uuid()) @map("Id")
+  postId    String @map("PostId") @db.VarChar(64)
+  text      String @map("Text") @db.VarChar(256)
+  sortOrder Int    @map("SortOrder")
 
   poll HubPostPoll @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
@@ -351,11 +352,11 @@ model HubPostPollOption {
 }
 
 model HubPostPollVote {
-  id           String      @id(map: "PK_HubPostPollVotes") @default(uuid()) @map("Id")
-  postId       String      @map("PostId") @db.VarChar(64)
-  userId       String      @map("UserId") @db.Uuid
-  optionId     String      @map("OptionId")
-  createdAtUtc DateTime    @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  id           String   @id(map: "PK_HubPostPollVotes") @default(uuid()) @map("Id")
+  postId       String   @map("PostId") @db.VarChar(64)
+  userId       String   @map("UserId") @db.Uuid
+  optionId     String   @map("OptionId")
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   poll HubPostPoll @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
@@ -386,7 +387,7 @@ model HubPostLike {
   id           String   @id(map: "PK_HubPostLikes") @default(uuid()) @map("Id") @db.VarChar(64)
   postId       String   @map("PostId") @db.VarChar(64)
   userId       String   @map("UserId") @db.Uuid
-  createdAtUtc DateTime @map("CreatedAtUtc") @default(now()) @db.Timestamptz(6)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   post HubPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
@@ -394,4 +395,81 @@ model HubPostLike {
   @@index([postId], map: "IX_HubPostLikes_PostId")
   @@index([userId], map: "IX_HubPostLikes_UserId")
   @@map("HubPostLikes")
+}
+
+enum GatheringStatus {
+  POLLING
+  CONFIRMED
+  CANCELLED
+}
+
+enum RsvpStatus {
+  GOING
+  NOT_GOING
+  MAYBE
+}
+
+model EventGathering {
+  id            String          @id(map: "PK_EventGatherings") @default(uuid()) @map("Id") @db.VarChar(64)
+  eventId       String          @map("EventId") @db.VarChar(64)
+  createdById   String          @map("CreatedById") @db.Uuid
+  title         String          @map("Title") @db.VarChar(256)
+  description   String?         @map("Description") @db.VarChar(2000)
+  location      String?         @map("Location") @db.VarChar(256)
+  status        GatheringStatus @default(POLLING) @map("Status")
+  confirmedDate String?         @map("ConfirmedDate") @db.VarChar(128)
+  postId        String?         @unique(map: "IX_EventGatherings_PostId") @map("PostId") @db.VarChar(64)
+  createdAtUtc  DateTime        @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  updatedAtUtc  DateTime        @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
+
+  post                    HubPost?                   @relation(fields: [postId], references: [id], onDelete: SetNull)
+  dateOptions             EventGatheringDateOption[]
+  rsvps                   EventGatheringRsvp[]
+  dateVotes               EventGatheringDateVote[]
+
+  @@index([eventId], map: "IX_EventGatherings_EventId")
+  @@map("EventGatherings")
+}
+
+model EventGatheringDateOption {
+  id          String @id(map: "PK_EventGatheringDateOptions") @default(uuid()) @map("Id") @db.VarChar(64)
+  gatheringId String @map("GatheringId") @db.VarChar(64)
+  dateText    String @map("DateText") @db.VarChar(128)
+  sortOrder   Int    @map("SortOrder")
+
+  gathering EventGathering           @relation(fields: [gatheringId], references: [id], onDelete: Cascade)
+  votes     EventGatheringDateVote[]
+
+  @@index([gatheringId, sortOrder], map: "IX_EventGatheringDateOptions_GatheringId_SortOrder")
+  @@map("EventGatheringDateOptions")
+}
+
+model EventGatheringDateVote {
+  id           String   @id(map: "PK_EventGatheringDateVotes") @default(uuid()) @map("Id") @db.VarChar(64)
+  gatheringId  String   @map("GatheringId") @db.VarChar(64)
+  optionId     String   @map("OptionId") @db.VarChar(64)
+  userId       String   @map("UserId") @db.Uuid
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+
+  gathering EventGathering           @relation(fields: [gatheringId], references: [id], onDelete: Cascade)
+  option    EventGatheringDateOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([optionId, userId], map: "IX_EventGatheringDateVotes_OptionId_UserId")
+  @@index([gatheringId, userId], map: "IX_EventGatheringDateVotes_GatheringId_UserId")
+  @@map("EventGatheringDateVotes")
+}
+
+model EventGatheringRsvp {
+  id           String     @id(map: "PK_EventGatheringRsvps") @default(uuid()) @map("Id") @db.VarChar(64)
+  gatheringId  String     @map("GatheringId") @db.VarChar(64)
+  userId       String     @map("UserId") @db.Uuid
+  status       RsvpStatus @map("Status")
+  note         String?    @map("Note") @db.VarChar(512)
+  updatedAtUtc DateTime   @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
+
+  gathering EventGathering @relation(fields: [gatheringId], references: [id], onDelete: Cascade)
+
+  @@unique([gatheringId, userId], map: "IX_EventGatheringRsvps_GatheringId_UserId")
+  @@index([gatheringId], map: "IX_EventGatheringRsvps_GatheringId")
+  @@map("EventGatheringRsvps")
 }

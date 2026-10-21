@@ -12,11 +12,10 @@ import { queryKeys } from "@/lib/queryKeys";
 
 const PAGE_SIZE = 15;
 
-/** O feed do evento como query infinita (15 publicações por página), iniciada com a primeira página do servidor. */
-export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteData) {
+function usePostsInfiniteQuery(eventId: string | null, initialData?: FeedInfiniteData) {
   const queryClient = useQueryClient();
 
-  const postsInfiniteQuery = useInfiniteQuery({
+  const query = useInfiniteQuery({
     queryKey: queryKeys.hubPosts(eventId),
     enabled: Boolean(eventId),
     initialPageParam: 0,
@@ -28,78 +27,48 @@ export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteDat
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
-    // Atualiza de 15 em 15 s só com o separador visível, para o feed parecer vivo sem gastar bateria em segundo plano.
     refetchInterval: () => (typeof document !== "undefined" && document.visibilityState === "visible" ? 15_000 : false),
   });
 
-  // Junta todas as páginas numa só lista.
-  const posts = useMemo(
-    () => postsInfiniteQuery.data?.pages.flatMap((page) => page.posts) ?? [],
-    [postsInfiniteQuery.data],
-  );
-
-  const {
-    openComments,
-    commentDrafts,
-    replyingTo,
-    toggleComments,
-    addComment,
-    deleteComment,
-    toggleCommentReaction,
-    setCommentDraft,
-    setReplyingTo,
-  } = useHubFeedComments({ eventId, queryClient });
-
-  const { toggleReaction, toggleDownvote, votePoll, adminPin, adminMovePinned, adminDelete } = useHubFeedPostActions({
-    eventId,
-    queryClient,
-  });
-
-  const hasMorePosts = postsInfiniteQuery.hasNextPage ?? false;
-  const isFetchingNextPage = postsInfiniteQuery.isFetchingNextPage;
-
-  const loadMorePosts = useCallback(() => {
-    if (hasMorePosts && !isFetchingNextPage) {
-      void postsInfiniteQuery.fetchNextPage();
-    }
-  }, [hasMorePosts, isFetchingNextPage, postsInfiniteQuery]);
-
-  const refreshPosts = useCallback(async () => {
+  const refresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: queryKeys.hubPosts(eventId) });
   }, [queryClient, eventId]);
 
-  // `usePublishPost` avisa por evento global quando cria uma publicação; aqui o feed recarrega.
   useEffect(() => {
-    const handlePostCreated = () => void refreshPosts();
+    const handlePostCreated = () => void refresh();
     window.addEventListener("hub:postCreated", handlePostCreated);
     return () => window.removeEventListener("hub:postCreated", handlePostCreated);
-  }, [refreshPosts]);
+  }, [refresh]);
+
+  return { query, refresh };
+}
+
+/** O feed do evento como query infinita (15 publicações por página), iniciada com a primeira página do servidor. */
+export function useHubFeed(eventId: string | null, initialData?: FeedInfiniteData) {
+  const queryClient = useQueryClient();
+  const { query, refresh } = usePostsInfiniteQuery(eventId, initialData);
+
+  const posts = useMemo(() => query.data?.pages.flatMap((page) => page.posts) ?? [], [query.data]);
+  const comments = useHubFeedComments({ eventId, queryClient });
+  const postActions = useHubFeedPostActions({ eventId, queryClient });
+
+  const hasMore = query.hasNextPage ?? false;
+  const isFetchingNextPage = query.isFetchingNextPage;
+
+  const loadMore = useCallback(() => {
+    if (hasMore && !isFetchingNextPage) void query.fetchNextPage();
+  }, [hasMore, isFetchingNextPage, query]);
 
   return {
     posts,
-    remainingPostsCount: countRemainingPosts(postsInfiniteQuery.data),
-    errorMessage: postsInfiniteQuery.error
-      ? getErrorMessage(postsInfiniteQuery.error, messages.feed.useHubFeed.loadError)
-      : null,
-    loading: postsInfiniteQuery.isLoading,
-    hasMore: hasMorePosts,
-    loadMore: loadMorePosts,
+    remainingPostsCount: countRemainingPosts(query.data),
+    errorMessage: query.error ? getErrorMessage(query.error, messages.feed.useHubFeed.loadError) : null,
+    loading: query.isLoading,
+    hasMore,
+    loadMore,
     isFetchingNextPage,
-    openComments,
-    commentDrafts,
-    replyingTo,
-    refresh: refreshPosts,
-    toggleReaction,
-    toggleDownvote,
-    votePoll,
-    toggleComments,
-    addComment,
-    deleteComment,
-    toggleCommentReaction,
-    adminPin,
-    adminMovePinned,
-    adminDelete,
-    setCommentDraft,
-    setReplyingTo,
+    refresh,
+    ...comments,
+    ...postActions,
   };
 }
