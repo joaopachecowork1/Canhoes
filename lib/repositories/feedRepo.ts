@@ -103,4 +103,7 @@ export const feedRepo = {
       method: "POST",
       body: JSON.stringify(payload),
     }),
+
+  searchPlaces: (eventId: string, query: string) =>
+    canhoesFetch<T.PlaceSuggestionDto[]>(`/v1/events/${eventId}/places?query=${encodeURIComponent(query)}`),
 };

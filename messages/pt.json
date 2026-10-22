@@ -95,6 +95,11 @@
       "gatheringLabel": "Marcar Encontro / Jantar",
       "gatheringTitlePlaceholder": "Título (ex: Jantar de Natal)",
       "gatheringLocationPlaceholder": "Localização (ex: Restaurante / Baixa)",
+      "searchPlacePlaceholder": "Pesquisar restaurante, bar ou morada...",
+      "selectedLocation": "Local selecionado",
+      "clearLocation": "Alterar local",
+      "searchingPlaces": "A pesquisar locais...",
+      "noPlacesFound": "Nenhum local encontrado. Podes manter o texto manual.",
       "gatheringDescriptionPlaceholder": "Notas (ex: Trazer prendas do amigo secreto)",
       "gatheringDatePlaceholder": "Data candidata (ex: 19 Dezembro)",
       "candidateDates": "Datas candidatas (sondagem)",
@@ -134,6 +139,13 @@
       "postRemoved": "Publicação removida",
       "deleteError": "A publicação não foi apagada. Tenta outra vez."
     },
+    "useGatheringPostActions": {
+      "voteError": "Não foi possível registar o voto.",
+      "confirmSuccess": "Data confirmada com sucesso.",
+      "confirmError": "Não foi possível confirmar a data.",
+      "rsvpSuccess": "Presença registada.",
+      "rsvpError": "Não foi possível registar a presença."
+    },
     "useHubFeedComments": {
       "commentPublished": "Comentário publicado",
       "publishError": "O comentário não foi enviado. Tenta outra vez.",
@@ -155,6 +167,9 @@
       "pollingTitle": "Votação de Datas",
       "confirmedTitle": "Encontro Confirmado",
       "location": "Local",
+      "viewOnMaps": "Ver no Google Maps",
+      "getDirections": "Como chegar",
+      "mapAriaLabel": "Mapa de localização",
       "date": "Data",
       "confirmThisDate": "Fixar esta data",
       "confirmDateConfirm": "Desejas confirmar esta data como oficial? A votação será encerrada e abrirá a confirmação de presença (RSVP).",
@@ -181,8 +196,7 @@
       "pin": "Fixar publicação",
       "deleteTitle": "Eliminar publicação?",
       "deleteDescription": "Esta publicação vai ser removida permanentemente do Mural Social. Esta ação não pode ser desfeita.",
-      "deleteLabel": "Eliminar publicação",
-      "number": "Nº {number}"
+      "deleteLabel": "Eliminar publicação"
     },
     "PostVoteBar": {
       "upvote": "Upvote",
@@ -249,7 +263,8 @@
     "item": "item",
     "items": "itens",
     "sending": "A enviar...",
-    "requestTimeout": "O pedido demorou demasiado. Tenta novamente."
+    "requestTimeout": "O pedido demorou demasiado. Tenta novamente.",
+    "justNow": "agora"
   },
   "ui": {
     "ErrorAlert": {

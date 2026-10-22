@@ -15,3 +15,13 @@ export async function loadUsersById<Row extends { id: string }>(
   const users = await query({ id: { in: ids } });
   return new Map(users.map((user) => [user.id, user]));
 }
+
+/** Ordena membros colocando admins primeiro e depois por ordem alfabética (nome ou email). */
+export function compareMembersByRoleAndName(
+  a: { isAdmin: boolean; displayName: string | null; email: string },
+  b: { isAdmin: boolean; displayName: string | null; email: string },
+): number {
+  const roleCmp = (b.isAdmin ? 1 : 0) - (a.isAdmin ? 1 : 0);
+  if (roleCmp !== 0) return roleCmp;
+  return (a.displayName ?? a.email).localeCompare(b.displayName ?? b.email);
+}

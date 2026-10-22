@@ -93,13 +93,71 @@ function usePollDraft() {
   return { isEnabled, setIsEnabled, question, setQuestion, options, changeOption, addOption, removeOption, reset };
 }
 
+type PlaceInput = {
+  name: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  mapUrl: string | null;
+  id: string;
+} | null;
+
+/** Estado da localização de um encontro (nome, morada, coordenadas e placeId). */
+function useGatheringLocationDraft() {
+  const [location, setLocation] = useState("");
+  const [locationAddress, setLocationAddress] = useState("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [mapUrl, setMapUrl] = useState<string | null>(null);
+  const [placeId, setPlaceId] = useState<string | null>(null);
+
+  const selectPlace = useCallback((place: PlaceInput) => {
+    if (!place) {
+      setLocationAddress("");
+      setLatitude(null);
+      setLongitude(null);
+      setMapUrl(null);
+      setPlaceId(null);
+      return;
+    }
+    setLocation(place.name);
+    setLocationAddress(place.address);
+    setLatitude(place.latitude);
+    setLongitude(place.longitude);
+    setMapUrl(place.mapUrl);
+    setPlaceId(place.id);
+  }, []);
+
+  const resetLocation = useCallback(() => {
+    setLocation("");
+    setLocationAddress("");
+    setLatitude(null);
+    setLongitude(null);
+    setMapUrl(null);
+    setPlaceId(null);
+  }, []);
+
+  return {
+    location,
+    setLocation,
+    locationAddress,
+    setLocationAddress,
+    latitude,
+    longitude,
+    mapUrl,
+    placeId,
+    selectPlace,
+    resetLocation,
+  };
+}
+
 /** O rascunho de um encontro/jantar: título, local, notas e opções de datas. */
 function useGatheringDraft() {
   const [isEnabled, setIsEnabled] = useState(false);
   const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [dates, setDates] = useState<string[]>([""]);
+  const loc = useGatheringLocationDraft();
 
   const changeDate = useCallback((index: number, value: string) => {
     setDates((current) => current.map((d, currentIndex) => (currentIndex === index ? value : d)));
@@ -113,21 +171,20 @@ function useGatheringDraft() {
     setDates((current) => (current.length > 1 ? current.filter((_, currentIndex) => currentIndex !== index) : [""]));
   }, []);
 
+  const { resetLocation } = loc;
   const reset = useCallback(() => {
     setIsEnabled(false);
     setTitle("");
-    setLocation("");
+    resetLocation();
     setDescription("");
     setDates([""]);
-  }, []);
+  }, [resetLocation]);
 
   return {
     isEnabled,
     setIsEnabled,
     title,
     setTitle,
-    location,
-    setLocation,
     description,
     setDescription,
     dates,
@@ -135,6 +192,7 @@ function useGatheringDraft() {
     addDate,
     removeDate,
     reset,
+    ...loc,
   };
 }
 

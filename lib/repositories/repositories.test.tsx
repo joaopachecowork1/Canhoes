@@ -204,6 +204,7 @@ const cases: [string, () => Promise<unknown>, string, string, unknown?][] = [
     "/v1/events/e1/gatherings/g1/rsvp",
     { status: "GOING", note: "Sim" },
   ],
+  ["feedRepo.searchPlaces", () => feedRepo.searchPlaces("e1", "Ramiro"), "GET", "/v1/events/e1/places?query=Ramiro"],
 
   [
     "authRepo.registerWithInvite",

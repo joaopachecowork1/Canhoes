@@ -146,6 +146,11 @@ export type EventGatheringDto = {
   title: string;
   description: string | null;
   location: string | null;
+  locationAddress: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  mapUrl: string | null;
+  placeId: string | null;
   status: EventGatheringStatus;
   confirmedDate: string | null;
   postId: string | null;
@@ -154,6 +159,16 @@ export type EventGatheringDto = {
   rsvps: EventGatheringRsvpDto[];
   myRsvp: EventGatheringRsvpStatus | null;
   myRsvpNote: string | null;
+};
+
+/** Sugestão de local obtida via pesquisa do Google Places. */
+export type PlaceSuggestionDto = {
+  id: string;
+  name: string;
+  address: string;
+  latitude: number | null;
+  longitude: number | null;
+  mapUrl: string | null;
 };
 
 /** Corpo do pedido para criar um post do feed. */
@@ -166,6 +181,11 @@ export type CreateEventFeedPostRequest = {
   gatheringTitle?: string | null;
   gatheringDescription?: string | null;
   gatheringLocation?: string | null;
+  gatheringLocationAddress?: string | null;
+  gatheringLatitude?: number | null;
+  gatheringLongitude?: number | null;
+  gatheringMapUrl?: string | null;
+  gatheringPlaceId?: string | null;
   gatheringDates?: string[] | null;
 };
 

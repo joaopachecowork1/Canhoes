@@ -1,18 +1,24 @@
 "use client";
 
-import { Calendar, MapPin, Plus, Trash2, UtensilsCrossed } from "lucide-react";
+import { Calendar, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { PlaceSuggestionDto } from "@/lib/api/types";
 import messages from "@/messages/pt.json";
+
+import { GatheringPlaceSearch } from "./GatheringPlaceSearch";
 
 const copy = messages.feed.compose;
 
 type ComposeGatheringEditorProps = {
+  eventId?: string;
   title: string;
   onTitleChange: (value: string) => void;
   location: string;
   onLocationChange: (value: string) => void;
+  locationAddress?: string;
+  onSelectPlace?: (place: PlaceSuggestionDto | null) => void;
   description: string;
   onDescriptionChange: (value: string) => void;
   dates: string[];
@@ -58,10 +64,13 @@ function GatheringDateRow({
 
 /** Editor de encontro / jantar na folha de publicação do admin. */
 export function ComposeGatheringEditor({
+  eventId,
   title,
   onTitleChange,
   location,
   onLocationChange,
+  locationAddress,
+  onSelectPlace,
   description,
   onDescriptionChange,
   dates,
@@ -84,15 +93,13 @@ export function ComposeGatheringEditor({
           className="border-[var(--color-veil)]/15 bg-[var(--bg-paper-soft)] text-sm font-semibold"
         />
 
-        <div className="relative">
-          <MapPin className="absolute left-3 top-3 h-4 w-4 text-[var(--person-coral)]" />
-          <Input
-            value={location}
-            onChange={(e) => onLocationChange(e.target.value)}
-            placeholder={copy.gatheringLocationPlaceholder}
-            className="border-[var(--color-veil)]/15 bg-[var(--bg-paper-soft)] pl-9 text-sm"
-          />
-        </div>
+        <GatheringPlaceSearch
+          eventId={eventId}
+          location={location}
+          onLocationChange={onLocationChange}
+          locationAddress={locationAddress}
+          onSelectPlace={onSelectPlace}
+        />
 
         <Input
           value={description}

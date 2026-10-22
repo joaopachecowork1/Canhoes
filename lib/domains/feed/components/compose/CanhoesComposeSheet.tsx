@@ -82,14 +82,23 @@ function useComposeFormSubmit(
   return { canSubmit, handleSubmit, isSubmitting, status };
 }
 
-function ComposeFormGathering({ gathering }: Readonly<{ gathering: ReturnType<typeof useComposer>["gathering"] }>) {
+function ComposeFormGathering({
+  eventId,
+  gathering,
+}: Readonly<{
+  eventId: string | undefined;
+  gathering: ReturnType<typeof useComposer>["gathering"];
+}>) {
   if (!gathering.isEnabled) return null;
   return (
     <ComposeGatheringEditor
+      eventId={eventId}
       title={gathering.title}
       onTitleChange={gathering.setTitle}
       location={gathering.location}
       onLocationChange={gathering.setLocation}
+      locationAddress={gathering.locationAddress}
+      onSelectPlace={gathering.selectPlace}
       description={gathering.description}
       onDescriptionChange={gathering.setDescription}
       dates={gathering.dates}
@@ -154,7 +163,7 @@ function ComposeForm({ onPublished }: Readonly<{ onPublished: () => void }>) {
           />
         ) : null}
 
-        <ComposeFormGathering gathering={gathering} />
+        <ComposeFormGathering eventId={activeEvent?.id} gathering={gathering} />
       </div>
 
       <ComposeToolbar

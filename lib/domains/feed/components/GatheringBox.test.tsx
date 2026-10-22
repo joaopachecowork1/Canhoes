@@ -11,6 +11,11 @@ const pollingGathering: EventGatheringDto = {
   title: "Jantar de Natal",
   description: "Tragam prendas",
   location: "Baixa",
+  locationAddress: null,
+  latitude: null,
+  longitude: null,
+  mapUrl: null,
+  placeId: null,
   status: "POLLING",
   confirmedDate: null,
   postId: "p1",
@@ -30,6 +35,11 @@ const confirmedGathering: EventGatheringDto = {
   title: "Jantar de Natal",
   description: "Confirmado!",
   location: "Restaurante Central",
+  locationAddress: "Rua Direita 10",
+  latitude: 38.71,
+  longitude: -9.14,
+  mapUrl: "https://maps.google.com/?cid=123",
+  placeId: "place-1",
   status: "CONFIRMED",
   confirmedDate: "19 Dezembro às 20h",
   postId: "p2",
@@ -97,5 +107,28 @@ describe("GatheringBox", () => {
     const maybeButton = screen.getByRole("button", { name: /talvez/i });
     await userEvent.click(maybeButton);
     expect(onRsvp).toHaveBeenCalledWith("g2", "MAYBE", undefined);
+  });
+
+  it("renders map image and directions link when coordinates are provided", () => {
+    render(
+      <GatheringBox
+        gathering={confirmedGathering}
+        isAdmin={false}
+        onVoteDate={vi.fn()}
+        onConfirmDate={vi.fn()}
+        onRsvp={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("Restaurante Central")).toBeInTheDocument();
+    expect(screen.getByText("Rua Direita 10")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /como chegar/i })).toHaveAttribute(
+      "href",
+      "https://maps.google.com/?cid=123",
+    );
+    expect(screen.getByRole("img", { name: /mapa de localização/i })).toHaveAttribute(
+      "src",
+      "/api/v1/events/e1/places/map?lat=38.71&lng=-9.14",
+    );
   });
 });

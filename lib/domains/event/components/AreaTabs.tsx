@@ -1,5 +1,3 @@
-"use client";
-
 import { PillTabs } from "@/components/ui/pill-tabs";
 import type { AdminModuleKey, EventModulesDto } from "@/lib/api/types";
 import { CANHOES_MODULE_BY_KEY, CANHOES_MODULES } from "@/lib/modules";

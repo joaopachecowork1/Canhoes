@@ -5,18 +5,12 @@ import { toast } from "sonner";
 import type { EventFeedPostFullDto } from "@/lib/api/types";
 
 import { useGatheringPostActions } from "./useGatheringPostActions";
-import { getErrorMessage, logFrontendError } from "@/lib/errors";
 import { feedRepo } from "@/lib/repositories/feedRepo";
 import { HEART_REACTION } from "@/lib/reactions";
 import messages from "@/messages/pt.json";
 
-import {
-  findPostInFeed,
-  removePostFromFeed,
-  sortPinnedPosts,
-  updatePostInFeed,
-  type FeedInfiniteData,
-} from "./feedInfiniteData";
+import { reportFeedError, useFeedCache } from "./feedActionUtils";
+import { findPostInFeed, removePostFromFeed, sortPinnedPosts, updatePostInFeed } from "./feedInfiniteData";
 import {
   applyDownvote,
   applyPollVote,
@@ -34,30 +28,6 @@ type UseHubFeedPostActionsArgs = {
 };
 
 type PostUpdater = (post: EventFeedPostFullDto) => EventFeedPostFullDto;
-
-/** Regista o erro e mostra um toast com a mensagem do servidor ou o texto de recurso. */
-function reportFeedError(
-  action: string,
-  error: unknown,
-  { context, fallback }: Readonly<{ context: Record<string, unknown>; fallback: string }>,
-) {
-  logFrontendError(`HubFeed.${action}`, error, context);
-  toast.error(getErrorMessage(error, fallback));
-}
-
-/** Altera o feed em cache de um evento e devolve o estado anterior, para servir de rollback. */
-function useFeedCache(queryClient: QueryClient, eventId: string | null) {
-  return useCallback(
-    (update: (feed: FeedInfiniteData | undefined) => FeedInfiniteData | undefined) => {
-      if (!eventId) return undefined;
-      const queryKey = queryKeys.hubPosts(eventId);
-      const previous = queryClient.getQueryData<FeedInfiniteData>(queryKey);
-      queryClient.setQueryData<FeedInfiniteData>(queryKey, update);
-      return previous;
-    },
-    [queryClient, eventId],
-  );
-}
 
 /**
  * Aplica `optimistic` à publicação em cache, envia `request` e deixa a resposta do servidor prevalecer

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import messages from "@/messages/pt.json";
 
 /**
  * Divide o texto de uma publicação em título e corpo (ao estilo Reddit).
@@ -32,7 +33,7 @@ function formatRelativeTime(utcString: string): string {
   const diffMs = now - then;
   const diffSec = Math.floor(diffMs / 1000);
 
-  if (diffSec < 60) return "agora";
+  if (diffSec < 60) return messages.common.justNow;
   if (diffSec < 3600) return `${Math.floor(diffSec / 60)}min`;
   if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h`;
   if (diffSec < 2592000) return `${Math.floor(diffSec / 86400)}d`;

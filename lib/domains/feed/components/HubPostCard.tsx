@@ -77,16 +77,16 @@ function CommentToggleButton({
     <button
       type="button"
       className={cn(
-        "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+        "inline-flex min-h-[40px] items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-all active:scale-95",
         isOpen
-          ? "bg-[var(--moss)]/12 text-[var(--moss-glow)]"
-          : "text-[var(--ink-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--ink-primary)]",
+          ? "border-[var(--moss)]/60 bg-[var(--moss)]/20 text-[var(--moss-glow)] shadow-xs ring-1 ring-[var(--moss-glow)]/40"
+          : "border-[var(--color-border-strong)] bg-[var(--color-bg-base)]/85 text-[var(--color-text-primary)]/80 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-veil)]/10 hover:text-[var(--color-text-primary)] shadow-xs backdrop-blur-md",
       )}
       onClick={onToggle}
       aria-label={isOpen ? copy.closeComments : formatMessage(copy.commentCount, { count })}
     >
-      <MessageSquare className="h-4 w-4" />
-      <span className="tabular-nums">{count}</span>
+      <MessageSquare className={cn("size-4 transition-transform", isOpen && "text-[var(--moss-glow)] scale-110")} />
+      <span className="tabular-nums font-mono font-bold">{count}</span>
     </button>
   );
 }
@@ -174,13 +174,12 @@ function HubPostCardComponent({
 
   return (
     <BlurFade delay={index * 50}>
-      <Card className="overflow-hidden rounded-[var(--radius-lg-token)] border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[var(--shadow-card)] text-[var(--color-text-primary)]">
+      <Card className="overflow-hidden rounded-[var(--radius-lg-token)] border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-[var(--shadow-paper)] text-[var(--color-text-primary)] transition-shadow">
         <CardHeader className="px-4 py-4 pb-2 sm:px-5">
           <PostHeader
             authorName={post.authorName}
             authorColor={post.authorColor}
             createdAtUtc={post.createdAtUtc}
-            postNumber={post.postNumber}
             isPinned={post.isPinned}
             isAdmin={isAdmin}
             onAdminPin={() => onAdminPin(post.id)}
@@ -199,7 +198,7 @@ function HubPostCardComponent({
           onVotePoll={onVotePoll}
         />
 
-        <CardFooter className="flex flex-col items-stretch gap-2 bg-transparent px-4 py-3 sm:px-5">
+        <CardFooter className="flex flex-col items-stretch gap-3 border-t border-[var(--color-border)]/25 bg-[var(--color-veil)]/[0.02] px-4 py-3 sm:px-5">
           <div className="flex flex-row items-center justify-between w-full">
             <PostVoteBar
               isUpvoted={post.likedByMe}

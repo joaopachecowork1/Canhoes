@@ -47,7 +47,7 @@ describe("HubFeedModule", () => {
 
     expect(await screen.findByText("Primeiro post")).toBeInTheDocument();
     expect(screen.getByText("Rui")).toBeInTheDocument();
-    expect(screen.getByText("Nº 7")).toBeInTheDocument();
+    expect(screen.queryByText("Nº 7")).not.toBeInTheDocument();
     expect(score()).toBe("2"); // 3 likes - 1 downvote
     expect(screen.getByRole("button", { name: "2 comentários" })).toBeInTheDocument();
   });

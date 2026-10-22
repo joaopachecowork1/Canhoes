@@ -1,5 +1,3 @@
-"use client";
-
 import { ImageOff } from "lucide-react";
 
 import { absMediaUrl } from "@/lib/media";

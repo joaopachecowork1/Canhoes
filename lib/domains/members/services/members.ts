@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { PersonColor } from "@/lib/personColors";
 import type { PublicUserDto } from "@/lib/api/types";
-import { loadUsersById } from "@/lib/usersById";
+import { compareMembersByRoleAndName, loadUsersById } from "@/lib/usersById";
 
 /* Quem está no evento e a cor do próprio membro. As guardas das rotas decidem quem pode chamar cada função. */
 
@@ -28,11 +28,7 @@ export async function getMembers(eventId: string): Promise<PublicUserDto[]> {
         : null;
     })
     .filter((x): x is PublicUserDto => x !== null)
-    .sort((a, b) => {
-      const roleCmp = (b.isAdmin ? 1 : 0) - (a.isAdmin ? 1 : 0);
-      if (roleCmp !== 0) return roleCmp;
-      return (a.displayName ?? a.email).localeCompare(b.displayName ?? b.email);
-    });
+    .sort(compareMembersByRoleAndName);
 
   return result;
 }

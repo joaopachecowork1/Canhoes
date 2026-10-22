@@ -1,5 +1,3 @@
-"use client";
-
 import { PillTabs } from "@/components/ui/pill-tabs";
 
 import { ADMIN_SECTIONS, type AdminSectionId } from "../adminSections";

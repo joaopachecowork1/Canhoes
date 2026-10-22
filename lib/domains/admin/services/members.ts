@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { PagedResult, PublicUserDto } from "@/lib/api/types";
 import { AdminRoleChangeError, assertAdminRoleChangeAllowed } from "./adminRolePolicy";
-import { loadUsersById } from "@/lib/usersById";
+import { compareMembersByRoleAndName, loadUsersById } from "@/lib/usersById";
 
 /* Os membros do evento como o admin os vê, e a promoção ou despromoção de admins (regras em `adminRolePolicy.ts`). */
 
@@ -30,11 +30,7 @@ export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50)
       return u ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: u.isAdmin, color: u.color } : null;
     })
     .filter((x): x is PublicUserDto => x !== null)
-    .sort((a, b) => {
-      const roleCmp = (b.isAdmin ? 1 : 0) - (a.isAdmin ? 1 : 0);
-      if (roleCmp !== 0) return roleCmp;
-      return (a.displayName ?? a.email).localeCompare(b.displayName ?? b.email);
-    });
+    .sort(compareMembersByRoleAndName);
 
   return {
     items,

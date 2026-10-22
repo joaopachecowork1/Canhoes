@@ -43,27 +43,63 @@ type CreateGatheringInPostArgs = {
     gatheringTitle?: string | null;
     gatheringDescription?: string | null;
     gatheringLocation?: string | null;
+    gatheringLocationAddress?: string | null;
+    gatheringLatitude?: number | null;
+    gatheringLongitude?: number | null;
+    gatheringMapUrl?: string | null;
+    gatheringPlaceId?: string | null;
     gatheringDates?: string[] | null;
   };
 };
 
+type GatheringData = CreateGatheringInPostArgs["data"];
+
+function toGatheringCoordinates(data: GatheringData) {
+  return {
+    latitude: data.gatheringLatitude ?? null,
+    longitude: data.gatheringLongitude ?? null,
+  };
+}
+
+function toGatheringLocationData(data: GatheringData) {
+  return {
+    location: data.gatheringLocation?.trim() || null,
+    locationAddress: data.gatheringLocationAddress?.trim() || null,
+    mapUrl: data.gatheringMapUrl?.trim() || null,
+    placeId: data.gatheringPlaceId?.trim() || null,
+    ...toGatheringCoordinates(data),
+  };
+}
+
+type GatheringCreateInput = {
+  eventId: string;
+  userId: string;
+  postId: string;
+  data: GatheringData;
+  dates: string[];
+};
+
+function toGatheringCreateData({ eventId, userId, postId, data, dates }: GatheringCreateInput) {
+  const hasDates = dates.length > 0;
+  return {
+    eventId,
+    createdById: userId,
+    title: data.gatheringTitle?.trim() || "",
+    description: data.gatheringDescription?.trim() || null,
+    status: (hasDates ? "POLLING" : "CONFIRMED") as "POLLING" | "CONFIRMED",
+    postId,
+    dateOptions: {
+      create: dates.map((dateText, i) => ({ dateText: dateText.trim(), sortOrder: i })),
+    },
+    ...toGatheringLocationData(data),
+  };
+}
+
 async function createGatheringInPost({ tx, eventId, userId, postId, data }: CreateGatheringInPostArgs) {
   if (!data.gatheringTitle?.trim()) return;
   const dates = (data.gatheringDates ?? []).filter((d) => d.trim().length > 0);
-  const hasDates = dates.length > 0;
   await tx.eventGathering.create({
-    data: {
-      eventId,
-      createdById: userId,
-      title: data.gatheringTitle.trim(),
-      description: data.gatheringDescription?.trim() || null,
-      location: data.gatheringLocation?.trim() || null,
-      status: hasDates ? "POLLING" : "CONFIRMED",
-      postId,
-      dateOptions: {
-        create: dates.map((dateText, i) => ({ dateText: dateText.trim(), sortOrder: i })),
-      },
-    },
+    data: toGatheringCreateData({ eventId, userId, postId, data, dates }),
   });
 }
 

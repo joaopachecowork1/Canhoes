@@ -69,7 +69,7 @@ export function WishlistMemberPanel({ deletingItemId, items, member, onDelete, u
 
                 <div className="flex shrink-0 flex-col items-end justify-between gap-2">
                   <p className="text-xs text-[var(--color-text-muted)]">
-                    {new Date(wishlistItem.updatedAtUtc).toLocaleDateString()}
+                    {new Date(wishlistItem.updatedAtUtc).toLocaleDateString("pt-PT")}
                   </p>
 
                   {isCurrentUser ? (

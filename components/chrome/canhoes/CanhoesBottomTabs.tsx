@@ -3,8 +3,10 @@
 import { Plus } from "lucide-react";
 
 import { Dock, type DockItem } from "@/components/ui/dock-two";
+import { cn } from "@/lib/utils";
 
 import { areaColorVar, HOME_NAV_ITEM, MENU_NAV_ITEM, type CanhoesNavItem } from "./canhoesNavigation";
+import { useDockScrollVisibility } from "./useDockScrollVisibility";
 import messages from "@/messages/pt.json";
 
 /** Um separador do dock: o item de navegação, se está ativo e o que fazer ao tocar. */
@@ -30,11 +32,17 @@ export function CanhoesBottomTabs({
   rightItems,
   showCompose = true,
 }: Readonly<CanhoesBottomTabsProps>) {
+  const { isVisible } = useDockScrollVisibility({
+    disabled: isComposeOpen,
+    threshold: 60,
+  });
+
   const composeItem: DockItem = {
     ariaPressed: isComposeOpen,
-    buttonClassName: "bg-[var(--moss)] text-[var(--on-moss)] shadow-[var(--glow-green-sm)] hover:bg-[var(--moss-glow)]",
+    buttonClassName:
+      "bg-[var(--moss)] text-[var(--on-moss)] font-bold shadow-[var(--glow-green-sm)] hover:bg-[var(--moss-glow)] hover:shadow-[var(--shadow-elevation-md)] transition-all",
     icon: Plus,
-    iconClassName: "h-6 w-6",
+    iconClassName: "h-6 w-6 stroke-[2.5]",
     isActive: isComposeOpen,
     label: messages.shell.CanhoesBottomTabs.post,
     onClick: onCompose,
@@ -48,12 +56,26 @@ export function CanhoesBottomTabs({
   ] as const satisfies readonly DockItem[];
 
   return (
-    <nav aria-label={messages.shell.CanhoesBottomTabs.navLabel} className="fixed inset-x-0 bottom-0 z-50">
-      <div className="mx-auto max-w-[32rem] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:px-3">
+    <nav
+      aria-label={messages.shell.CanhoesBottomTabs.navLabel}
+      className={cn(
+        "pointer-events-none fixed inset-x-0 bottom-0 z-50 transition-transform duration-300 ease-out motion-reduce:transition-none",
+        isVisible ? "translate-y-0" : "translate-y-[calc(100%+1rem)]",
+      )}
+    >
+      <div
+        aria-hidden
+        className={cn(
+          "pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[var(--bg-void)] via-[var(--bg-void)]/75 to-transparent transition-opacity duration-300 motion-reduce:transition-none",
+          isVisible ? "opacity-100" : "opacity-0",
+        )}
+      />
+
+      <div className="relative pointer-events-auto mx-auto max-w-[32rem] px-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] sm:px-3">
         <Dock
           items={items}
           className="w-full"
-          dockClassName="rounded-[1.25rem] bg-[var(--bg-surface)] p-1.5 shadow-[var(--shadow-panel)]"
+          dockClassName="rounded-[1.25rem] border border-[var(--color-border-strong)] bg-gradient-to-b from-[var(--color-bg-elevated)]/90 via-[var(--color-panel)]/90 to-[var(--color-bg-base)]/90 p-1.5 backdrop-blur-2xl ring-1 ring-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.85),inset_0_1px_0_rgba(255,255,255,0.2),0_0_28px_rgba(91,63,140,0.3)]"
         />
       </div>
     </nav>

@@ -21,6 +21,11 @@ export type PostDraft = {
     isEnabled: boolean;
     title: string;
     location: string;
+    locationAddress?: string;
+    latitude?: number | null;
+    longitude?: number | null;
+    mapUrl?: string | null;
+    placeId?: string | null;
     description: string;
     dates: string[];
   };
@@ -41,30 +46,45 @@ async function uploadImages(eventId: string, files: File[]) {
   return uploadedUrls;
 }
 
+function toPollPayload(poll: PostDraft["poll"]) {
+  if (!poll.isEnabled) return { pollOptions: null, pollQuestion: null };
+  return {
+    pollOptions: getFilledPollOptions(poll.options),
+    pollQuestion: poll.question.trim() || null,
+  };
+}
+
+function getGatheringLocationFields(gathering: NonNullable<PostDraft["gathering"]>) {
+  return {
+    gatheringLocation: gathering.location.trim() || null,
+    gatheringLocationAddress: gathering.locationAddress?.trim() || null,
+    gatheringLatitude: gathering.latitude ?? null,
+    gatheringLongitude: gathering.longitude ?? null,
+    gatheringMapUrl: gathering.mapUrl?.trim() || null,
+    gatheringPlaceId: gathering.placeId?.trim() || null,
+  };
+}
+
+function toGatheringPayload(gathering?: PostDraft["gathering"]) {
+  if (!gathering?.isEnabled) return {};
+  const trimmedTitle = gathering.title.trim();
+  if (!trimmedTitle) return {};
+
+  return {
+    gatheringTitle: trimmedTitle,
+    gatheringDescription: gathering.description.trim() || null,
+    gatheringDates: gathering.dates.map((d) => d.trim()).filter((d) => d.length > 0),
+    ...getGatheringLocationFields(gathering),
+  };
+}
+
 /** Monta o pedido de criação; sem sondagem ativa, a pergunta e as opções vão a null. */
 function toCreatePostRequest(draft: PostDraft, text: string, mediaUrls: string[]) {
-  const pollData = draft.poll.isEnabled
-    ? {
-        pollOptions: getFilledPollOptions(draft.poll.options),
-        pollQuestion: draft.poll.question.trim() || null,
-      }
-    : { pollOptions: null, pollQuestion: null };
-
-  const gatheringData =
-    draft.gathering?.isEnabled && draft.gathering.title.trim()
-      ? {
-          gatheringTitle: draft.gathering.title.trim(),
-          gatheringLocation: draft.gathering.location.trim() || null,
-          gatheringDescription: draft.gathering.description.trim() || null,
-          gatheringDates: draft.gathering.dates.map((d) => d.trim()).filter((d) => d.length > 0),
-        }
-      : {};
-
   return {
     text,
     mediaUrls,
-    ...pollData,
-    ...gatheringData,
+    ...toPollPayload(draft.poll),
+    ...toGatheringPayload(draft.gathering),
   };
 }
 

@@ -9,7 +9,6 @@ import { ConfirmDeleteAction } from "@/components/ui/confirm-delete";
 import { PersonCromo } from "@/components/ui/person-cromo";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { formatDateTime } from "./hubUtils";
-import { formatMessage } from "@/lib/messages";
 import { useRelativeTime } from "@/lib/postUtils";
 import messages from "@/messages/pt.json";
 
@@ -91,12 +90,11 @@ function PostAdminActions({
   );
 }
 
-/** Cabeçalho de um post: autor, número, hora relativa e, para admins, o menu de ações. */
+/** Cabeçalho de um post: autor, hora relativa e, para admins, o menu de ações. */
 export function PostHeader({
   authorName,
   authorColor,
   createdAtUtc,
-  postNumber,
   isAdmin,
   ...adminActions
 }: Readonly<
@@ -104,7 +102,6 @@ export function PostHeader({
     authorName: string;
     authorColor?: string;
     createdAtUtc: string;
-    postNumber: number;
     isAdmin?: boolean;
   } & PostAdminActionsProps
 >) {
@@ -121,10 +118,6 @@ export function PostHeader({
             {adminActions.isPinned ? <Badge variant="secondary">{copy.pinned}</Badge> : null}
           </div>
           <p className="text-sm text-[var(--text-muted)]" title={formatDateTime(createdAtUtc)}>
-            <span className="font-[family-name:var(--font-display)] font-bold text-[var(--color-text-secondary)]">
-              {formatMessage(copy.number, { number: postNumber })}
-            </span>
-            {" · "}
             {relativeTime}
           </p>
         </div>

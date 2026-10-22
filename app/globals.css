@@ -130,6 +130,33 @@
   animation-fill-mode: both;
 }
 
+/* Animação tátil da pontuação ao votar. */
+@keyframes scoreBounce {
+  0% {
+    transform: scale(0.85) translateY(2px);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.15) translateY(-1px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-score-bounce {
+  display: inline-block;
+  animation: scoreBounce 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-score-bounce {
+    animation: none;
+  }
+}
+
 /* Brilho dos esqueletos de carregamento. */
 .skeleton-shimmer {
   position: relative;

@@ -1,5 +1,3 @@
-"use client";
-
 /** Barra de progresso do envio das imagens de um post. */
 export function ComposeUploadProgress({
   label,

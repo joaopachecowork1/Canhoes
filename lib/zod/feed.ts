@@ -17,6 +17,11 @@ export const CreateFeedPostSchema = z
     gatheringTitle: z.string().trim().max(256).nullable().optional(),
     gatheringDescription: z.string().trim().max(2000).nullable().optional(),
     gatheringLocation: z.string().trim().max(256).nullable().optional(),
+    gatheringLocationAddress: z.string().trim().max(512).nullable().optional(),
+    gatheringLatitude: z.number().nullable().optional(),
+    gatheringLongitude: z.number().nullable().optional(),
+    gatheringMapUrl: z.string().trim().max(1024).nullable().optional(),
+    gatheringPlaceId: z.string().trim().max(256).nullable().optional(),
     gatheringDates: z.array(z.string().trim().min(1).max(128)).max(10).nullable().optional(),
   })
   .strict()

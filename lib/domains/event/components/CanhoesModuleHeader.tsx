@@ -1,5 +1,3 @@
-"use client";
-
 import type { ComponentProps, ReactNode } from "react";
 import { ADMIN_NAV_ITEM } from "@/components/chrome/canhoes/canhoesNavigation";
 import type { AdminModuleKey } from "@/lib/api/types";
