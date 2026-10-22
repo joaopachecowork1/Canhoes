@@ -40,20 +40,25 @@ function GatheringDateRow({
   onRemove: () => void;
   canRemove: boolean;
 }>) {
+  const today = new Date().toISOString().split("T")[0];
+
   return (
     <div className="flex items-center gap-2">
       <Input
+        type="date"
+        min={today}
         value={date}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={`${copy.gatheringDatePlaceholder} ${index + 1}`}
-        className="h-9 border-[var(--color-veil)]/15 bg-[var(--bg-paper-soft)] text-xs"
+        aria-label={`${copy.gatheringDatePlaceholder} ${index + 1}`}
+        className="h-10 flex-1 border-[var(--color-veil)]/15 bg-[var(--bg-paper-soft)] px-3 text-sm text-[var(--text-primary)] [color-scheme:dark] focus-visible:ring-2 focus-visible:ring-[var(--moss-glow)]"
       />
       {canRemove ? (
         <button
           type="button"
           onClick={onRemove}
-          className="p-1 text-[var(--text-muted)] hover:text-[var(--person-coral)]"
+          className="flex size-10 shrink-0 items-center justify-center rounded-lg p-1 text-[var(--text-muted)] hover:bg-[var(--person-coral)]/10 hover:text-[var(--person-coral)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--person-coral)]"
           title={copy.removeDate}
+          aria-label={copy.removeDate}
         >
           <Trash2 className="h-4 w-4" />
         </button>

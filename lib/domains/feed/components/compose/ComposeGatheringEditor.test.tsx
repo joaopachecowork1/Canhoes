@@ -103,4 +103,55 @@ describe("ComposeGatheringEditor", () => {
     await userEvent.click(clearButton);
     expect(onSelectPlace).toHaveBeenCalledWith(null);
   });
+
+  it("renders native date inputs for candidate dates and handles change, add and remove", async () => {
+    const onDateChange = vi.fn();
+    const onAddDate = vi.fn();
+    const onRemoveDate = vi.fn();
+
+    const { rerender } = render(
+      <ComposeGatheringEditor
+        title="Jantar"
+        onTitleChange={vi.fn()}
+        location=""
+        onLocationChange={vi.fn()}
+        description=""
+        onDescriptionChange={vi.fn()}
+        dates={["2026-11-20"]}
+        onDateChange={onDateChange}
+        onAddDate={onAddDate}
+        onRemoveDate={onRemoveDate}
+      />,
+    );
+
+    const dateInput = screen.getByLabelText(/data candidata 1/i);
+    expect(dateInput).toHaveAttribute("type", "date");
+    expect(dateInput).toHaveValue("2026-11-20");
+
+    // Add candidate date button
+    const addButton = screen.getByRole("button", { name: /adicionar data/i });
+    await userEvent.click(addButton);
+    expect(onAddDate).toHaveBeenCalledTimes(1);
+
+    // Rerender with 2 dates to test remove button
+    rerender(
+      <ComposeGatheringEditor
+        title="Jantar"
+        onTitleChange={vi.fn()}
+        location=""
+        onLocationChange={vi.fn()}
+        description=""
+        onDescriptionChange={vi.fn()}
+        dates={["2026-11-20", "2026-11-27"]}
+        onDateChange={onDateChange}
+        onAddDate={onAddDate}
+        onRemoveDate={onRemoveDate}
+      />,
+    );
+
+    const removeButtons = screen.getAllByRole("button", { name: /remover data/i });
+    expect(removeButtons).toHaveLength(2);
+    await userEvent.click(removeButtons[1]);
+    expect(onRemoveDate).toHaveBeenCalledWith(1);
+  });
 });

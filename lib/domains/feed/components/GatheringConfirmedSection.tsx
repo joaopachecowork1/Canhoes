@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CalendarCheck, Check, HelpCircle, X } from "lucide-react";
 
 import type { EventGatheringDto, EventGatheringRsvpDto, EventGatheringRsvpStatus } from "@/lib/api/types";
+import { formatGatheringDate } from "@/lib/domains/gatherings/rules/gatheringFormatting";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import messages from "@/messages/pt.json";
@@ -21,7 +22,7 @@ function GatheringConfirmedDateBanner({ confirmedDate }: Readonly<{ confirmedDat
       <CalendarCheck className="h-5 w-5 shrink-0 text-[var(--moss-glow)]" />
       <div>
         <p className="text-xs font-medium text-[var(--moss-glow)]">{copy.date}</p>
-        <p className="text-base font-bold text-[var(--text-primary)]">{confirmedDate}</p>
+        <p className="text-base font-bold text-[var(--text-primary)]">{formatGatheringDate(confirmedDate)}</p>
       </div>
     </div>
   );

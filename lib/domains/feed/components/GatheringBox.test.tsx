@@ -131,4 +131,26 @@ describe("GatheringBox", () => {
       "/api/v1/events/e1/places/map?lat=38.71&lng=-9.14",
     );
   });
+
+  it("formats ISO candidate dates and confirmed dates in localized Portuguese", () => {
+    const isoGathering: EventGatheringDto = {
+      ...pollingGathering,
+      status: "CONFIRMED",
+      confirmedDate: "2026-11-20",
+      dateOptions: [{ id: "opt-iso", dateText: "2026-11-20", sortOrder: 0, voteCount: 1, hasVoted: false }],
+    };
+
+    render(
+      <GatheringBox
+        gathering={isoGathering}
+        isAdmin={false}
+        onVoteDate={vi.fn()}
+        onConfirmDate={vi.fn()}
+        onRsvp={vi.fn()}
+      />,
+    );
+
+    // Formatted as "Sexta, 20 de novembro de 2026"
+    expect(screen.getByText(/20 de novembro/i)).toBeInTheDocument();
+  });
 });

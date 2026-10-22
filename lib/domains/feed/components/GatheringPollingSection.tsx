@@ -3,6 +3,7 @@
 import { Check, CheckCircle2 } from "lucide-react";
 
 import type { EventGatheringDateOptionDto } from "@/lib/api/types";
+import { formatGatheringDate } from "@/lib/domains/gatherings/rules/gatheringFormatting";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import messages from "@/messages/pt.json";
@@ -62,7 +63,7 @@ export function GatheringPollingSection({
                 />
                 <span className="relative flex items-center justify-between gap-3">
                   <span className="flex items-center gap-2 text-sm font-semibold text-[var(--text-primary)]">
-                    {option.dateText}
+                    {formatGatheringDate(option.dateText)}
                     {option.hasVoted ? <CheckCircle2 className="h-4 w-4 text-[var(--moss-glow)]" /> : null}
                   </span>
                   <span className="text-xs font-medium text-[var(--text-muted)]">
