@@ -16,6 +16,7 @@ describe("queryKeys", () => {
       admin.officialResults("e"),
       admin.members("e"),
       admin.membersPage("e", 0, 50),
+      admin.invites("e"),
       admin.secretSantaState("e"),
     ];
 

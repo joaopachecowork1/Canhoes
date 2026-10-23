@@ -6,9 +6,27 @@ export const adminRepo = {
   getBootstrap: (eventId: string) => canhoesFetch<T.EventAdminBootstrapDto>(`/v1/events/${eventId}/admin/bootstrap`),
 
   inviteUser: (payload: { email: string; eventId?: string | null; role?: "participant" | "admin" }) =>
-    canhoesFetch<{ inviteUrl: string; role?: string; isAdmin?: boolean }>("/admin/invites", {
+    canhoesFetch<{ inviteUrl: string; role?: string; isAdmin?: boolean; emailSent?: boolean }>("/admin/invites", {
       method: "POST",
       body: JSON.stringify(payload),
+      canhoes: { throwOnUnauthorized: true },
+    }),
+
+  getInvitations: (eventId?: string | null) =>
+    canhoesFetch<T.UserInvitationDto[]>(
+      eventId ? `/admin/invites?eventId=${encodeURIComponent(eventId)}` : "/admin/invites",
+      { canhoes: { throwOnUnauthorized: true } },
+    ),
+
+  resendInvitation: (inviteId: string) =>
+    canhoesFetch<{ emailSent: boolean }>(`/admin/invites/${inviteId}`, {
+      method: "POST",
+      canhoes: { throwOnUnauthorized: true },
+    }),
+
+  revokeInvitation: (inviteId: string) =>
+    canhoesFetch<{ success: boolean }>(`/admin/invites/${inviteId}`, {
+      method: "DELETE",
       canhoes: { throwOnUnauthorized: true },
     }),
 

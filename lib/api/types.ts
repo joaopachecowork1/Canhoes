@@ -443,3 +443,15 @@ export type HubCommentDto = {
   reactionCounts: Record<string, number>;
   myReactions: string[];
 };
+
+/** Um convite gerado para um utilizador, visível no painel de admin. */
+export type UserInvitationDto = {
+  id: string;
+  email: string;
+  role: "participant" | "admin";
+  createdAtUtc: string;
+  expiresAtUtc: string;
+  usedAtUtc: string | null;
+  status: "pending" | "used" | "expired";
+  inviteUrl: string;
+};

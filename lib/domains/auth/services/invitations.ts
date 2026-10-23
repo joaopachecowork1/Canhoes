@@ -1,12 +1,20 @@
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 
+import type { UserInvitationDto } from "@/lib/api/types";
 import { HttpError } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
+import { sendInvitationEmail } from "@/lib/services/emailService";
 
 // Validade do convite em dias e custo do hash bcrypt.
 const INVITATION_TTL_DAYS = 7;
 const PASSWORD_HASH_ROUNDS = 10;
+
+function getBaseUrl(): string {
+  if (process.env.NEXTAUTH_URL) return process.env.NEXTAUTH_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
+}
 
 /** Códigos de erro que o cliente sabe tratar. */
 type InvitationErrorCode = "USER_ALREADY_EXISTS" | "INVALID_INVITATION" | "INVITATION_USED" | "INVITATION_EXPIRED";
@@ -29,8 +37,8 @@ class InvitationError extends HttpError {
 export type InvitationRole = "participant" | "admin";
 
 /**
- * Convida alguém a criar uma conta com email e password ou Google. Não há envio de email:
- * o admin recebe o link e partilha-o. Voltar a convidar um email substitui o token anterior.
+ * Convida alguém a criar uma conta com email e password ou Google. Envia email e devolve o link.
+ * Voltar a convidar um email substitui o token anterior e renova o prazo.
  */
 export async function createInvitation(input: {
   email: string;
@@ -66,7 +74,101 @@ export async function createInvitation(input: {
     create: { email, ...invitation },
   });
 
-  return { inviteUrl: `/canhoes/register?token=${token}`, role, isAdmin };
+  const baseUrl = getBaseUrl();
+  const fullInviteUrl = `${baseUrl}/canhoes/register?token=${token}`;
+
+  let eventName: string | undefined;
+  if (input.eventId) {
+    const event = await prisma.event.findUnique({ where: { id: input.eventId }, select: { name: true } });
+    eventName = event?.name;
+  }
+
+  const emailResult = await sendInvitationEmail({
+    to: email,
+    inviteUrl: fullInviteUrl,
+    role,
+    eventName,
+  });
+
+  return {
+    inviteUrl: `/canhoes/register?token=${token}`,
+    fullInviteUrl,
+    role,
+    isAdmin,
+    emailSent: emailResult.sent,
+  };
+}
+
+/** Lista todos os convites registados, ordenados pelos mais recentes. */
+export async function listInvitations(eventId?: string | null): Promise<UserInvitationDto[]> {
+  const where = eventId ? { OR: [{ eventId }, { eventId: null }] } : {};
+  const invitations = await prisma.userInvitation.findMany({
+    where,
+    orderBy: { createdAtUtc: "desc" },
+  });
+
+  const now = new Date();
+  const baseUrl = getBaseUrl();
+
+  return invitations.map((inv) => {
+    let status: "pending" | "used" | "expired" = "pending";
+    if (inv.usedAtUtc) {
+      status = "used";
+    } else if (inv.expiresAtUtc < now) {
+      status = "expired";
+    }
+
+    return {
+      id: inv.id,
+      email: inv.email,
+      role: (inv.role === "admin" ? "admin" : "participant") as "participant" | "admin",
+      createdAtUtc: inv.createdAtUtc.toISOString(),
+      expiresAtUtc: inv.expiresAtUtc.toISOString(),
+      usedAtUtc: inv.usedAtUtc ? inv.usedAtUtc.toISOString() : null,
+      status,
+      inviteUrl: `${baseUrl}/canhoes/register?token=${inv.token}`,
+    };
+  });
+}
+
+/** Reenvia o email de um convite pendente e renova a sua validade por 7 dias. */
+export async function resendInvitation(invitationId: string): Promise<{ emailSent: boolean }> {
+  const invitation = await prisma.userInvitation.findUnique({ where: { id: invitationId } });
+  if (!invitation) throw new InvitationError("INVALID_INVITATION");
+  if (invitation.usedAtUtc) throw new InvitationError("INVITATION_USED");
+
+  const expiresAtUtc = new Date();
+  expiresAtUtc.setDate(expiresAtUtc.getDate() + INVITATION_TTL_DAYS);
+
+  await prisma.userInvitation.update({
+    where: { id: invitation.id },
+    data: { expiresAtUtc },
+  });
+
+  let eventName: string | undefined;
+  if (invitation.eventId) {
+    const event = await prisma.event.findUnique({ where: { id: invitation.eventId }, select: { name: true } });
+    eventName = event?.name;
+  }
+
+  const baseUrl = getBaseUrl();
+  const emailResult = await sendInvitationEmail({
+    to: invitation.email,
+    inviteUrl: `${baseUrl}/canhoes/register?token=${invitation.token}`,
+    role: (invitation.role === "admin" ? "admin" : "participant") as "participant" | "admin",
+    eventName,
+  });
+
+  return { emailSent: emailResult.sent };
+}
+
+/** Revoga e remove um convite pendente. */
+export async function revokeInvitation(invitationId: string): Promise<{ success: boolean }> {
+  const invitation = await prisma.userInvitation.findUnique({ where: { id: invitationId } });
+  if (!invitation) throw new InvitationError("INVALID_INVITATION");
+
+  await prisma.userInvitation.delete({ where: { id: invitation.id } });
+  return { success: true };
 }
 
 /**

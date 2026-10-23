@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Copy, Check, Send, Shield, User } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getErrorMessage } from "@/lib/errors";
+import { queryKeys } from "@/lib/queryKeys";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import messages from "@/messages/pt.json";
 
@@ -102,6 +104,7 @@ function RoleSelector({
 
 /** Formulário para gerar um link de convite para um email; o link aparece por baixo para copiar. */
 export function AdminInviteUser({ eventId }: { eventId: string }) {
+  const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<InviteRole>("participant");
   const [isInviting, setIsInviting] = useState(false);
@@ -119,7 +122,12 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
         inviteUrl: window.location.origin + result.inviteUrl,
         role,
       });
-      toast.success(copy.generated);
+      if (result.emailSent) {
+        toast.success(copy.sentAndGenerated);
+      } else {
+        toast.success(copy.generatedOnly);
+      }
+      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.invites(eventId) });
       setEmail("");
     } catch (error) {
       toast.error(getErrorMessage(error, copy.error, { 400: copy.badRequest }));

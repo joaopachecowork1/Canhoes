@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { requireAdmin } from "@/lib/api/guards";
 import { apiRoute, json, readJson } from "@/lib/api/route";
-import { createInvitation } from "@/lib/domains/auth/services/invitations";
+import { createInvitation, listInvitations } from "@/lib/domains/auth/services/invitations";
 
 const inviteSchema = z.object({
   email: z.string().trim().min(1, "Indica um email."),
@@ -22,4 +22,13 @@ export const POST = apiRoute(async (request) => {
   const { email, eventId, role } = await readJson(request, inviteSchema);
 
   return json(await createInvitation({ email, eventId, invitedByUserId: admin.id, role }));
+});
+
+/** GET /admin/invites: lista os convites registados, opcionalmente filtrados por evento */
+export const GET = apiRoute(async (request) => {
+  // Só administradores.
+  await requireAdmin();
+
+  const eventId = request.nextUrl.searchParams.get("eventId");
+  return json(await listInvitations(eventId));
 });

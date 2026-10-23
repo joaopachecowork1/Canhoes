@@ -223,6 +223,9 @@ const cases: [string, () => Promise<unknown>, string, string, unknown?][] = [
     "/admin/invites",
     { email: "ana@canhoes.pt", eventId: "e1" },
   ],
+  ["adminRepo.getInvitations", () => adminRepo.getInvitations("e1"), "GET", "/admin/invites?eventId=e1"],
+  ["adminRepo.resendInvitation", () => adminRepo.resendInvitation("inv-1"), "POST", "/admin/invites/inv-1"],
+  ["adminRepo.revokeInvitation", () => adminRepo.revokeInvitation("inv-1"), "DELETE", "/admin/invites/inv-1"],
   [
     "adminRepo.updatePhase",
     () => adminRepo.updatePhase("e1", { phaseType: "VOTING" }),

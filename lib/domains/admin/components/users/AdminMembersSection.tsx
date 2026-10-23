@@ -9,6 +9,7 @@ import messages from "@/messages/pt.json";
 
 import { useAdminMembers } from "../../hooks/useAdminMembers";
 import { AdminStateMessage } from "../layout/AdminStateMessage";
+import { AdminInvitationsList } from "./AdminInvitationsList";
 import { AdminInviteUser } from "./AdminInviteUser";
 import { AdminMembersList } from "./AdminMembersList";
 import { SecretSantaAdmin } from "./SecretSantaAdmin";
@@ -73,6 +74,7 @@ export function AdminMembersSection({ eventId, loading, onUpdate }: Readonly<Adm
         <SecretSantaAdmin eventId={eventId} state={admin.secretSantaState} onRefresh={onUpdate} />
       ) : null}
       <AdminInviteUser eventId={eventId} />
+      <AdminInvitationsList eventId={eventId} />
       <MembersRoster
         members={admin.members}
         onToggleRole={(member) => admin.roleMutation.mutate(member)}

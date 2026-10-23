@@ -45,6 +45,7 @@ export const queryKeys = {
     members: (eventId: EventId) => ["canhoes", "admin", eventId, "members"] as const,
     membersPage: (eventId: EventId, skip: number, take: number) =>
       ["canhoes", "admin", eventId, "members", skip, take] as const,
+    invites: (eventId: EventId) => ["canhoes", "admin", eventId, "invites"] as const,
     secretSantaState: (eventId: EventId) => ["canhoes", "admin", eventId, "secret-santa-state"] as const,
   },
 };
