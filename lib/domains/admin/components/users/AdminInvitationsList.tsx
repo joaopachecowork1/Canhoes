@@ -162,8 +162,14 @@ function useAdminInvitations(eventId: string) {
     mutationFn: (inviteId: string) => adminRepo.resendInvitation(inviteId),
     onMutate: (inviteId) => setActiveResendId(inviteId),
     onSuccess: (result) => {
-      if (result.emailSent) toast.success(copy.resendSuccess);
-      else toast.info(inviteUserCopy.generatedOnly);
+      if (result.emailSent) {
+        toast.success(copy.resendSuccess);
+      } else {
+        const warningMsg = result.emailReason
+          ? `${inviteUserCopy.generatedOnly}: ${result.emailReason}`
+          : inviteUserCopy.generatedOnly;
+        toast.warning(warningMsg);
+      }
       void queryClient.invalidateQueries({ queryKey: queryKeys.admin.invites(eventId) });
     },
     onError: (err) => toast.error(getErrorMessage(err, copy.resendError)),

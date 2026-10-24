@@ -79,9 +79,7 @@ async function main() {
     update: {},
     create: {
       eventId,
-      phase: "Proposals",
       nominationsVisible: true,
-      resultsVisible: false,
       moduleVisibilityJson: {},
       hasSecretSantaDraw: false,
     },
@@ -157,7 +155,7 @@ async function seedDemoMembers(eventId, now) {
     await prisma.eventMember.upsert({
       where: { eventId_userId: { eventId, userId: user.id } },
       update: {},
-      create: { eventId, userId: user.id, role: "member", joinedAtUtc: now },
+      create: { eventId, userId: user.id, role: "participant", joinedAtUtc: now },
     });
   }
   return members;

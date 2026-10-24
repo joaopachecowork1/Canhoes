@@ -45,41 +45,53 @@ O que os membros propõem na fase PROPOSALS e o admin aprova.
 
 ![Sondagens do mural](diagramas/classes/06-sondagens.png)
 
+### Encontros e locais
+
+Organização de jantares/encontros da edição: votação de datas, RSVPs e sugestão/favoritos de restaurantes e locais.
+
+![Encontros e locais](diagramas/classes/07-encontros.png)
+
 ## Tabelas
 
 | Modelo (tabela) | Para quê | Unicidade relevante |
 |---|---|---|
 | `User` (`Users`) | Uma pessoa. `externalId` é o id do Google, `credentials:<email>` ou `seed:<email>`. `color` é a cor da pessoa (chave de `lib/personColors.ts`): sorteada ao criar a conta, a pessoa muda-a no menu. | `email`, `externalId` |
-| `UserInvitation` (`UserInvitations`) | Convite pendente ou usado para um email, com o evento a que dá acesso. | `email`, `token` |
+| `UserInvitation` (`UserInvitations`) | Convite pendente ou usado para um email, com papel atribuído e evento a que dá acesso. | `email`, `token` |
 | `Event` (`Events`) | Uma edição dos Canhões. | |
-| `EventMember` (`EventMembers`) | Quem pertence a um evento. | `(eventId, userId)` |
-| `EventPhase` (`EventPhases`) | As fases de um evento, com datas; só uma está ativa. | `(eventId, type)` |
+| `EventMember` (`EventMembers`) | Quem pertence a um evento (`ADMIN` ou `PARTICIPANT`). | `(eventId, userId)` |
+| `EventPhase` (`EventPhases`) | As fases de um evento, com datas; só uma está ativa (fonte de verdade de fase). | `(eventId, type)` |
 | `CanhoesEventState` (`CanhoesEventState`) | Interruptores do admin por evento: visibilidade das nomeações e dos módulos, e o estado do sorteio. | `eventId` |
-| `AwardCategory` (`AwardCategories`) | Uma categoria de prémio. | |
+| `AwardCategory` (`AwardCategories`) | Uma categoria de prémio (`kind = 0` para nomeados, `kind = 1` para pessoas). | |
 | `Nominee` (`Nominees`) | Uma nomeação ou sticker proposto por um membro. | |
-| `Vote` (`Votes`) | Voto numa nomeação (categorias `kind = 0`). | `(categoryId, userId)` |
-| `UserVote` (`UserVotes`) | Voto numa pessoa (categorias `kind = 1`). | `(categoryId, voterUserId)` |
+| `Vote` (`Votes`) | Voto numa categoria. Modelo unificado: suporta tanto votos em nomeados (`nomineeId`) como votos diretos em pessoas (`targetUserId`). | `(categoryId, userId)` |
 | `CategoryProposal` (`CategoryProposals`) | Proposta de categoria nova. | |
 | `GalaMeasure` (`Measures`) | Medida oficial da gala. | |
 | `MeasureProposal` (`MeasureProposals`) | Proposta de medida. | |
 | `WishlistItem` (`WishlistItems`) | Desejo de um membro num evento. | |
 | `SecretSantaDraw` (`SecretSantaDraws`) | Um sorteio; `isLocked` significa revelado. | |
 | `SecretSantaAssignment` (`SecretSantaAssignments`) | Um par "quem dá → a quem". | |
+| `Gathering` (`Gatherings`) | Encontro/jantar de grupo associado à edição. | |
+| `GatheringDateOption` (`GatheringDateOptions`) | Datas propostas para o encontro. | |
+| `GatheringDateVote` (`GatheringDateVotes`) | Votos dos membros nas datas propostas. | `(dateOptionId, userId)` |
+| `GatheringRsvp` (`GatheringRsvps`) | Presenças confirmadas no encontro (`YES`, `NO`, `MAYBE`). | `(gatheringId, userId)` |
+| `GatheringPlace` (`GatheringPlaces`) | Restaurantes e locais sugeridos para o evento/encontro. | |
+| `PlaceFavorite` (`PlaceFavorites`) | Locais favoritos marcados pelos membros. | `(placeId, userId)` |
 | `HubPost*` (`HubPosts`, …) | Mural: posts, imagens, sondagens, comentários, reações, likes, downvotes. | Um like, downvote e voto de sondagem por pessoa; uma reação por emoji por pessoa |
 
 ## Valores possíveis
 
-O schema guarda estes estados como strings ou inteiros, sem enum na base de dados (a Fase 3 do plano troca-os por enums).
+O schema utiliza ENUMs nativos no PostgreSQL e Prisma (`EventMemberRole`, `PhaseType`, `ProposalStatus`, `NomineeSubmissionKind`, `GatheringStatus`, `RsvpStatus`).
 
 | Campo | Valores | Notas |
 |---|---|---|
-| `EventPhase.type` | `DRAW`, `PROPOSALS`, `VOTING`, `RESULTS` | O tipo da fase ativa decide os módulos (RN-04) |
-| `EventMember.role` | `admin`, `member`, `participant` | Convites criam `participant`; o seed cria `member`. Só `admin` muda alguma coisa: não aparece como opção nas categorias de pessoa. As permissões de admin vêm de `User.isAdmin`, não deste campo. |
+| `EventPhase.type` | `DRAW`, `PROPOSALS`, `VOTING`, `RESULTS` | O tipo da fase ativa decide os módulos (RN-04). Única fonte de verdade para a fase do evento. |
+| `EventMember.role`, `UserInvitation.role` | `ADMIN`, `PARTICIPANT` | Standardizado. Apenas `ADMIN` muda comportamento: não aparece como opção nas categorias de pessoa. As permissões de acesso ao painel vêm de `User.isAdmin`. |
 | `AwardCategory.kind`, `CategoryProposal.kind` | `0` voto em nomeações, `1` voto em pessoas | `KindUserVote` em `lib/domains/admin/services/constants.ts` |
 | `Nominee.status`, `CategoryProposal.status`, `MeasureProposal.status` | `pending`, `approved`, `rejected` | Só `approved` aparece aos membros e no boletim |
 | `Nominee.submissionKind` | `nominees`, `stickers` | Os stickers são nomeações com este tipo |
 | `CanhoesEventState.moduleVisibilityJson` | `{ "<módulo>": boolean }` | Uma chave em falta conta como ligada |
-| `CanhoesEventState.phase` | `locked`, `nominations`, `voting`, `gala` | Legado: é escrito ao mudar de fase mas nenhuma regra o lê; a fase verdadeira é a `EventPhase` ativa |
+| `Gathering.status` | `DRAFT`, `DATE_VOTING`, `SCHEDULED`, `COMPLETED`, `CANCELLED` | Ciclo de vida de um encontro |
+| `GatheringRsvp.response` | `YES`, `NO`, `MAYBE` | Intenção de presença do membro |
 | `SecretSantaDraw.eventCode` | Por omissão o id do evento | Liga o sorteio ao evento através de `CanhoesEventState.secretSantaEventCode` |
 
 ## Datas e identificadores

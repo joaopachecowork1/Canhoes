@@ -7,14 +7,15 @@ import { compareMembersByRoleAndName, loadUsersById } from "@/lib/usersById";
 
 /** Membros do evento, primeiro os admins e depois por nome. */
 export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50): Promise<PagedResult<PublicUserDto>> {
-  const total = await prisma.eventMember.count({ where: { eventId } });
-
-  const members = await prisma.eventMember.findMany({
-    where: { eventId },
-    orderBy: { role: "desc" },
-    skip,
-    take,
-  });
+  const [total, members] = await Promise.all([
+    prisma.eventMember.count({ where: { eventId } }),
+    prisma.eventMember.findMany({
+      where: { eventId },
+      orderBy: { role: "desc" },
+      skip,
+      take,
+    }),
+  ]);
 
   // Carrega os utilizadores de uma só vez.
   const userMap = await loadUsersById(
@@ -24,13 +25,20 @@ export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50)
   );
 
   // Junta membro e utilizador e ordena: admins primeiro, depois por nome ou email.
-  const items = members
-    .map((m) => {
-      const u = userMap.get(m.userId);
-      return u ? { id: u.id, email: u.email, displayName: u.displayName, isAdmin: u.isAdmin, color: u.color } : null;
-    })
-    .filter((x): x is PublicUserDto => x !== null)
-    .sort(compareMembersByRoleAndName);
+  const items: PublicUserDto[] = [];
+  for (const member of members) {
+    const user = userMap.get(member.userId);
+    if (user) {
+      items.push({
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName,
+        isAdmin: user.isAdmin,
+        color: user.color,
+      });
+    }
+  }
+  items.sort(compareMembersByRoleAndName);
 
   return {
     items,
@@ -55,17 +63,17 @@ export async function setAdminRole(input: {
   return prisma.$transaction(
     async (tx) => {
       // O alvo tem de pertencer ao evento e existir.
-      const membership = await tx.eventMember.findUnique({
-        where: { eventId_userId: { eventId: input.eventId, userId: input.targetUserId } },
-        select: { userId: true },
-      });
-      if (!membership) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
-
-      const target = await tx.user.findUnique({
-        where: { id: input.targetUserId },
-        select: { id: true, isAdmin: true },
-      });
-      if (!target) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
+      const [membership, target] = await Promise.all([
+        tx.eventMember.findUnique({
+          where: { eventId_userId: { eventId: input.eventId, userId: input.targetUserId } },
+          select: { userId: true },
+        }),
+        tx.user.findUnique({
+          where: { id: input.targetUserId },
+          select: { id: true, isAdmin: true },
+        }),
+      ]);
+      if (!membership || !target) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
 
       // Só conta os admins quando é uma despromoção; depois aplica a política.
       const adminCount = target.isAdmin && !input.isAdmin ? await tx.user.count({ where: { isAdmin: true } }) : 0;
@@ -76,6 +84,11 @@ export async function setAdminRole(input: {
         nextIsAdmin: input.isAdmin,
         adminCount,
         confirmSelfDemotion: input.confirmSelfDemotion,
+      });
+
+      await tx.eventMember.updateMany({
+        where: { userId: input.targetUserId },
+        data: { role: input.isAdmin ? "admin" : "participant" },
       });
 
       return tx.user.update({

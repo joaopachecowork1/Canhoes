@@ -1,9 +1,24 @@
 import { prisma } from "@/lib/prisma";
-import type { AdminVotesPagedDto, PagedResult, AdminCategoryResultDto } from "@/lib/api/types";
+import type { AdminVotesPagedDto, PagedResult, AdminCategoryResultDto, AdminVoteAuditRowDto } from "@/lib/api/types";
 import { CATEGORY_KIND } from "@/lib/categoryKind";
 import { loadUsersById } from "@/lib/usersById";
 
 /* O que o admin vê da votação: cada voto individual e os resultados oficiais até agora. */
+
+function resolveNomineeInfo(
+  vote: { nomineeId: string | null; targetUserId: string | null },
+  nomMap: Map<string, string>,
+  userMap: Map<string, { displayName: string | null; email: string | null }>,
+): { id: string; name: string } {
+  if (vote.nomineeId) {
+    return { id: vote.nomineeId, name: nomMap.get(vote.nomineeId) ?? "Unknown" };
+  }
+  if (vote.targetUserId) {
+    const user = userMap.get(vote.targetUserId);
+    return { id: vote.targetUserId, name: user?.displayName ?? user?.email ?? "Unknown" };
+  }
+  return { id: "", name: "Unknown" };
+}
 
 /** Votos em nomeados do evento, os alterados há menos tempo primeiro, com os nomes da categoria, do nomeado e de quem votou. */
 export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): Promise<AdminVotesPagedDto> {
@@ -30,30 +45,39 @@ export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): 
 
   // Nomes de categorias, nomeados e votantes carregados de uma vez para a página.
   const catIds = [...new Set(pagedVotes.map((v) => v.categoryId))];
-  const nomineeIds = [...new Set(pagedVotes.map((v) => v.nomineeId))];
+  const nomineeIds = [...new Set(pagedVotes.map((v) => v.nomineeId).filter((id): id is string => Boolean(id)))];
+  const targetUserIds = [...new Set(pagedVotes.map((v) => v.targetUserId).filter((id): id is string => Boolean(id)))];
+  const voterUserIds = pagedVotes.map((v) => v.userId);
+  const allUserIds = [...new Set([...voterUserIds, ...targetUserIds])];
+
   const [categories, nominees, userMap] = await Promise.all([
     prisma.awardCategory.findMany({ where: { id: { in: catIds } }, select: { id: true, name: true } }),
     prisma.nominee.findMany({ where: { id: { in: nomineeIds } }, select: { id: true, title: true } }),
-    loadUsersById(
-      pagedVotes.map((v) => v.userId),
-      (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
+    loadUsersById(allUserIds, (where) =>
+      prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
     ),
   ]);
 
   const catMap = new Map(categories.map((c) => [c.id, c.name]));
   const nomMap = new Map(nominees.map((n) => [n.id, n.title]));
 
-  return {
-    total: totalVotes,
-    votes: pagedVotes.map((v) => ({
+  const votes: AdminVoteAuditRowDto[] = pagedVotes.map((v) => {
+    const nominee = resolveNomineeInfo(v, nomMap, userMap);
+    const user = userMap.get(v.userId);
+    return {
       categoryId: v.categoryId,
       categoryName: catMap.get(v.categoryId) ?? "Unknown",
-      nomineeId: v.nomineeId,
-      nomineeName: nomMap.get(v.nomineeId) ?? "Unknown",
+      nomineeId: nominee.id,
+      nomineeName: nominee.name,
       userId: v.userId,
-      userName: userMap.get(v.userId)?.displayName ?? userMap.get(v.userId)?.email ?? "Unknown",
+      userName: user?.displayName ?? user?.email ?? "Unknown",
       updatedAtUtc: v.updatedAtUtc.toISOString(),
-    })),
+    };
+  });
+
+  return {
+    total: totalVotes,
+    votes,
     skip,
     take,
     hasMore: skip + take < totalVotes,
@@ -61,7 +85,7 @@ export async function getAdminVotesPaged(eventId: string, skip = 0, take = 50): 
 }
 
 /** Um voto numa pessoa (categorias de pessoas). */
-type UserVoteRow = { categoryId: string; voterUserId: string; targetUserId: string };
+type UserVoteRow = { categoryId: string; userId: string; targetUserId: string };
 /** Uma linha de resultado de uma categoria. */
 type NomineeResult = AdminCategoryResultDto["nominees"][number];
 
@@ -69,7 +93,7 @@ type NomineeResult = AdminCategoryResultDto["nominees"][number];
 function tallyCategory(votes: UserVoteRow[], nameOf: (userId: string) => string): NomineeResult[] {
   const byTarget = new Map<string, string[]>();
   for (const vote of votes) {
-    byTarget.set(vote.targetUserId, [...(byTarget.get(vote.targetUserId) ?? []), nameOf(vote.voterUserId)]);
+    byTarget.set(vote.targetUserId, [...(byTarget.get(vote.targetUserId) ?? []), nameOf(vote.userId)]);
   }
   return [...byTarget.entries()]
     .map(([targetUserId, voterNames]) => ({
@@ -105,8 +129,12 @@ export async function getAdminOfficialResultsPaged(
   ]);
 
   const categoryIds = categories.map((category) => category.id);
-  const userVotes = await prisma.userVote.findMany({ where: { eventId, categoryId: { in: categoryIds } } });
-  const nameOf = await getUserNames([...new Set(userVotes.flatMap((vote) => [vote.voterUserId, vote.targetUserId]))]);
+  const rawVotes = await prisma.vote.findMany({
+    where: { eventId, categoryId: { in: categoryIds }, targetUserId: { not: null } },
+    select: { categoryId: true, userId: true, targetUserId: true },
+  });
+  const userVotes: UserVoteRow[] = rawVotes.filter((v): v is UserVoteRow => Boolean(v.targetUserId));
+  const nameOf = await getUserNames([...new Set(userVotes.flatMap((vote) => [vote.userId, vote.targetUserId]))]);
 
   const items = categories.map((category): AdminCategoryResultDto => {
     const nominees = tallyCategory(

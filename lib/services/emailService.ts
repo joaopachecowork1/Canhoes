@@ -70,12 +70,20 @@ function buildInvitationEmailHtml({
   `.trim();
 }
 
+/** Extrai a mensagem de erro legível da resposta HTTP da API Resend. */
+function parseResendError(status: number, errorData: string): string {
+  try {
+    const parsed = JSON.parse(errorData);
+    if (parsed.message) return String(parsed.message);
+  } catch {
+    // Non-JSON response
+  }
+  return errorData.trim() ? `HTTP_${status}: ${errorData.trim()}` : `HTTP_${status}`;
+}
+
 /** Envia um email de convite através da API Resend, com degradação graciosa caso a chave não esteja configurada. */
 export async function sendInvitationEmail(input: SendInvitationEmailInput): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.EMAIL_FROM?.trim() || "Canhões do Ano <noreply@canhoes.pt>";
-  const eventName = input.eventName || "Canhões do Ano 2026";
-
   if (!apiKey) {
     logger.info("Resend API key not configured. Invitation email skipped (logged):", {
       to: input.to,
@@ -84,6 +92,8 @@ export async function sendInvitationEmail(input: SendInvitationEmailInput): Prom
     return { sent: false, reason: "NO_API_KEY" };
   }
 
+  const from = process.env.EMAIL_FROM?.trim() || "Canhões do Ano <noreply@canhoes.lol>";
+  const eventName = input.eventName || "Canhões do Ano 2026";
   const html = buildInvitationEmailHtml({
     inviteUrl: input.inviteUrl,
     role: input.role,
@@ -103,16 +113,18 @@ export async function sendInvitationEmail(input: SendInvitationEmailInput): Prom
         subject: `Convite: ${eventName}`,
         html,
       }),
+      signal: AbortSignal.timeout(8000),
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
+      const errorText = await response.text();
+      const reason = parseResendError(response.status, errorText);
       logger.warn("Failed to send invitation email via Resend:", {
         status: response.status,
-        error: errorData,
+        error: reason,
         to: input.to,
       });
-      return { sent: false, reason: `HTTP_${response.status}` };
+      return { sent: false, reason };
     }
 
     logger.info("Invitation email sent successfully via Resend:", { to: input.to });

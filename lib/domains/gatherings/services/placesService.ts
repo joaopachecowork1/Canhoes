@@ -28,9 +28,6 @@ export async function searchPlaces(query: string): Promise<PlaceSuggestionDto[]>
   }
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
-
     const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
       method: "POST",
       headers: {
@@ -42,10 +39,8 @@ export async function searchPlaces(query: string): Promise<PlaceSuggestionDto[]>
         textQuery: cleanQuery,
         languageCode: "pt-PT",
       }),
-      signal: controller.signal,
+      signal: AbortSignal.timeout(8000),
     });
-
-    clearTimeout(timeout);
 
     if (!response.ok) {
       const errorText = await response.text();

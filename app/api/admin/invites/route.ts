@@ -5,7 +5,7 @@ import { apiRoute, json, readJson } from "@/lib/api/route";
 import { createInvitation, listInvitations } from "@/lib/domains/auth/services/invitations";
 
 const inviteSchema = z.object({
-  email: z.string().trim().min(1, "Indica um email."),
+  email: z.string().trim().email("Indica um email válido."),
   eventId: z
     .string()
     .nullish()

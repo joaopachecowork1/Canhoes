@@ -90,7 +90,6 @@ const TABLES_TO_TRUNCATE = [
   "SecretSantaAssignments",
   "SecretSantaDraws",
   "Votes",
-  "UserVotes",
   "Nominees",
   "AwardCategories",
   "CategoryProposals",
@@ -112,19 +111,17 @@ async function seedCleanEvent(prisma) {
       isActive: true,
     },
   });
-  console.log(`✓ Evento criado: "${event.name}" (ID: ${event.id})`);
+  console.log(` Evento criado: "${event.name}" (ID: ${event.id})`);
 
   await prisma.canhoesEventState.create({
     data: {
       eventId: event.id,
-      phase: "Proposals",
       nominationsVisible: true,
-      resultsVisible: false,
       moduleVisibilityJson: {},
       hasSecretSantaDraw: false,
     },
   });
-  console.log("✓ Estado do evento inicializado: Fase de Propostas.");
+  console.log(" Estado do evento inicializado: Fase de Propostas.");
 
   const now = new Date();
   const nextYear = new Date(now);
@@ -139,7 +136,7 @@ async function seedCleanEvent(prisma) {
       isActive: true,
     },
   });
-  console.log("✓ Fase PROPOSALS registada e ativa até", nextYear.toISOString().split("T")[0]);
+  console.log(" Fase PROPOSALS registada e ativa até", nextYear.toISOString().split("T")[0]);
 
   return { event, now };
 }
@@ -155,7 +152,7 @@ async function seedCleanAdmin(prisma, createdEventId, now) {
       passwordHash,
     },
   });
-  console.log(`✓ Administrador criado: ${admin.email} (isAdmin: true)`);
+  console.log(` Administrador criado: ${admin.email} (isAdmin: true)`);
 
   await prisma.eventMember.create({
     data: {
@@ -165,7 +162,7 @@ async function seedCleanAdmin(prisma, createdEventId, now) {
       joinedAtUtc: now,
     },
   });
-  console.log("✓ Administrador inscrito no evento com a função 'admin'.");
+  console.log(" Administrador inscrito no evento com a função 'admin'.");
   return admin;
 }
 
@@ -199,7 +196,7 @@ async function main() {
     console.log("A limpar tabelas de conteúdo e utilizadores de teste...");
     const quotedTables = TABLES_TO_TRUNCATE.map((t) => '"' + t + '"').join(", ");
     await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${quotedTables} CASCADE;`);
-    console.log("✓ Todas as tabelas foram limpas com sucesso.");
+    console.log(" Todas as tabelas foram limpas com sucesso.");
 
     console.log("\nA inicializar estado limpo de produção...");
     const { event, now } = await seedCleanEvent(prisma);

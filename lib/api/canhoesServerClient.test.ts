@@ -28,7 +28,7 @@ describe("canhoesServerFetch", () => {
 
   it("uses NEXTAUTH_URL or VERCEL_URL when CANHOES_INTERNAL_URL is unset", async () => {
     vi.stubEnv("NEXTAUTH_URL", "https://canhoes.app");
-    fetchMock.mockResolvedValue(Response.json({ ok: true }));
+    fetchMock.mockImplementation(async () => Response.json({ ok: true }));
 
     await canhoesServerFetch("status");
     expect(fetchMock.mock.calls[0]?.[0]).toBe("https://canhoes.app/api/v1/status");
@@ -39,14 +39,19 @@ describe("canhoesServerFetch", () => {
     expect(fetchMock.mock.calls[1]?.[0]).toBe("https://preview.vercel.app/api/v1/status");
   });
 
-  it.each([401, 403, 500])("answers null on a %i", async (status) => {
+  it.each([401, 403, 404])("answers null on a %i", async (status) => {
     fetchMock.mockResolvedValue(new Response(null, { status }));
     await expect(canhoesServerFetch("events/x")).resolves.toBeNull();
     expect(fetchMock.mock.calls[0]?.[0]).toBe("http://localhost:3000/api/v1/events/x");
   });
 
-  it("answers null when the API cannot be reached", async () => {
+  it("throws on 500 server errors", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 500 }));
+    await expect(canhoesServerFetch("events/x")).rejects.toThrow("API error 500");
+  });
+
+  it("propagates when the API cannot be reached", async () => {
     fetchMock.mockRejectedValue(new TypeError("fetch failed"));
-    await expect(canhoesServerFetch("events/x")).resolves.toBeNull();
+    await expect(canhoesServerFetch("events/x")).rejects.toThrow("fetch failed");
   });
 });

@@ -36,6 +36,22 @@ function describeError(error: unknown) {
   return { error: String(error) };
 }
 
+/** Desempacota instâncias de Error em objetos legíveis antes da serialização JSON. */
+function mergeErrorContext(errorOrContext?: unknown, context?: LogContext): LogContext | undefined {
+  if (errorOrContext === undefined) return context;
+  if (errorOrContext instanceof Error || typeof errorOrContext === "string") {
+    return { ...context, ...describeError(errorOrContext) };
+  }
+  if (typeof errorOrContext === "object" && errorOrContext !== null) {
+    const rawContext = { ...(errorOrContext as LogContext), ...context };
+    if ("error" in rawContext && rawContext.error instanceof Error) {
+      return { ...rawContext, ...describeError(rawContext.error) };
+    }
+    return rawContext;
+  }
+  return { ...context, error: String(errorOrContext) };
+}
+
 /** Escreve uma entrada numa linha `<hora> <NÍVEL> <mensagem> {contexto}`. */
 function writeServerLine(level: LogLevel, message: string, context?: LogContext) {
   const json = context === undefined ? "{}" : JSON.stringify(context);
@@ -82,11 +98,12 @@ function log(level: LogLevel, message: string, context?: LogContext) {
   if (level === "warn" || level === "error") sendToTelemetry(level, message, context);
 }
 
-/** Logger da app: usar em vez de `console.*`. O `error` aceita o erro capturado antes do contexto. */
+/** Logger da app: usar em vez de `console.*`. O `warn` e `error` aceitam o erro capturado ou contexto. */
 export const logger = {
   debug: (message: string, context?: LogContext) => log("debug", message, context),
   info: (message: string, context?: LogContext) => log("info", message, context),
-  warn: (message: string, context?: LogContext) => log("warn", message, context),
+  warn: (message: string, errorOrContext?: unknown, context?: LogContext) =>
+    log("warn", message, mergeErrorContext(errorOrContext, context)),
   error: (message: string, error?: unknown, context?: LogContext) =>
-    log("error", message, error === undefined ? context : { ...context, ...describeError(error) }),
+    log("error", message, mergeErrorContext(error, context)),
 };

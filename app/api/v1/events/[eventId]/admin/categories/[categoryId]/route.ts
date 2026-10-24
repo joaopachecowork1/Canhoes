@@ -35,8 +35,9 @@ export const DELETE = apiRoute<CategoryParams>(async (_request, { eventId, categ
   // Só administradores.
   await requireAdmin();
 
-  const deleted = await deleteCategory(eventId, categoryId);
-  if (!deleted) {
+  const result = await deleteCategory(eventId, categoryId);
+  if (result === "NOT_FOUND") throw notFound("Category not found.");
+  if (result === "HAS_DEPENDENTS") {
     throw new HttpError(409, "CONFLICT", "Category has dependent nominees or votes and cannot be deleted.");
   }
   return noContent();

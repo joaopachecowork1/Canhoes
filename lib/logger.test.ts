@@ -36,6 +36,17 @@ describe("logger on the server", () => {
     expect(line).toContain('"stack":"Error: disk full');
   });
 
+  it("logs a warn with Error details when passed in context or as argument", async () => {
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const logger = await loadLogger();
+
+    logger.warn("Places warning", { error: new Error("rate limit") });
+
+    const line = String(consoleWarn.mock.calls[0][0]);
+    expect(line).toContain("WARN Places warning");
+    expect(line).toContain('"error":"rate limit"');
+  });
+
   it("skips entries below LOG_LEVEL", async () => {
     const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
     const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});

@@ -10,6 +10,29 @@ datasource db {
   provider = "postgresql"
 }
 
+enum EventMemberRole {
+  admin
+  participant
+}
+
+enum PhaseType {
+  DRAW
+  PROPOSALS
+  VOTING
+  RESULTS
+}
+
+enum ProposalStatus {
+  pending
+  approved
+  rejected
+}
+
+enum NomineeSubmissionKind {
+  nominees
+  stickers
+}
+
 model User {
   id           String   @id(map: "PK_Users") @default(uuid()) @map("Id") @db.Uuid
   externalId   String   @unique(map: "IX_Users_ExternalId") @map("ExternalId")
@@ -26,16 +49,16 @@ model User {
 }
 
 model UserInvitation {
-  id              String    @id(map: "PK_UserInvitations") @default(uuid()) @map("Id")
-  email           String    @unique(map: "IX_UserInvitations_Email") @map("Email")
-  token           String    @unique(map: "IX_UserInvitations_Token") @map("Token")
-  invitedByUserId String    @map("InvitedByUserId") @db.Uuid
-  expiresAtUtc    DateTime  @map("ExpiresAtUtc") @db.Timestamptz(6)
-  usedAtUtc       DateTime? @map("UsedAtUtc") @db.Timestamptz(6)
-  createdAtUtc    DateTime  @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
-  eventId         String?   @map("EventId")
-  role            String    @default("participant") @map("Role")
-  isAdmin         Boolean   @default(false) @map("IsAdmin")
+  id              String          @id(map: "PK_UserInvitations") @default(uuid()) @map("Id")
+  email           String          @unique(map: "IX_UserInvitations_Email") @map("Email")
+  token           String          @unique(map: "IX_UserInvitations_Token") @map("Token")
+  invitedByUserId String          @map("InvitedByUserId") @db.Uuid
+  expiresAtUtc    DateTime        @map("ExpiresAtUtc") @db.Timestamptz(6)
+  usedAtUtc       DateTime?       @map("UsedAtUtc") @db.Timestamptz(6)
+  createdAtUtc    DateTime        @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  eventId         String?         @map("EventId")
+  role            EventMemberRole @default(participant) @map("Role")
+  isAdmin         Boolean         @default(false) @map("IsAdmin")
 
   @@index([token], map: "IX_UserInvitations_TokenIdx")
   @@map("UserInvitations")
@@ -52,11 +75,11 @@ model Event {
 }
 
 model EventMember {
-  id          String   @id(map: "PK_EventMembers") @default(uuid()) @map("Id") @db.VarChar(64)
-  eventId     String   @map("EventId") @db.VarChar(64)
-  userId      String   @map("UserId") @db.Uuid
-  role        String   @map("Role") @db.VarChar(16)
-  joinedAtUtc DateTime @map("JoinedAtUtc") @db.Timestamptz(6)
+  id          String          @id(map: "PK_EventMembers") @default(uuid()) @map("Id") @db.VarChar(64)
+  eventId     String          @map("EventId") @db.VarChar(64)
+  userId      String          @map("UserId") @db.Uuid
+  role        EventMemberRole @default(participant) @map("Role")
+  joinedAtUtc DateTime        @map("JoinedAtUtc") @db.Timestamptz(6)
 
   @@unique([eventId, userId], map: "IX_EventMembers_EventId_UserId")
   @@index([eventId, role], map: "IX_EventMembers_EventId_Role")
@@ -64,12 +87,12 @@ model EventMember {
 }
 
 model EventPhase {
-  id           String   @id(map: "PK_EventPhases") @default(uuid()) @map("Id") @db.VarChar(64)
-  eventId      String   @map("EventId") @db.VarChar(64)
-  type         String   @map("Type") @db.VarChar(32)
-  startDateUtc DateTime @map("StartDateUtc") @db.Timestamptz(6)
-  endDateUtc   DateTime @map("EndDateUtc") @db.Timestamptz(6)
-  isActive     Boolean  @map("IsActive")
+  id           String    @id(map: "PK_EventPhases") @default(uuid()) @map("Id") @db.VarChar(64)
+  eventId      String    @map("EventId") @db.VarChar(64)
+  type         PhaseType @map("Type")
+  startDateUtc DateTime  @map("StartDateUtc") @db.Timestamptz(6)
+  endDateUtc   DateTime  @map("EndDateUtc") @db.Timestamptz(6)
+  isActive     Boolean   @map("IsActive")
 
   @@unique([eventId, type], map: "IX_EventPhases_EventId_Type")
   @@index([eventId, isActive], map: "IX_EventPhases_EventId_IsActive")
@@ -95,15 +118,15 @@ model AwardCategory {
 }
 
 model Nominee {
-  id                String   @id(map: "PK_Nominees") @default(uuid()) @map("Id")
-  eventId           String   @map("EventId")
-  categoryId        String?  @map("CategoryId")
-  title             String   @map("Title")
-  submissionKind    String   @map("SubmissionKind")
-  imageUrl          String?  @map("ImageUrl")
-  submittedByUserId String   @map("SubmittedByUserId") @db.Uuid
-  status            String   @map("Status")
-  createdAtUtc      DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  id                String                @id(map: "PK_Nominees") @default(uuid()) @map("Id")
+  eventId           String                @map("EventId")
+  categoryId        String?               @map("CategoryId")
+  title             String                @map("Title")
+  submissionKind    NomineeSubmissionKind @default(nominees) @map("SubmissionKind")
+  imageUrl          String?               @map("ImageUrl")
+  submittedByUserId String                @map("SubmittedByUserId") @db.Uuid
+  status            ProposalStatus        @map("Status")
+  createdAtUtc      DateTime              @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([categoryId, status], map: "IX_Nominees_CategoryId_Status")
   @@index([eventId, status], map: "IX_Nominees_EventId_Status")
@@ -113,14 +136,14 @@ model Nominee {
 }
 
 model CategoryProposal {
-  id               String   @id(map: "PK_CategoryProposals") @default(uuid()) @map("Id")
-  eventId          String   @map("EventId")
-  name             String   @map("Name")
-  description      String?  @map("Description")
-  kind             Int      @default(0) @map("Kind")
-  proposedByUserId String   @map("ProposedByUserId") @db.Uuid
-  status           String   @map("Status")
-  createdAtUtc     DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  id               String         @id(map: "PK_CategoryProposals") @default(uuid()) @map("Id")
+  eventId          String         @map("EventId")
+  name             String         @map("Name")
+  description      String?        @map("Description")
+  kind             Int            @default(0) @map("Kind")
+  proposedByUserId String         @map("ProposedByUserId") @db.Uuid
+  status           ProposalStatus @map("Status")
+  createdAtUtc     DateTime       @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([eventId, status, createdAtUtc], map: "IX_CategoryProposals_EventId_Status_CreatedAtUtc")
   @@index([proposedByUserId], map: "IX_CategoryProposals_ProposedByUserId")
@@ -140,12 +163,12 @@ model GalaMeasure {
 }
 
 model MeasureProposal {
-  id               String   @id(map: "PK_MeasureProposals") @default(uuid()) @map("Id")
-  eventId          String   @map("EventId")
-  text             String   @map("Text")
-  proposedByUserId String   @map("ProposedByUserId") @db.Uuid
-  status           String   @map("Status")
-  createdAtUtc     DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  id               String         @id(map: "PK_MeasureProposals") @default(uuid()) @map("Id")
+  eventId          String         @map("EventId")
+  text             String         @map("Text")
+  proposedByUserId String         @map("ProposedByUserId") @db.Uuid
+  status           ProposalStatus @map("Status")
+  createdAtUtc     DateTime       @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   @@index([eventId, status, createdAtUtc], map: "IX_MeasureProposals_EventId_Status_CreatedAtUtc")
   @@index([proposedByUserId], map: "IX_MeasureProposals_ProposedByUserId")
@@ -155,33 +178,20 @@ model MeasureProposal {
 
 model Vote {
   id           String   @id(map: "PK_Votes") @default(uuid()) @map("Id")
+  eventId      String   @default("") @map("EventId")
   categoryId   String   @map("CategoryId")
-  nomineeId    String   @map("NomineeId")
   userId       String   @map("UserId") @db.Uuid
+  nomineeId    String?  @map("NomineeId")
+  targetUserId String?  @map("TargetUserId") @db.Uuid
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   updatedAtUtc DateTime @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
-  eventId      String   @default("") @map("EventId")
 
   @@unique([categoryId, userId], map: "IX_Votes_CategoryId_UserId")
   @@index([eventId, userId], map: "IX_Votes_EventId_UserId")
   @@index([nomineeId], map: "IX_Votes_NomineeId")
+  @@index([targetUserId], map: "IX_Votes_TargetUserId")
   @@index([userId], map: "IX_Votes_UserId")
   @@map("Votes")
-}
-
-model UserVote {
-  id           String   @id(map: "PK_UserVotes") @default(uuid()) @map("Id")
-  categoryId   String   @map("CategoryId")
-  voterUserId  String   @map("VoterUserId") @db.Uuid
-  targetUserId String   @map("TargetUserId") @db.Uuid
-  updatedAtUtc DateTime @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
-  eventId      String   @default("") @map("EventId")
-
-  @@unique([categoryId, voterUserId], map: "IX_UserVotes_CategoryId_VoterUserId")
-  @@index([eventId, categoryId, voterUserId], map: "IX_UserVotes_EventId_CategoryId_VoterUserId")
-  @@index([eventId, voterUserId], map: "IX_UserVotes_EventId_VoterUserId")
-  @@index([targetUserId], map: "IX_UserVotes_TargetUserId")
-  @@map("UserVotes")
 }
 
 model WishlistItem {
@@ -226,9 +236,7 @@ model SecretSantaAssignment {
 model CanhoesEventState {
   id                   Int     @id(map: "PK_CanhoesEventState") @default(autoincrement()) @map("Id")
   eventId              String  @unique(map: "IX_CanhoesEventState_EventId") @map("EventId")
-  phase                String  @map("Phase")
   nominationsVisible   Boolean @map("NominationsVisible")
-  resultsVisible       Boolean @map("ResultsVisible")
   moduleVisibilityJson Json    @default("{}") @map("ModuleVisibilityJson")
   hasSecretSantaDraw   Boolean @default(false) @map("HasSecretSantaDraw")
   secretSantaEventCode String? @map("SecretSantaEventCode")

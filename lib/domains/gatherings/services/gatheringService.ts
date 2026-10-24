@@ -173,13 +173,18 @@ export async function toggleGatheringDateVote(
   });
 
   if (removed.count === 0) {
-    await prisma.eventGatheringDateVote.create({
-      data: {
-        gatheringId,
-        optionId,
-        userId,
-      },
-    });
+    // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: já está feito, ignora-se.
+    try {
+      await prisma.eventGatheringDateVote.create({
+        data: {
+          gatheringId,
+          optionId,
+          userId,
+        },
+      });
+    } catch (e: unknown) {
+      if ((e as { code?: string }).code !== "P2002") throw e;
+    }
   }
 
   return getGatheringDetails(gatheringId, userId);

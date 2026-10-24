@@ -11,14 +11,12 @@ next-env.d.ts
 # Environment files: only the templates are committed
 .env*
 !.env.example
-!.env.server.example
 
-# Local data: uploads, database backups, the deploy lock (scripts/update-server.sh)
+# Local data: uploads, database backups
 .data/
 backups/
 /uploads/
 /public/uploads/
-.update-server.lock
 *.db
 *.db-wal
 

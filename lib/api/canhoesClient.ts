@@ -14,9 +14,13 @@ export class ApiError extends Error {
   }
 }
 
-/** Opções do `fetch` mais as nossas: devolver erro em 401/403 num GET e desligar a partilha de GETs iguais. */
+/** Opções do `fetch` mais as nossas: silenciar erros de autenticação (401/403) ou desligar a partilha de GETs iguais. */
 type CanhoesRequestInit = RequestInit & {
-  canhoes?: { throwOnUnauthorized?: boolean; skipDeduplication?: boolean };
+  canhoes?: {
+    throwOnUnauthorized?: boolean;
+    swallowAuthErrors?: boolean;
+    skipDeduplication?: boolean;
+  };
 };
 
 // GETs em curso por caminho, para pedidos iguais partilharem a mesma promessa.
@@ -101,8 +105,10 @@ export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {
       const body = await readBody(response);
       if (response.ok) return body as T;
 
-      // Uma leitura recusada mostra um ecrã vazio, mas uma escrita recusada nunca pode parecer que correu bem.
-      if (isAuthStatus(response.status) && method === "GET" && !canhoes?.throwOnUnauthorized) return null as T;
+      // Por defeito propaga erros de autenticação (401/403) para o caller/TanStack Query poder agir (redirecionar/tratar).
+      // Apenas devolve null se o caller solicitar explicitamente swallowAuthErrors.
+      const shouldThrowOnAuth = canhoes?.throwOnUnauthorized ?? !canhoes?.swallowAuthErrors;
+      if (isAuthStatus(response.status) && method === "GET" && !shouldThrowOnAuth) return null as T;
       throw new ApiError(readErrorMessage(body, response), response.status, body);
     } catch (error) {
       throw toTimeoutError(error);

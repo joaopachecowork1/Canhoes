@@ -74,7 +74,7 @@ describe("voting board", () => {
 
     const board = (await callRoute(getVotingBoard, params)).body as EventVotingBoardDto;
     expect(board.categories.map((category) => category.myOptionId)).toEqual([dinner.id, rui.id]);
-    expect(await prisma.userVote.count()).toBe(1);
+    expect(await prisma.vote.count({ where: { targetUserId: { not: null } } })).toBe(1);
   });
 
   it("refuses options the board does not offer", async () => {

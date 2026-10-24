@@ -2,10 +2,21 @@ import { NextResponse } from "next/server";
 
 import { notFound } from "@/lib/api/httpError";
 import { apiRoute } from "@/lib/api/route";
+import { logger } from "@/lib/logger";
 import { readUpload, UploadValidationError } from "@/lib/storage/localStorage";
 
 // Cache de um dia no browser.
 const ONE_DAY_IN_SECONDS = 86_400;
+
+function isNotFoundError(error: unknown): boolean {
+  if (typeof error === "object" && error !== null) {
+    const err = error as { code?: string; name?: string; $metadata?: { httpStatusCode?: number } };
+    if (err.code === "ENOENT" || err.name === "NoSuchKey" || err.$metadata?.httpStatusCode === 404) {
+      return true;
+    }
+  }
+  return false;
+}
 
 /** GET /uploads/:path: serve um ficheiro carregado, com cache longa */
 export const GET = apiRoute<{ path: string[] }>(async (_request, { path }) => {
@@ -18,8 +29,10 @@ export const GET = apiRoute<{ path: string[] }>(async (_request, { path }) => {
       },
     });
   } catch (error) {
-    // Caminho inválido mantém o seu erro; qualquer outra falha é um 404.
     if (error instanceof UploadValidationError) throw error;
-    throw notFound("File not found.");
+    if (isNotFoundError(error)) throw notFound("File not found.");
+
+    logger.error("Unexpected error reading upload:", error, { path: path.join("/") });
+    throw error;
   }
 });

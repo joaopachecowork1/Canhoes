@@ -110,6 +110,9 @@ describe("admin categories", () => {
       204,
     );
     expect(
+      (await callRoute(deleteCategory, { ...params, categoryId: "nonexistent-id" }, { method: "DELETE" })).status,
+    ).toBe(404);
+    expect(
       (
         await callRoute(
           updateCategory,
@@ -293,11 +296,11 @@ describe("admin votes and results", () => {
     const category = await prisma.awardCategory.create({
       data: { eventId: event.id, name: "Membro do ano", sortOrder: 1, kind: 1, isActive: true },
     });
-    await prisma.userVote.createMany({
+    await prisma.vote.createMany({
       data: [
-        { eventId: event.id, categoryId: category.id, voterUserId: ana.id, targetUserId: rui.id },
-        { eventId: event.id, categoryId: category.id, voterUserId: admin.id, targetUserId: rui.id },
-        { eventId: event.id, categoryId: category.id, voterUserId: rui.id, targetUserId: ana.id },
+        { eventId: event.id, categoryId: category.id, userId: ana.id, targetUserId: rui.id },
+        { eventId: event.id, categoryId: category.id, userId: admin.id, targetUserId: rui.id },
+        { eventId: event.id, categoryId: category.id, userId: rui.id, targetUserId: ana.id },
       ],
     });
 

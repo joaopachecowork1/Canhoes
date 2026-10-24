@@ -111,8 +111,13 @@ export async function toggleCommentReaction(ref: CommentRef, userId: string, emo
   const existing = await prisma.hubPostCommentReaction.findFirst({ where: { commentId, userId, emoji } });
 
   if (existing) {
-    await prisma.hubPostCommentReaction.delete({ where: { id: existing.id } });
+    await prisma.hubPostCommentReaction.delete({ where: { id: existing.id } }).catch(() => undefined);
   } else {
-    await prisma.hubPostCommentReaction.create({ data: { commentId, userId, emoji } });
+    // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: já está feito, ignora-se.
+    try {
+      await prisma.hubPostCommentReaction.create({ data: { commentId, userId, emoji } });
+    } catch (e: unknown) {
+      if ((e as { code?: string }).code !== "P2002") throw e;
+    }
   }
 }

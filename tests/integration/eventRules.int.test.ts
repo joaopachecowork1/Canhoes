@@ -1,3 +1,4 @@
+import type { ProposalStatus } from "@/lib/generated/prisma/client";
 import { describe, expect, it } from "vitest";
 
 import { POST as postProposal } from "@/app/api/v1/events/[eventId]/proposals/route";
@@ -16,14 +17,14 @@ async function createNominee(
   eventId: string,
   categoryId: string,
   submittedByUserId: string,
-  { status = "approved", title = "O jantar" } = {},
+  { status = "approved" as ProposalStatus, title = "O jantar" } = {},
 ) {
   return prisma.nominee.create({
     data: {
       eventId,
       categoryId,
       title,
-      submissionKind: "text",
+      submissionKind: "nominees",
       imageUrl: `/uploads/${title}.png`,
       submittedByUserId,
       status,
@@ -155,7 +156,7 @@ describe("votes", () => {
       { method: "POST", body: { categoryId: category.id, selectionId: colleague.id } },
     );
     expect(accepted.status).toBe(200);
-    expect(await prisma.userVote.count()).toBe(1);
+    expect(await prisma.vote.count({ where: { targetUserId: { not: null } } })).toBe(1);
   });
 });
 
@@ -183,8 +184,8 @@ describe("results", () => {
         nomineeId: winner.id,
       })),
     });
-    await prisma.userVote.create({
-      data: { eventId: event.id, categoryId: personCategory.id, voterUserId: member.id, targetUserId: bruno.id },
+    await prisma.vote.create({
+      data: { eventId: event.id, categoryId: personCategory.id, userId: member.id, targetUserId: bruno.id },
     });
 
     const response = await callRoute(getResults, { eventId: event.id });

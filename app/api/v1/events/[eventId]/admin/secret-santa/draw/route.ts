@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { requireAdmin } from "@/lib/api/guards";
-import { apiRoute, json, readJson } from "@/lib/api/route";
+import { apiRoute, json, readOptionalJson } from "@/lib/api/route";
 import { executeSecretSantaDraw } from "@/lib/domains/admin/services/secretSanta";
 
 const drawSchema = z.object({
@@ -15,7 +15,7 @@ export const POST = apiRoute<{ eventId: string }>(async (request, { eventId }) =
   const admin = await requireAdmin();
 
   // Valida o corpo do pedido (se existir).
-  const body = await readJson(request, drawSchema).catch(() => ({}));
+  const body = await readOptionalJson(request, drawSchema, {});
 
   return json(await executeSecretSantaDraw(eventId, admin.id, body));
 });

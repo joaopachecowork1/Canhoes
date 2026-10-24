@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest } from "next/server";
 import { vi } from "vitest";
 
+import type { EventMemberRole } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type PhaseType = "DRAW" | "PROPOSALS" | "VOTING" | "RESULTS";
@@ -76,12 +77,12 @@ export async function createEvent({
     })),
   });
   await prisma.canhoesEventState.create({
-    data: { eventId: event.id, phase, nominationsVisible, resultsVisible: phase === "RESULTS" },
+    data: { eventId: event.id, nominationsVisible },
   });
   return event;
 }
 
-export async function addMember(eventId: string, userId: string, role = "participant") {
+export async function addMember(eventId: string, userId: string, role: EventMemberRole = "participant") {
   return prisma.eventMember.create({ data: { eventId, userId, role, joinedAtUtc: new Date() } });
 }
 

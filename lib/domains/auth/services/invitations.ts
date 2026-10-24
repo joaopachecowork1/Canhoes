@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 
 import type { UserInvitationDto } from "@/lib/api/types";
+import type { EventMemberRole } from "@/lib/generated/prisma/client";
 import { HttpError } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
 import { sendInvitationEmail } from "@/lib/services/emailService";
@@ -51,7 +52,7 @@ export async function createInvitation(input: {
   const existingUser = await prisma.user.findUnique({ where: { email }, select: { id: true } });
   if (existingUser) throw new InvitationError("USER_ALREADY_EXISTS");
 
-  const role = input.role === "admin" ? "admin" : "participant";
+  const role: EventMemberRole = input.role === "admin" ? "admin" : "participant";
   const isAdmin = role === "admin";
 
   // Token aleatório e data de expiração.
@@ -96,6 +97,7 @@ export async function createInvitation(input: {
     role,
     isAdmin,
     emailSent: emailResult.sent,
+    emailReason: emailResult.reason,
   };
 }
 
@@ -132,7 +134,7 @@ export async function listInvitations(eventId?: string | null): Promise<UserInvi
 }
 
 /** Reenvia o email de um convite pendente e renova a sua validade por 7 dias. */
-export async function resendInvitation(invitationId: string): Promise<{ emailSent: boolean }> {
+export async function resendInvitation(invitationId: string): Promise<{ emailSent: boolean; emailReason?: string }> {
   const invitation = await prisma.userInvitation.findUnique({ where: { id: invitationId } });
   if (!invitation) throw new InvitationError("INVALID_INVITATION");
   if (invitation.usedAtUtc) throw new InvitationError("INVITATION_USED");
@@ -159,7 +161,7 @@ export async function resendInvitation(invitationId: string): Promise<{ emailSen
     eventName,
   });
 
-  return { emailSent: emailResult.sent };
+  return { emailSent: emailResult.sent, emailReason: emailResult.reason };
 }
 
 /** Revoga e remove um convite pendente. */

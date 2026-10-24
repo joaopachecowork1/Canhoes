@@ -3,7 +3,7 @@ import { logger } from "@/lib/logger";
 
 /**
  * GET feito no servidor à API dos Canhões, chamando os route handlers locais do Next.js (a app chama-se a si própria).
- * Devolve null sem sessão (401/403) ou em caso de erro, que fica registado.
+ * Devolve null sem sessão (401/403) ou recurso inexistente (404). Erros de servidor (5xx) são propagados para a fronteira de erro.
  */
 export async function canhoesServerFetch<T>(path: string): Promise<T | null> {
   const baseUrl =
@@ -28,14 +28,14 @@ export async function canhoesServerFetch<T>(path: string): Promise<T | null> {
     });
 
     if (!res.ok) {
-      // Sem sessão ou sem permissão não é um erro: a página decide o que mostrar.
-      if (res.status === 401 || res.status === 403) return null;
-      throw new Error(`API error: ${res.status}`);
+      // Sem sessão, sem permissão ou inexistente: a página decide o que mostrar.
+      if (res.status === 401 || res.status === 403 || res.status === 404) return null;
+      throw new Error(`API error ${res.status} fetching ${path}`);
     }
 
     return await res.json();
   } catch (error) {
     logger.error(`Error fetching ${path} on server:`, error);
-    return null;
+    throw error;
   }
 }

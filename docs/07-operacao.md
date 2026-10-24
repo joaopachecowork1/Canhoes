@@ -72,19 +72,12 @@ Numa emergência, `git push --no-verify` salta-o; o CI continua a bloquear o mer
 
 | Job | Passos |
 |---|---|
-| Lint, types, unit tests, knip, audit | `npm ci`, formatação, lint, `tsc`, testes unitários e de componentes, knip, `shellcheck` dos scripts, `npm audit --omit=dev` |
-| Integration and authorization tests | PostgreSQL 17 de serviço e `npm run test:coverage` (os três projetos de testes, com os mínimos de cobertura de `vitest.config.mjs`) |
-| Browser tests (Playwright) | PostgreSQL 17, migrations, seed e `npm run test:e2e` |
-| Local setup (Docker e Podman) | `db:up`, migrations, seed, testes de integração e `compose up --build` até `/api/health` responder |
-| Docker image, migrations and OWASP ZAP | Build da imagem, arranque contra uma base vazia (migrations + seed), verificação de que o seed de produção não cria dados de demonstração, varrimento ZAP |
-| Home server deploy | Corre `scripts/update-server.sh` duas vezes com `compose.server.yml`: instalação limpa e redeploy, com backup e dados preservados |
+| Lint, types, tests, knip, build | `npm ci`, formatação, lint, `tsc`, testes unitários e de componentes, knip, `npm run build` e auditoria de dependências |
 
-O ZAP falha o build com qualquer alerta que não esteja triado em `.zap/rules.tsv`. O Dependabot (`.github/dependabot.yml`) propõe todas as semanas atualizações de npm, das GitHub Actions e da imagem base.
-
-## Docker
+## Docker (Desenvolvimento Local)
 
 ```bash
-docker compose up -d --build   # app em :3000 e PostgreSQL em :5433
+npm run db:up   # PostgreSQL em localhost:5433
 ```
 
 O arranque do contentor (`scripts/docker-start.sh`):
@@ -126,27 +119,9 @@ curl -s localhost:3000/api/health                  # app e base de dados a respo
 docker compose exec postgres psql -U canhoes       # consola SQL
 ```
 
-No servidor (`compose.server.yml`), os contentores chamam-se `canhoes-server-*`:
+## Deploy e Produção
 
-```bash
-docker logs -f canhoes-server-web                  # app
-docker logs canhoes-server-tunnel                  # túnel do Cloudflare (erros 1033 e 502)
-journalctl --user -u canhoes-update -f             # cada deploy: backup, build, health
-curl -s 127.0.0.1:3100/api/health
-```
-
-Para ver mais detalhe temporariamente, põe `LOG_LEVEL=debug` no `.env` (ou `.env.server`) e recria o contentor (`docker compose up -d web`, ou `scripts/update-server.sh --force` no servidor).
-
-## Deploy
-
-O site corre num PC (ou num servidor alugado) com `compose.server.yml`, publicado no domínio através de um Cloudflare Tunnel. Cada merge para `main` é instalado automaticamente por `scripts/update-server.sh`. O guia completo, do domínio aos backups, está em [09-deploy.md](09-deploy.md).
-
-Para correr numa plataforma gerida, sem servidor próprio, a app precisaria de três coisas fora do contentor:
-
-| Precisa de | Hoje | Numa plataforma gerida |
-|---|---|---|
-| PostgreSQL | Contentor ao lado da app | Uma base gerida, como Neon ou Supabase |
-| Ficheiros enviados | Volume em disco (`UPLOADS_DIR`) | Armazenamento de objetos, como o R2; `lib/storage/localStorage.ts` é o único ponto a trocar |
-| Rate limit | Memória do processo | Só vale por instância; aceitável para um grupo pequeno |
+A aplicação de produção está hospedada na Vercel com base de dados PostgreSQL no Neon Serverless e envio de emails transacionais via Resend.
+- Guia detalhado de configuração e manutenção: [09-deploy.md](09-deploy.md).
 
 Antes de abrir ao público falta também a Content-Security-Policy (ver [08-lacunas.md](08-lacunas.md)).

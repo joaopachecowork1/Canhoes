@@ -88,11 +88,11 @@ export async function createCategory(
     data: {
       eventId,
       name: data.name.trim(),
-      description: data.description?.trim() ?? null,
+      description: trimmedOrNull(data.description) ?? null,
       kind: data.kind,
       sortOrder: data.sortOrder ?? (maxSort._max.sortOrder ?? 0) + 1,
       isActive: true,
-      voteQuestion: data.voteQuestion?.trim() ?? null,
+      voteQuestion: trimmedOrNull(data.voteQuestion) ?? null,
       voteRules: data.voteRules ?? Prisma.JsonNull,
     },
   });
@@ -113,7 +113,10 @@ export async function updateCategory(
     voteRules: string | null;
   }>,
 ): Promise<AwardCategoryDto | null> {
-  const existing = await prisma.awardCategory.findFirst({ where: { id: categoryId, eventId } });
+  const existing = await prisma.awardCategory.findFirst({
+    where: { id: categoryId, eventId },
+    select: { id: true },
+  });
   if (!existing) return null;
 
   // O Prisma deixa os campos `undefined` como estão, por isso só muda o que o admin enviou.
@@ -132,20 +135,24 @@ export async function updateCategory(
   return toCategoryDto(updated);
 }
 
-/** Apaga uma categoria deste evento; false quando não existe aqui ou ainda tem nomeados ou votos. */
-export async function deleteCategory(eventId: string, categoryId: string): Promise<boolean> {
-  const existing = await prisma.awardCategory.findFirst({ where: { id: categoryId, eventId } });
-  if (!existing) return false;
+export type DeleteCategoryResult = "NOT_FOUND" | "HAS_DEPENDENTS" | "DELETED";
+
+/** Apaga uma categoria deste evento; distingue se não foi encontrada ou se tem dependências. */
+export async function deleteCategory(eventId: string, categoryId: string): Promise<DeleteCategoryResult> {
+  const existing = await prisma.awardCategory.findFirst({
+    where: { id: categoryId, eventId },
+    select: { id: true },
+  });
+  if (!existing) return "NOT_FOUND";
 
   // Uma categoria com nomeados ou votos não se apaga, para não perder dados.
-  const hasDependents = await Promise.all([
+  const [nomineeCount, voteCount] = await Promise.all([
     prisma.nominee.count({ where: { eventId, categoryId } }),
     prisma.vote.count({ where: { categoryId } }),
-    prisma.userVote.count({ where: { categoryId } }),
   ]);
 
-  if (hasDependents.some((c) => c > 0)) return false;
+  if (nomineeCount > 0 || voteCount > 0) return "HAS_DEPENDENTS";
 
   await prisma.awardCategory.delete({ where: { id: categoryId } });
-  return true;
+  return "DELETED";
 }

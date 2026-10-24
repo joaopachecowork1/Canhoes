@@ -30,7 +30,7 @@ function sweepExpired(now: number) {
 /** Descobre o IP do cliente pelos cabeçalhos do proxy, ou "unknown" quando não há nenhum. */
 function getClientIp(request: { headers: Headers }): string {
   // Atrás do túnel da Cloudflare este cabeçalho é posto pela própria Cloudflare; o x-forwarded-for começa com o que o cliente enviar.
-  // Em qualquer outro lado qualquer cliente o pode enviar, por isso só se acredita com TRUST_CF_CONNECTING_IP=true (compose.server.yml).
+  // Em qualquer outro lado qualquer cliente o pode enviar, por isso só se acredita com TRUST_CF_CONNECTING_IP=true.
   const cloudflareIp = process.env.TRUST_CF_CONNECTING_IP === "true" ? request.headers.get("cf-connecting-ip") : null;
   if (cloudflareIp) return cloudflareIp;
   const forwarded = request.headers.get("x-forwarded-for");

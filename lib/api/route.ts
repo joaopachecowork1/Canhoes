@@ -52,10 +52,8 @@ export function apiRoute<Params = Record<string, never>>(
 function toErrorResponse(error: unknown, requestId: string) {
   // Erro esperado: o cliente recebe o código e a mensagem (e os detalhes, se existirem).
   if (error instanceof HttpError) {
-    const body =
-      error.details === undefined
-        ? { code: error.code, message: error.message }
-        : { code: error.code, message: error.message, details: error.details };
+    const body: Record<string, unknown> = { code: error.code, message: error.message };
+    if (error.details !== undefined) body.details = error.details;
     return NextResponse.json(body, { status: error.status });
   }
 
@@ -73,9 +71,15 @@ function toErrorResponse(error: unknown, requestId: string) {
  */
 function logRequest(request: NextRequest, status: number, context: { requestId: string; durationMs: number }) {
   const message = `${request.method} ${request.nextUrl.pathname} ${status}`;
-  if (status >= 500) logger.error(message, undefined, context);
-  else if (status >= 400 || request.method !== "GET") logger.info(message, context);
-  else logger.debug(message, context);
+  if (status >= 500) {
+    logger.error(message, undefined, context);
+    return;
+  }
+  if (status >= 400 || request.method !== "GET") {
+    logger.info(message, context);
+    return;
+  }
+  logger.debug(message, context);
 }
 
 /** Uma resposta JSON com o estado indicado (200 por defeito). */
@@ -88,6 +92,15 @@ export function noContent() {
   return new NextResponse(null, { status: 204 });
 }
 
+/** Valida os dados com o `schema` Zod ou lança um 400 com a primeira mensagem de erro. */
+function parseWithSchema<T>(body: unknown, schema: ZodType<T>): T {
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    throw badRequest(parsed.error.issues[0]?.message ?? "Invalid input.", parsed.error.flatten());
+  }
+  return parsed.data;
+}
+
 /** Lê o corpo JSON e valida-o com `schema`. JSON mal formado ou input inválido dá um 400. */
 export async function readJson<T>(request: Request, schema: ZodType<T>): Promise<T> {
   let body: unknown;
@@ -96,19 +109,32 @@ export async function readJson<T>(request: Request, schema: ZodType<T>): Promise
   } catch {
     throw badRequest("Invalid JSON body.");
   }
+  return parseWithSchema(body, schema);
+}
 
-  const parsed = schema.safeParse(body);
+/** Lê o corpo JSON se existir e valida-o com `schema`; devolve `fallback` se o corpo estiver vazio. */
+export async function readOptionalJson<T>(request: Request, schema: ZodType<T>, fallback: T): Promise<T> {
+  const text = await request.text();
+  if (text.trim().length === 0) return fallback;
 
-  // A mensagem do primeiro problema vai para o cliente; o resto segue em `details`.
-  if (!parsed.success) {
-    throw badRequest(parsed.error.issues[0]?.message ?? "Invalid input.", parsed.error.flatten());
+  let body: unknown;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    throw badRequest("Invalid JSON body.");
   }
-  return parsed.data;
+  return parseWithSchema(body, schema);
 }
 
 /** O ficheiro enviado no campo `field` do formulário, ou um 400 quando falta ou está vazio. */
 export async function readFormFile(request: Request, field = "file"): Promise<File> {
-  const file = (await request.formData()).get(field);
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    throw badRequest("Invalid form data.");
+  }
+  const file = formData.get(field);
   if (!(file instanceof File) || file.size <= 0) {
     throw new HttpError(400, "FILE_REQUIRED", "File is required.");
   }

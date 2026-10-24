@@ -62,7 +62,7 @@ describe("emailService", () => {
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 403,
-      text: async () => "Forbidden",
+      text: async () => JSON.stringify({ message: "Forbidden" }),
     });
     vi.stubGlobal("fetch", mockFetch);
 
@@ -72,6 +72,6 @@ describe("emailService", () => {
       role: "admin",
     });
 
-    expect(result).toEqual({ sent: false, reason: "HTTP_403" });
+    expect(result).toEqual({ sent: false, reason: "Forbidden" });
   });
 });

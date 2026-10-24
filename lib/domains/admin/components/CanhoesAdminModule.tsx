@@ -104,15 +104,14 @@ export default function CanhoesAdminModule({
 }: Readonly<CanhoesAdminModuleProps>) {
   const { event: activeEvent, refresh: refreshOverview } = useEventOverview(initialContext);
   const queryClient = useQueryClient();
-  // o evento do servidor (SSR) serve até o overview carregar
-  const resolvedEventId = activeEvent?.id ?? initialEventId ?? null;
-  const eventId = activeEvent?.id ?? null;
-  const bootstrap = useAdminBootstrap(resolvedEventId);
+  // O evento do servidor (SSR) serve até o overview carregar no cliente.
+  const eventId = activeEvent?.id ?? initialEventId ?? null;
+  const bootstrap = useAdminBootstrap(eventId);
 
   const handleRefresh = useCallback(async () => {
-    // invalida as queries do admin e o overview em paralelo
-    await Promise.all([invalidateAfterAdminWrite(queryClient, resolvedEventId), refreshOverview()]);
-  }, [resolvedEventId, queryClient, refreshOverview]);
+    // Invalida as queries do admin e o overview em paralelo.
+    await Promise.all([invalidateAfterAdminWrite(queryClient, eventId), refreshOverview()]);
+  }, [eventId, queryClient, refreshOverview]);
 
   useLogBootstrapError(bootstrap.error);
 

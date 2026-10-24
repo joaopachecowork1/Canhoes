@@ -15,10 +15,7 @@ O que a aplicação ainda não faz como devia, por prioridade. Cada linha diz on
 
 | Lacuna | Onde | Como resolver |
 |---|---|---|
-| `CanhoesEventState.phase` e `resultsVisible` são escritos mas nenhuma regra os lê (o interruptor de `resultsVisible` já saiu do admin). | `state.ts`, `eventRules.ts` | Fase 3 do plano: uma só fonte para a fase do evento. |
-| As datas das fases não têm ecrã: uma fase criada pelo admin fica aberta um ano, e a janela de votação só se muda na base de dados. | `state.ts` (`updateAdminPhase`) | Decidir se a votação fecha por data ou só quando o admin muda de fase, e simplificar o modelo em conformidade (Fase 3). |
-| Estados e tipos são strings e números sem enum, e a maior parte das tabelas liga-se por IDs sem chave estrangeira. | `prisma/schema.prisma` | Fase 3 do plano: enums e relações com migrations. |
-| O contador de votos do bootstrap do admin só conta votos em nomeações, não em pessoas. | `state.ts` (`getAdminListCounts`) | Somar também `UserVote`. |
+| As datas das fases não têm ecrã: uma fase criada pelo admin fica aberta um ano, e a janela de votação só se muda na base de dados. | `state.ts` (`updateAdminPhase`) | Decidir se a votação fecha por data ou só quando o admin muda de fase, e simplificar o modelo em conformidade. |
 
 ## Organização do código
 

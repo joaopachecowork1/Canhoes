@@ -44,49 +44,36 @@ O login Google precisa de `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`, com o red
 
 Serve para o DBeaver, pgAdmin ou o `psql`. Sem instalar nada: `npm run db:studio` (Prisma Studio no browser) ou `podman exec -it canhoes-postgres psql -U canhoes` (troca `podman` por `docker` se for o caso).
 
-## Stack completa em contentores
+## Produção (Vercel + Neon)
 
-Corre a app e o PostgreSQL em contentores, como em produção:
+O projeto está configurado para deploy contínuo na [Vercel](https://vercel.com) com PostgreSQL gerido no [Neon Serverless](https://neon.tech) e envio de emails transacionais via [Resend](https://resend.com) no domínio `canhoes.lol`.
 
-```bash
-podman compose --env-file .env.server up -d --build --force-recreate # app em https://localhost:3000, PostgreSQL em localhost:5433
-docker compose --env-file .env.server up -d --build                 # o mesmo com Docker
-```
+- Cada merge ou push para `main` dispara automaticamente o build e deploy na Vercel.
+- As migrações da base de dados são aplicadas via `npx prisma migrate deploy`.
+- Guia detalhado de configuração de DNS, variáveis de ambiente e produção: [`docs/09-deploy.md`](docs/09-deploy.md).
 
-Pára antes o `npm run dev`, porque os dois usam a porta 3000. Esta stack arranca a app, o HTTPS local e o Cloudflare Tunnel para a mesma instância `web`: podes entrar por `https://localhost:3000/canhoes` ou por `https://cachyos-x8664.tail2e04db.ts.net/canhoes`. O contentor `https` termina o TLS local com um certificado interno do Caddy e o túnel encaminha o endereço público para `web:3000`. O token do túnel é lido de `.env.server`.
+## Fluxo de Desenvolvimento e Validação
 
-Não arranques ao mesmo tempo o túnel de `compose.server.yml`: o token do Cloudflare só deve ter uma instância ativa neste PC. Se a stack antiga estiver a correr, pára-a antes:
-
-```bash
-docker compose -p canhoes-server -f compose.server.yml --env-file .env.server down
-docker compose -p canhoesfe --env-file .env.server up -d --build
-```
-
-O contentor `web` lê o `.env`, aplica as migrations com `prisma migrate deploy` (`scripts/docker-start.sh`), corre o seed e arranca o servidor. Em produção o seed só cria os admins de `ADMIN_EMAILS` e o evento, e nunca mexe na fase de um evento que já existe; os dados de demonstração só entram com `SEED_DEMO_DATA=true`. As imagens enviadas ficam no volume `canhoes_uploads`. Dentro do contentor não há login de desenvolvimento: usa Google ou uma conta por convite. Para testar funcionalidades no dia a dia, usa o arranque local acima.
-
-## Produção
-
-O site corre num PC (ou servidor) com `compose.server.yml` e fica público no teu domínio através de um Cloudflare Tunnel, sem abrir portas no router. Cada merge para `main` é instalado sozinho por `scripts/update-server.sh`, com backup da base de dados antes. Guia passo a passo: [`docs/09-deploy.md`](docs/09-deploy.md).
-
-## Fluxo para alterar o projeto e atualizar o Docker
-
-Usa este fluxo sempre que alterares qualquer ficheiro do projeto, incluindo ficheiros `.md`. O Docker público só recebe alterações depois de a versão nova ser enviada para `main` e a imagem ser reconstruída.
+Antes de propor ou submeter alterações para `main`, executa a validação de qualidade:
 
 ### 1. Trabalhar e testar localmente
 
 ```bash
-cd ~/canhoes-server
 npm run dev
 ```
 
 Abre `https://localhost:3000/canhoes`. O HTTPS local usa um certificado autoassinado; aceita o aviso do browser na primeira visita.
 
-Para alterações de código, corre os testes relevantes. Antes de publicar uma alteração normal:
+### 2. Portão de Qualidade
+
+Antes de publicar qualquer alteração:
 
 ```bash
+npm run format:check
 npm run lint
 npx tsc --noEmit
 npm test
+npm run test:component
 npm run knip
 npm run build
 ```
@@ -131,50 +118,16 @@ git commit -m "Describe the change briefly
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ```
 
-### 3. Enviar para o GitHub
+### 3. Enviar para o GitHub e Deploy
 
 ```bash
-git push origin main
+git push origin <tua-branch>
 ```
 
-O `push` não altera o Docker sozinho se o timer de deploy não estiver configurado. O servidor precisa de executar o passo seguinte.
-
-### 4. Atualizar o Docker público
-
-No PC/servidor que corre o site:
-
-```bash
-cd ~/canhoes-server
-scripts/update-server.sh
-```
-
-O script faz backup da base de dados, atualiza para `origin/main`, reconstrói a imagem, recria os containers, aplica migrations e verifica `/api/health`.
-
-Se o checkout já estiver no commit certo, mas quiseres reconstruir na mesma:
-
-```bash
-scripts/update-server.sh --force
-```
-
-Para acompanhar:
-
-```bash
-docker compose -p canhoes-server -f compose.server.yml --env-file .env.server ps
-docker logs --tail 100 canhoes-server-web
-curl -fsS https://cachyos-x8664.tail2e04db.ts.net/api/health
-```
-
-O deploy não apaga posts, votos ou uploads: a base de dados e o volume de uploads são persistentes. Antes de cada deploy o script cria um backup PostgreSQL em `backups/`.
-
-### 5. Confirmar no browser
-
-Depois de o health check passar, abre:
-
-```text
-https://cachyos-x8664.tail2e04db.ts.net/canhoes
-```
-
-Faz `Ctrl+Shift+R` se o browser ainda mostrar assets antigos. Para alterações de autenticação, confirma também que o `.env.server` continua com o `NEXTAUTH_URL` público correto.
+Ao abrir e fundir o Pull Request em `main`:
+- A Vercel deteta a alteração e executa o build de produção (`npm run build`).
+- As migrações da base de dados são aplicadas na base de dados Neon (`npx prisma migrate deploy`).
+- A aplicação fica disponível em `https://canhoes.lol`.
 
 ## Base de dados
 
@@ -208,9 +161,8 @@ Por omissão os ficheiros ficam em `.data/uploads`, fora do Git; `UPLOADS_DIR` m
 | `components/` | Interface partilhada: `chrome` (cabeçalho, dock e menu), `animations`, `providers` (sessão e TanStack Query) e `ui` (componentes base) |
 | `lib/` | Lógica: `domains/<área>` (componentes, hooks, regras e serviços de cada área), `api` (cliente, guards, rotas, rate limit), `repositories`, `zod`, `storage` e `logger.ts` |
 | `prisma/` | Schema, migrations e seed |
-| `scripts/` | Base de dados local (`db.mjs`), arranque do contentor e deploy no servidor |
+| `scripts/` | Base de dados local (`db.mjs`), scripts de seed e utilitários de limpeza |
 | `tests/` | `integration/` (route handlers contra PostgreSQL) e `component/` (fixtures, MSW e mocks dos testes de componentes) |
-| `deploy/systemd/` | Timer que instala cada merge no servidor |
 | `docs/` | Negócio, requisitos, arquitetura e operação |
 | `public/` | Ícone e imagem de partilha |
 | `.github/`, `.zap/` | CI, Dependabot e as regras do scan de segurança |
@@ -256,4 +208,4 @@ No GitHub, cada push mostra no separador **Actions** qual destas verificações 
 
 Os testes de integração chamam os route handlers contra uma base de dados real, que é limpa antes de cada teste; por isso só correm numa base de dados cujo nome acaba em `_test` (`TEST_DATABASE_URL`, por omissão `canhoes_test` em localhost:5433). O `npm run db:up` cria-a. Se mudaste `POSTGRES_PASSWORD` no `.env`, define também `TEST_DATABASE_URL` com essa password.
 
-O CI (`.github/workflows/ci.yml`) corre tudo isto em cada push e PR, mais `shellcheck` aos scripts, `npm audit` às dependências de produção, um scan OWASP ZAP à app a correr e um deploy de teste com `compose.server.yml`.
+O CI (`.github/workflows/ci.yml`) corre tudo isto em cada push e PR, mais `shellcheck` aos scripts, `npm audit` às dependências de produção e um scan OWASP ZAP à app.

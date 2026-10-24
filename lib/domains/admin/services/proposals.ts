@@ -1,7 +1,7 @@
+import type { CategoryProposal, MeasureProposal, Prisma, ProposalStatus } from "@/lib/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { ProposalStatusSchema } from "@/lib/zod/common";
 import type { PagedResult, CategoryProposalDto, MeasureProposalDto } from "@/lib/api/types";
-import { createCategory } from "./categories";
 
 /*
  * Moderação do que os membros propõem: novas categorias dos prémios e medidas da gala. Cada proposta
@@ -11,6 +11,17 @@ import { createCategory } from "./categories";
 /** Só a passagem para `approved` cria a categoria ou a medida, por isso aprovar duas vezes cria uma só. */
 function isNewlyApproved(currentStatus: string, nextStatus: string | undefined) {
   return nextStatus === "approved" && currentStatus !== "approved";
+}
+
+function toCategoryProposalDto(proposal: CategoryProposal): CategoryProposalDto {
+  return {
+    id: proposal.id,
+    name: proposal.name,
+    kind: proposal.kind,
+    description: proposal.description,
+    status: ProposalStatusSchema.parse(proposal.status),
+    createdAtUtc: proposal.createdAtUtc.toISOString(),
+  };
 }
 
 /** Propostas de categorias do evento, das mais recentes para as mais antigas, com filtro opcional por estado. */
@@ -35,14 +46,7 @@ export async function getCategoryProposals(
   ]);
 
   return {
-    items: items.map((p) => ({
-      id: p.id,
-      name: p.name,
-      kind: p.kind,
-      description: p.description,
-      status: ProposalStatusSchema.parse(p.status),
-      createdAtUtc: p.createdAtUtc.toISOString(),
-    })),
+    items: items.map(toCategoryProposalDto),
     total,
     skip,
     take,
@@ -50,57 +54,97 @@ export async function getCategoryProposals(
   };
 }
 
+function buildCategoryProposalUpdateData(data: { name?: string; description?: string | null; status?: string }): {
+  name?: string;
+  description?: string | null;
+  status?: ProposalStatus;
+} {
+  const updateData: { name?: string; description?: string | null; status?: ProposalStatus } = {};
+  if (data.name !== undefined) updateData.name = data.name.trim();
+  if (data.description !== undefined) updateData.description = data.description?.trim() ?? null;
+  if (data.status !== undefined) updateData.status = ProposalStatusSchema.parse(data.status);
+  return updateData;
+}
+
+async function createCategoryFromProposal(
+  tx: Prisma.TransactionClient,
+  eventId: string,
+  proposal: CategoryProposal,
+  data: { name?: string; description?: string | null },
+) {
+  const maxSort = await tx.awardCategory.aggregate({
+    where: { eventId },
+    _max: { sortOrder: true },
+  });
+  await tx.awardCategory.create({
+    data: {
+      eventId,
+      name: (data.name ?? proposal.name).trim(),
+      description: (data.description ?? proposal.description)?.trim() ?? null,
+      kind: proposal.kind,
+      sortOrder: (maxSort._max.sortOrder ?? 0) + 1,
+      isActive: true,
+    },
+  });
+}
+
 /**
  * Edita uma proposta de categoria ou muda o seu estado. Aprová-la cria a categoria dos prémios com o
- * nome, tipo e descrição da proposta (possivelmente editados).
+ * nome, tipo e descrição da proposta (possivelmente editados). Transacional.
  */
 export async function updateCategoryProposal(
   eventId: string,
   proposalId: string,
   data: { name?: string; description?: string | null; status?: string },
 ): Promise<CategoryProposalDto | null> {
-  const proposal = await prisma.categoryProposal.findFirst({ where: { id: proposalId, eventId } });
-  if (!proposal) return null;
+  return prisma.$transaction(async (tx) => {
+    const proposal = await tx.categoryProposal.findFirst({ where: { id: proposalId, eventId } });
+    if (!proposal) return null;
 
-  // Só os campos enviados são alterados.
-  const updateData: Record<string, unknown> = {};
-  if (data.name !== undefined) updateData.name = data.name.trim();
-  if (data.description !== undefined) updateData.description = data.description?.trim() ?? null;
-  if (data.status !== undefined) updateData.status = data.status;
+    if (isNewlyApproved(proposal.status, data.status)) {
+      await createCategoryFromProposal(tx, eventId, proposal, data);
+    }
 
-  // Ao aprovar pela primeira vez, a proposta passa a ser uma categoria.
-  if (isNewlyApproved(proposal.status, data.status)) {
-    await createCategory(eventId, {
-      name: data.name ?? proposal.name,
-      kind: proposal.kind,
-      description: data.description ?? proposal.description,
+    const updated = await tx.categoryProposal.update({
+      where: { id: proposalId },
+      data: buildCategoryProposalUpdateData(data),
     });
-  }
 
-  const updated = await prisma.categoryProposal.update({
-    where: { id: proposalId },
-    data: updateData,
+    return toCategoryProposalDto(updated);
   });
-
-  return {
-    id: updated.id,
-    name: updated.name,
-    kind: updated.kind,
-    description: updated.description,
-    status: ProposalStatusSchema.parse(updated.status),
-    createdAtUtc: updated.createdAtUtc.toISOString(),
-  };
 }
 
 /** Apaga uma proposta de categoria deste evento; false quando não existe aqui. */
 export async function deleteCategoryProposal(eventId: string, proposalId: string): Promise<boolean> {
-  const proposal = await prisma.categoryProposal.findFirst({ where: { id: proposalId, eventId } });
+  const proposal = await prisma.categoryProposal.findFirst({
+    where: { id: proposalId, eventId },
+    select: { id: true },
+  });
   if (!proposal) return false;
   await prisma.categoryProposal.delete({ where: { id: proposalId } });
   return true;
 }
 
 // ─────────────── PROPOSTAS DE MEDIDAS ───────────────
+
+function toMeasureProposalDto(proposal: MeasureProposal): MeasureProposalDto {
+  return {
+    id: proposal.id,
+    text: proposal.text,
+    status: ProposalStatusSchema.parse(proposal.status),
+    createdAtUtc: proposal.createdAtUtc.toISOString(),
+  };
+}
+
+function buildMeasureProposalUpdateData(data: { text?: string; status?: string }): {
+  text?: string;
+  status?: ProposalStatus;
+} {
+  const updateData: { text?: string; status?: ProposalStatus } = {};
+  if (data.text !== undefined) updateData.text = data.text.trim();
+  if (data.status !== undefined) updateData.status = ProposalStatusSchema.parse(data.status);
+  return updateData;
+}
 
 /** Propostas de medidas do evento, das mais recentes para as mais antigas, com filtro opcional por estado. */
 export async function getMeasureProposals(
@@ -124,12 +168,7 @@ export async function getMeasureProposals(
   ]);
 
   return {
-    items: items.map((p) => ({
-      id: p.id,
-      text: p.text,
-      status: ProposalStatusSchema.parse(p.status),
-      createdAtUtc: p.createdAtUtc.toISOString(),
-    })),
+    items: items.map(toMeasureProposalDto),
     total,
     skip,
     take,
@@ -143,34 +182,30 @@ export async function updateMeasureProposal(
   proposalId: string,
   data: { text?: string; status?: string },
 ): Promise<MeasureProposalDto | null> {
-  const proposal = await prisma.measureProposal.findFirst({ where: { id: proposalId, eventId } });
-  if (!proposal) return null;
+  return prisma.$transaction(async (tx) => {
+    const proposal = await tx.measureProposal.findFirst({ where: { id: proposalId, eventId } });
+    if (!proposal) return null;
 
-  // Só os campos enviados são alterados.
-  const updateData: Record<string, unknown> = {};
-  if (data.text !== undefined) updateData.text = data.text.trim();
-  if (data.status !== undefined) updateData.status = data.status;
-
-  // Na mesma transação: atualizar a proposta e, se acabou de ser aprovada, criar a medida.
-  const updated = await prisma.$transaction(async (tx) => {
-    const saved = await tx.measureProposal.update({ where: { id: proposalId }, data: updateData });
     if (isNewlyApproved(proposal.status, data.status)) {
-      await tx.galaMeasure.create({ data: { eventId, text: saved.text, isActive: true } });
+      const text = (data.text ?? proposal.text).trim();
+      await tx.galaMeasure.create({ data: { eventId, text, isActive: true } });
     }
-    return saved;
-  });
 
-  return {
-    id: updated.id,
-    text: updated.text,
-    status: ProposalStatusSchema.parse(updated.status),
-    createdAtUtc: updated.createdAtUtc.toISOString(),
-  };
+    const updated = await tx.measureProposal.update({
+      where: { id: proposalId },
+      data: buildMeasureProposalUpdateData(data),
+    });
+
+    return toMeasureProposalDto(updated);
+  });
 }
 
 /** Apaga uma proposta de medida deste evento; false quando não existe aqui. */
 export async function deleteMeasureProposal(eventId: string, proposalId: string): Promise<boolean> {
-  const proposal = await prisma.measureProposal.findFirst({ where: { id: proposalId, eventId } });
+  const proposal = await prisma.measureProposal.findFirst({
+    where: { id: proposalId, eventId },
+    select: { id: true },
+  });
   if (!proposal) return false;
   await prisma.measureProposal.delete({ where: { id: proposalId } });
   return true;

@@ -34,12 +34,10 @@ describe("canhoesFetch", () => {
     expect(error).toMatchObject({ status: 422, message: "Nome em falta", details: { code: "X" } });
   });
 
-  it("returns null for a refused read unless asked to throw", async () => {
+  it("throws on refused reads by default, returning null only when swallowAuthErrors is true", async () => {
     server.use(http.get("*/api/v1/secret", () => new HttpResponse(null, { status: 403, statusText: "Forbidden" })));
-    await expect(canhoesFetch("v1/secret")).resolves.toBeNull();
-    await expect(canhoesFetch("v1/secret", { canhoes: { throwOnUnauthorized: true } })).rejects.toMatchObject({
-      status: 403,
-    });
+    await expect(canhoesFetch("v1/secret")).rejects.toMatchObject({ status: 403 });
+    await expect(canhoesFetch("v1/secret", { canhoes: { swallowAuthErrors: true } })).resolves.toBeNull();
   });
 
   it.each(["POST", "PUT", "PATCH", "DELETE"])("never reports a refused %s as a success", async (method) => {

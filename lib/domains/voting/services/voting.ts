@@ -61,24 +61,19 @@ export async function getVotingBoard(eventId: string, userId: string): Promise<E
   if (!event) return null;
 
   // Nomes dos membros e os votos já dados por este utilizador.
-  const [memberUserMap, nomineeVotes, userVotes] = await Promise.all([
+  const [memberUserMap, myVotes] = await Promise.all([
     loadUsersById(
       members.map((m) => m.userId),
       (where) => prisma.user.findMany({ where, select: { id: true, displayName: true, email: true } }),
     ),
     prisma.vote.findMany({
       where: { eventId, userId, categoryId: { in: categoryIds(categories) } },
-      select: { categoryId: true, nomineeId: true },
-    }),
-    prisma.userVote.findMany({
-      where: { eventId, voterUserId: userId, categoryId: { in: categoryIds(categories) } },
-      select: { categoryId: true, targetUserId: true },
+      select: { categoryId: true, nomineeId: true, targetUserId: true },
     }),
   ]);
 
   // Escolha atual por categoria.
-  const nomineeVoteMap = new Map(nomineeVotes.map((v) => [v.categoryId, v.nomineeId]));
-  const userVoteMap = new Map(userVotes.map((v) => [v.categoryId, v.targetUserId]));
+  const myVoteMap = new Map(myVotes.map((v) => [v.categoryId, v.nomineeId ?? v.targetUserId ?? null]));
 
   const memberOptions = toMemberOptions(members, memberUserMap);
   const categoriesDto = categories.map((category): EventVotingCategoryDto => {
@@ -90,7 +85,7 @@ export async function getVotingBoard(eventId: string, userId: string): Promise<E
       description: category.description,
       voteQuestion: category.voteQuestion,
       options: isPersonCategory ? memberOptions : toNomineeOptions(nominees, category.id),
-      myOptionId: (isPersonCategory ? userVoteMap : nomineeVoteMap).get(category.id) ?? null,
+      myOptionId: myVoteMap.get(category.id) ?? null,
     };
   });
 
@@ -158,10 +153,10 @@ export async function castVote(
     });
     if (!target || target.role === "admin") throw new VoteError("INVALID_SELECTION");
 
-    await prisma.userVote.upsert({
-      where: { categoryId_voterUserId: { categoryId, voterUserId: userId } },
-      update: { targetUserId: selectionId },
-      create: { eventId, categoryId, voterUserId: userId, targetUserId: selectionId },
+    await prisma.vote.upsert({
+      where: { categoryId_userId: { categoryId, userId } },
+      update: { targetUserId: selectionId, nomineeId: null },
+      create: { eventId, categoryId, userId, targetUserId: selectionId },
     });
   } else {
     const nominee = await prisma.nominee.findFirst({
@@ -172,7 +167,7 @@ export async function castVote(
 
     await prisma.vote.upsert({
       where: { categoryId_userId: { categoryId, userId } },
-      update: { nomineeId: selectionId },
+      update: { nomineeId: selectionId, targetUserId: null },
       create: { eventId, categoryId, userId, nomineeId: selectionId },
     });
   }

@@ -44,65 +44,36 @@ type HubFeedState = ReturnType<typeof useHubFeedModuleState>;
 
 /** A lista de posts, ligada ao estado do mural. */
 function HubFeedStateList({ state }: Readonly<{ state: HubFeedState }>) {
-  const {
-    posts,
-    remainingPostsCount,
-    hasMore,
-    isFetchingNextPage,
-    openComments,
-    commentDrafts,
-    replyingTo,
-    toggleReaction,
-    toggleDownvote,
-    votePoll,
-    toggleComments,
-    addComment,
-    deleteComment,
-    setCommentDraft,
-    setReplyingTo,
-    adminPin,
-    adminMovePinned,
-    adminDelete,
-    voteGatheringDate,
-    confirmGatheringDate,
-    submitGatheringRsvp,
-    currentUserId,
-    currentUserImage,
-    currentUserName,
-    isAdmin,
-    sentinelRef,
-  } = state;
-
   return (
     <HubFeedList
-      posts={posts}
-      remainingPostsCount={remainingPostsCount}
+      posts={state.posts}
+      remainingPostsCount={state.remainingPostsCount}
       eventId={state.eventId ?? ""}
-      isAdmin={isAdmin}
-      hasMore={hasMore}
-      isFetchingNextPage={isFetchingNextPage}
-      currentUserId={currentUserId}
-      currentUserImage={currentUserImage}
-      currentUserName={currentUserName}
-      openComments={openComments}
-      commentDrafts={commentDrafts}
-      replyingTo={replyingTo}
+      isAdmin={state.isAdmin}
+      hasMore={state.hasMore}
+      isFetchingNextPage={state.isFetchingNextPage}
+      currentUserId={state.currentUserId}
+      currentUserImage={state.currentUserImage}
+      currentUserName={state.currentUserName}
+      openComments={state.openComments}
+      commentDrafts={state.commentDrafts}
+      replyingTo={state.replyingTo}
       onLoadMore={state.loadMore}
-      onToggleReaction={toggleReaction}
-      onToggleDownvote={toggleDownvote}
-      onToggleComments={toggleComments}
-      onVotePoll={votePoll}
-      onAddComment={addComment}
-      onDeleteComment={deleteComment}
-      onCommentDraftChange={setCommentDraft}
-      onAdminPin={adminPin}
-      onAdminMovePinned={adminMovePinned}
-      onAdminDelete={adminDelete}
-      onVoteGatheringDate={voteGatheringDate}
-      onConfirmGatheringDate={confirmGatheringDate}
-      onGatheringRsvp={submitGatheringRsvp}
-      setReplyingTo={setReplyingTo}
-      sentinelRef={sentinelRef}
+      onToggleReaction={state.toggleReaction}
+      onToggleDownvote={state.toggleDownvote}
+      onToggleComments={state.toggleComments}
+      onVotePoll={state.votePoll}
+      onAddComment={state.addComment}
+      onDeleteComment={state.deleteComment}
+      onCommentDraftChange={state.setCommentDraft}
+      onAdminPin={state.adminPin}
+      onAdminMovePinned={state.adminMovePinned}
+      onAdminDelete={state.adminDelete}
+      onVoteGatheringDate={state.voteGatheringDate}
+      onConfirmGatheringDate={state.confirmGatheringDate}
+      onGatheringRsvp={state.submitGatheringRsvp}
+      setReplyingTo={state.setReplyingTo}
+      sentinelRef={state.sentinelRef}
     />
   );
 }
@@ -135,7 +106,6 @@ function HubFeedModuleView({ state }: Readonly<{ state: HubFeedState }>) {
 function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: EventActiveContextDto | null) {
   const { data: session } = useSession();
   const { user } = useAuth();
-  const currentUserId = user?.id ?? null;
   const isAdmin = useIsAdmin();
   const { event: activeEvent } = useEventOverview(initialContext);
   const eventId = activeEvent?.id ?? null;
@@ -145,17 +115,14 @@ function useHubFeedModuleState(initialData?: FeedInfiniteData, initialContext?: 
     isFetchingNextPage: feed.isFetchingNextPage,
     onLoadMore: feed.loadMore,
   });
-  const currentUserName = getSessionUserName(session?.user);
-  const currentUserImage = session?.user?.image ?? null;
 
   return {
     ...feed,
     eventId,
-    currentUserId,
-    currentUserImage,
-    currentUserName,
+    currentUserId: user?.id ?? null,
+    currentUserImage: session?.user?.image ?? null,
+    currentUserName: getSessionUserName(session?.user),
     isAdmin,
-    loadMore: feed.loadMore,
     sentinelRef,
   };
 }

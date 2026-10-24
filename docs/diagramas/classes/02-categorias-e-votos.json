@@ -524,32 +524,15 @@
         "attributes": [],
         "methods": []
       },
-      "e2aa5595-dc63-4b66-b7a2-653e47d9837e": {
-        "id": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
-        "name": "UserVote",
-        "type": "Class",
-        "owner": null,
-        "bounds": {
-          "x": -570,
-          "y": 60,
-          "width": 170,
-          "height": 100
-        },
-        "attributes": [
-          "cce670f0-99ac-41c1-9f81-ed903a6466d3",
-          "6a944265-fdb6-4251-8106-7da42eba9e74"
-        ],
-        "methods": []
-      },
       "cce670f0-99ac-41c1-9f81-ed903a6466d3": {
         "id": "cce670f0-99ac-41c1-9f81-ed903a6466d3",
         "name": "votedFor",
         "type": "ClassAttribute",
-        "owner": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
+        "owner": "c84f4102-b6ac-41fc-a574-4fe40a9fb7a7",
         "bounds": {
-          "x": -569.5,
-          "y": 130,
-          "width": 169,
+          "x": -259.5,
+          "y": 410,
+          "width": 159,
           "height": 30
         },
         "code": "",
@@ -559,30 +542,7 @@
         "stateMachineId": "",
         "quantumCircuitId": "",
         "neuralNetworkId": "",
-        "isOptional": false,
-        "isDerived": false,
-        "isId": false,
-        "isExternalId": false
-      },
-      "6a944265-fdb6-4251-8106-7da42eba9e74": {
-        "id": "6a944265-fdb6-4251-8106-7da42eba9e74",
-        "name": "voter",
-        "type": "ClassAttribute",
-        "owner": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
-        "bounds": {
-          "x": -569.5,
-          "y": 100,
-          "width": 169,
-          "height": 30
-        },
-        "code": "",
-        "visibility": "public",
-        "attributeType": "User",
-        "implementationType": "none",
-        "stateMachineId": "",
-        "quantumCircuitId": "",
-        "neuralNetworkId": "",
-        "isOptional": false,
+        "isOptional": true,
         "isDerived": false,
         "isId": false,
         "isExternalId": false
@@ -596,10 +556,11 @@
           "x": -260,
           "y": 340,
           "width": 160,
-          "height": 70
+          "height": 100
         },
         "attributes": [
-          "a456f3d3-b327-438a-9c43-5aa4b2b22752"
+          "a456f3d3-b327-438a-9c43-5aa4b2b22752",
+          "cce670f0-99ac-41c1-9f81-ed903a6466d3"
         ],
         "methods": []
       },
@@ -687,7 +648,7 @@
       },
       "f05ab88a-9375-4b5b-bb1e-fe879d775f63": {
         "id": "f05ab88a-9375-4b5b-bb1e-fe879d775f63",
-        "name": "AwardCategory_userVotes",
+        "name": "AwardCategory_votes",
         "type": "ClassBidirectional",
         "owner": null,
         "bounds": {
@@ -721,7 +682,7 @@
         },
         "target": {
           "direction": "Up",
-          "element": "e2aa5595-dc63-4b66-b7a2-653e47d9837e",
+          "element": "c84f4102-b6ac-41fc-a574-4fe40a9fb7a7",
           "multiplicity": "0..*",
           "role": "",
           "navigable": true,

@@ -44,10 +44,9 @@ export async function getResults(eventId: string): Promise<PublicCategoryResultD
     orderBy: { sortOrder: "asc" },
   });
 
-  // Carrega tudo o que é preciso de uma vez: votos nas pessoas, votos nos nomeados, nomeados aprovados e membros.
-  const [userVotes, nomineeVotes, nominees, members] = await Promise.all([
-    prisma.userVote.findMany({ where: { eventId }, select: { categoryId: true, targetUserId: true } }),
-    prisma.vote.findMany({ where: { eventId }, select: { categoryId: true, nomineeId: true } }),
+  // Carrega tudo o que é preciso de uma vez: votos unificados, nomeados aprovados e membros.
+  const [allVotes, nominees, members] = await Promise.all([
+    prisma.vote.findMany({ where: { eventId }, select: { categoryId: true, nomineeId: true, targetUserId: true } }),
     prisma.nominee.findMany({ where: { eventId, status: "approved" } }),
     prisma.eventMember.findMany({ where: { eventId }, select: { userId: true } }),
   ]);
@@ -66,17 +65,18 @@ export async function getResults(eventId: string): Promise<PublicCategoryResultD
   );
 
   // Cada categoria é ordenada com os votos e candidatos do seu tipo.
-  return categories.map((category) =>
-    category.kind === CATEGORY_KIND.USER_VOTE
+  return categories.map((category) => {
+    const categoryVotes = allVotes.filter((vote) => vote.categoryId === category.id);
+    return category.kind === CATEGORY_KIND.USER_VOTE
       ? rankCategory(
           category,
-          userVotes.filter((vote) => vote.categoryId === category.id).map((vote) => vote.targetUserId),
+          categoryVotes.map((vote) => vote.targetUserId).filter((id): id is string => Boolean(id)),
           people,
         )
       : rankCategory(
           category,
-          nomineeVotes.filter((vote) => vote.categoryId === category.id).map((vote) => vote.nomineeId),
+          categoryVotes.map((vote) => vote.nomineeId).filter((id): id is string => Boolean(id)),
           nomineeCandidates,
-        ),
-  );
+        );
+  });
 }

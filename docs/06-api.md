@@ -19,7 +19,8 @@ Legenda da coluna "Quem":
 |---|---|---|---|
 | GET, POST | `/api/auth/[...nextauth]` | público | NextAuth (`lib/domains/auth/services/auth.ts`) |
 | POST | `/api/auth/register` | público | `registerWithInvitation` |
-| POST | `/api/admin/invites` | admin | `createInvitation` |
+| GET, POST | `/api/admin/invites` | admin | `listInvitations`, `createInvitation` (com envio de email Resend) |
+| DELETE | `/api/admin/invites/[inviteId]` | admin | `cancelInvitation` |
 | GET | `/api/health` | público | Estado da base de dados (200 ou 503) |
 | POST | `/api/telemetry/log` | público | Erros do browser em produção, para o log do servidor |
 | GET | `/api/uploads/[...path]` | público | `readUpload` (também servido em `/uploads/*`) |

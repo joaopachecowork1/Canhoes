@@ -125,7 +125,8 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
       if (result.emailSent) {
         toast.success(copy.sentAndGenerated);
       } else {
-        toast.success(copy.generatedOnly);
+        const warningMsg = result.emailReason ? `${copy.generatedOnly}: ${result.emailReason}` : copy.generatedOnly;
+        toast.warning(warningMsg);
       }
       void queryClient.invalidateQueries({ queryKey: queryKeys.admin.invites(eventId) });
       setEmail("");

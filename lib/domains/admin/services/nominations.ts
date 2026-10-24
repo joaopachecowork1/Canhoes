@@ -1,4 +1,4 @@
-import type { Nominee } from "@/lib/generated/prisma/client";
+import type { Nominee, ProposalStatus } from "@/lib/generated/prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { ProposalStatusSchema } from "@/lib/zod/common";
@@ -68,8 +68,9 @@ export async function getAdminNominationsPaged(
   skip = 0,
   take = 50,
 ): Promise<AdminNomineesPagedDto> {
-  // Sem estado, lista todas.
-  const where = status ? { eventId, status } : { eventId };
+  // Sem estado válido, lista todas.
+  const parsedStatus = ProposalStatusSchema.safeParse(status);
+  const where = parsedStatus.success ? { eventId, status: parsedStatus.data as ProposalStatus } : { eventId };
   const [total, nominees] = await Promise.all([
     prisma.nominee.count({ where }),
     prisma.nominee.findMany({ where, orderBy: { createdAtUtc: "desc" }, skip, take }),

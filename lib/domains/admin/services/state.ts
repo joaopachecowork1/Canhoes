@@ -28,7 +28,6 @@ import { resetSecretSantaDraw } from "./secretSanta";
 function readSwitches(
   state: {
     nominationsVisible: boolean;
-    resultsVisible: boolean;
     hasSecretSantaDraw: boolean;
     moduleVisibilityJson: unknown;
   } | null,
@@ -36,7 +35,7 @@ function readSwitches(
   const saved = readModuleSwitches(state?.moduleVisibilityJson);
   return {
     nominationsVisible: state?.nominationsVisible ?? true,
-    resultsVisible: state?.resultsVisible ?? false,
+    resultsVisible: false,
     hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
     // Uma área que nunca foi desligada está ligada.
     moduleVisibility: Object.fromEntries(
@@ -75,7 +74,6 @@ export async function updateAdminState(
   // O Prisma deixa os campos `undefined` como estão, por isso um interruptor omitido mantém o valor.
   const changes = {
     nominationsVisible: data.nominationsVisible,
-    resultsVisible: data.resultsVisible,
     moduleVisibilityJson: data.moduleVisibility,
   };
   // Upsert: o estado do evento é criado na primeira vez que o admin mexe nos interruptores.
@@ -83,9 +81,7 @@ export async function updateAdminState(
     where: { eventId },
     create: {
       eventId,
-      phase: "gala",
       nominationsVisible: data.nominationsVisible ?? true,
-      resultsVisible: data.resultsVisible ?? false,
       moduleVisibilityJson: data.moduleVisibility,
     },
     update: changes,
@@ -93,14 +89,6 @@ export async function updateAdminState(
 
   return getAdminState(eventId);
 }
-
-/** O nome antigo de `CanhoesEventState.phase` para cada fase, que continua a ser mantido em sincronia. */
-const LEGACY_PHASE_NAMES: Record<PhaseType, string> = {
-  DRAW: "locked",
-  PROPOSALS: "nominations",
-  VOTING: "voting",
-  RESULTS: "gala",
-};
 
 /** Uma fase que o admin abre pela primeira vez fica aberta um ano, para as datas nunca fecharem a votação de surpresa. */
 const NEW_PHASE_WINDOW_MS = 365 * 24 * 60 * 60 * 1000;
@@ -129,7 +117,7 @@ export async function updateAdminPhase(eventId: string, phaseType: PhaseType): P
   ]);
 
   // Mantém o estado do evento coerente com a fase: o que está visível depende dela.
-  const phaseState = { phase: LEGACY_PHASE_NAMES[phaseType], ...phaseSwitches(phaseType) };
+  const phaseState = phaseSwitches(phaseType);
 
   await prisma.canhoesEventState.upsert({
     where: { eventId },
@@ -175,9 +163,7 @@ export async function updateEventModules(
     where: { eventId },
     create: {
       eventId,
-      phase: "gala",
       nominationsVisible: true,
-      resultsVisible: false,
       moduleVisibilityJson: nextModules,
     },
     update: { moduleVisibilityJson: nextModules },

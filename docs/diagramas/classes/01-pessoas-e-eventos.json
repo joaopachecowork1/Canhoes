@@ -22,13 +22,12 @@
           "x": 100,
           "y": 135,
           "width": 260,
-          "height": 160
+          "height": 130
         },
         "attributes": [
           "46ff2a9a-962f-4554-a05c-a6492bcc53d0",
           "96ecf73d-8465-4ee0-8318-55e599bbf20d",
-          "387276b1-d2c0-4825-85be-9d685cfb58b5",
-          "9736f856-5e37-422b-aa90-bf25f68268e1"
+          "387276b1-d2c0-4825-85be-9d685cfb58b5"
         ],
         "methods": []
       },
@@ -86,29 +85,6 @@
         "bounds": {
           "x": 100.5,
           "y": 235.5,
-          "width": 259,
-          "height": 30
-        },
-        "code": "",
-        "visibility": "public",
-        "attributeType": "bool",
-        "implementationType": "none",
-        "stateMachineId": "",
-        "quantumCircuitId": "",
-        "neuralNetworkId": "",
-        "isOptional": false,
-        "isDerived": false,
-        "isId": false,
-        "isExternalId": false
-      },
-      "9736f856-5e37-422b-aa90-bf25f68268e1": {
-        "id": "9736f856-5e37-422b-aa90-bf25f68268e1",
-        "name": "resultsVisible",
-        "type": "ClassAttribute",
-        "owner": "62a6a449-4a42-40fd-9478-438693889f02",
-        "bounds": {
-          "x": 100.5,
-          "y": 265.5,
           "width": 259,
           "height": 30
         },
@@ -655,13 +631,14 @@
           "x": -520,
           "y": 135,
           "width": 250,
-          "height": 160
+          "height": 190
         },
         "attributes": [
           "ea200308-c385-406d-bd25-fb5b56ca07b5",
           "1feaa003-7657-4932-9ab5-cabcd361f097",
           "e988dc79-9217-48a4-b49a-46ca8253cb80",
-          "4691d57c-07ba-4ee4-8a36-b992fc5fec35"
+          "4691d57c-07ba-4ee4-8a36-b992fc5fec35",
+          "2b8d0a21-7170-4b8c-b097-f58c734da251"
         ],
         "methods": []
       },
@@ -753,6 +730,29 @@
         "quantumCircuitId": "",
         "neuralNetworkId": "",
         "isOptional": true,
+        "isDerived": false,
+        "isId": false,
+        "isExternalId": false
+      },
+      "2b8d0a21-7170-4b8c-b097-f58c734da251": {
+        "id": "2b8d0a21-7170-4b8c-b097-f58c734da251",
+        "name": "role",
+        "type": "ClassAttribute",
+        "owner": "36374703-592f-476c-9d69-3e92e8996c32",
+        "bounds": {
+          "x": -519.5,
+          "y": 295,
+          "width": 249,
+          "height": 30
+        },
+        "code": "",
+        "visibility": "public",
+        "attributeType": "str",
+        "implementationType": "none",
+        "stateMachineId": "",
+        "quantumCircuitId": "",
+        "neuralNetworkId": "",
+        "isOptional": false,
         "isDerived": false,
         "isId": false,
         "isExternalId": false
