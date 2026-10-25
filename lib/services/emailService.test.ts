@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { sendInvitationEmail } from "./emailService";
+import { buildInvitationEmailHtml, sendInvitationEmail } from "./emailService";
 
 describe("emailService", () => {
   const originalEnv = process.env;
@@ -51,7 +51,7 @@ describe("emailService", () => {
         headers: expect.objectContaining({
           Authorization: "Bearer re_test_123",
         }),
-        body: expect.stringContaining("Convite: Canhões do Ano 2026"),
+        body: expect.stringContaining("não é uma burla"),
       }),
     );
   });
@@ -73,5 +73,32 @@ describe("emailService", () => {
     });
 
     expect(result).toEqual({ sent: false, reason: "Forbidden" });
+  });
+
+  describe("buildInvitationEmailHtml", () => {
+    const base = { inviteUrl: "https://canhoes.lol/canhoes/register?token=abc", role: "participant" as const };
+
+    it("usa as cores da caderneta e o link do convite no botão", () => {
+      const html = buildInvitationEmailHtml({ ...base, eventName: "Canhões do Ano 2026" });
+
+      expect(html).toContain("#170d22");
+      expect(html).toContain("#2fbf71");
+      expect(html).toContain(`href="${base.inviteUrl}"`);
+    });
+
+    it("mostra um papel diferente para admins", () => {
+      const member = buildInvitationEmailHtml({ ...base, eventName: "X" });
+      const admin = buildInvitationEmailHtml({ ...base, role: "admin", eventName: "X" });
+
+      expect(admin).not.toBe(member);
+      expect(admin).toContain("Admin");
+    });
+
+    it("escapa o nome do evento", () => {
+      const html = buildInvitationEmailHtml({ ...base, eventName: "<script>alert(1)</script>" });
+
+      expect(html).not.toContain("<script>");
+      expect(html).toContain("&lt;script&gt;");
+    });
   });
 });

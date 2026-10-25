@@ -29,13 +29,21 @@ function sweepExpired(now: number) {
 
 /** Descobre o IP do cliente pelos cabeçalhos do proxy, ou "unknown" quando não há nenhum. */
 function getClientIp(request: { headers: Headers }): string {
-  // Atrás do túnel da Cloudflare este cabeçalho é posto pela própria Cloudflare; o x-forwarded-for começa com o que o cliente enviar.
-  // Em qualquer outro lado qualquer cliente o pode enviar, por isso só se acredita com TRUST_CF_CONNECTING_IP=true.
+  // Atrás do túnel da Cloudflare este cabeçalho é posto pela própria Cloudflare; só se acredita com TRUST_CF_CONNECTING_IP=true.
   const cloudflareIp = process.env.TRUST_CF_CONNECTING_IP === "true" ? request.headers.get("cf-connecting-ip") : null;
   if (cloudflareIp) return cloudflareIp;
+
+  // Na Vercel, x-vercel-forwarded-for é injetado com o IP de origem pelo edge da plataforma.
+  const vercelIp = request.headers.get("x-vercel-forwarded-for");
+  if (vercelIp) return vercelIp.split(",")[0]?.trim() || "unknown";
+
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) return forwarded.split(",")[0]?.trim() || "unknown";
-  return request.headers.get("x-real-ip") || "unknown";
+
+  return "unknown";
 }
 
 /** Conta um pedido em `key` e lança um 429 quando o limite da política se esgota na janela atual. */

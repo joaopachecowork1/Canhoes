@@ -12,7 +12,21 @@ export type SendEmailResult = {
   reason?: string;
 };
 
-function buildInvitationEmailHtml({
+/** Escapa os caracteres que o HTML interpreta, para o nome do evento não partir o email. */
+function escapeHtml(text: string): string {
+  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+const ROLE_LABELS = {
+  participant: "Participante de pleno direito",
+  admin: "Admin (grandes poderes, grandes responsabilidades)",
+} as const;
+
+/**
+ * Monta o HTML do convite no tema "Caderneta de Cromos" (roxo-noite e verde-relva). Os clientes de email
+ * não leem variáveis CSS nem gradientes, por isso as cores de `app/globals.css` vão copiadas em hex.
+ */
+export function buildInvitationEmailHtml({
   inviteUrl,
   role,
   eventName = "Canhões do Ano 2026",
@@ -21,48 +35,55 @@ function buildInvitationEmailHtml({
   role: "participant" | "admin";
   eventName?: string;
 }) {
-  const roleLabel = role === "admin" ? "Administrador" : "Membro Participante";
+  const safeEventName = escapeHtml(eventName);
+  const roleLabel = ROLE_LABELS[role];
 
   return `
 <!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="utf-8">
-  <title>Convite para ${eventName}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Convite para ${safeEventName}</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0c0e12; color: #f1f3f5; margin: 0; padding: 24px; }
-    .card { max-width: 540px; margin: 0 auto; background-color: #161922; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 32px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    body { font-family: 'Atkinson Hyperlegible', Arial, Helvetica, sans-serif; background-color: #170d22; color: #f6f1ff; margin: 0; padding: 24px 12px; }
+    .card { max-width: 540px; margin: 0 auto; background-color: #24163a; border: 1px solid #3d2d5c; border-radius: 16px; padding: 32px 24px; }
     .header { text-align: center; margin-bottom: 24px; }
-    .badge { display: inline-block; background-color: rgba(94, 187, 99, 0.15); color: #72e07b; font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 9999px; border: 1px solid rgba(94, 187, 99, 0.3); text-transform: uppercase; letter-spacing: 0.05em; }
-    h1 { font-size: 22px; font-weight: 700; margin: 16px 0 8px; color: #ffffff; }
-    p { font-size: 15px; line-height: 1.6; color: #a1a7b5; margin: 12px 0; }
+    .badge { display: inline-block; background-color: #2f2050; color: #ffb547; font-size: 12px; font-weight: bold; padding: 4px 12px; border-radius: 9999px; border: 1px dashed #ffb547; text-transform: uppercase; letter-spacing: 0.05em; }
+    h1 { font-family: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif; font-size: 30px; line-height: 1.15; font-weight: 700; margin: 16px 0 8px; color: #f6f1ff; letter-spacing: 0.01em; }
+    p { font-size: 16px; line-height: 1.6; color: #ddd2f0; margin: 12px 0; }
+    .role { background-color: #2f2050; border-radius: 12px; padding: 12px 16px; text-align: center; color: #f6f1ff; font-weight: bold; }
     .btn-container { text-align: center; margin: 32px 0 24px; }
-    .btn { display: inline-block; background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%); color: #ffffff !important; text-decoration: none; font-weight: bold; font-size: 16px; padding: 14px 32px; border-radius: 12px; border: 1px solid #40916c; box-shadow: 0 4px 14px rgba(45, 106, 79, 0.4); }
-    .footer { font-size: 12px; color: #646b7a; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 20px; margin-top: 24px; word-break: break-all; }
-    .link { color: #5ebb63; text-decoration: underline; }
+    .btn { display: inline-block; background-color: #2fbf71; color: #0d1f14 !important; text-decoration: none; font-weight: bold; font-size: 18px; padding: 14px 32px; border-radius: 12px; }
+    .small { font-size: 14px; text-align: center; color: #b8a6d6; }
+    .footer { font-size: 13px; color: #b8a6d6; border-top: 1px solid #3d2d5c; padding-top: 20px; margin-top: 24px; word-break: break-all; }
+    .link { color: #5fe39a; text-decoration: underline; }
   </style>
 </head>
-<body>
+<body bgcolor="#170d22">
   <div class="card">
     <div class="header">
-      <span class="badge">Convite Oficial</span>
-      <h1>${eventName}</h1>
+      <span class="badge">Cromo novo à vista</span>
+      <h1>Foste escolhido para a caderneta!</h1>
     </div>
-    <p>Olá,</p>
-    <p>Foste convidado para te juntares aos <strong>${eventName}</strong> com o perfil de <strong>${roleLabel}</strong>!</p>
-    <p>Aqui poderás acompanhar as publicações do grupo, sugerir e votar nas categorias dos prémios, participar no amigo secreto e votar na grande gala do ano.</p>
-    
+    <p>Olá! 👋</p>
+    <p>Alguém com muito bom gosto (ou pouca memória) achou que mereces um lugar nos <strong>${safeEventName}</strong>. Entras como:</p>
+    <p class="role">${roleLabel}</p>
+    <p>Lá dentro podes postar disparates no feed, propor categorias de prémios, tirar o teu amigo secreto e votar na gala em quem merece (ou em quem te deve dinheiro).</p>
+
     <div class="btn-container">
-      <a href="${inviteUrl}" class="btn">Aceitar Convite e Entrar</a>
+      <a href="${inviteUrl}" class="btn">Colar o meu cromo</a>
     </div>
 
-    <p style="font-size: 13px; text-align: center; color: #8e95a5;">
-      Podes criar a tua conta com palavra-passe ou entrar diretamente com a tua conta Google.
+    <p class="small">
+      Cria conta com palavra-passe ou entra com o Google. Não pedimos cartão de crédito, morada nem NIF. Prometido.
     </p>
 
     <div class="footer">
-      Se o botão acima não funcionar, copia e cola este endereço no teu navegador:<br>
+      O botão fez birra? Acontece aos melhores. Copia este endereço para o navegador:<br>
       <a href="${inviteUrl}" class="link">${inviteUrl}</a>
+      <br><br>
+      Não estavas à espera deste convite? Ignora o email, ninguém vai ficar chateado.
     </div>
   </div>
 </body>
@@ -85,9 +106,13 @@ function parseResendError(status: number, errorData: string): string {
 export async function sendInvitationEmail(input: SendInvitationEmailInput): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim();
   if (!apiKey) {
+    const loggedUrl =
+      process.env.NODE_ENV === "production"
+        ? input.inviteUrl.replace(/token=[^&]+/, "token=[REDACTED]")
+        : input.inviteUrl;
     logger.info("Resend API key not configured. Invitation email skipped (logged):", {
       to: input.to,
-      inviteUrl: input.inviteUrl,
+      inviteUrl: loggedUrl,
     });
     return { sent: false, reason: "NO_API_KEY" };
   }
@@ -110,7 +135,7 @@ export async function sendInvitationEmail(input: SendInvitationEmailInput): Prom
       body: JSON.stringify({
         from,
         to: [input.to],
-        subject: `Convite: ${eventName}`,
+        subject: `🏆 Foste convidado para ${eventName} (não é uma burla)`,
         html,
       }),
       signal: AbortSignal.timeout(8000),

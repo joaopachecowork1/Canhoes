@@ -26,6 +26,9 @@ export const GET = apiRoute<{ path: string[] }>(async (_request, { path }) => {
       headers: {
         "content-type": contentType,
         "cache-control": `public, max-age=${ONE_DAY_IN_SECONDS}, immutable`,
+        "x-content-type-options": "nosniff",
+        "content-security-policy": "default-src 'none'; sandbox",
+        "cross-origin-resource-policy": "same-origin",
       },
     });
   } catch (error) {

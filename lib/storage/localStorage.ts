@@ -43,11 +43,22 @@ function storageRoot() {
   );
 }
 
+// Caracteres permitidos em cada segmento do caminho: letras, números, hífen, underscore e extensão.
+const SEGMENT_PATTERN = /^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9]+)?$/;
+
+/** Confirma que todos os segmentos contêm apenas caracteres seguros. */
+function validateSegments(segments: string[]) {
+  if (segments.length === 0 || segments.some((segment) => !SEGMENT_PATTERN.test(segment))) {
+    throw new UploadValidationError("Invalid upload path.");
+  }
+}
+
 /** Junta os segmentos à pasta de uploads e recusa qualquer caminho que saia dela (por ex. com `..`). */
 function safePath(segments: string[]) {
+  validateSegments(segments);
   const root = storageRoot();
   const target = path.resolve(root, ...segments);
-  if (target !== root && !target.startsWith(`${root}${path.sep}`)) {
+  if (!target.startsWith(`${root}${path.sep}`)) {
     throw new UploadValidationError("Invalid upload path.");
   }
   return target;
@@ -89,6 +100,8 @@ export async function saveUpload(file: File, folders: string[]) {
 
 /** Lê um upload guardado e o seu tipo de conteúdo; o caminho não pode sair de `UPLOADS_DIR`. */
 export async function readUpload(segments: string[]) {
+  validateSegments(segments);
+
   if (isCloudStorageConfigured()) {
     return readCloudUpload(segments.join("/"));
   }
@@ -105,12 +118,13 @@ export async function deleteUpload(url: string) {
   const prefix = "/uploads/";
   if (!url.startsWith(prefix)) return;
   const key = url.slice(prefix.length);
+  const segments = key.split("/").filter(Boolean);
+  if (segments.length === 0 || segments.some((segment) => !SEGMENT_PATTERN.test(segment))) return;
 
   if (isCloudStorageConfigured()) {
-    await deleteCloudUpload(key);
+    await deleteCloudUpload(segments.join("/"));
     return;
   }
 
-  const segments = key.split("/").filter(Boolean);
   await unlink(safePath(segments)).catch(() => undefined);
 }

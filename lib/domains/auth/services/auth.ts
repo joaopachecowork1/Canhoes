@@ -39,11 +39,16 @@ function isLoginThrottled(email: string, requestHeaders: Record<string, unknown>
   }
 }
 
+// Hash bcrypt fictício para garantir tempo de comparação constante e evitar ataques de temporização/enumeração.
+const DUMMY_HASH = "$2a$10$e8Za3L8W2u9r7N8y4gK5PeX0fN1x8v4L9p7M6m4k1k2k3k4k5k6k7";
+
 /** O utilizador com este email quando a password coincide, senão null (não existe, não tem password ou está errada). */
 async function findUserWithPassword(email: string, password: string) {
   const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-  if (!user?.passwordHash) return null;
-  return (await bcrypt.compare(password, user.passwordHash)) ? user : null;
+  const hash = user?.passwordHash ?? DUMMY_HASH;
+  const isMatch = await bcrypt.compare(password, hash);
+  if (!user || !user.passwordHash) return null;
+  return isMatch ? user : null;
 }
 
 /** Como o utilizador entrou, guardado no token. */

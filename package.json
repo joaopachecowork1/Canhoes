@@ -5,44 +5,64 @@
   "scripts": {
     "// dev": "Inicia o servidor de desenvolvimento Next.js com HTTPS (porta 3000) e Turbopack, essencial para câmara e PWA.",
     "dev": "next dev --experimental-https -p 3000",
+
     "// postinstall": "Gera o cliente tipado Prisma Client automaticamente após qualquer instalação de dependências.",
     "postinstall": "prisma generate",
+
     "// build": "Gera a build de produção otimizada Next.js (mesmo teste que a Vercel corre no deploy).",
     "build": "next build",
+
     "// lint": "Verifica conformidade estática de código com ESLint e regras SonarJS sem erros nem avisos.",
     "lint": "eslint",
+
     "// format": "Formata todo o código fonte do projeto segundo os padrões do Prettier.",
     "format": "prettier --write \"**/*.{ts,tsx,mjs,cjs}\"",
+
     "// format:check": "Valida se os ficheiros cumprem a formatação Prettier (usado no CI e gates de qualidade).",
     "format:check": "prettier --check \"**/*.{ts,tsx,mjs,cjs}\"",
+
     "// test": "Executa a suite de testes unitários rápidos de regras de negócio com Vitest.",
     "test": "vitest run --project unit",
+
     "// test:component": "Executa os mais de 370 testes de componentes React e hooks com jsdom e MSW.",
     "test:component": "vitest run --project component",
+
     "// test:coverage": "Mede a cobertura de código de branches, funções e linhas contra o limiar mínimo.",
     "test:coverage": "vitest run --coverage",
+
     "// test:integration": "Executa testes de integração de route handlers contra base PostgreSQL de testes dedicada.",
     "test:integration": "vitest run --project integration",
+
     "// test:e2e": "Executa os testes end-to-end automatizados no browser com Playwright.",
     "test:e2e": "playwright test",
+
     "// knip": "Audita e previne código morto, ficheiros órfãos, tipos e dependências não utilizadas.",
     "knip": "knip",
+
     "// db:up": "Inicia o contentor PostgreSQL local (Docker/Podman) na porta 5433 e prepara a base canhoes_test.",
     "db:up": "node scripts/db.mjs up",
+
     "// db:down": "Para o contentor PostgreSQL local, mantendo intacto o volume persistente de dados.",
     "db:down": "node scripts/db.mjs down",
+
     "// db:migrate": "Aplica as migrações SQL pendentes do Prisma de forma segura e não destrutiva (prisma migrate deploy).",
     "db:migrate": "prisma migrate deploy",
+
     "// db:baseline": "Regista a migração inicial como aplicada numa base de dados pré-existente sem a recriar.",
     "db:baseline": "node scripts/db.mjs baseline",
+
     "// db:seed": "Popula a base de dados com o evento, administradores e dados de demonstração (se dev).",
     "db:seed": "prisma db seed",
+
     "// db:clean-prod": "Limpa atomicamente dados falsos de teste e inicializa a base de dados de produção limpa e pronta para convites.",
     "db:clean-prod": "tsx scripts/clean-prod.mjs",
+
     "// db:backup": "Gera uma cópia de segurança (pg_dump) da base de dados PostgreSQL para a pasta backups/.",
     "db:backup": "node scripts/db.mjs backup",
+
     "// db:restore": "Restaura a base de dados a partir de um ficheiro de backup gerado.",
     "db:restore": "node scripts/db.mjs restore",
+    
     "// db:studio": "Abre o painel visual web interativo do Prisma Studio para consulta e edição de registos.",
     "db:studio": "prisma studio"
   },

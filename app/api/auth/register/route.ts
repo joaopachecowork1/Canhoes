@@ -6,7 +6,10 @@ import { registerWithInvitation } from "@/lib/domains/auth/services/invitations"
 
 const registerSchema = z.object({
   token: z.string().min(1, "O link de convite está incompleto."),
-  password: z.string().min(8, "A password tem de ter pelo menos 8 caracteres."),
+  password: z
+    .string()
+    .min(8, "A password tem de ter pelo menos 8 caracteres.")
+    .max(72, "A password não pode ter mais de 72 caracteres."),
   displayName: z.string().trim().min(1, "Indica o teu nome."),
 });
 
