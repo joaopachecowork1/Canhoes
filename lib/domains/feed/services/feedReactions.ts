@@ -5,8 +5,8 @@ import { assertPostInEvent } from "./feedAccess";
 
 /* O que os membros fazem a um post do feed: corações (gostos), votos negativos, reações com emoji e votos em sondagens. */
 
-/** Põe ou tira o coração do utilizador num post; gostar tira o voto negativo. */
-export async function toggleLike(eventId: string, postId: string, userId: string): Promise<void> {
+/** Põe ou tira o coração do utilizador num post (gostar tira o voto negativo) e devolve se o post ficou gostado. */
+export async function toggleLike(eventId: string, postId: string, userId: string): Promise<boolean> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostReaction.findFirst({
     where: { postId, userId, emoji: "heart" },
@@ -14,21 +14,23 @@ export async function toggleLike(eventId: string, postId: string, userId: string
 
   if (existing) {
     await prisma.hubPostReaction.delete({ where: { id: existing.id } });
-  } else {
-    // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: já está feito, ignora-se.
-    try {
-      await prisma.hubPostDownvote.deleteMany({ where: { postId, userId } });
-      await prisma.hubPostReaction.create({
-        data: { postId, userId, emoji: "heart" },
-      });
-    } catch (e: unknown) {
-      if ((e as { code?: string }).code !== "P2002") throw e;
-    }
+    return false;
   }
+
+  // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: já está feito, ignora-se.
+  try {
+    await prisma.hubPostDownvote.deleteMany({ where: { postId, userId } });
+    await prisma.hubPostReaction.create({
+      data: { postId, userId, emoji: "heart" },
+    });
+  } catch (e: unknown) {
+    if ((e as { code?: string }).code !== "P2002") throw e;
+  }
+  return true;
 }
 
-/** Põe ou tira o voto negativo do utilizador num post; votar contra tira o coração. */
-export async function toggleDownvote(eventId: string, postId: string, userId: string): Promise<void> {
+/** Põe ou tira o voto negativo do utilizador num post (votar contra tira o coração) e devolve se ficou votado contra. */
+export async function toggleDownvote(eventId: string, postId: string, userId: string): Promise<boolean> {
   await assertPostInEvent(eventId, postId);
   const existing = await prisma.hubPostDownvote.findFirst({
     where: { postId, userId },
@@ -36,17 +38,19 @@ export async function toggleDownvote(eventId: string, postId: string, userId: st
 
   if (existing) {
     await prisma.hubPostDownvote.delete({ where: { id: existing.id } });
-  } else {
-    // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: ignora-se.
-    try {
-      await prisma.hubPostReaction.deleteMany({ where: { postId, userId, emoji: "heart" } });
-      await prisma.hubPostDownvote.create({
-        data: { postId, userId },
-      });
-    } catch (e: unknown) {
-      if ((e as { code?: string }).code !== "P2002") throw e;
-    }
+    return false;
   }
+
+  // Um P2002 (violação de unicidade) é um duplo toque em simultâneo: ignora-se.
+  try {
+    await prisma.hubPostReaction.deleteMany({ where: { postId, userId, emoji: "heart" } });
+    await prisma.hubPostDownvote.create({
+      data: { postId, userId },
+    });
+  } catch (e: unknown) {
+    if ((e as { code?: string }).code !== "P2002") throw e;
+  }
+  return true;
 }
 
 /** Põe ou tira uma reação com emoji do utilizador num post. */

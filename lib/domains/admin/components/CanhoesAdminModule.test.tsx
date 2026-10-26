@@ -291,6 +291,30 @@ describe("CanhoesAdminModule — members", () => {
     expect(recorder.requests[0]?.body).toEqual({ isAdmin: true, confirmSelfDemotion: false });
   });
 
+  it("removes a member from the event only after confirming, and never offers it for admins", async () => {
+    serveAdmin();
+    const recorder = recordRequests();
+    server.use(
+      http.delete(`*/api/v1/${ADMIN}/members/rui`, async ({ request }) => {
+        await recorder.capture(request);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
+    renderAdmin("membros");
+
+    expect(await screen.findByText("Rui")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Remover Ana do evento" })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Remover Rui do evento" }));
+    expect(recorder.requests).toHaveLength(0);
+
+    await userEvent.click(screen.getByRole("button", { name: "Remover Rui do evento" }));
+    expect(await screen.findByText("Membro removido do evento.")).toBeInTheDocument();
+    expect(recorder.requests).toHaveLength(1);
+    expect(confirm).toHaveBeenCalledTimes(2);
+  });
+
   it("generates an invite link", async () => {
     serveAdmin();
     server.use(http.post("*/api/admin/invites", () => HttpResponse.json({ inviteUrl: "/canhoes/register?token=abc" })));

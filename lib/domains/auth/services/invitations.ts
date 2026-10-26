@@ -7,6 +7,8 @@ import { HttpError } from "@/lib/api/httpError";
 import { prisma } from "@/lib/prisma";
 import { sendInvitationEmail } from "@/lib/services/emailService";
 
+import { enrollInTargetEvent, hasPortalAccess } from "./signInAccess";
+
 // Validade do convite em dias e custo do hash bcrypt.
 const INVITATION_TTL_DAYS = 7;
 const PASSWORD_HASH_ROUNDS = 10;
@@ -48,9 +50,9 @@ export async function createInvitation(input: {
   role?: InvitationRole;
 }) {
   const email = input.email.trim().toLowerCase();
-  // Quem já tem conta não precisa de convite.
-  const existingUser = await prisma.user.findUnique({ where: { email }, select: { id: true } });
-  if (existingUser) throw new InvitationError("USER_ALREADY_EXISTS");
+  // Quem já tem acesso não precisa de convite; quem foi removido de todos os eventos pode ser convidado outra vez.
+  const existingUser = await prisma.user.findUnique({ where: { email }, select: { id: true, isAdmin: true } });
+  if (existingUser && (await hasPortalAccess(existingUser))) throw new InvitationError("USER_ALREADY_EXISTS");
 
   const role: EventMemberRole = input.role === "admin" ? "admin" : "participant";
   const isAdmin = role === "admin";
@@ -175,7 +177,7 @@ export async function revokeInvitation(invitationId: string): Promise<{ success:
 
 /**
  * Cria a conta para um convite válido (ou define a password numa conta existente com esse email)
- * e, se o convite veio de um evento, inscreve o utilizador como participante ou administrador.
+ * e inscreve o utilizador como participante ou administrador no evento do convite ou, sem ele, no evento ativo.
  */
 export async function registerWithInvitation(input: { token: string; password: string; displayName: string }) {
   // Validação do convite, antes de gastar tempo a calcular o hash.
@@ -217,19 +219,8 @@ export async function registerWithInvitation(input: { token: string; password: s
           },
         });
 
-    // Inscreve no evento do convite, sem duplicar se já for membro.
-    if (invitation.eventId) {
-      await tx.eventMember.upsert({
-        where: { eventId_userId: { eventId: invitation.eventId, userId: user.id } },
-        update: shouldBeAdmin ? { role: "admin" } : {},
-        create: {
-          eventId: invitation.eventId,
-          userId: user.id,
-          role: shouldBeAdmin ? "admin" : "participant",
-          joinedAtUtc: new Date(),
-        },
-      });
-    }
+    // Inscreve no evento do convite (ou no ativo, se o convite não tinha evento), sem duplicar se já for membro.
+    await enrollInTargetEvent(tx, user.id, invitation.eventId, shouldBeAdmin);
 
     return { email: user.email, displayName: user.displayName };
   });

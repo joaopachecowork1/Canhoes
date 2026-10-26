@@ -6,12 +6,7 @@ import type {
   AdminListCountsDto,
   EventAdminBootstrapDto,
 } from "@/lib/api/types";
-import {
-  phaseSwitches,
-  readModuleSwitches,
-  resolveMemberModules,
-  type PhaseType,
-} from "@/lib/domains/event/rules/eventRules";
+import { readModuleSwitches, resolveMemberModules, type PhaseType } from "@/lib/domains/event/rules/eventRules";
 import { CANHOES_MODULES } from "@/lib/modules";
 
 import { CATEGORY_KIND } from "@/lib/categoryKind";
@@ -24,7 +19,7 @@ import { resetSecretSantaDraw } from "./secretSanta";
  * contadores dos separadores. O que os membros podem fazer com estas definições decide-se em `eventRules.ts`.
  */
 
-/** Os interruptores guardados com os seus valores por defeito: tudo visível exceto os resultados, sem sorteio feito. */
+/** Os interruptores guardados com os seus valores por defeito: tudo visível, sem sorteio feito. */
 function readSwitches(
   state: {
     nominationsVisible: boolean;
@@ -35,7 +30,6 @@ function readSwitches(
   const saved = readModuleSwitches(state?.moduleVisibilityJson);
   return {
     nominationsVisible: state?.nominationsVisible ?? true,
-    resultsVisible: false,
     hasSecretSantaDraw: state?.hasSecretSantaDraw ?? false,
     // Uma área que nunca foi desligada está ligada.
     moduleVisibility: Object.fromEntries(
@@ -57,6 +51,8 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
     eventId,
     activePhase: activePhase ? toPhaseDto(activePhase) : null,
     ...switches,
+    // Os resultados não se guardam: estão visíveis exatamente durante a fase RESULTS.
+    resultsVisible: activePhase?.type === "RESULTS",
     effectiveModules: resolveMemberModules({
       activePhaseType: activePhase?.type ?? null,
       moduleVisibility: switches.moduleVisibility,
@@ -66,10 +62,10 @@ async function getAdminState(eventId: string): Promise<EventAdminStateDto> {
   };
 }
 
-/** Guarda os interruptores do admin (nomeações, resultados, áreas); os campos omitidos mantêm o valor. */
+/** Guarda os interruptores do admin (nomeações e áreas); os campos omitidos mantêm o valor. */
 export async function updateAdminState(
   eventId: string,
-  data: { nominationsVisible?: boolean; resultsVisible?: boolean; moduleVisibility?: EventAdminModuleVisibilityDto },
+  data: { nominationsVisible?: boolean; moduleVisibility?: EventAdminModuleVisibilityDto },
 ): Promise<EventAdminStateDto> {
   // O Prisma deixa os campos `undefined` como estão, por isso um interruptor omitido mantém o valor.
   const changes = {
@@ -116,13 +112,13 @@ export async function updateAdminPhase(eventId: string, phaseType: PhaseType): P
     }),
   ]);
 
-  // Mantém o estado do evento coerente com a fase: o que está visível depende dela.
-  const phaseState = phaseSwitches(phaseType);
+  // Mantém o estado do evento coerente com a fase: as nomeações só estão visíveis durante PROPOSALS.
+  const nominationsVisible = phaseType === "PROPOSALS";
 
   await prisma.canhoesEventState.upsert({
     where: { eventId },
-    create: { eventId, ...phaseState },
-    update: phaseState,
+    create: { eventId, nominationsVisible },
+    update: { nominationsVisible },
   });
 
   // Se o admin voltou atrás para a fase de sorteio (DRAW), desfaz o sorteio anterior.

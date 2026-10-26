@@ -52,11 +52,6 @@ function hasSecretSantaStarted(state: EventRulesState) {
   return phase === "DRAW" || phase === "VOTING" || phase === "RESULTS" || state.hasSecretSantaDraw;
 }
 
-/** O que fica visível quando uma fase passa a ativa: as nomeações só durante PROPOSALS e os resultados só durante RESULTS. */
-export function phaseSwitches(phaseType: PhaseType) {
-  return { nominationsVisible: phaseType === "PROPOSALS", resultsVisible: phaseType === "RESULTS" };
-}
-
 /** Propostas de categoria, nomeações, stickers e medidas só são aceites enquanto as propostas estão abertas. */
 export function canSubmitProposals(state: EventRulesState) {
   return state.activePhaseType === "PROPOSALS" && state.nominationsVisible;

@@ -9,7 +9,7 @@ import { authOptions } from "@/lib/domains/auth/services/auth";
 import { resolveDevelopmentAdmin, resolveUser } from "@/lib/domains/auth/services/authService";
 import { prisma } from "@/lib/prisma";
 
-import { callRoute, createEvent, createUser, signInAs } from "./helpers";
+import { addMember, callRoute, createEvent, createMember, createUser, signInAs } from "./helpers";
 
 const tokenFrom = (inviteUrl: string) => new URL(inviteUrl, "http://localhost").searchParams.get("token") ?? "";
 
@@ -64,8 +64,8 @@ describe("invitations", () => {
     ).toBe(400);
   });
 
-  it("refuses to invite an email that already has an account, and replaces a previous invitation", async () => {
-    const existing = await createUser();
+  it("refuses to invite an email that already has access, and replaces a previous invitation", async () => {
+    const existing = await createMember((await createEvent()).id);
     expect((await inviteAsAdmin(existing.email)).response.body).toMatchObject({ code: "USER_ALREADY_EXISTS" });
 
     const first = await inviteAsAdmin("again@example.test");
@@ -82,6 +82,35 @@ function credentialsProvider(id: string) {
   return provider;
 }
 
+describe("an invitation without an event", () => {
+  it("joins the active event when the account is created, so the member shows up in the roster", async () => {
+    const event = await createEvent();
+    const { token } = await inviteAsAdmin("sem-evento@example.test");
+
+    expect((await callRoute(register, {}, { method: "POST", body: registration(token) })).status).toBe(201);
+
+    const user = await prisma.user.findUniqueOrThrow({ where: { email: "sem-evento@example.test" } });
+    expect(await prisma.eventMember.findFirst({ where: { userId: user.id } })).toMatchObject({
+      eventId: event.id,
+      role: "participant",
+    });
+  });
+});
+
+describe("a member who was removed from the event", () => {
+  it("can be invited again and is back in the event after registering", async () => {
+    const event = await createEvent();
+    const removed = await createUser({ name: "Rui" });
+
+    const { response, token } = await inviteAsAdmin(removed.email, event.id);
+    expect(response.status).toBe(200);
+    expect((await callRoute(register, {}, { method: "POST", body: registration(token) })).status).toBe(201);
+
+    expect(await prisma.eventMember.count({ where: { eventId: event.id, userId: removed.id } })).toBe(1);
+    expect(await prisma.user.count({ where: { email: removed.email } })).toBe(1);
+  });
+});
+
 describe("email and password sign-in", () => {
   const authorize = (email: string, password: string, ip = "unknown") =>
     credentialsProvider("credentials").options.authorize(
@@ -90,7 +119,7 @@ describe("email and password sign-in", () => {
     );
 
   it("accepts the right password for an email in any case, and refuses everything else", async () => {
-    await prisma.user.create({
+    const ana = await prisma.user.create({
       data: {
         email: "ana@example.test",
         externalId: "credentials:ana",
@@ -99,6 +128,7 @@ describe("email and password sign-in", () => {
         passwordHash: await bcrypt.hash("segredo123", 4),
       },
     });
+    await addMember((await createEvent()).id, ana.id);
     await createUser({ name: "Sem password" });
 
     expect(await authorize("ANA@example.test", "segredo123")).toMatchObject({ email: "ana@example.test", name: "Ana" });
@@ -107,8 +137,8 @@ describe("email and password sign-in", () => {
     expect(await authorize("", "")).toBeNull();
   });
 
-  const createPasswordUser = async (email: string) =>
-    prisma.user.create({
+  const createPasswordUser = async (email: string, { isMember = true } = {}) => {
+    const user = await prisma.user.create({
       data: {
         email,
         externalId: `credentials:${email}`,
@@ -117,6 +147,18 @@ describe("email and password sign-in", () => {
         passwordHash: await bcrypt.hash("segredo123", 4),
       },
     });
+    if (isMember) await addMember((await createEvent()).id, user.id);
+    return user;
+  };
+
+  it("refuses the right password to an account that belongs to no event, but not to an admin", async () => {
+    await createPasswordUser("removido@example.test", { isMember: false });
+    const admin = await createPasswordUser("chefe@example.test", { isMember: false });
+    await prisma.user.update({ where: { id: admin.id }, data: { isAdmin: true } });
+
+    expect(await authorize("removido@example.test", "segredo123")).toBeNull();
+    expect(await authorize("chefe@example.test", "segredo123")).toMatchObject({ email: "chefe@example.test" });
+  });
 
   it("stops guessing passwords: after ten attempts from one IP even the right one is refused", async () => {
     await createPasswordUser("bia@example.test");

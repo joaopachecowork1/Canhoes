@@ -7,16 +7,15 @@ import { prisma } from "@/lib/prisma";
 export type SignInFacts = {
   isAdmin: boolean;
   isMember: boolean;
-  wasInvited: boolean;
   hasOpenInvitation: boolean;
 };
 
 /** Resultado da política: entrar, aceitar o convite aberto ou recusar. */
 export type SignInDecision = "allow" | "accept-invitation" | "deny";
 
-/** Quem pode entrar com o Google: admins, membros e convidados anteriores entram, um convite aberto é aceite, os restantes são recusados. */
+/** Quem pode entrar com o Google: admins e membros entram, um convite aberto é aceite, os restantes (incluindo quem foi removido do evento) são recusados. */
 export function decideSignIn(facts: SignInFacts): SignInDecision {
-  if (facts.isAdmin || facts.isMember || facts.wasInvited) return "allow";
+  if (facts.isAdmin || facts.isMember) return "allow";
   if (facts.hasOpenInvitation) return "accept-invitation";
   return "deny";
 }
@@ -26,7 +25,12 @@ function isPublicGoogleSignInEnabled() {
   return process.env.AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN?.trim().toLowerCase() === "true";
 }
 
-type PrismaTx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+/** Indica se a conta ainda pode entrar no portal: é admin ou pertence a pelo menos um evento. */
+export async function hasPortalAccess(user: { id: string; isAdmin: boolean }) {
+  return user.isAdmin || (await prisma.eventMember.count({ where: { userId: user.id } })) > 0;
+}
+
+export type PrismaTx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 
 /** Garante a criação ou elevação a admin do utilizador convidado. */
 async function resolveInvitedUser(
@@ -57,8 +61,8 @@ async function resolveInvitedUser(
   });
 }
 
-/** Inscreve o utilizador no evento do convite ou no evento ativo pré-definido. */
-async function enrollInTargetEvent(
+/** Inscreve o utilizador no evento do convite ou, sem evento, no evento ativo mais antigo; devolve-se sem fazer nada se não houver nenhum. */
+export async function enrollInTargetEvent(
   tx: PrismaTx,
   userId: string,
   eventId: string | null | undefined,
@@ -106,7 +110,6 @@ export async function authorizeGoogleSignIn(input: { email: string; externalId: 
   const decision = decideSignIn({
     isAdmin: Boolean(user?.isAdmin),
     isMember: membershipCount > 0,
-    wasInvited: Boolean(invitation?.usedAtUtc),
     hasOpenInvitation: Boolean(invitation && !invitation.usedAtUtc && invitation.expiresAtUtc > now),
   });
 
@@ -121,7 +124,7 @@ export async function authorizeGoogleSignIn(input: { email: string; externalId: 
     }
 
     const shouldBeAdmin = Boolean(invitation && (invitation.isAdmin || invitation.role === "admin"));
-    const invitedUser = await resolveInvitedUser(tx, input, user, shouldBeAdmin);
+    const invitedUser = await resolveInvitedUser(tx, { ...input, email }, user, shouldBeAdmin);
     await enrollInTargetEvent(tx, invitedUser.id, invitation?.eventId, shouldBeAdmin);
   });
   return true;

@@ -67,6 +67,9 @@ export const adminRepo = {
       canhoes: { throwOnUnauthorized: true },
     }),
 
+  removeMember: (eventId: string, userId: string) =>
+    canhoesFetch<void>(`/v1/events/${eventId}/admin/members/${userId}`, { method: "DELETE" }),
+
   getNominationsPaged: (eventId: string, skip = 0, take = 50, status?: string) =>
     canhoesFetch<T.AdminNomineesPagedDto>(
       `/v1/events/${eventId}/admin/nominations/paged?${new URLSearchParams({ skip: String(skip), take: String(take), ...(status ? { status } : {}) })}`,

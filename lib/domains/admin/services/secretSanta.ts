@@ -11,8 +11,8 @@ import { drawSecretSanta } from "@/lib/domains/secretSanta/services/draw";
  */
 
 /** O código do evento no sorteio (guardado no estado do evento), ou o próprio id do evento. */
-async function getEventCode(eventId: string) {
-  const state = await prisma.canhoesEventState.findUnique({
+export async function getEventCode(eventId: string, db: Pick<typeof prisma, "canhoesEventState"> = prisma) {
+  const state = await db.canhoesEventState.findUnique({
     where: { eventId },
     select: { secretSantaEventCode: true },
   });
@@ -127,9 +127,7 @@ export async function executeSecretSantaDraw(
       where: { eventId },
       create: {
         eventId,
-        phase: "gala",
         nominationsVisible: true,
-        resultsVisible: false,
         secretSantaEventCode: code,
         hasSecretSantaDraw: false,
       },
@@ -158,9 +156,7 @@ export async function resetSecretSantaDraw(eventId: string): Promise<EventAdminS
       where: { eventId },
       create: {
         eventId,
-        phase: "gala",
         nominationsVisible: true,
-        resultsVisible: false,
         secretSantaEventCode: code,
         hasSecretSantaDraw: false,
       },

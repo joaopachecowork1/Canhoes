@@ -183,10 +183,14 @@ describe("feed reactions", () => {
     const params = { eventId: event.id, postId: post.id };
 
     signInAs(rui);
-    await callRoute(likePost, params, { method: "POST" });
+    // A resposta traz o estado final, que o cliente usa para pintar o botão.
+    expect(await callRoute(likePost, params, { method: "POST" })).toEqual({ status: 200, body: { liked: true } });
     expect((await readFeed(event.id)).items[0]).toMatchObject({ likeCount: 1, likedByMe: true, downvoteCount: 0 });
 
-    await callRoute(downvotePost, params, { method: "POST" });
+    expect(await callRoute(downvotePost, params, { method: "POST" })).toEqual({
+      status: 200,
+      body: { downvoted: true },
+    });
     expect((await readFeed(event.id)).items[0]).toMatchObject({
       likeCount: 0,
       likedByMe: false,
@@ -197,7 +201,7 @@ describe("feed reactions", () => {
     await callRoute(likePost, params, { method: "POST" });
     expect((await readFeed(event.id)).items[0]).toMatchObject({ likeCount: 1, downvoteCount: 0 });
 
-    await callRoute(likePost, params, { method: "POST" });
+    expect(await callRoute(likePost, params, { method: "POST" })).toEqual({ status: 200, body: { liked: false } });
     expect((await readFeed(event.id)).items[0]).toMatchObject({ likeCount: 0, likedByMe: false });
   });
 

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { useAuth } from "@/components/providers/AuthContext";
+import { formatMessage } from "@/lib/messages";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import messages from "@/messages/pt.json";
 import { queryKeys } from "@/lib/queryKeys";
@@ -52,6 +53,26 @@ export function useAdminMembers(eventId: string | null) {
     onError: (error) => toast.error(error instanceof Error ? error.message : copy.roleError),
   });
 
+  const removeMutation = useMutation({
+    mutationFn: async (member: { id: string; name: string }) => {
+      if (!window.confirm(formatMessage(copy.removeConfirm, { name: member.name }))) return false;
+      await adminRepo.removeMember(id, member.id);
+      return true;
+    },
+    onSuccess: async (isRemoved) => {
+      if (!isRemoved) return;
+
+      // A lista, o amigo secreto e os membros do evento mostram quem lá está.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.members(eventId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.admin.secretSantaState(eventId) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.eventMembers(eventId) }),
+      ]);
+      toast.success(copy.memberRemoved);
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : copy.removeError),
+  });
+
   return {
     members: membersQuery.data ?? [],
     secretSantaState: secretSantaQuery.data,
@@ -59,5 +80,6 @@ export function useAdminMembers(eventId: string | null) {
     queryError: membersQuery.error ?? secretSantaQuery.error,
     refetchAll: () => Promise.all([membersQuery.refetch(), secretSantaQuery.refetch()]),
     roleMutation,
+    removeMutation,
   };
 }

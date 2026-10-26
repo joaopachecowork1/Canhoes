@@ -1,18 +1,23 @@
 "use client";
 
 import type { PublicUserDto } from "@/lib/api/types";
+import { UserMinus } from "lucide-react";
+
 import { formatMessage } from "@/lib/messages";
 import messages from "@/messages/pt.json";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
-/** Os membros do evento, um por linha, com um interruptor que os torna admin. */
+/** Os membros do evento, um por linha, com um interruptor que os torna admin e um botão que tira os não-admins do evento. */
 export function AdminMembersList({
-  isPendingRoleChange,
+  isBusy,
   members,
+  onRemove,
   onToggleRole,
 }: Readonly<{
-  isPendingRoleChange: boolean;
+  isBusy: boolean;
   members: PublicUserDto[];
+  onRemove: (member: { id: string; name: string }) => void;
   onToggleRole: (member: { id: string; isAdmin: boolean }) => void;
 }>) {
   return (
@@ -29,10 +34,25 @@ export function AdminMembersList({
               name: member.displayName || member.email,
             })}
             checked={member.isAdmin}
-            disabled={isPendingRoleChange}
+            disabled={isBusy}
             onCheckedChange={() => onToggleRole(member)}
             variant="admin"
           />
+          {member.isAdmin ? null : (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-11"
+              disabled={isBusy}
+              aria-label={formatMessage(messages.admin.AdminMembersSection.removeLabel, {
+                name: member.displayName || member.email,
+              })}
+              onClick={() => onRemove({ id: member.id, name: member.displayName || member.email })}
+            >
+              <UserMinus aria-hidden className="size-5" />
+            </Button>
+          )}
         </li>
       ))}
     </ul>

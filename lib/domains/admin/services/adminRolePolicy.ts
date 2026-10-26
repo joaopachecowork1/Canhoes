@@ -10,18 +10,26 @@ export type AdminRoleChange = {
   confirmSelfDemotion: boolean;
 };
 
-/** Códigos de erro de uma mudança de papel recusada. */
+/** Códigos de erro de uma mudança de papel ou de uma remoção de membro recusada. */
 export type AdminRoleChangeErrorCode =
-  "MEMBER_NOT_FOUND" | "SELF_DEMOTION_CONFIRMATION_REQUIRED" | "LAST_ADMIN_REQUIRED";
+  | "MEMBER_NOT_FOUND"
+  | "SELF_DEMOTION_CONFIRMATION_REQUIRED"
+  | "LAST_ADMIN_REQUIRED"
+  | "CANNOT_REMOVE_SELF"
+  | "CANNOT_REMOVE_ADMIN"
+  | "SECRET_SANTA_DRAWN";
 
 // Mensagem de cada erro, em português.
 const ROLE_CHANGE_ERROR_MESSAGES: Record<AdminRoleChangeErrorCode, string> = {
   MEMBER_NOT_FOUND: "Este membro não pertence ao evento.",
   SELF_DEMOTION_CONFIRMATION_REQUIRED: "Confirma que queres retirar o teu próprio acesso de admin.",
   LAST_ADMIN_REQUIRED: "Tem de existir pelo menos um admin.",
+  CANNOT_REMOVE_SELF: "Não podes remover-te a ti próprio do evento.",
+  CANNOT_REMOVE_ADMIN: "Retira primeiro o acesso de admin a este membro.",
+  SECRET_SANTA_DRAWN: "O amigo secreto já foi sorteado: já não se podem remover membros.",
 };
 
-/** Erro de mudança de papel: 404 se o membro não existe, 409 nos restantes casos. */
+/** Erro de mudança de papel ou de remoção de membro: 404 se o membro não existe, 409 nos restantes casos. */
 export class AdminRoleChangeError extends HttpError {
   constructor(override readonly code: AdminRoleChangeErrorCode) {
     super(code === "MEMBER_NOT_FOUND" ? 404 : 409, code, ROLE_CHANGE_ERROR_MESSAGES[code]);

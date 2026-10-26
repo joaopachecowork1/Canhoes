@@ -44,6 +44,29 @@ model User {
   color        String   @default(dbgenerated("(ARRAY['coral'::text, 'amber'::text, 'teal'::text, 'blue'::text, 'pink'::text, 'lime'::text, 'violet'::text, 'sky'::text])[floor(((random() * (8)::double precision) + (1)::double precision))]")) @map("Color")
   createdAt    DateTime @default(now()) @map("CreatedAt") @db.Timestamptz(6)
 
+  invitationsSent         UserInvitation[]
+  eventMemberships        EventMember[]
+  nominees                Nominee[]
+  categoryProposals       CategoryProposal[]
+  measureProposals        MeasureProposal[]
+  votes                   Vote[]                   @relation("VoteVoter")
+  votesReceived           Vote[]                   @relation("VoteTarget")
+  wishlistItems           WishlistItem[]
+  secretSantaDraws        SecretSantaDraw[]
+  secretSantaGiven        SecretSantaAssignment[]  @relation("SecretSantaGiver")
+  secretSantaReceived     SecretSantaAssignment[]  @relation("SecretSantaReceiver")
+  hubPosts                HubPost[]
+  hubPostDownvotes        HubPostDownvote[]
+  hubPostComments         HubPostComment[]
+  hubPostReactions        HubPostReaction[]
+  hubPostCommentReactions HubPostCommentReaction[]
+  hubPostPollVotes        HubPostPollVote[]
+  hubPostMedia            HubPostMedia[]
+  hubPostLikes            HubPostLike[]
+  eventGatherings         EventGathering[]
+  eventGatheringDateVotes EventGatheringDateVote[]
+  eventGatheringRsvps     EventGatheringRsvp[]
+
   @@index([isAdmin], map: "IX_Users_IsAdmin")
   @@map("Users")
 }
@@ -60,6 +83,8 @@ model UserInvitation {
   role            EventMemberRole @default(participant) @map("Role")
   isAdmin         Boolean         @default(false) @map("IsAdmin")
 
+  invitedBy User @relation(fields: [invitedByUserId], references: [id], onDelete: Restrict, map: "FK_UserInvitations_InvitedByUserId")
+
   @@index([token], map: "IX_UserInvitations_TokenIdx")
   @@map("UserInvitations")
 }
@@ -69,6 +94,8 @@ model Event {
   name         String   @map("Name") @db.VarChar(128)
   isActive     Boolean  @map("IsActive")
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+
+  members EventMember[]
 
   @@index([isActive], map: "IX_Events_IsActive")
   @@map("Events")
@@ -80,6 +107,9 @@ model EventMember {
   userId      String          @map("UserId") @db.Uuid
   role        EventMemberRole @default(participant) @map("Role")
   joinedAtUtc DateTime        @map("JoinedAtUtc") @db.Timestamptz(6)
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_EventMembers_UserId")
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade, map: "FK_EventMembers_EventId")
 
   @@unique([eventId, userId], map: "IX_EventMembers_EventId_UserId")
   @@index([eventId, role], map: "IX_EventMembers_EventId_Role")
@@ -128,6 +158,8 @@ model Nominee {
   status            ProposalStatus        @map("Status")
   createdAtUtc      DateTime              @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
+  submittedBy User @relation(fields: [submittedByUserId], references: [id], onDelete: Restrict, map: "FK_Nominees_SubmittedByUserId")
+
   @@index([categoryId, status], map: "IX_Nominees_CategoryId_Status")
   @@index([eventId, status], map: "IX_Nominees_EventId_Status")
   @@index([eventId, status, categoryId], map: "IX_Nominees_EventId_Status_CategoryId")
@@ -144,6 +176,8 @@ model CategoryProposal {
   proposedByUserId String         @map("ProposedByUserId") @db.Uuid
   status           ProposalStatus @map("Status")
   createdAtUtc     DateTime       @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+
+  proposedBy User @relation(fields: [proposedByUserId], references: [id], onDelete: Restrict, map: "FK_CategoryProposals_ProposedByUserId")
 
   @@index([eventId, status, createdAtUtc], map: "IX_CategoryProposals_EventId_Status_CreatedAtUtc")
   @@index([proposedByUserId], map: "IX_CategoryProposals_ProposedByUserId")
@@ -170,6 +204,8 @@ model MeasureProposal {
   status           ProposalStatus @map("Status")
   createdAtUtc     DateTime       @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
+  proposedBy User @relation(fields: [proposedByUserId], references: [id], onDelete: Restrict, map: "FK_MeasureProposals_ProposedByUserId")
+
   @@index([eventId, status, createdAtUtc], map: "IX_MeasureProposals_EventId_Status_CreatedAtUtc")
   @@index([proposedByUserId], map: "IX_MeasureProposals_ProposedByUserId")
   @@index([status], map: "IX_MeasureProposals_Status")
@@ -185,6 +221,9 @@ model Vote {
   targetUserId String?  @map("TargetUserId") @db.Uuid
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   updatedAtUtc DateTime @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
+
+  user       User  @relation("VoteVoter", fields: [userId], references: [id], onDelete: Cascade, map: "FK_Votes_UserId")
+  targetUser User? @relation("VoteTarget", fields: [targetUserId], references: [id], onDelete: Restrict, map: "FK_Votes_TargetUserId")
 
   @@unique([categoryId, userId], map: "IX_Votes_CategoryId_UserId")
   @@index([eventId, userId], map: "IX_Votes_EventId_UserId")
@@ -205,6 +244,8 @@ model WishlistItem {
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
   updatedAtUtc DateTime @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_WishlistItems_UserId")
+
   @@index([eventId], map: "IX_WishlistItems_EventId")
   @@index([userId], map: "IX_WishlistItems_UserId")
   @@map("WishlistItems")
@@ -217,6 +258,8 @@ model SecretSantaDraw {
   createdByUserId String   @map("CreatedByUserId") @db.Uuid
   isLocked        Boolean  @map("IsLocked")
 
+  createdBy User @relation(fields: [createdByUserId], references: [id], onDelete: Restrict, map: "FK_SecretSantaDraws_CreatedByUserId")
+
   @@index([eventCode], map: "IX_SecretSantaDraws_EventCode")
   @@map("SecretSantaDraws")
 }
@@ -226,6 +269,9 @@ model SecretSantaAssignment {
   drawId         String @map("DrawId")
   giverUserId    String @map("GiverUserId") @db.Uuid
   receiverUserId String @map("ReceiverUserId") @db.Uuid
+
+  giver    User @relation("SecretSantaGiver", fields: [giverUserId], references: [id], onDelete: Restrict, map: "FK_SecretSantaAssignments_GiverUserId")
+  receiver User @relation("SecretSantaReceiver", fields: [receiverUserId], references: [id], onDelete: Restrict, map: "FK_SecretSantaAssignments_ReceiverUserId")
 
   @@index([drawId], map: "IX_SecretSantaAssignments_DrawId")
   @@index([giverUserId], map: "IX_SecretSantaAssignments_GiverUserId")
@@ -264,6 +310,8 @@ model HubPost {
   reactions     HubPostReaction[]
   gathering     EventGathering?
 
+  author User @relation(fields: [authorUserId], references: [id], onDelete: Restrict, map: "FK_HubPosts_AuthorUserId")
+
   @@index([authorUserId], map: "IX_HubPosts_AuthorUserId")
   @@index([createdAtUtc], map: "IX_HubPosts_CreatedAtUtc")
   @@index([eventId, isPinned, createdAtUtc], map: "IX_HubPosts_EventId_IsPinned_CreatedAtUtc")
@@ -280,6 +328,8 @@ model HubPostDownvote {
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   post HubPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_HubPostDownvotes_UserId")
 
   @@unique([postId, userId], map: "IX_HubPostDownvotes_PostId_UserId")
   @@index([postId], map: "IX_HubPostDownvotes_PostId")
@@ -300,6 +350,8 @@ model HubPostComment {
   replyTo HubPostComment?  @relation("HubPostCommentReplies", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies HubPostComment[] @relation("HubPostCommentReplies")
 
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict, map: "FK_HubPostComments_UserId")
+
   @@index([postId], map: "IX_HubPostComments_PostId")
   @@index([postId, createdAtUtc], map: "IX_HubPostComments_PostId_CreatedAtUtc")
   @@index([userId], map: "IX_HubPostComments_UserId")
@@ -316,6 +368,8 @@ model HubPostReaction {
 
   post HubPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_HubPostReactions_UserId")
+
   @@unique([postId, userId, emoji], map: "IX_HubPostReactions_PostId_UserId_Emoji")
   @@index([postId], map: "IX_HubPostReactions_PostId")
   @@index([userId], map: "IX_HubPostReactions_UserId")
@@ -330,6 +384,8 @@ model HubPostCommentReaction {
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   comment HubPostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_HubPostCommentReactions_UserId")
 
   @@unique([commentId, userId, emoji], map: "IX_HubPostCommentReactions_CommentId_UserId_Emoji")
   @@index([commentId], map: "IX_HubPostCommentReactions_CommentId")
@@ -370,6 +426,8 @@ model HubPostPollVote {
 
   poll HubPostPoll @relation(fields: [postId], references: [postId], onDelete: Cascade)
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_HubPostPollVotes_UserId")
+
   @@unique([postId, userId], map: "IX_HubPostPollVotes_PostId_UserId")
   @@index([userId], map: "IX_HubPostPollVotes_UserId")
   @@map("HubPostPollVotes")
@@ -387,6 +445,8 @@ model HubPostMedia {
 
   post HubPost? @relation(fields: [postId], references: [id], onDelete: Cascade)
 
+  uploadedBy User? @relation(fields: [uploadedByUserId], references: [id], onDelete: SetNull, map: "FK_HubPostMedia_UploadedByUserId")
+
   @@index([postId], map: "IX_HubPostMedia_PostId")
   @@index([uploadedAtUtc], map: "IX_HubPostMedia_UploadedAtUtc")
   @@index([uploadedByUserId], map: "IX_HubPostMedia_UploadedByUserId")
@@ -400,6 +460,8 @@ model HubPostLike {
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   post HubPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_HubPostLikes_UserId")
 
   @@unique([postId, userId], map: "IX_HubPostLikes_PostId_UserId")
   @@index([postId], map: "IX_HubPostLikes_PostId")
@@ -420,11 +482,11 @@ enum RsvpStatus {
 }
 
 model EventGathering {
-  id            String          @id(map: "PK_EventGatherings") @default(uuid()) @map("Id") @db.VarChar(64)
-  eventId       String          @map("EventId") @db.VarChar(64)
-  createdById   String          @map("CreatedById") @db.Uuid
-  title         String          @map("Title") @db.VarChar(256)
-  description   String?         @map("Description") @db.VarChar(2000)
+  id              String          @id(map: "PK_EventGatherings") @default(uuid()) @map("Id") @db.VarChar(64)
+  eventId         String          @map("EventId") @db.VarChar(64)
+  createdById     String          @map("CreatedById") @db.Uuid
+  title           String          @map("Title") @db.VarChar(256)
+  description     String?         @map("Description") @db.VarChar(2000)
   location        String?         @map("Location") @db.VarChar(256)
   locationAddress String?         @map("LocationAddress") @db.VarChar(512)
   latitude        Float?          @map("Latitude")
@@ -432,15 +494,17 @@ model EventGathering {
   mapUrl          String?         @map("MapUrl") @db.VarChar(1024)
   placeId         String?         @map("PlaceId") @db.VarChar(256)
   status          GatheringStatus @default(POLLING) @map("Status")
-  confirmedDate String?         @map("ConfirmedDate") @db.VarChar(128)
-  postId        String?         @unique(map: "IX_EventGatherings_PostId") @map("PostId") @db.VarChar(64)
-  createdAtUtc  DateTime        @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
-  updatedAtUtc  DateTime        @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
+  confirmedDate   String?         @map("ConfirmedDate") @db.VarChar(128)
+  postId          String?         @unique(map: "IX_EventGatherings_PostId") @map("PostId") @db.VarChar(64)
+  createdAtUtc    DateTime        @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  updatedAtUtc    DateTime        @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
 
   post        HubPost?                   @relation(fields: [postId], references: [id], onDelete: SetNull)
   dateOptions EventGatheringDateOption[]
   rsvps       EventGatheringRsvp[]
   dateVotes   EventGatheringDateVote[]
+
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Restrict, map: "FK_EventGatherings_CreatedById")
 
   @@index([eventId], map: "IX_EventGatherings_EventId")
   @@map("EventGatherings")
@@ -469,6 +533,8 @@ model EventGatheringDateVote {
   gathering EventGathering           @relation(fields: [gatheringId], references: [id], onDelete: Cascade)
   option    EventGatheringDateOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_EventGatheringDateVotes_UserId")
+
   @@unique([optionId, userId], map: "IX_EventGatheringDateVotes_OptionId_UserId")
   @@index([gatheringId, userId], map: "IX_EventGatheringDateVotes_GatheringId_UserId")
   @@map("EventGatheringDateVotes")
@@ -483,6 +549,8 @@ model EventGatheringRsvp {
   updatedAtUtc DateTime   @default(now()) @updatedAt @map("UpdatedAtUtc") @db.Timestamptz(6)
 
   gathering EventGathering @relation(fields: [gatheringId], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, map: "FK_EventGatheringRsvps_UserId")
 
   @@unique([gatheringId, userId], map: "IX_EventGatheringRsvps_GatheringId_UserId")
   @@index([gatheringId], map: "IX_EventGatheringRsvps_GatheringId")

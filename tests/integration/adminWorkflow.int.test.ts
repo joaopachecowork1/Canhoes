@@ -21,7 +21,7 @@ async function createSeededEvent() {
     },
   });
   await prisma.canhoesEventState.create({
-    data: { eventId: event.id, phase: "nominations", nominationsVisible: true, resultsVisible: false },
+    data: { eventId: event.id, nominationsVisible: true },
   });
   return event;
 }

@@ -22,7 +22,7 @@ sequenceDiagram
   Admin-->>Convidado: partilha o link (WhatsApp, etc.)
   Convidado->>API: POST /api/auth/register { token, password, displayName }
   API->>DB: convite existe, não usado, não expirado?
-  API->>DB: transação: marca o convite como usado, cria o User com bcrypt(password), cria EventMember (participant)
+  API->>DB: transação: marca o convite como usado, cria o User com bcrypt(password), cria EventMember (participant) no evento do convite ou, sem evento, no evento ativo
   API-->>Convidado: 201 { email, displayName }
   Convidado->>API: login com email + password (NextAuth credentials)
 ```

@@ -11,6 +11,5 @@ export const POST = apiRoute<{ eventId: string; postId: string }>(async (request
   const user = await requireUser();
   await requireEventAccess(eventId, user);
 
-  await toggleLike(eventId, postId, user.id);
-  return json({ success: true });
+  return json({ liked: await toggleLike(eventId, postId, user.id) });
 });

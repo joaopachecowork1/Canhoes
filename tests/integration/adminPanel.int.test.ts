@@ -17,6 +17,7 @@ import {
   PUT as updateMeasureProposal,
 } from "@/app/api/v1/events/[eventId]/admin/measure-proposals/[proposalId]/route";
 import { GET as getMeasureProposals } from "@/app/api/v1/events/[eventId]/admin/measure-proposals/route";
+import { DELETE as removeMember } from "@/app/api/v1/events/[eventId]/admin/members/[userId]/route";
 import { PATCH as setRole } from "@/app/api/v1/events/[eventId]/admin/members/[userId]/role/route";
 import { GET as getMembers } from "@/app/api/v1/events/[eventId]/admin/members/paged/route";
 import { POST as approveNomination } from "@/app/api/v1/events/[eventId]/admin/nominations/[nomineeId]/approve/route";
@@ -265,6 +266,49 @@ describe("admin members", () => {
   });
 });
 
+describe("admin removes a member", () => {
+  it("takes the member out of the event and keeps the account", async () => {
+    const { event, params } = await setupAdmin();
+    const rui = await createMember(event.id, "Rui");
+
+    const response = await callRoute(removeMember, { ...params, userId: rui.id }, { method: "DELETE" });
+    expect(response.status).toBe(204);
+
+    const list = (await callRoute(getMembers, params)).body as PagedResult<PublicUserDto>;
+    expect(list.items.map((member) => member.displayName)).toEqual(["Admin"]);
+    expect(list.total).toBe(1);
+    expect(await prisma.user.count({ where: { id: rui.id } })).toBe(1);
+  });
+
+  it("refuses to remove anyone once the secret santa has been drawn", async () => {
+    const { event, params } = await setupAdmin();
+    const rui = await createMember(event.id, "Rui");
+    await prisma.secretSantaDraw.create({
+      data: { eventCode: event.id, createdByUserId: (await createUser()).id, isLocked: false },
+    });
+
+    const response = await callRoute(removeMember, { ...params, userId: rui.id }, { method: "DELETE" });
+    expect(response).toMatchObject({ status: 409, body: { code: "SECRET_SANTA_DRAWN" } });
+    expect(await prisma.eventMember.count({ where: { userId: rui.id } })).toBe(1);
+  });
+
+  it("refuses to remove an admin, yourself or someone outside the event", async () => {
+    const { admin, event, params } = await setupAdmin();
+    const otherAdmin = await createUser({ isAdmin: true, name: "Outro" });
+    await addMember(event.id, otherAdmin.id, "admin");
+    const outsider = await createUser({ name: "Fora" });
+
+    for (const [userId, status] of [
+      [admin.id, 409],
+      [otherAdmin.id, 409],
+      [outsider.id, 404],
+    ] as const) {
+      expect((await callRoute(removeMember, { ...params, userId }, { method: "DELETE" })).status).toBe(status);
+    }
+    expect(await prisma.eventMember.count({ where: { eventId: event.id } })).toBe(2);
+  });
+});
+
 describe("admin votes and results", () => {
   it("shows each nominee vote with names, newest first", async () => {
     const { event, params } = await setupAdmin();
@@ -321,11 +365,11 @@ describe("admin event state", () => {
     const state = (
       await callRoute(updateState, params, {
         method: "PUT",
-        body: { moduleVisibility: { stickers: false }, resultsVisible: true },
+        body: { moduleVisibility: { stickers: false } },
       })
     ).body as EventAdminStateDto;
 
-    expect(state).toMatchObject({ resultsVisible: true, moduleVisibility: { stickers: false, feed: true } });
+    expect(state).toMatchObject({ moduleVisibility: { stickers: false, feed: true } });
     expect(state.effectiveModules.stickers).toBe(false);
   });
 

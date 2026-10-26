@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import type { PagedResult, PublicUserDto } from "@/lib/api/types";
 import { AdminRoleChangeError, assertAdminRoleChangeAllowed } from "./adminRolePolicy";
 import { compareMembersByRoleAndName, loadUsersById } from "@/lib/usersById";
+import { getEventCode } from "./secretSanta";
 
 /* Os membros do evento como o admin os vê, e a promoção ou despromoção de admins (regras em `adminRolePolicy.ts`). */
 
@@ -47,6 +48,36 @@ export async function getAdminMembersPaged(eventId: string, skip = 0, take = 50)
     take,
     hasMore: skip + take < total,
   };
+}
+
+/**
+ * Tira um membro do evento sem apagar a conta nem o que ele fez (votos, propostas). Recusa o próprio autor,
+ * admins (despromove-se primeiro) e qualquer remoção depois do sorteio do amigo secreto. É Serializable,
+ * para uma promoção em simultâneo não deixar remover quem acabou de ser promovido.
+ */
+export async function removeEventMember(input: { actorUserId: string; eventId: string; targetUserId: string }) {
+  if (input.actorUserId === input.targetUserId) throw new AdminRoleChangeError("CANNOT_REMOVE_SELF");
+
+  await prisma.$transaction(
+    async (tx) => {
+      const where = { eventId_userId: { eventId: input.eventId, userId: input.targetUserId } };
+      const membership = await tx.eventMember.findUnique({
+        where,
+        select: { role: true, user: { select: { isAdmin: true } } },
+      });
+      if (!membership) throw new AdminRoleChangeError("MEMBER_NOT_FOUND");
+      if (membership.role === "admin" || membership.user.isAdmin) throw new AdminRoleChangeError("CANNOT_REMOVE_ADMIN");
+
+      // Um sorteio feito já escolheu quem dá a quem: tirar alguém deixava pares sem sentido.
+      const eventCode = await getEventCode(input.eventId, tx);
+      if ((await tx.secretSantaDraw.count({ where: { eventCode } })) > 0) {
+        throw new AdminRoleChangeError("SECRET_SANTA_DRAWN");
+      }
+
+      await tx.eventMember.delete({ where });
+    },
+    { isolationLevel: "Serializable" },
+  );
 }
 
 /**

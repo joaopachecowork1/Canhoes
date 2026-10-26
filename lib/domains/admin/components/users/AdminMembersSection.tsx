@@ -25,12 +25,14 @@ type AdminMembersSectionProps = {
 
 /** Cartão com a contagem e a lista de membros. */
 function MembersRoster({
-  isPendingRoleChange,
+  isBusy,
   members,
+  onRemove,
   onToggleRole,
 }: Readonly<{
-  isPendingRoleChange: boolean;
+  isBusy: boolean;
   members: PublicUserDto[];
+  onRemove: (member: { id: string; name: string }) => void;
   onToggleRole: (member: { id: string; isAdmin: boolean }) => void;
 }>) {
   return (
@@ -42,7 +44,7 @@ function MembersRoster({
         {members.length === 0 ? (
           <AdminStateMessage>{copy.empty}</AdminStateMessage>
         ) : (
-          <AdminMembersList members={members} onToggleRole={onToggleRole} isPendingRoleChange={isPendingRoleChange} />
+          <AdminMembersList members={members} onRemove={onRemove} onToggleRole={onToggleRole} isBusy={isBusy} />
         )}
       </CardContent>
     </Card>
@@ -77,8 +79,9 @@ export function AdminMembersSection({ eventId, loading, onUpdate }: Readonly<Adm
       <AdminInvitationsList eventId={eventId} />
       <MembersRoster
         members={admin.members}
+        onRemove={(member) => admin.removeMutation.mutate(member)}
         onToggleRole={(member) => admin.roleMutation.mutate(member)}
-        isPendingRoleChange={admin.roleMutation.isPending}
+        isBusy={admin.roleMutation.isPending || admin.removeMutation.isPending}
       />
     </div>
   );

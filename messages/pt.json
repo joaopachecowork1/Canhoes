@@ -764,7 +764,11 @@
       "member": "membro",
       "members": "membros",
       "empty": "Nenhum membro nesta edição.",
-      "adminSwitchLabel": "Admin: {name}"
+      "adminSwitchLabel": "Admin: {name}",
+      "removeLabel": "Remover {name} do evento",
+      "removeConfirm": "Remover {name} do evento? A conta mantém-se e pode voltar a ser convidada.",
+      "memberRemoved": "Membro removido do evento.",
+      "removeError": "Não foi possível remover o membro."
     },
     "AdminInviteUser": {
       "title": "Convidar Utilizador",

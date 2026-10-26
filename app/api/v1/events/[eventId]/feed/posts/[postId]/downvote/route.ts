@@ -8,6 +8,5 @@ export const POST = apiRoute<{ eventId: string; postId: string }>(async (_reques
   const user = await requireUser();
   await requireEventAccess(eventId, user);
 
-  await toggleDownvote(eventId, postId, user.id);
-  return json({ success: true });
+  return json({ downvoted: await toggleDownvote(eventId, postId, user.id) });
 });

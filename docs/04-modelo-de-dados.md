@@ -78,6 +78,18 @@ Organização de jantares/encontros da edição: votação de datas, RSVPs e sug
 | `PlaceFavorite` (`PlaceFavorites`) | Locais favoritos marcados pelos membros. | `(placeId, userId)` |
 | `HubPost*` (`HubPosts`, …) | Mural: posts, imagens, sondagens, comentários, reações, likes, downvotes. | Um like, downvote e voto de sondagem por pessoa; uma reação por emoji por pessoa |
 
+## Integridade dos utilizadores
+
+Toda a coluna que guarda um id de utilizador tem chave estrangeira para `Users` (migration `20261026230000_user_foreign_keys`), por isso a base de dados recusa ids que não existem e nunca deixa membros órfãos:
+
+| Quando o utilizador é apagado | Tabelas |
+|---|---|
+| Apaga a participação (`CASCADE`) | `EventMember`, `Vote` (como votante), `WishlistItem`, `HubPostLike`, `HubPostDownvote`, `HubPostReaction`, `HubPostCommentReaction`, `HubPostPollVote`, `EventGatheringDateVote`, `EventGatheringRsvp` |
+| Recusa apagar (`RESTRICT`) | `Vote` (como alvo, para manter o histórico das votações), `HubPost`, `HubPostComment`, `Nominee`, `CategoryProposal`, `MeasureProposal`, `SecretSantaDraw`, `SecretSantaAssignment`, `EventGathering`, `UserInvitation.invitedByUserId` |
+| Limpa a referência (`SET NULL`) | `HubPostMedia.uploadedByUserId` |
+
+`EventMember.eventId` também aponta para `Events` com `CASCADE`. A app não tem um botão de apagar contas: para tirar alguém de um evento usa-se "Remover do evento" (Admin › Membros), que só apaga o `EventMember`. Apagar utilizadores à mão no console da base de dados passa a falhar enquanto houver conteúdo escrito por eles.
+
 ## Valores possíveis
 
 O schema utiliza ENUMs nativos no PostgreSQL e Prisma (`EventMemberRole`, `PhaseType`, `ProposalStatus`, `NomineeSubmissionKind`, `GatheringStatus`, `RsvpStatus`).

@@ -9,8 +9,9 @@ export default function setup(project: TestProject) {
     throw new Error(`Integration tests only run against a database named "*_test", got "${databaseName}".`);
   }
 
+  // prisma.config.ts prefere DATABASE_URL_UNPOOLED (do .env, p. ex. o Neon de produção): sobrepõe-se também aqui.
   execFileSync("npx", ["prisma", "migrate", "deploy"], {
-    env: { ...process.env, DATABASE_URL: databaseUrl },
+    env: { ...process.env, DATABASE_URL: databaseUrl, DATABASE_URL_UNPOOLED: databaseUrl },
     stdio: "inherit",
   });
 }

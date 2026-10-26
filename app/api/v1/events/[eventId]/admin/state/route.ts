@@ -6,11 +6,10 @@ import { updateAdminState } from "@/lib/domains/admin/services/state";
 
 const stateSchema = z.object({
   nominationsVisible: z.boolean().optional(),
-  resultsVisible: z.boolean().optional(),
   moduleVisibility: z.record(z.string(), z.boolean()).optional(),
 });
 
-/** PUT /v1/events/:eventId/admin/state: atualiza a visibilidade de nomeações, resultados e áreas */
+/** PUT /v1/events/:eventId/admin/state: atualiza a visibilidade de nomeações e áreas */
 export const PUT = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
   // Só administradores.
   await requireAdmin();

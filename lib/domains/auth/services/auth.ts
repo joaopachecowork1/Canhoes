@@ -10,7 +10,7 @@ import { enforceAccountRateLimit, enforceRateLimit } from "@/lib/api/rateLimit";
 import { isDevelopmentAuthEnabled } from "@/lib/domains/auth/services/developmentAuth";
 import { isDatabaseUserId } from "@/lib/domains/auth/services/userIdentity";
 import { resolveDevelopmentAdmin, resolveUser, type ResolvedUser } from "./authService";
-import { authorizeGoogleSignIn } from "./signInAccess";
+import { authorizeGoogleSignIn, hasPortalAccess } from "./signInAccess";
 
 /*
  * Configuração do NextAuth. O acesso com Google segue a política de entrada em `signInAccess.ts`,
@@ -111,7 +111,9 @@ export const authOptions: NextAuthOptions = {
           return null;
 
         const user = await findUserWithPassword(credentials.email, credentials.password);
-        return user && { id: user.id, email: user.email, name: user.displayName ?? user.email };
+        // Quem foi removido de todos os eventos já não entra, mesmo com a password certa.
+        if (!user || !(await hasPortalAccess(user))) return null;
+        return { id: user.id, email: user.email, name: user.displayName ?? user.email };
       },
     }),
     ...(developmentLoginEnabled

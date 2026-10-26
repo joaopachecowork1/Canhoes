@@ -91,6 +91,7 @@ Todas exigem admin.
 | POST | `nominations/[nomineeId]/set-category` | `setNominationCategory` |
 | GET | `members/paged` | `getAdminMembersPaged` |
 | PATCH | `members/[userId]/role` | `setAdminRole` |
+| DELETE | `members/[userId]` | `removeEventMember` (tira o membro do evento, a conta mantém-se; recusa admins e o próprio) |
 | GET | `votes/paged` | `getAdminVotesPaged` |
 | GET | `official-results/paged` | `getAdminOfficialResultsPaged` |
 | GET | `secret-santa/state` | `getAdminSecretSantaState` |
