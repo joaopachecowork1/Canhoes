@@ -268,6 +268,94 @@ describe("watching stories", () => {
   });
 });
 
+describe("touch gestures on a story", () => {
+  /** A finger going down, moving and lifting on the tap area, like on a phone. */
+  function drag(dialog: HTMLElement, from: { x: number; y: number }, to?: { x: number; y: number }) {
+    const target = within(dialog).getByRole("button", { name: "Story seguinte" });
+    const pointer = { pointerId: 1, pointerType: "touch", isPrimary: true };
+    fireEvent.pointerDown(target, { ...pointer, clientX: from.x, clientY: from.y });
+    if (to) fireEvent.pointerMove(target, { ...pointer, clientX: to.x, clientY: to.y });
+    return {
+      lift: () => fireEvent.pointerUp(target, { ...pointer, clientX: (to ?? from).x, clientY: (to ?? from).y }),
+      target,
+    };
+  }
+
+  it("stops the story while the screen is pressed, hides the top to see it well, and goes on when let go", async () => {
+    serveStories();
+    const dialog = await openStoriesOf("Ana");
+    fireEvent.load(shownStory(dialog));
+    expect(currentBar(dialog).style.animationPlayState).toBe("running");
+
+    const finger = drag(dialog, { x: 200, y: 300 });
+    await waitFor(() => expect(currentBar(dialog).style.animationPlayState).toBe("paused"));
+    expect(within(dialog).getByRole("button", { name: "Fechar" }).closest(".opacity-0")).not.toBeNull();
+
+    finger.lift();
+    expect(currentBar(dialog).style.animationPlayState).toBe("running");
+    expect(within(dialog).getByRole("button", { name: "Fechar" }).closest(".opacity-0")).toBeNull();
+    expect(within(dialog).getByRole("button", { name: "Pausar" })).toBeInTheDocument();
+  });
+
+  it("stays on the same story after a long press, instead of treating the lift as a tap", async () => {
+    serveStories();
+    const dialog = await openStoriesOf("Ana");
+    fireEvent.load(shownStory(dialog));
+
+    const finger = drag(dialog, { x: 200, y: 300 });
+    await waitFor(() => expect(currentBar(dialog).style.animationPlayState).toBe("paused"));
+    finger.lift();
+    // O browser dispara o clique depois de levantar o dedo.
+    fireEvent.click(finger.target);
+
+    expect(shownStory(dialog)).toHaveAttribute("src", expect.stringContaining("/a1/media"));
+  });
+
+  it("closes with a swipe down", async () => {
+    serveStories();
+    const dialog = await openStoriesOf("Ana");
+
+    drag(dialog, { x: 200, y: 200 }, { x: 205, y: 340 }).lift();
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  });
+
+  it("follows the finger while dragging down and comes back if it did not go far enough", async () => {
+    serveStories();
+    const dialog = await openStoriesOf("Ana");
+
+    const finger = drag(dialog, { x: 200, y: 200 }, { x: 200, y: 230 });
+    expect(dialog.style.transform).toBe("translateY(30px)");
+    finger.lift();
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(dialog.style.transform).toBe("");
+  });
+
+  it("goes to the next member with a swipe to the left and back with a swipe to the right", async () => {
+    serveStories();
+    const dialog = await openStoriesOf("Ana");
+
+    drag(dialog, { x: 300, y: 300 }, { x: 150, y: 305 }).lift();
+    expect(within(dialog).getByRole("heading", { name: "Stories de Rui" })).toBeInTheDocument();
+
+    drag(dialog, { x: 100, y: 300 }, { x: 260, y: 296 }).lift();
+    expect(within(dialog).getByRole("heading", { name: "Stories de Ana" })).toBeInTheDocument();
+    expect(shownStory(dialog)).toHaveAttribute("src", expect.stringContaining("/a1/media"));
+  });
+
+  it("still goes to the next story with a plain tap", async () => {
+    serveStories();
+    const dialog = await openStoriesOf("Ana");
+
+    const finger = drag(dialog, { x: 300, y: 300 });
+    finger.lift();
+    fireEvent.click(finger.target);
+
+    expect(shownStory(dialog)).toHaveAttribute("src", expect.stringContaining("/a2/media"));
+  });
+});
+
 describe("deleting a story", () => {
   it("lets the author delete it after confirming, and goes on to the next one", async () => {
     serveStories();

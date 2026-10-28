@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { PointerEventHandler, ReactNode } from "react";
 
 import { formatMessage } from "@/lib/messages";
 import messages from "@/messages/pt.json";
@@ -8,7 +8,7 @@ const copy = messages.stories.StoryViewer;
 const TAP_ZONE_CLASS =
   "absolute inset-y-0 focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-[var(--text-primary)]";
 
-/** A imagem da story e as duas zonas de toque (anterior à esquerda, seguinte à direita); `children` fica por cima. */
+/** A imagem da story e as duas zonas de toque (anterior à esquerda, seguinte à direita); `children` fica por cima. Recebe os gestos de toque. */
 export function StoryStage({
   storyId,
   mediaUrl,
@@ -20,6 +20,7 @@ export function StoryStage({
   onError,
   onPrevious,
   onNext,
+  gestureHandlers,
   children,
 }: Readonly<{
   storyId: string;
@@ -32,10 +33,16 @@ export function StoryStage({
   onError: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  gestureHandlers: {
+    onPointerDown: PointerEventHandler;
+    onPointerMove: PointerEventHandler;
+    onPointerUp: PointerEventHandler;
+    onPointerCancel: PointerEventHandler;
+  };
   children?: ReactNode;
 }>) {
   return (
-    <div className="relative min-h-0 w-full max-w-md flex-1">
+    <div className="relative min-h-0 w-full max-w-md flex-1 touch-none select-none" {...gestureHandlers}>
       {/* eslint-disable-next-line @next/next/no-img-element -- a imagem vem de uma rota autenticada e sem cache: o otimizador do Next não leva a sessão */}
       <img
         key={storyId}

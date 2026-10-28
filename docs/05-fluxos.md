@@ -177,6 +177,6 @@ sequenceDiagram
   Cron->>DB: depois apaga as linhas (uma falha repete-se no dia seguinte)
 ```
 
-A faixa de stories do mural mostra o grupo todo: primeiro quem tem stories (com um anel na sua cor), depois os restantes membros. O visualizador avança sozinho a cada 5 segundos, exceto com `prefers-reduced-motion`, em que só avança ao tocar. `/uploads/stories/*` devolve 404: a imagem só se vê pela rota do evento.
+A faixa de stories do mural mostra o grupo todo: primeiro quem tem stories (com um anel na sua cor), depois os restantes membros. O visualizador avança sozinho a cada 5 segundos, exceto com `prefers-reduced-motion`, em que só avança ao tocar. No telemóvel: tocar à esquerda volta e à direita avança; premir e manter pára a story e esconde o topo (largar retoma); deslizar para baixo fecha (o ecrã acompanha o dedo); deslizar para os lados salta para o membro seguinte ou anterior. `/uploads/stories/*` devolve 404: a imagem só se vê pela rota do evento.
 
 No cliente, a lista de stories atualiza-se de 3 em 3 minutos e quando o separador volta a ser visto. Antes de enviar, a imagem é sempre recodificada no navegador (WebP ou JPEG, lado maior até 1600 px), o que tira os metadados da foto (GPS, EXIF); se o navegador não conseguir, a story não se publica, em vez de enviar o original. Os GIF são recusados. O envio tem um limite de 60 segundos. Ao publicar, saem também as stories já expiradas do próprio autor, para que instalações sem cron (Docker, local) não acumulem ficheiros dele.

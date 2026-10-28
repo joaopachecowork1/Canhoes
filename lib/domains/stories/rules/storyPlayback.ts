@@ -32,3 +32,13 @@ export function previousStoryPosition(groups: StoryAuthorDto[], { authorIndex, s
   const previousAuthor = groups[authorIndex - 1];
   return previousAuthor ? { authorIndex: authorIndex - 1, storyIndex: previousAuthor.stories.length - 1 } : null;
 }
+
+/** A primeira story do membro seguinte, ou null depois do último membro. */
+export function nextAuthorPosition(groups: StoryAuthorDto[], { authorIndex }: StoryPosition) {
+  return authorIndex + 1 < groups.length ? { authorIndex: authorIndex + 1, storyIndex: 0 } : null;
+}
+
+/** A primeira story do membro anterior, ou null antes do primeiro membro. */
+export function previousAuthorPosition(groups: StoryAuthorDto[], { authorIndex }: StoryPosition) {
+  return groups[authorIndex - 1] ? { authorIndex: authorIndex - 1, storyIndex: 0 } : null;
+}

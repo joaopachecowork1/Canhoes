@@ -2,7 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import type { StoryAuthorDto } from "@/lib/api/types";
 
-import { findStoryPosition, nextStoryPosition, previousStoryPosition, storyAt } from "./storyPlayback";
+import {
+  findStoryPosition,
+  nextAuthorPosition,
+  nextStoryPosition,
+  previousAuthorPosition,
+  previousStoryPosition,
+  storyAt,
+} from "./storyPlayback";
 
 const story = (id: string) => ({
   id,
@@ -65,5 +72,28 @@ describe("storyAt", () => {
 
   it("returns nothing outside the list", () => {
     expect(storyAt(groups, { authorIndex: 5, storyIndex: 0 })).toBeUndefined();
+  });
+});
+
+describe("nextAuthorPosition", () => {
+  it("jumps to the first story of the next member, skipping the rest of the current one", () => {
+    expect(nextAuthorPosition(groups, { authorIndex: 0, storyIndex: 0 })).toEqual({ authorIndex: 1, storyIndex: 0 });
+  });
+
+  it("is null for the last member", () => {
+    expect(nextAuthorPosition(groups, { authorIndex: 2, storyIndex: 1 })).toBeNull();
+  });
+});
+
+describe("previousAuthorPosition", () => {
+  it("jumps to the first story of the previous member", () => {
+    expect(previousAuthorPosition(groups, { authorIndex: 2, storyIndex: 1 })).toEqual({
+      authorIndex: 1,
+      storyIndex: 0,
+    });
+  });
+
+  it("is null for the first member", () => {
+    expect(previousAuthorPosition(groups, { authorIndex: 0, storyIndex: 1 })).toBeNull();
   });
 });

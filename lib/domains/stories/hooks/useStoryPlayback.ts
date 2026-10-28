@@ -4,7 +4,9 @@ import type { StoryAuthorDto } from "@/lib/api/types";
 
 import {
   findStoryPosition,
+  nextAuthorPosition,
   nextStoryPosition,
+  previousAuthorPosition,
   previousStoryPosition,
   storyAt,
   type StoryPosition,
@@ -47,6 +49,13 @@ export function useStoryPlayback({
     if (target) goTo(target);
   };
 
+  // Saltar de membro: o último membro fecha o visualizador, o primeiro não tem anterior.
+  const nextAuthor = () => goTo(position && nextAuthorPosition(visibleGroups, position));
+  const previousAuthor = () => {
+    const target = position && previousAuthorPosition(visibleGroups, position);
+    if (target) goTo(target);
+  };
+
   /** Tira uma story da lista e, se era a que estava no ecrã, passa à seguinte (ou à anterior, se era a última). */
   const removeStory = (storyId: string) => {
     if (storyId === currentId && position) {
@@ -67,6 +76,8 @@ export function useStoryPlayback({
     markFailed: () => setLoaded({ id: currentId, failed: true }),
     next,
     previous,
+    nextAuthor,
+    previousAuthor,
     removeStory,
   };
 }
