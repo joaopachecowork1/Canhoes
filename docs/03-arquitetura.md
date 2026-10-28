@@ -56,7 +56,7 @@ flowchart TB
 ### Organização de uma funcionalidade
 
 Cada funcionalidade (`admin`, `auth`, `categories`, `event`, `feed`, `gala`, `measures`,
-`secretSanta`, `stickers`, `voting`, `wishlist`) tem uma pasta em `lib/domains/<funcionalidade>/`
+`secretSanta`, `stickers`, `stories`, `voting`, `wishlist`) tem uma pasta em `lib/domains/<funcionalidade>/`
 com as mesmas subpastas:
 
 ```text

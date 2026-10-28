@@ -49,7 +49,7 @@ Serve para o DBeaver, pgAdmin ou o `psql`. Sem instalar nada: `npm run db:studio
 O projeto está configurado para deploy contínuo na [Vercel](https://vercel.com) com PostgreSQL gerido no [Neon Serverless](https://neon.tech) e envio de emails transacionais via [Resend](https://resend.com) no domínio `canhoes.lol`.
 
 - Cada merge ou push para `main` dispara automaticamente o build e deploy na Vercel.
-- As migrações da base de dados são aplicadas via `npx prisma migrate deploy`.
+- As migrações **não** correm no deploy: aplicam-se à mão, antes de fundir, com `npx prisma migrate deploy` (ver [`docs/09-deploy.md`](docs/09-deploy.md) §4).
 - Guia detalhado de configuração de DNS, variáveis de ambiente e produção: [`docs/09-deploy.md`](docs/09-deploy.md).
 
 ## Fluxo de Desenvolvimento e Validação
@@ -126,7 +126,7 @@ git push origin <tua-branch>
 
 Ao abrir e fundir o Pull Request em `main`:
 - A Vercel deteta a alteração e executa o build de produção (`npm run build`).
-- As migrações da base de dados são aplicadas na base de dados Neon (`npx prisma migrate deploy`).
+- As migrações já têm de estar aplicadas na base de dados Neon (à mão, `npx prisma migrate deploy`, antes de fundir; ver [`docs/09-deploy.md`](docs/09-deploy.md) §4).
 - A aplicação fica disponível em `https://canhoes.lol`.
 
 ## Base de dados
@@ -152,6 +152,8 @@ Numa base de dados que já existia antes das migrations Prisma, corre `npm run d
 ## Uploads
 
 Por omissão os ficheiros ficam em `.data/uploads`, fora do Git; `UPLOADS_DIR` muda o diretório. Os nomes são gerados no servidor, a escrita é atómica, os caminhos são validados e só são aceites JPEG, PNG, GIF e WebP até 10 MB.
+
+As stories (imagens que desaparecem ao fim de 24 horas) aceitam só JPEG, PNG e WebP até 4 MB, guardam-se em `stories/<eventId>/` e não se servem por `/uploads`: vêm da rota autenticada do evento, sem cache. Um cron diário apaga as expiradas (ver `docs/09-deploy.md`, que também diz como configurar `CRON_SECRET` e a lifecycle do R2).
 
 ## Pastas
 

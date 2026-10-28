@@ -157,6 +157,12 @@
   }
 }
 
+/* A barra de progresso de uma story: enche de um lado ao outro (só transform, como pede a regra de animações). */
+@keyframes story-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 /* Brilho dos esqueletos de carregamento. */
 .skeleton-shimmer {
   position: relative;

@@ -98,18 +98,11 @@ export async function readCloudUpload(key: string) {
   };
 }
 
-/** Apaga um ficheiro do bucket R2/S3. */
-export async function deleteCloudUpload(key: string) {
+/** Apaga um ficheiro do bucket R2/S3 e deixa subir qualquer falha (apagar uma chave que não existe não falha). */
+export async function deleteCloudObject(key: string) {
   const config = getCloudConfig();
   const client = getS3Client();
-  if (!config || !client) return;
+  if (!config || !client) throw new Error("Cloud storage is not configured.");
 
-  await client
-    .send(
-      new DeleteObjectCommand({
-        Bucket: config.bucket,
-        Key: key,
-      }),
-    )
-    .catch(() => undefined);
+  await client.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: key }));
 }

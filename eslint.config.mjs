@@ -186,6 +186,8 @@ const eslintConfig = defineConfig([
     // Local agent skills (git-ignored).
     ".agents/**",
     ".claude/**",
+    // Local code-map tooling (git-ignored).
+    "floorplan/**",
   ]),
 ]);
 

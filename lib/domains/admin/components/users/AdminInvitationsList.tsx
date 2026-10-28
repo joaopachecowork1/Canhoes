@@ -166,7 +166,7 @@ function useAdminInvitations(eventId: string) {
         toast.success(copy.resendSuccess);
       } else {
         const warningMsg = result.emailReason
-          ? `${inviteUserCopy.generatedOnly}: ${result.emailReason}`
+          ? formatMessage(inviteUserCopy.generatedOnlyWithReason, { reason: result.emailReason })
           : inviteUserCopy.generatedOnly;
         toast.warning(warningMsg);
       }

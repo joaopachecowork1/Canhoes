@@ -64,6 +64,7 @@ model User {
   hubPostMedia            HubPostMedia[]
   hubPostLikes            HubPostLike[]
   eventGatherings         EventGathering[]
+  stories                 Story[]
   eventGatheringDateVotes EventGatheringDateVote[]
   eventGatheringRsvps     EventGatheringRsvp[]
 
@@ -96,6 +97,7 @@ model Event {
   createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
 
   members EventMember[]
+  stories Story[]
 
   @@index([isActive], map: "IX_Events_IsActive")
   @@map("Events")
@@ -555,4 +557,23 @@ model EventGatheringRsvp {
   @@unique([gatheringId, userId], map: "IX_EventGatheringRsvps_GatheringId_UserId")
   @@index([gatheringId], map: "IX_EventGatheringRsvps_GatheringId")
   @@map("EventGatheringRsvps")
+}
+
+/// An image that disappears 24 hours after it is posted. Only the storage key is kept (never a public URL):
+/// the file is served by an authenticated route and removed by the daily cleanup.
+model Story {
+  id           String   @id(map: "PK_Stories") @default(uuid()) @map("Id") @db.VarChar(64)
+  eventId      String   @map("EventId") @db.VarChar(64)
+  authorUserId String   @map("AuthorUserId") @db.Uuid
+  storageKey   String   @unique(map: "IX_Stories_StorageKey") @map("StorageKey") @db.VarChar(1024)
+  contentType  String   @map("ContentType") @db.VarChar(128)
+  createdAtUtc DateTime @default(now()) @map("CreatedAtUtc") @db.Timestamptz(6)
+  expiresAtUtc DateTime @map("ExpiresAtUtc") @db.Timestamptz(6)
+
+  event  Event @relation(fields: [eventId], references: [id], onDelete: Cascade, map: "FK_Stories_EventId")
+  author User  @relation(fields: [authorUserId], references: [id], onDelete: Cascade, map: "FK_Stories_AuthorUserId")
+
+  @@index([eventId, expiresAtUtc], map: "IX_Stories_EventId_ExpiresAtUtc")
+  @@index([authorUserId, eventId, expiresAtUtc], map: "IX_Stories_AuthorUserId_EventId_ExpiresAtUtc")
+  @@map("Stories")
 }

@@ -2,7 +2,7 @@ import { mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { HttpError } from "@/lib/api/httpError";
-import { deleteCloudUpload, isCloudStorageConfigured, readCloudUpload, saveCloudUpload } from "./cloudStorage";
+import { deleteCloudObject, isCloudStorageConfigured, readCloudUpload, saveCloudUpload } from "./cloudStorage";
 
 // Tamanho máximo de uma imagem: 10 MB.
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -64,13 +64,18 @@ function safePath(segments: string[]) {
   return target;
 }
 
-/** Guarda uma imagem (JPEG, PNG, GIF ou WebP, até 10 MB) localmente ou no R2/S3 e devolve o URL público `/uploads/...`. */
-export async function saveUpload(file: File, folders: string[]) {
+/** O que um upload pode ser: os formatos aceites e o tamanho máximo em bytes. */
+export type UploadRules = { allowedTypes: string[]; maxBytes: number };
+
+const DEFAULT_UPLOAD_RULES: UploadRules = { allowedTypes: Object.keys(ALLOWED_TYPES), maxBytes: MAX_UPLOAD_BYTES };
+
+/** Guarda uma imagem localmente ou no R2/S3 e devolve o URL `/uploads/...`; por omissão JPEG, PNG, GIF ou WebP até 10 MB. */
+export async function saveUpload(file: File, folders: string[], rules: UploadRules = DEFAULT_UPLOAD_RULES) {
   // Validação: tipo declarado, tamanho e assinatura real do conteúdo.
-  const extension = ALLOWED_TYPES[file.type];
+  const extension = rules.allowedTypes.includes(file.type) ? ALLOWED_TYPES[file.type] : undefined;
   if (!extension) throw new UploadValidationError("Unsupported image type.");
-  if (file.size <= 0 || file.size > MAX_UPLOAD_BYTES) {
-    throw new UploadValidationError("Image must be between 1 byte and 10 MB.");
+  if (file.size <= 0 || file.size > rules.maxBytes) {
+    throw new UploadValidationError(`Image must be between 1 byte and ${rules.maxBytes / (1024 * 1024)} MB.`);
   }
 
   const content = new Uint8Array(await file.arrayBuffer());
@@ -98,6 +103,22 @@ export async function saveUpload(file: File, folders: string[]) {
   };
 }
 
+/** Diz se o erro traz uma resposta HTTP 404 do R2/S3 (`$metadata.httpStatusCode`). */
+function isNotFoundResponse(error: object) {
+  const metadata = "$metadata" in error ? error.$metadata : null;
+  return (
+    typeof metadata === "object" && metadata !== null && "httpStatusCode" in metadata && metadata.httpStatusCode === 404
+  );
+}
+
+/** Diz se o erro significa que o ficheiro não existe (disco local, R2/S3 ou resposta 404). */
+export function isMissingFileError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const hasCode = "code" in error && error.code === "ENOENT";
+  const hasName = "name" in error && error.name === "NoSuchKey";
+  return hasCode || hasName || isNotFoundResponse(error);
+}
+
 /** Lê um upload guardado e o seu tipo de conteúdo; o caminho não pode sair de `UPLOADS_DIR`. */
 export async function readUpload(segments: string[]) {
   validateSegments(segments);
@@ -113,18 +134,24 @@ export async function readUpload(segments: string[]) {
   return { buffer: await readFile(physicalPath), contentType };
 }
 
-/** Apaga um upload pelo seu URL `/uploads/...`; outros URLs e ficheiros inexistentes são ignorados. */
-export async function deleteUpload(url: string) {
-  const prefix = "/uploads/";
-  if (!url.startsWith(prefix)) return;
-  const key = url.slice(prefix.length);
+/** Apaga um ficheiro pela sua chave `pasta/ficheiro`: ignora um ficheiro que já não existe, mas deixa subir qualquer outra falha. */
+export async function deleteStoredFile(key: string) {
   const segments = key.split("/").filter(Boolean);
-  if (segments.length === 0 || segments.some((segment) => !SEGMENT_PATTERN.test(segment))) return;
+  validateSegments(segments);
 
   if (isCloudStorageConfigured()) {
-    await deleteCloudUpload(segments.join("/"));
+    await deleteCloudObject(segments.join("/"));
     return;
   }
 
-  await unlink(safePath(segments)).catch(() => undefined);
+  await unlink(safePath(segments)).catch((error: NodeJS.ErrnoException) => {
+    if (error.code !== "ENOENT") throw error;
+  });
+}
+
+/** Apaga um upload pelo seu URL `/uploads/...`; outros URLs, caminhos inválidos, ficheiros inexistentes e falhas são ignorados. */
+export async function deleteUpload(url: string) {
+  const prefix = "/uploads/";
+  if (!url.startsWith(prefix)) return;
+  await deleteStoredFile(url.slice(prefix.length)).catch(() => undefined);
 }

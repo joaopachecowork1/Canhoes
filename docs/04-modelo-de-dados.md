@@ -76,6 +76,7 @@ Organização de jantares/encontros da edição: votação de datas, RSVPs e sug
 | `GatheringRsvp` (`GatheringRsvps`) | Presenças confirmadas no encontro (`YES`, `NO`, `MAYBE`). | `(gatheringId, userId)` |
 | `GatheringPlace` (`GatheringPlaces`) | Restaurantes e locais sugeridos para o evento/encontro. | |
 | `PlaceFavorite` (`PlaceFavorites`) | Locais favoritos marcados pelos membros. | `(placeId, userId)` |
+| `Story` (`Stories`) | Imagem que desaparece 24 horas depois (`expiresAtUtc`). Guarda só a chave do ficheiro (`stories/<eventId>/<ficheiro>`), nunca um URL público; o ficheiro é apagado pela limpeza diária. Apagar o autor ou o evento apaga as linhas (mas não os ficheiros, que só a lifecycle do R2 apanha). | `storageKey` |
 | `HubPost*` (`HubPosts`, …) | Mural: posts, imagens, sondagens, comentários, reações, likes, downvotes. | Um like, downvote e voto de sondagem por pessoa; uma reação por emoji por pessoa |
 
 ## Integridade dos utilizadores
@@ -84,7 +85,7 @@ Toda a coluna que guarda um id de utilizador tem chave estrangeira para `Users` 
 
 | Quando o utilizador é apagado | Tabelas |
 |---|---|
-| Apaga a participação (`CASCADE`) | `EventMember`, `Vote` (como votante), `WishlistItem`, `HubPostLike`, `HubPostDownvote`, `HubPostReaction`, `HubPostCommentReaction`, `HubPostPollVote`, `EventGatheringDateVote`, `EventGatheringRsvp` |
+| Apaga a participação (`CASCADE`) | `EventMember`, `Vote` (como votante), `WishlistItem`, `HubPostLike`, `HubPostDownvote`, `HubPostReaction`, `HubPostCommentReaction`, `HubPostPollVote`, `EventGatheringDateVote`, `EventGatheringRsvp`, `Story` (como autor) |
 | Recusa apagar (`RESTRICT`) | `Vote` (como alvo, para manter o histórico das votações), `HubPost`, `HubPostComment`, `Nominee`, `CategoryProposal`, `MeasureProposal`, `SecretSantaDraw`, `SecretSantaAssignment`, `EventGathering`, `UserInvitation.invitedByUserId` |
 | Limpa a referência (`SET NULL`) | `HubPostMedia.uploadedByUserId` |
 

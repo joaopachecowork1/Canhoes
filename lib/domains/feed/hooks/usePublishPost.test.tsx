@@ -72,6 +72,68 @@ describe("usePublishPost", () => {
     });
   });
 
+  it("sends a gathering with its place tidied and only the dates that were filled in", async () => {
+    const recorder = recordRequests();
+    server.use(
+      http.post(`*/api/v1/${EVENT}/posts`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(post(), { status: 201 });
+      }),
+    );
+    const { result } = setup();
+
+    await act(async () => {
+      await result.current.publish(
+        draft({
+          gathering: {
+            isEnabled: true,
+            title: " Jantar ",
+            location: " Taberna ",
+            locationAddress: " Rua A ",
+            latitude: 38.7,
+            longitude: -9.1,
+            mapUrl: " https://maps.example.test ",
+            placeId: " p1 ",
+            description: " Sobremesas ",
+            dates: [" Sexta ", "  ", "Sábado"],
+          },
+        }),
+      );
+    });
+
+    expect(recorder.requests[0]?.body).toMatchObject({
+      gatheringTitle: "Jantar",
+      gatheringDescription: "Sobremesas",
+      gatheringDates: ["Sexta", "Sábado"],
+      gatheringLocation: "Taberna",
+      gatheringLocationAddress: "Rua A",
+      gatheringLatitude: 38.7,
+      gatheringLongitude: -9.1,
+      gatheringMapUrl: "https://maps.example.test",
+      gatheringPlaceId: "p1",
+    });
+  });
+
+  it.each([
+    ["is switched off", { isEnabled: false, title: "Jantar" }],
+    ["has no title", { isEnabled: true, title: "   " }],
+  ])("sends no gathering when it %s", async (_label, gathering) => {
+    const recorder = recordRequests();
+    server.use(
+      http.post(`*/api/v1/${EVENT}/posts`, async ({ request }) => {
+        await recorder.capture(request);
+        return HttpResponse.json(post(), { status: 201 });
+      }),
+    );
+    const { result } = setup();
+
+    await act(async () => {
+      await result.current.publish(draft({ gathering: { location: "", description: "", dates: [], ...gathering } }));
+    });
+
+    expect(recorder.requests[0]?.body).not.toHaveProperty("gatheringTitle");
+  });
+
   it("refuses an empty text, an unfinished poll and a missing event without calling the API", async () => {
     const withEvent = setup();
     const withoutEvent = setup(null);

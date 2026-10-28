@@ -6,12 +6,7 @@ import { toast } from "sonner";
 import { formatMessage } from "@/lib/messages";
 import messages from "@/messages/pt.json";
 
-import {
-  isAcceptedImage,
-  MAX_FILE_BYTES,
-  MAX_FILE_MB,
-  normalizeUploadImage,
-} from "../components/compose/composeUpload";
+import { isAcceptedImage, MAX_FILE_BYTES, MAX_FILE_MB, normalizeUploadImage } from "@/lib/uploadImage";
 import { getFileKey, MAX_MEDIA_FILES, MAX_POLL_OPTIONS, MIN_POLL_OPTIONS, moveItem } from "../rules/composeRules";
 
 const copy = messages.feed.compose;

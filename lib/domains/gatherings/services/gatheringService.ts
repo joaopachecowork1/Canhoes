@@ -149,17 +149,26 @@ async function getGatheringDetails(gatheringId: string, userId: string): Promise
   };
 }
 
+/** Um encontro dentro do evento a que o pedido diz pertencer; procurá-lo pelos dois impede de mexer num encontro de outro evento. */
+type GatheringRef = { eventId: string; gatheringId: string };
+
+/** Garante que o encontro existe dentro do evento; um encontro de outro evento conta como inexistente. */
+async function assertGatheringInEvent({ eventId, gatheringId }: GatheringRef) {
+  const gathering = await prisma.eventGathering.findFirst({
+    where: { id: gatheringId, eventId },
+    select: { id: true },
+  });
+  if (!gathering) throw notFound("Gathering not found");
+}
+
 /** Alterna a disponibilidade de um membro para uma opção de data (múltipla escolha). */
 export async function toggleGatheringDateVote(
-  gatheringId: string,
+  ref: GatheringRef,
   optionId: string,
   userId: string,
 ): Promise<EventGatheringDto> {
-  const gathering = await prisma.eventGathering.findUnique({
-    where: { id: gatheringId },
-    select: { id: true, status: true },
-  });
-  if (!gathering) throw notFound("Gathering not found");
+  await assertGatheringInEvent(ref);
+  const { gatheringId } = ref;
 
   const option = await prisma.eventGatheringDateOption.findFirst({
     where: { id: optionId, gatheringId },
@@ -192,15 +201,12 @@ export async function toggleGatheringDateVote(
 
 /** Confirma a data oficial do encontro e transita para o modo RSVP. */
 export async function confirmGatheringDate(
-  gatheringId: string,
+  ref: GatheringRef,
   dateText: string,
   userId: string,
 ): Promise<EventGatheringDto> {
-  const gathering = await prisma.eventGathering.findUnique({
-    where: { id: gatheringId },
-    select: { id: true },
-  });
-  if (!gathering) throw notFound("Gathering not found");
+  await assertGatheringInEvent(ref);
+  const { gatheringId } = ref;
 
   await prisma.eventGathering.update({
     where: { id: gatheringId },
@@ -215,16 +221,13 @@ export async function confirmGatheringDate(
 
 /** Submete ou atualiza o RSVP de um membro para o encontro. */
 export async function submitGatheringRsvp(
-  gatheringId: string,
+  ref: GatheringRef,
   userId: string,
   status: EventGatheringRsvpStatus,
   note?: string | null,
 ): Promise<EventGatheringDto> {
-  const gathering = await prisma.eventGathering.findUnique({
-    where: { id: gatheringId },
-    select: { id: true },
-  });
-  if (!gathering) throw notFound("Gathering not found");
+  await assertGatheringInEvent(ref);
+  const { gatheringId } = ref;
 
   await prisma.eventGatheringRsvp.upsert({
     where: { gatheringId_userId: { gatheringId, userId } },

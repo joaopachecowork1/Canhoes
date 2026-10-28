@@ -62,7 +62,6 @@
     "HubFeedModule": {
       "loadError": "Não deu para abrir o mural. Tenta outra vez.",
       "currentUserFallback": "Tu",
-      "membersLabel": "Membros",
       "composeSlot": "Cola aqui a tua publicação",
       "title": "Mural"
     },
@@ -778,7 +777,7 @@
       "submit": "Gerar Convite",
       "generated": "Convite gerado com sucesso.",
       "sentAndGenerated": "Convite enviado por email e link gerado com sucesso.",
-      "generatedOnly": "Convite gerado com sucesso (email não enviado).",
+      "generatedOnly": "Convite gerado, mas o email não foi enviado. Copia o link e envia-o tu.",
       "error": "Não foi possível gerar o convite. Tenta outra vez.",
       "badRequest": "Não foi possível gerar o convite.",
       "copied": "Link de convite copiado!",
@@ -790,7 +789,8 @@
       "adminRole": "Administrador",
       "adminNotice": "Este utilizador terá privilégios totais de administração no evento.",
       "googleOrPasswordNotice": "O utilizador pode concluir o registo pelo link ou iniciar sessão diretamente com o Google através deste email.",
-      "roleBadge": "Acesso: {role}"
+      "roleBadge": "Acesso: {role}",
+      "generatedOnlyWithReason": "Convite gerado, mas o email não foi enviado ({reason}). Copia o link e envia-o tu."
     },
     "AdminInvitationsList": {
       "title": "Convites Gerados",
@@ -945,6 +945,43 @@
     "byCode": {
       "UNHANDLED_SERVER_ERROR": "O servidor teve um problema inesperado. Tenta outra vez.",
       "RATE_LIMIT_EXCEEDED": "Demasiados pedidos seguidos. Espera um pouco e tenta outra vez."
+    }
+  },
+  "stories": {
+    "StoriesStrip": {
+      "label": "Stories",
+      "addLabel": "Publicar uma story",
+      "addCaption": "A tua story",
+      "publishing": "A publicar...",
+      "viewLabel": "Ver as stories de {name}",
+      "listLabel": "Membros e stories"
+    },
+    "usePublishStory": {
+      "published": "Story publicada. Desaparece daqui a 24 horas.",
+      "notAnImage": "Escolhe uma imagem JPEG, PNG ou WebP.",
+      "tooLarge": "A imagem é demasiado grande (máximo {max} MB).",
+      "publishError": "Não deu para publicar a story. Tenta outra vez.",
+      "reencodeError": "Não deu para preparar esta imagem. Tenta outra foto.",
+      "limitReached": "Já tens {max} stories ativas, o máximo. Apaga uma ou espera que uma expire."
+    },
+    "useDeleteStory": {
+      "deleted": "Story apagada.",
+      "deleteError": "Não deu para apagar a story. Tenta outra vez."
+    },
+    "StoryViewer": {
+      "title": "Stories de {name}",
+      "close": "Fechar",
+      "previous": "Story anterior",
+      "next": "Story seguinte",
+      "pause": "Pausar",
+      "play": "Retomar",
+      "progress": "{name}, story {current} de {total}",
+      "imageAlt": "Story de {name}",
+      "imageError": "Não deu para carregar esta story.",
+      "delete": "Apagar story",
+      "deleteTitle": "Apagar esta story?",
+      "confirmDelete": "Apagar",
+      "deleteDescription": "Vai desaparecer para todos. Não dá para desfazer."
     }
   }
 }

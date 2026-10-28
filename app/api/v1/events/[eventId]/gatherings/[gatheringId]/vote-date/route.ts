@@ -9,6 +9,6 @@ export const POST = apiRoute<{ eventId: string; gatheringId: string }>(async (re
   await requireEventAccess(eventId, user);
 
   const { optionId } = await readJson(request, VoteGatheringDateSchema);
-  const gathering = await toggleGatheringDateVote(gatheringId, optionId, user.id);
+  const gathering = await toggleGatheringDateVote({ eventId, gatheringId }, optionId, user.id);
   return json(gathering);
 });

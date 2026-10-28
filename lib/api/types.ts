@@ -48,6 +48,23 @@ export type PublicUserDto = {
   color: string;
 };
 
+/** Uma story ativa; a imagem pede-se ao endereço `mediaUrl`, que exige sessão. */
+export type StoryDto = {
+  id: string;
+  createdAtUtc: string;
+  expiresAtUtc: string;
+  mediaUrl: string;
+};
+
+/** As stories ativas de um membro, da mais antiga para a mais recente. */
+export type StoryAuthorDto = {
+  authorUserId: string;
+  authorName: string;
+  /** Chave da paleta com a cor do membro (lib/personColors.ts). */
+  authorColor: string;
+  stories: StoryDto[];
+};
+
 /** Um item da lista de desejos de um membro. */
 export type EventWishlistItemDto = {
   id: string;

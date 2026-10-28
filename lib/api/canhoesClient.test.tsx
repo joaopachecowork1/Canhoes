@@ -76,4 +76,19 @@ describe("canhoesFetch", () => {
     await expect(pending).resolves.toMatchObject({ status: 408 });
     vi.useRealTimers();
   });
+
+  it("gives an upload longer than a normal request before giving up", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    server.use(
+      http.post("*/api/v1/slow-upload", async () => {
+        await delay(15_000);
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+    const pending = canhoesFetch("v1/slow-upload", { method: "POST", body: new FormData() });
+    await vi.advanceTimersByTimeAsync(20_000);
+    vi.useRealTimers();
+
+    await expect(pending).resolves.toEqual({ ok: true });
+  });
 });

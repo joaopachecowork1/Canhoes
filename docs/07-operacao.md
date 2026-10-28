@@ -13,6 +13,7 @@ Todas as variáveis estão em `.env.example`, que é o modelo para o `.env`.
 | `ADMIN_EMAILS` | recomendado | Emails que o seed cria como admins, separados por vírgulas |
 | `SEED_DEMO_DATA` | não | `true` para criar membros, categorias e posts falsos; por omissão só fora de produção |
 | `UPLOADS_DIR` | não | Pasta dos uploads (por omissão `.data/uploads`) |
+| `CRON_SECRET` | em produção na Vercel | Segredo com que a Vercel chama `/api/cron/stories-cleanup` (`Authorization: Bearer …`); sem ele a rota recusa tudo e os ficheiros das stories expiradas ficam no armazenamento (`openssl rand -base64 32`) |
 | `AUTH_TRUST_HOST` | atrás de proxy | Constrói os URLs de auth a partir do host reencaminhado |
 | `TRUST_CF_CONNECTING_IP` | só com o túnel Cloudflare | `true` faz os limites de pedidos usarem o `CF-Connecting-IP`, que a Cloudflare reescreve. Fora do túnel qualquer pessoa o pode enviar, por isso fica desligado por omissão e os limites usam o `x-forwarded-for`, que quem chama pode forjar; só o limite de login por email resiste a isso |
 | `CANHOES_INTERNAL_URL` | atrás de proxy | URL com que as páginas de servidor chamam a própria API (por omissão `http://localhost:3000`; com `npm run dev`, que serve HTTPS, usa `https://localhost:3000` e `NODE_TLS_REJECT_UNAUTHORIZED=0`) |

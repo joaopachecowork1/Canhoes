@@ -12,6 +12,7 @@ Legenda da coluna "Quem":
 | membro + módulo X | `requireModule`: membro, e o módulo X aberto na fase atual (admins passam) |
 | membro + propostas | `requireProposalsOpen`: membro, e a fase PROPOSALS com "Aceitar propostas" ligado (`nominationsVisible`; admins passam) |
 | admin | `requireAdmin` |
+| segredo do cron | `requireCronSecret`: `Authorization: Bearer $CRON_SECRET`, em tempo constante; sem `CRON_SECRET` configurado recusa tudo (401) |
 
 ## Públicas e de conta
 
@@ -22,8 +23,9 @@ Legenda da coluna "Quem":
 | GET, POST | `/api/admin/invites` | admin | `listInvitations`, `createInvitation` (com envio de email Resend) |
 | DELETE | `/api/admin/invites/[inviteId]` | admin | `cancelInvitation` |
 | GET | `/api/health` | público | Estado da base de dados (200 ou 503) |
+| GET | `/api/cron/stories-cleanup` | segredo do cron | `cleanupExpiredStories`: apaga as stories expiradas, ficheiro primeiro e linha depois, por lotes até não haver mais, ao fim de 45 s ou de 1000 (uma story com a chave estragada perde só a linha); `maxDuration` 60 s; devolve `{ deleted, failed }` (500 se `failed > 0`, para a falha aparecer nos registos do cron). Chamada pela Vercel todos os dias (`vercel.json`) |
 | POST | `/api/telemetry/log` | público | Erros do browser em produção, para o log do servidor |
-| GET | `/api/uploads/[...path]` | público | `readUpload` (também servido em `/uploads/*`) |
+| GET | `/api/uploads/[...path]` | público | `readUpload` (também servido em `/uploads/*`); devolve 404 para `stories/…`, que só se veem pelas rotas autenticadas do evento |
 | GET | `/api/v1/events/active/context` | sessão | `getActiveEventContext` |
 | PUT | `/api/v1/me/color` | sessão | `setUserColor` (a cor da pessoa, uma das 8 de `lib/personColors.ts`) |
 
@@ -49,6 +51,9 @@ Legenda da coluna "Quem":
 | DELETE | `wishlist/[itemId]` | membro (dono ou admin) | `deleteWishlistItem` |
 | POST | `wishlist/[itemId]/image` | membro (dono ou admin) | `replaceWishlistImage` |
 | PATCH | `modules` | admin | `updateEventModules` |
+| GET, POST | `stories` | membro + módulo `feed` | `listActiveStories` (as stories ativas agrupadas por membro, o mais recente primeiro; só de quem ainda está no evento, ou é admin), `createStory`: multipart com o campo `file` (JPEG, PNG ou WebP até 4 MB; 411 se o pedido não declarar o tamanho, 413 se passar o limite, 409 `STORY_LIMIT_REACHED` à 11.ª story ativa; rate limit estrito). Devolve `201 { id, createdAtUtc, expiresAtUtc }`, nunca a chave do ficheiro |
+| GET | `stories/[storyId]/media` | membro + módulo `feed` | `readStoryMedia`: a imagem, com `Cache-Control: private, no-store`; 404 se a story expirou, é de outro evento, o autor saiu ou o ficheiro já não existe |
+| DELETE | `stories/[storyId]` | membro (autor ou admin) | `deleteStory`: apaga primeiro o ficheiro e depois a linha, por isso uma falha do armazenamento pode repetir-se; 204. Só exige acesso ao evento, não o mural aberto, para o autor poder sempre retirar a sua story |
 
 ## Mural (`/api/v1/events/[eventId]/feed/…`)
 

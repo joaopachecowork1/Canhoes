@@ -23,7 +23,7 @@ export default defineConfig({
       exclude: ["**/*.test.{ts,tsx}", "**/*.d.ts", "lib/api/types.ts", "lib/generated/**"],
       // shortcut: a ratchet just under today's numbers (unit + component + integration); raise it
       // with every batch of tests until branches reach 90 too.
-      thresholds: { lines: 93, statements: 92, functions: 90, branches: 83 },
+      thresholds: { lines: 93.5, statements: 92.2, functions: 90.8, branches: 83.5 },
     },
     projects: [
       {
@@ -58,6 +58,13 @@ export default defineConfig({
             DEV_AUTH_BYPASS_ENABLED: "false",
             // A shell that exports a local .env must not open Google sign-in to everyone during tests.
             AUTH_ALLOW_PUBLIC_GOOGLE_SIGNIN: "false",
+            // Um shell com o R2 configurado não pode fazer os testes de upload escreverem e apagarem no bucket a sério.
+            R2_BUCKET: "",
+            S3_BUCKET: "",
+            R2_ACCESS_KEY_ID: "",
+            R2_SECRET_ACCESS_KEY: "",
+            AWS_ACCESS_KEY_ID: "",
+            AWS_SECRET_ACCESS_KEY: "",
           },
         },
       },

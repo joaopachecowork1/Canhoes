@@ -91,44 +91,58 @@ async function decodeImage(file: File) {
   }
 }
 
-/** Reduz e comprime a imagem (WebP ou JPEG) antes do envio; em qualquer falha devolve o original. */
-export async function normalizeUploadImage(file: File) {
-  const mustTranscode = shouldTranscode(file);
+/** Desenha a imagem num canvas com o lado maior até 1600 px e codifica-a em WebP ou JPEG; null se o navegador não conseguir. */
+async function encodeResized(file: File) {
+  const sourceImage = await decodeImage(file);
+  // nunca amplia: a escala máxima é 1
+  const scale = Math.min(1, TARGET_MAX_DIMENSION / Math.max(sourceImage.width, sourceImage.height));
+  const targetWidth = Math.max(1, Math.round(sourceImage.width * scale));
+  const targetHeight = Math.max(1, Math.round(sourceImage.height * scale));
 
-  if (!mustTranscode && file.size <= TARGET_UPLOAD_BYTES) return file;
+  const canvas = document.createElement("canvas");
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
 
-  try {
-    // nunca amplia: a escala máxima é 1
-    const sourceImage = await decodeImage(file);
-    const scale = Math.min(1, TARGET_MAX_DIMENSION / Math.max(sourceImage.width, sourceImage.height));
-    const targetWidth = Math.max(1, Math.round(sourceImage.width * scale));
-    const targetHeight = Math.max(1, Math.round(sourceImage.height * scale));
+  const context = canvas.getContext("2d", { alpha: false });
+  if (!context) return null;
+  // Uma foto de telemóvel reduzida de uma vez, com a suavização por omissão, fica serrilhada.
+  context.imageSmoothingQuality = "high";
 
-    const canvas = document.createElement("canvas");
-    canvas.width = targetWidth;
-    canvas.height = targetHeight;
+  sourceImage.draw(context, targetWidth, targetHeight);
 
-    const context = canvas.getContext("2d", { alpha: false });
-    if (!context) return file;
+  const mimeType = supportsWebpEncode() ? "image/webp" : "image/jpeg";
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mimeType, TARGET_QUALITY));
+  return blob ? { blob, mimeType } : null;
+}
 
-    sourceImage.draw(context, targetWidth, targetHeight);
+/** O ficheiro recodificado, com o nome do original e a extensão do novo formato. */
+function toReplacementFile(original: File, blob: Blob, mimeType: string) {
+  const extension = mimeType === "image/webp" ? "webp" : "jpg";
+  const baseName = original.name.replace(/\.[^/.]+$/, "");
 
-    const mimeType = supportsWebpEncode() ? "image/webp" : "image/jpeg";
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, mimeType, TARGET_QUALITY));
+  return new File([blob], `${baseName}.${extension}`, { lastModified: Date.now(), type: mimeType });
+}
 
-    if (!blob) return file;
+/** Devolve o original; com `alwaysReencode` falha, porque enviá-lo seria enviar os metadados (GPS, EXIF) que se queriam tirar. */
+function keepOriginal(file: File, alwaysReencode: boolean) {
+  if (alwaysReencode) throw new Error("The image could not be re-encoded.");
+  return file;
+}
 
-    // só troca o original se ficar mais pequeno, exceto HEIC/HEIF que tem de ser convertido
-    if (!mustTranscode && blob.size >= file.size) return file;
+/**
+ * Reduz e comprime a imagem (WebP ou JPEG) antes do envio; em qualquer falha devolve o original.
+ * Com `alwaysReencode`, recodifica sempre (mesmo se não ficar mais pequena) para tirar os metadados (GPS, EXIF), e falha em vez de devolver o original.
+ */
+export async function normalizeUploadImage(file: File, { alwaysReencode = false }: { alwaysReencode?: boolean } = {}) {
+  const mustReplace = alwaysReencode || shouldTranscode(file);
 
-    const extension = mimeType === "image/webp" ? "webp" : "jpg";
-    const baseName = file.name.replace(/\.[^/.]+$/, "");
+  if (!mustReplace && file.size <= TARGET_UPLOAD_BYTES) return file;
 
-    return new File([blob], `${baseName}.${extension}`, {
-      lastModified: Date.now(),
-      type: mimeType,
-    });
-  } catch {
-    return file;
-  }
+  const encoded = await encodeResized(file).catch(() => null);
+  if (!encoded) return keepOriginal(file, alwaysReencode);
+
+  // só troca o original se ficar mais pequeno, exceto HEIC/HEIF (tem de ser convertido) e quando se pede para recodificar sempre
+  if (!mustReplace && encoded.blob.size >= file.size) return file;
+
+  return toReplacementFile(file, encoded.blob, encoded.mimeType);
 }

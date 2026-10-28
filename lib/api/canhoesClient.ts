@@ -48,6 +48,13 @@ async function readBody(response: Response) {
 
 // Passado este tempo o pedido é abortado.
 const REQUEST_TIMEOUT_MS = 10_000;
+// Um upload em 4G lento leva mais de 10 s; abortá-lo no cliente deixa o servidor concluir e uma repetição duplica o pedido.
+const UPLOAD_TIMEOUT_MS = 60_000;
+
+/** Quanto se espera pelo pedido: um upload (corpo `FormData`) leva mais tempo do que um pedido normal. */
+function readTimeoutMs(body: BodyInit | null | undefined) {
+  return body instanceof FormData ? UPLOAD_TIMEOUT_MS : REQUEST_TIMEOUT_MS;
+}
 
 /** Cabeçalhos do pedido: JSON por defeito, exceto em FormData (o browser põe o boundary). */
 function buildHeaders(requestInit: RequestInit) {
@@ -93,7 +100,7 @@ export async function canhoesFetch<T>(path: string, init: CanhoesRequestInit = {
   // Só os GETs são partilhados; uma escrita nunca reaproveita outro pedido.
   const request = (async () => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), readTimeoutMs(requestInit.body));
     try {
       const response = await fetch(`/api/${normalized}`, {
         ...requestInit,

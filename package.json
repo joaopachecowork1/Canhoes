@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "// dev": "Inicia o servidor de desenvolvimento Next.js com HTTPS (porta 3000) e Turbopack, essencial para câmara e PWA.",
-    "dev": "next dev --experimental-https -p 3000",
+    "dev": "NODE_EXTRA_CA_CERTS=${NODE_EXTRA_CA_CERTS:-$HOME/.local/share/mkcert/rootCA.pem} next dev --experimental-https -p 3000",
 
     "// postinstall": "Gera o cliente tipado Prisma Client automaticamente após qualquer instalação de dependências.",
     "postinstall": "prisma generate",

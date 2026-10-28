@@ -15,6 +15,7 @@ export const queryKeys = {
   eventMembers: (eventId: EventId) => ["eventMembers", eventId] as const,
   hubPosts: (eventId: EventId) => ["hub-posts", eventId] as const,
   hubComments: (postId: string) => ["hub-comments", postId] as const,
+  stories: (eventId: EventId) => ["stories", eventId] as const,
   wishlistItems: (eventId: EventId) => ["wishlistItems", eventId] as const,
   secretSantaOverview: (eventId: EventId) => ["secretSantaOverview", eventId] as const,
   secretSantaWishlist: (eventId: EventId) => ["secretSantaWishlist", eventId] as const,

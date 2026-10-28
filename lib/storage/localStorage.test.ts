@@ -2,7 +2,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { deleteUpload, readUpload, saveUpload, UploadValidationError } from "./localStorage";
+import { deleteUpload, isMissingFileError, readUpload, saveUpload, UploadValidationError } from "./localStorage";
 
 let testRoot: string;
 
@@ -55,5 +55,25 @@ describe("local upload storage", () => {
 
   it("blocks paths outside the configured storage root", async () => {
     await expect(readUpload(["..", "secret.txt"])).rejects.toBeInstanceOf(UploadValidationError);
+  });
+});
+
+describe("isMissingFileError", () => {
+  it.each([
+    ["a missing file on disk", Object.assign(new Error("gone"), { code: "ENOENT" })],
+    ["a missing object in the bucket", Object.assign(new Error("gone"), { name: "NoSuchKey" })],
+    ["a 404 answer from the bucket", { $metadata: { httpStatusCode: 404 } }],
+  ])("recognises %s", (_label, error) => {
+    expect(isMissingFileError(error)).toBe(true);
+  });
+
+  it.each([
+    ["another disk error", Object.assign(new Error("denied"), { code: "EACCES" })],
+    ["a bucket answer that is not a 404", { $metadata: { httpStatusCode: 500 } }],
+    ["a plain error", new Error("boom")],
+    ["something that is not an object", "ENOENT"],
+    ["nothing", null],
+  ])("does not mistake %s for a missing file", (_label, error) => {
+    expect(isMissingFileError(error)).toBe(false);
   });
 });

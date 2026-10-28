@@ -1,8 +1,11 @@
+import { createHash, timingSafeEqual } from "node:crypto";
+
 import { getServerSession } from "next-auth";
 
 import type { AdminModuleKey } from "@/lib/api/types";
 import { HttpError, unauthorized } from "@/lib/api/httpError";
 import { authOptions } from "@/lib/domains/auth/services/auth";
+import { logger } from "@/lib/logger";
 import { getEventRulesState, isEventMember } from "@/lib/domains/event/services/event";
 import { canSubmitProposals, resolveMemberModules } from "@/lib/domains/event/rules/eventRules";
 
@@ -40,11 +43,14 @@ export async function requireEventAccess(eventId: string, user: SessionUser): Pr
 
 /** Acesso ao evento mais a área estar aberta aos membros na fase atual (ver `eventRules`). */
 export async function requireModule(eventId: string, user: SessionUser, module: AdminModuleKey): Promise<void> {
-  await requireEventAccess(eventId, user);
   if (user.isAdmin) return;
 
+  // Não dependem uma da outra: pedem-se juntas, uma ida a menos à base de dados em cada pedido.
+  const [isMember, rulesState] = await Promise.all([isEventMember(eventId, user.id), getEventRulesState(eventId)]);
+  if (!isMember) throw new HttpError(403, "NOT_A_MEMBER", "You are not a member of this event.");
+
   // A mesma regra de fase que o overview mostra na UI, aplicada aqui no servidor.
-  if (!resolveMemberModules(await getEventRulesState(eventId))[module]) {
+  if (!resolveMemberModules(rulesState)[module]) {
     throw new HttpError(403, "MODULE_DISABLED", "Module not available.");
   }
 }
@@ -57,4 +63,20 @@ export async function requireProposalsOpen(eventId: string, user: SessionUser): 
   if (!canSubmitProposals(await getEventRulesState(eventId))) {
     throw new HttpError(409, "PROPOSALS_CLOSED", "Proposals are closed in this phase.");
   }
+}
+
+/** Compara dois textos em tempo constante, para o tempo de resposta não revelar quantos carateres do segredo estão certos. */
+function isSameSecret(sent: string, expected: string) {
+  const digest = (value: string) => createHash("sha256").update(value).digest();
+  return timingSafeEqual(digest(sent), digest(expected));
+}
+
+/** Exige o segredo do cron (`Authorization: Bearer $CRON_SECRET`, como a Vercel o envia); sem segredo configurado recusa toda a gente. */
+export function requireCronSecret(request: Request): void {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    logger.error("CRON_SECRET is not set: refusing a cron request.");
+    throw unauthorized();
+  }
+  if (!isSameSecret(request.headers.get("authorization") ?? "", `Bearer ${secret}`)) throw unauthorized();
 }

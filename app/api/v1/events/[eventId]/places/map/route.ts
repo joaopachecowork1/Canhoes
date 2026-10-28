@@ -1,4 +1,5 @@
 import { requireEventAccess, requireUser } from "@/lib/api/guards";
+import { enforceRateLimit } from "@/lib/api/rateLimit";
 import { apiRoute } from "@/lib/api/route";
 import { getStaticMapUrl } from "@/lib/domains/gatherings/services/placesService";
 
@@ -15,6 +16,8 @@ function parseCoordinates(latParam: string | null, lngParam: string | null): { l
 
 /** GET /v1/events/:eventId/places/map?lat=...&lng=...: proxy seguro com cache da imagem estática de mapa */
 export const GET = apiRoute<{ eventId: string }>(async (request, { eventId }) => {
+  // Cada pedido que chega ao Google é pago, por isso um cliente não pode pedi-los em ciclo.
+  enforceRateLimit(request, "standard");
   const user = await requireUser();
   await requireEventAccess(eventId, user);
 

@@ -9,6 +9,6 @@ export const POST = apiRoute<{ eventId: string; gatheringId: string }>(async (re
   await requireEventAccess(eventId, user);
 
   const { dateText } = await readJson(request, ConfirmGatheringDateSchema);
-  const gathering = await confirmGatheringDate(gatheringId, dateText, user.id);
+  const gathering = await confirmGatheringDate({ eventId, gatheringId }, dateText, user.id);
   return json(gathering);
 });

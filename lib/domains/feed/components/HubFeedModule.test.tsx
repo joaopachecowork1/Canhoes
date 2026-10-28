@@ -3,7 +3,7 @@ import { http, HttpResponse } from "msw";
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { comment, member, post } from "@/tests/component/fixtures";
+import { comment, post } from "@/tests/component/fixtures";
 import { makeEventContext } from "@/tests/component/eventContext";
 import { renderWithProviders } from "@/tests/component/renderWithProviders";
 import { server } from "@/tests/component/server";
@@ -22,15 +22,7 @@ const context = makeEventContext({ modules: { feed: true } });
 const POSTS = "*/api/v1/events/event-1/feed/posts";
 
 function servePosts(posts: ReturnType<typeof post>[], { hasMore = false, total = posts.length } = {}) {
-  server.use(
-    http.get(POSTS, () => HttpResponse.json({ items: posts, total, skip: 0, take: 15, hasMore })),
-    http.get("*/api/v1/events/event-1/members", () =>
-      HttpResponse.json([
-        member({ id: "ana", displayName: "Ana" }),
-        member({ id: "rui", displayName: "Rui Costa", color: "pink" }),
-      ]),
-    ),
-  );
+  server.use(http.get(POSTS, () => HttpResponse.json({ items: posts, total, skip: 0, take: 15, hasMore })));
 }
 
 /** The score between the up and down arrows of the (only) post. */
@@ -52,15 +44,13 @@ describe("HubFeedModule", () => {
     expect(screen.getByRole("button", { name: "2 comentários" })).toBeInTheDocument();
   });
 
-  it("shows the group's cromos and opens the composer from the empty slot", async () => {
+  it("opens the composer from the empty slot", async () => {
     servePosts([]);
     const onOpenCompose = vi.fn();
     globalThis.addEventListener(OPEN_COMPOSE_SHEET_EVENT, onOpenCompose);
     renderFeed();
 
-    const strip = await screen.findByRole("list", { name: "Membros" });
-    expect(await within(strip).findByText("Rui Costa")).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Cola aqui a tua publicação" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Cola aqui a tua publicação" }));
 
     expect(onOpenCompose).toHaveBeenCalledOnce();
     globalThis.removeEventListener(OPEN_COMPOSE_SHEET_EVENT, onOpenCompose);

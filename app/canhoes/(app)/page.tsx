@@ -12,7 +12,13 @@ const HubFeedModule = dynamic(
   { loading: () => <FeedSkeleton /> },
 );
 
-/** Página inicial: painel do evento e mural, com a primeira página de posts já carregada no servidor. */
+/** Faixa de stories noutro chunk; reserva a altura da faixa enquanto chega, para o mural não saltar. */
+const StoriesModule = dynamic(
+  () => import("@/lib/domains/stories/components/StoriesModule").then((module) => ({ default: module.StoriesModule })),
+  { loading: () => <div className="h-28" aria-hidden="true" /> },
+);
+
+/** Página inicial: painel do evento, stories e mural, com a primeira página de posts já carregada no servidor. */
 export default async function CanhoesPage() {
   const activeContext = await canhoesServerFetch<EventActiveContextDto>("events/active/context");
   const firstPage = activeContext
@@ -27,6 +33,7 @@ export default async function CanhoesPage() {
     <EventModuleGate moduleKey="feed">
       <div className="mx-auto w-full max-w-2xl space-y-6">
         <CanhoesHomeDashboard context={activeContext} />
+        <StoriesModule initialContext={activeContext ?? undefined} />
         <HubFeedModule initialData={initialData} initialContext={activeContext ?? undefined} />
       </div>
     </EventModuleGate>

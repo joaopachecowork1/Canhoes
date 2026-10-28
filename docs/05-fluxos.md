@@ -153,3 +153,30 @@ sequenceDiagram
   Posts->>DB: HubPost + sondagem + liga as imagens ao post
   Posts-->>Membro: 201 post criado
 ```
+
+## Stories de 24 horas
+
+```mermaid
+sequenceDiagram
+  actor Membro
+  participant API as POST /stories
+  participant Store as R2 (ou UPLOADS_DIR)
+  participant DB as PostgreSQL
+  participant Media as GET /stories/:id/media
+  participant Cron as Vercel Cron (diário)
+
+  Membro->>API: imagem já comprimida no browser (multipart, até 4 MB)
+  API->>Store: valida tipo e assinatura, grava em stories/<eventId>/
+  API->>DB: lock por membro e evento, conta as ativas (máx. 10), cria a Story
+  Note over API,Store: se a linha falhar, o ficheiro é apagado
+  API-->>Membro: 201 { id, expiresAtUtc }
+  Membro->>Media: <img src=mediaUrl> (sessão, sem cache)
+  Media->>DB: só se pertence ao evento, não expirou e o autor ainda está nele
+  Media-->>Membro: a imagem, Cache-Control: private, no-store
+  Cron->>Store: apaga os ficheiros expirados
+  Cron->>DB: depois apaga as linhas (uma falha repete-se no dia seguinte)
+```
+
+A faixa de stories do mural mostra o grupo todo: primeiro quem tem stories (com um anel na sua cor), depois os restantes membros. O visualizador avança sozinho a cada 5 segundos, exceto com `prefers-reduced-motion`, em que só avança ao tocar. `/uploads/stories/*` devolve 404: a imagem só se vê pela rota do evento.
+
+No cliente, a lista de stories atualiza-se de 3 em 3 minutos e quando o separador volta a ser visto. Antes de enviar, a imagem é sempre recodificada no navegador (WebP ou JPEG, lado maior até 1600 px), o que tira os metadados da foto (GPS, EXIF); se o navegador não conseguir, a story não se publica, em vez de enviar o original. Os GIF são recusados. O envio tem um limite de 60 segundos. Ao publicar, saem também as stories já expiradas do próprio autor, para que instalações sem cron (Docker, local) não acumulem ficheiros dele.

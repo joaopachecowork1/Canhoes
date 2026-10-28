@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { getErrorMessage } from "@/lib/errors";
+import { formatMessage } from "@/lib/messages";
 import { queryKeys } from "@/lib/queryKeys";
 import { adminRepo } from "@/lib/repositories/adminRepo";
 import messages from "@/messages/pt.json";
@@ -125,7 +126,9 @@ export function AdminInviteUser({ eventId }: { eventId: string }) {
       if (result.emailSent) {
         toast.success(copy.sentAndGenerated);
       } else {
-        const warningMsg = result.emailReason ? `${copy.generatedOnly}: ${result.emailReason}` : copy.generatedOnly;
+        const warningMsg = result.emailReason
+          ? formatMessage(copy.generatedOnlyWithReason, { reason: result.emailReason })
+          : copy.generatedOnly;
         toast.warning(warningMsg);
       }
       void queryClient.invalidateQueries({ queryKey: queryKeys.admin.invites(eventId) });

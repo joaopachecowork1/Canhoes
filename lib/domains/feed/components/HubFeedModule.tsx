@@ -10,7 +10,6 @@ import { useAuth, useIsAdmin } from "@/components/providers/AuthContext";
 import { ErrorAlert } from "@/components/ui/error-alert";
 import { FeedComposeSlot } from "./FeedComposeSlot";
 import { HubFeedList } from "./HubFeedList";
-import { MemberCromoStrip } from "./MemberCromoStrip";
 import { useFeedInfiniteScroll } from "../hooks/useFeedInfiniteScroll";
 import type { FeedInfiniteData } from "../hooks/feedInfiniteData";
 import messages from "@/messages/pt.json";
@@ -78,7 +77,7 @@ function HubFeedStateList({ state }: Readonly<{ state: HubFeedState }>) {
   );
 }
 
-/** A estrutura visual do mural: cromos dos membros, espaço para publicar, erro e lista. */
+/** A estrutura visual do mural: espaço para publicar, erro e lista. */
 function HubFeedModuleView({ state }: Readonly<{ state: HubFeedState }>) {
   const { errorMessage, refresh } = state;
   const handleRetry = useCallback(() => void refresh(), [refresh]);
@@ -86,7 +85,6 @@ function HubFeedModuleView({ state }: Readonly<{ state: HubFeedState }>) {
   return (
     <div className="mx-auto w-full max-w-2xl space-y-4 px-1 sm:px-0">
       <h1 className="sr-only">{copy.title}</h1>
-      <MemberCromoStrip eventId={state.eventId} />
       <FeedComposeSlot />
       {errorMessage ? (
         <ErrorAlert

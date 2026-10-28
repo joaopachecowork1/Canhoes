@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { isAcceptedImage, normalizeUploadImage } from "./composeUpload";
+import { isAcceptedImage, normalizeUploadImage } from "./uploadImage";
 
 const MB = 1024 * 1024;
 
@@ -86,6 +86,37 @@ describe("normalizeUploadImage", () => {
     stubCanvas({ encodedSize: 6 * MB });
     const large = fileOf("praia.png", "image/png", 5 * MB);
     expect(await normalizeUploadImage(large)).toBe(large);
+  });
+
+  it("re-encodes even a small image when asked, so the photo metadata (GPS, EXIF) is dropped", async () => {
+    stubCanvas({ encodedSize: MB / 2 });
+    const small = fileOf("a.jpg", "image/jpeg", MB);
+
+    expect(await normalizeUploadImage(small, { alwaysReencode: true })).toMatchObject({ name: "a.webp", size: MB / 2 });
+  });
+
+  it("re-encodes when asked even if the result is not smaller, since the metadata still has to go", async () => {
+    stubCanvas({ encodedSize: 2 * MB });
+    const small = fileOf("a.jpg", "image/jpeg", MB);
+
+    expect(await normalizeUploadImage(small, { alwaysReencode: true })).toMatchObject({ name: "a.webp", size: 2 * MB });
+  });
+
+  it("refuses to send the original when asked to re-encode and the browser cannot, so the metadata never leaves", async () => {
+    const small = fileOf("a.jpg", "image/jpeg", MB);
+
+    stubCanvas({ encodedSize: MB, hasContext: false });
+    await expect(normalizeUploadImage(small, { alwaysReencode: true })).rejects.toThrow();
+
+    vi.restoreAllMocks();
+    stubCanvas({ encodedSize: null });
+    await expect(normalizeUploadImage(small, { alwaysReencode: true })).rejects.toThrow();
+
+    vi.stubGlobal(
+      "createImageBitmap",
+      vi.fn(async () => Promise.reject(new Error("decode"))),
+    );
+    await expect(normalizeUploadImage(small, { alwaysReencode: true })).rejects.toThrow();
   });
 
   it("keeps the original when the browser cannot draw or encode it", async () => {
